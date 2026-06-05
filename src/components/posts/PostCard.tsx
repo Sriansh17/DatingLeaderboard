@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { formatRelativeTime, getScoreColor } from '@/lib/utils/format';
+import { Avatar } from '@/components/ui/Avatar';
 import { Heart, Sparkles } from 'lucide-react';
 import type { Post } from '@/types/database';
 
@@ -31,9 +32,14 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               {post.partner && (
-                <Badge variant="info">
-                  {post.partner.emoji} {post.partner.name}
-                </Badge>
+                <span className="inline-flex items-center gap-1.5">
+                  {post.partner.avatar_url ? (
+                    <Avatar src={post.partner.avatar_url} alt={post.partner.name} size="sm" />
+                  ) : (
+                    <span>{post.partner.emoji}</span>
+                  )}
+                  <Badge variant="info">{post.partner.name}</Badge>
+                </span>
               )}
               <span className="text-xs text-gray-400">
                 {formatRelativeTime(post.created_at)}

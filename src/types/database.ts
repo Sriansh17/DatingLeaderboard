@@ -17,6 +17,7 @@ export interface Partner {
   name: string;
   relationship: 'spouse' | 'partner' | 'boyfriend' | 'girlfriend' | 'other';
   emoji: string;
+  avatar_url: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

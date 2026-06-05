@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils/cn';
+import { Avatar } from '@/components/ui/Avatar';
 import type { Partner } from '@/types/database';
 
 interface PartnerSelectProps {
@@ -31,7 +32,11 @@ export function PartnerSelect({ partners, selectedId, onSelect, className }: Par
               : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
           )}
         >
-          <span className="text-2xl">{partner.emoji}</span>
+          {partner.avatar_url ? (
+            <Avatar src={partner.avatar_url} alt={partner.name} size="sm" className="mx-auto" />
+          ) : (
+            <span className="text-2xl">{partner.emoji}</span>
+          )}
           <p className="text-sm font-medium mt-1 truncate">{partner.name}</p>
         </button>
       ))}

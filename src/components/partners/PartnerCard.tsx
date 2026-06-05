@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/Card';
+import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { formatRelativeTime } from '@/lib/utils/format';
@@ -23,7 +24,11 @@ export function PartnerCard({ partner, onDelete }: PartnerCardProps) {
   return (
     <Card className="flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <span className="text-3xl">{partner.emoji}</span>
+        {partner.avatar_url ? (
+          <Avatar src={partner.avatar_url} alt={partner.name} size="md" />
+        ) : (
+          <span className="text-3xl">{partner.emoji}</span>
+        )}
         <div>
           <h3 className="font-semibold text-gray-900 dark:text-gray-100">{partner.name}</h3>
           <div className="flex items-center gap-2 mt-1">
