@@ -16,7 +16,7 @@ import { Heart, PlusCircle, Trophy, Flame } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, profile } = useUser();
-  const { data: posts, isLoading } = usePosts();
+  const { data: posts, isLoading } = usePosts(user?.id);
   const [partnerCount, setPartnerCount] = useState(0);
   const [avgScore, setAvgScore] = useState(0);
 

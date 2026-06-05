@@ -12,7 +12,7 @@ import { useState, useEffect, useMemo } from 'react';
 
 export default function ProfilePage() {
   const { user, profile, loading: authLoading } = useUser();
-  const { data: posts } = usePosts();
+  const { data: posts } = usePosts(user?.id);
   const [partnerCount, setPartnerCount] = useState(0);
 
   useEffect(() => {

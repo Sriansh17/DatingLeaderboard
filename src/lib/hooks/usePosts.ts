@@ -7,12 +7,17 @@ import type { CreatePostPayload, AIScoreResult } from '@/types/api';
 
 const supabase = createClient();
 
-async function fetchPosts(): Promise<Post[]> {
-  const { data, error } = await supabase
+async function fetchPosts(userId?: string): Promise<Post[]> {
+  let query = supabase
     .from('posts')
     .select('*, partner:partners(*)')
     .order('created_at', { ascending: false });
 
+  if (userId) {
+    query = query.eq('user_id', userId);
+  }
+
+  const { data, error } = await query;
   if (error) throw error;
   return data || [];
 }
@@ -58,10 +63,10 @@ async function createPost(payload: CreatePostPayload & { user_id: string }) {
   return { post: data, aiResult };
 }
 
-export function usePosts() {
+export function usePosts(userId?: string) {
   return useQuery({
-    queryKey: ['posts'],
-    queryFn: fetchPosts,
+    queryKey: ['posts', userId],
+    queryFn: () => fetchPosts(userId),
   });
 }
 
