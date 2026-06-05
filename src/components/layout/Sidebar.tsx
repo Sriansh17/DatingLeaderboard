@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
-import { Heart, Trophy, PlusCircle, Users, User, Settings, LayoutDashboard } from 'lucide-react';
+import { Heart, Trophy, PlusCircle, Users, User, Settings, LayoutDashboard, Mail } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -11,6 +11,7 @@ const navItems = [
   { href: '/posts/new', label: 'New Post', icon: PlusCircle },
   { href: '/partners', label: 'Partners', icon: Users },
   { href: '/profile', label: 'Profile', icon: User },
+  { href: '/contact', label: 'Contact', icon: Mail },
   { href: '/settings', label: 'Settings', icon: Settings },
 ];
 

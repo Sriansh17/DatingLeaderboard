@@ -1,4 +1,5 @@
-import { Heart } from 'lucide-react';
+import Link from 'next/link';
+import { Heart, Mail } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -10,9 +11,12 @@ export function Footer() {
             <span>LoveBoard — Share & Score Love</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-gray-400 dark:text-gray-500">
-            <span>Version 1.0.0</span>
+            <Link href="/contact" className="hover:text-pink-500 transition-colors flex items-center gap-1">
+              <Mail className="h-3.5 w-3.5" />
+              Contact
+            </Link>
             <span className="hidden sm:inline">•</span>
-            <span>Made with ❤️ for couples everywhere</span>
+            <span>Made with ❤️</span>
           </div>
         </div>
       </div>

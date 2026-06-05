@@ -23,9 +23,7 @@ export async function GET(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  await supabase.auth.getUser();
 
   return supabaseResponse;
 }

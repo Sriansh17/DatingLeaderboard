@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
-import { Heart, Menu, X } from 'lucide-react';
+import { Heart, Menu, X, Mail } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 
@@ -45,6 +45,13 @@ export function Navbar() {
                   className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
                 >
                   New Post
+                </Link>
+                <Link
+                  href="/contact"
+                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
+                >
+                  <Mail className="h-4 w-4 inline mr-1" />
+                  Contact
                 </Link>
                 <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200 dark:border-gray-800">
                   <Link href="/profile" className="flex items-center gap-2">
@@ -94,6 +101,7 @@ export function Navbar() {
               <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
               <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>New Post</Link>
               <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Partners</Link>
+              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Contact</Link>
               <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Profile</Link>
               <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Sign Out</button>
             </>
