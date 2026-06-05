@@ -1,32 +1,52 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { PostCard } from '@/components/posts/PostCard';
-import { Spinner } from '@/components/ui/Spinner';
+import { Card } from '@/components/ui/Card';
 import { createClient } from '@/lib/supabase/client';
 import { Heart, Compass, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import type { Post } from '@/types/database';
 
-export default function DashboardPage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+function ExploreSkeleton() {
+  return (
+    <div className="space-y-4 animate-pulse">
+      {[1, 2, 3].map((i) => (
+        <Card key={i} className="!p-4">
+          <div className="flex items-start gap-4">
+            <div className="w-14 h-14 rounded-2xl bg-gray-200 dark:bg-gray-700" />
+            <div className="flex-1 space-y-2">
+              <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-3 w-full bg-gray-200 dark:bg-gray-700 rounded" />
+              <div className="h-3 w-3/4 bg-gray-200 dark:bg-gray-700 rounded" />
+            </div>
+          </div>
+        </Card>
+      ))}
+    </div>
+  );
+}
 
-  useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('posts')
-      .select('*, partner:partners(*), profile:profiles(*)')
-      .eq('is_public', true)
-      .not('ai_score', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
-        setPosts(data || []);
-        setLoading(false);
-      });
-  }, []);
+async function fetchExplorePosts(): Promise<Post[]> {
+  const supabase = createClient();
+  const { data } = await supabase
+    .from('posts')
+    .select('*, partner:partners(*), profile:profiles(*)')
+    .eq('is_public', true)
+    .not('ai_score', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(25);
+
+  return data || [];
+}
+
+export default function DashboardPage() {
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ['explore-posts'],
+    queryFn: fetchExplorePosts,
+    staleTime: 30_000, // cache for 30s
+  });
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -48,11 +68,9 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Spinner size="lg" />
-        </div>
-      ) : posts.length === 0 ? (
+      {isLoading ? (
+        <ExploreSkeleton />
+      ) : !posts || posts.length === 0 ? (
         <div className="text-center py-20">
           <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
