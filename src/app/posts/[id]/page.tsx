@@ -1,0 +1,135 @@
+'use client';
+
+import { useParams, useRouter } from 'next/navigation';
+import { usePost } from '@/lib/hooks/usePosts';
+import { Spinner } from '@/components/ui/Spinner';
+import { Button } from '@/components/ui/Button';
+import { Badge } from '@/components/ui/Badge';
+import { Card } from '@/components/ui/Card';
+import { formatRelativeTime, getScoreColor, getScoreBgColor } from '@/lib/utils/format';
+import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
+import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/ui/Toast';
+
+export default function PostDetailPage() {
+  const params = useParams();
+  const router = useRouter();
+  const { user } = useUser();
+  const { addToast } = useToast();
+  const { data: post, isLoading } = usePost(params.id as string);
+
+  const handleDelete = async () => {
+    if (!confirm('Delete this post?')) return;
+    const supabase = createClient();
+    await supabase.from('posts').delete().eq('id', params.id);
+    addToast('Post deleted', 'success');
+    router.push('/dashboard');
+  };
+
+  if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
+
+  const scoreColor = post.ai_score ? getScoreColor(post.ai_score) : 'text-gray-400';
+  const scoreBg = post.ai_score ? getScoreBgColor(post.ai_score) : 'bg-gray-300';
+  let breakdown: Record<string, number> = {};
+  try {
+    if (post.ai_explanation) breakdown = JSON.parse(post.ai_explanation);
+  } catch {}
+
+  return (
+    <div className="max-w-lg mx-auto space-y-6">
+      <button
+        onClick={() => router.back()}
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </button>
+
+      {/* Score Hero */}
+      <div className="text-center py-8">
+        <div className={`w-24 h-24 rounded-3xl ${scoreBg} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+          <span className="text-3xl font-bold text-white">{post.ai_score || '?'}</span>
+        </div>
+        <h1 className={`text-2xl font-bold ${scoreColor}`}>
+          {post.ai_score ? `${post.ai_score}/100` : 'Not yet scored'}
+        </h1>
+        {post.partner && (
+          <p className="text-gray-500 mt-1">
+            {post.partner.emoji} {post.partner.name}
+          </p>
+        )}
+      </div>
+
+      {/* AI Feedback */}
+      {post.ai_feedback && (
+        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-800">
+          <div className="flex items-center gap-2 mb-2">
+            <Sparkles className="h-5 w-5 text-pink-500" />
+            <span className="font-semibold text-pink-600 dark:text-pink-400">LoveScore AI</span>
+          </div>
+          <p className="text-gray-700 dark:text-gray-300 italic">{post.ai_feedback}</p>
+        </Card>
+      )}
+
+      {/* Description */}
+      <Card>
+        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{post.description}</p>
+        <div className="flex items-center gap-2 mt-4 text-xs text-gray-400">
+          <span>{formatRelativeTime(post.created_at)}</span>
+          <span>•</span>
+          <Badge variant={post.is_public ? 'success' : 'default'}>
+            {post.is_public ? 'Public' : 'Private'}
+          </Badge>
+        </div>
+      </Card>
+
+      {/* Breakdown */}
+      {Object.keys(breakdown).length > 0 && (
+        <Card>
+          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Score Breakdown</h3>
+          <div className="space-y-3">
+            {Object.entries(breakdown).map(([key, value]) => (
+              <div key={key} className="flex items-center gap-3">
+                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize w-32">
+                  {key.replace('_', ' ')}
+                </span>
+                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-1000"
+                    style={{ width: `${(value / getMax(key)) * 100}%` }}
+                  />
+                </div>
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-8 text-right">
+                  {value}
+                </span>
+              </div>
+            ))}
+          </div>
+        </Card>
+      )}
+
+      {/* Actions */}
+      {user && post.user_id === user.id && (
+        <div className="flex justify-end">
+          <Button variant="ghost" size="sm" onClick={handleDelete}>
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function getMax(key: string): number {
+  const maxes: Record<string, number> = {
+    thoughtfulness: 30,
+    romance: 20,
+    effort: 25,
+    uniqueness: 15,
+    emotional_impact: 10,
+  };
+  return maxes[key] || 30;
+}
