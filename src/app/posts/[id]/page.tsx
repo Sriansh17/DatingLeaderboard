@@ -11,7 +11,9 @@ import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
 import { ShareCard } from '@/components/posts/ShareCard';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
+import { useMemo } from 'react';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -19,6 +21,14 @@ export default function PostDetailPage() {
   const { user } = useUser();
   const { addToast } = useToast();
   const { data: post, isLoading } = usePost(params.id as string);
+
+  const { data: globalLeaderboard } = useLeaderboard({ type: 'global', limit: 100 });
+
+  const authorRank = useMemo(() => {
+    if (!globalLeaderboard || !post) return undefined;
+    const entry = globalLeaderboard.find((e) => e.user_id === post.user_id);
+    return entry?.rank;
+  }, [globalLeaderboard, post]);
 
   const handleDelete = async () => {
     if (!confirm('Delete this post?')) return;
@@ -59,6 +69,11 @@ export default function PostDetailPage() {
         {post.partner && (
           <p className="text-gray-500 mt-1">
             {post.partner.emoji} {post.partner.name}
+          </p>
+        )}
+        {authorRank && (
+          <p className="text-sm text-pink-500 font-medium mt-1">
+            Ranked #{authorRank} globally 🏆
           </p>
         )}
       </div>
@@ -114,7 +129,7 @@ export default function PostDetailPage() {
       {/* Actions */}
       {user && post.user_id === user.id && (
         <div className="flex items-center justify-between">
-          <ShareCard post={post} />
+          <ShareCard post={post} rank={authorRank} />
           <Button variant="ghost" size="sm" onClick={handleDelete}>
             <Trash2 className="h-4 w-4" />
             Delete
@@ -123,7 +138,7 @@ export default function PostDetailPage() {
       )}
       {(!user || post.user_id !== user.id) && (
         <div className="flex justify-start">
-          <ShareCard post={post} />
+          <ShareCard post={post} rank={authorRank} />
         </div>
       )}
     </div>
