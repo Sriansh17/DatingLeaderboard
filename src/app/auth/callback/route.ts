@@ -10,9 +10,14 @@ export async function GET(request: Request) {
     const supabase = await createServerSupabaseClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`);
+      const response = NextResponse.redirect(`${origin}${next}`);
+      // Ensure the host URL matches the app URL for CORS
+      response.headers.set('x-forwarded-host', new URL(origin).host);
+      return response;
     }
   }
 
-  return NextResponse.redirect(`${origin}/auth/login?error=auth_callback_error`);
+  const errorUrl = new URL('/auth/login', origin);
+  errorUrl.searchParams.set('error', 'auth_callback_error');
+  return NextResponse.redirect(errorUrl);
 }
