@@ -39,7 +39,7 @@ export default function LeaderboardsPage() {
       <div>
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Leaderboards 🏆</h1>
         <p className="text-sm text-gray-500 mt-1">
-          See who has the most thoughtful partners! Minimum 3 posts to qualify.
+          See who has the most thoughtful partners! Minimum 1 post to qualify.
         </p>
       </div>
 

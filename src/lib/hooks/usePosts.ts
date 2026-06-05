@@ -41,7 +41,12 @@ async function createPost(payload: CreatePostPayload & { user_id: string }) {
     body: JSON.stringify({ description: payload.description }),
   });
 
-  if (!scoreResponse.ok) throw new Error('Failed to get AI score');
+  if (!scoreResponse.ok) {
+    const errData = await scoreResponse.json().catch(() => ({}));
+    const error = new Error(errData.error || 'Failed to get AI score');
+    (error as any).flagged = errData.flagged;
+    throw error;
+  }
   const aiResult: AIScoreResult = await scoreResponse.json();
 
   // Then, create the post with the score

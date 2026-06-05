@@ -22,6 +22,13 @@ export async function POST(request: Request) {
 
     const result: AIScoreResult = await scorePost(description);
 
+    if (result.flagged) {
+      return NextResponse.json(
+        { success: false, flagged: true, error: result.flag_reason || 'This post was flagged as invalid or unrealistic.' },
+        { status: 400 }
+      );
+    }
+
     return NextResponse.json({ success: true, ...result });
   } catch (error) {
     console.error('AI Score API error:', error);
