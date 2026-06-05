@@ -2,9 +2,10 @@
 
 import { useUser } from '@/components/providers/AuthProvider';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
+import { ProfileStats } from '@/components/profile/ProfileStats';
+import { PostFeed } from '@/components/posts/PostFeed';
 import { Spinner } from '@/components/ui/Spinner';
 import { usePosts } from '@/lib/hooks/usePosts';
-import { PostCard } from '@/components/posts/PostCard';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 
@@ -22,9 +23,12 @@ export default function ProfilePage() {
 
   if (authLoading || !profile) return <Spinner size="lg" className="mx-auto mt-20" />;
 
-  const avgScore = posts && posts.length > 0
-    ? Math.round(posts.filter((p) => p.ai_score).reduce((a, b) => a + (b.ai_score || 0), 0) / posts.filter((p) => p.ai_score).length)
+  const scoredPosts = posts?.filter((p) => p.ai_score) || [];
+  const avgScore = scoredPosts.length > 0
+    ? Math.round(scoredPosts.reduce((a, b) => a + (b.ai_score || 0), 0) / scoredPosts.length)
     : 0;
+  const totalScore = scoredPosts.reduce((a, b) => a + (b.ai_score || 0), 0);
+  const bestScore = scoredPosts.length > 0 ? Math.max(...scoredPosts.map((p) => p.ai_score || 0)) : 0;
 
   return (
     <div className="max-w-lg mx-auto space-y-6">
@@ -35,17 +39,22 @@ export default function ProfilePage() {
         averageScore={avgScore}
       />
 
+      <ProfileStats
+        postCount={posts?.length || 0}
+        partnerCount={partnerCount}
+        averageScore={avgScore}
+        totalScore={totalScore}
+        bestScore={bestScore}
+      />
+
       <div>
         <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-4">Recent Posts</h2>
-        {posts && posts.length > 0 ? (
-          <div className="space-y-3">
-            {posts.slice(0, 5).map((post) => (
-              <PostCard key={post.id} post={post} />
-            ))}
-          </div>
-        ) : (
-          <p className="text-center text-gray-500 py-8">No posts yet</p>
-        )}
+        <PostFeed
+          posts={posts?.slice(0, 5)}
+          showCreateButton={false}
+          emptyTitle="No posts yet"
+          emptyDescription="Share your first appreciation post to get scored!"
+        />
       </div>
     </div>
   );

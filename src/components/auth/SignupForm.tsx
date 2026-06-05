@@ -50,14 +50,6 @@ export function SignupForm() {
     router.push('/auth/login');
   };
 
-  const handleOAuth = async (provider: 'google' | 'github') => {
-    const supabase = createClient();
-    await supabase.auth.signInWithOAuth({
-      provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Input
@@ -90,24 +82,6 @@ export function SignupForm() {
       <Button type="submit" loading={loading} className="w-full">
         Create Account
       </Button>
-
-      <div className="relative my-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-gray-300 dark:border-gray-700" />
-        </div>
-        <div className="relative flex justify-center text-xs">
-          <span className="bg-white dark:bg-gray-950 px-2 text-gray-500">or continue with</span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <Button type="button" variant="outline" onClick={() => handleOAuth('google')}>
-          Google
-        </Button>
-        <Button type="button" variant="outline" onClick={() => handleOAuth('github')}>
-          GitHub
-        </Button>
-      </div>
     </form>
   );
 }
