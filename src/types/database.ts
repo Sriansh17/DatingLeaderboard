@@ -48,6 +48,8 @@ export interface LeaderboardEntry {
   average_score: number;
   total_posts: number;
   top_partner_name: string;
+  top_partner_avatar: string | null;
+  top_partner_emoji: string;
 }
 
 export interface LeaderboardCache {

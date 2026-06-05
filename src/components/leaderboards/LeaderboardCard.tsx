@@ -18,15 +18,19 @@ export function LeaderboardCard({ entry }: LeaderboardCardProps) {
         <span className="text-lg font-bold">{getRankEmoji(entry.rank)}</span>
       </div>
 
-      {/* Avatar & Name */}
+      {/* Partner Avatar & Name */}
       <div className="flex items-center gap-3 flex-1 min-w-0">
-        <Avatar src={entry.avatar_url} alt={entry.username} size="md" />
+        {entry.top_partner_avatar ? (
+          <Avatar src={entry.top_partner_avatar} alt={entry.top_partner_name} size="md" />
+        ) : (
+          <span className="text-2xl">{entry.top_partner_emoji}</span>
+        )}
         <div className="min-w-0">
           <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-            {entry.full_name || entry.username}
+            {entry.top_partner_name}
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-            ❤️ {entry.top_partner_name}
+            by {entry.full_name || entry.username}
           </p>
         </div>
       </div>
