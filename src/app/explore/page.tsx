@@ -4,12 +4,10 @@ import { useState, useEffect } from 'react';
 import { PostCard } from '@/components/posts/PostCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { createClient } from '@/lib/supabase/client';
-import { Heart, Compass, PlusCircle } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
-import Link from 'next/link';
+import { Heart, Compass } from 'lucide-react';
 import type { Post } from '@/types/database';
 
-export default function DashboardPage() {
+export default function ExplorePage() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -30,22 +28,14 @@ export default function DashboardPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
-            <Compass className="h-5 w-5 text-white" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Explore</h1>
-            <p className="text-sm text-gray-500">See what others are appreciating ❤️</p>
-          </div>
+      <div className="flex items-center gap-3">
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
+          <Compass className="h-5 w-5 text-white" />
         </div>
-        <Link href="/posts/new">
-          <Button size="sm">
-            <PlusCircle className="h-4 w-4" />
-            New Post
-          </Button>
-        </Link>
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Explore</h1>
+          <p className="text-sm text-gray-500">See what others are appreciating ❤️</p>
+        </div>
       </div>
 
       {loading ? (
@@ -58,24 +48,21 @@ export default function DashboardPage() {
           <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
             No public posts yet
           </h3>
-          <p className="text-gray-500 text-sm mb-6">
+          <p className="text-gray-500 text-sm">
             Be the first to share an appreciation post!
           </p>
-          <Link href="/posts/new">
-            <Button>Share Your First Post</Button>
-          </Link>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {posts.map((post) => (
             <div key={post.id}>
               {post.profile && (
                 <div className="flex items-center gap-2 mb-1.5 px-1">
-                  <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <span className="text-xs text-gray-400">
                     {post.profile.full_name || post.profile.username}
                   </span>
-                  <span className="text-xs text-gray-400">→</span>
-                  <span className="text-sm text-gray-500">
+                  <span className="text-xs text-gray-300">•</span>
+                  <span className="text-xs text-gray-400">
                     {post.partner?.emoji} {post.partner?.name}
                   </span>
                 </div>

@@ -12,10 +12,12 @@ import {
   Settings,
   LayoutDashboard,
   Mail,
+  Compass,
 } from 'lucide-react';
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/explore', label: 'Explore', icon: Compass },
   { href: '/leaderboards', label: 'Leaderboards', icon: Trophy },
   { href: '/posts/new', label: 'New Post', icon: PlusCircle },
   { href: '/partners', label: 'Partners', icon: Users },
