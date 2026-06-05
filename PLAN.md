@@ -364,7 +364,7 @@ NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_xxx...
 RAZORPAY_KEY_SECRET=xxx...
 
 # App
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+NEXT_PUBLIC_APP_URL=http://localhost:3001
 ```
 
 ---

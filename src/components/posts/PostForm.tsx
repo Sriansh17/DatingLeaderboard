@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/Button';
 import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/components/ui/Toast';
+import { Modal } from '@/components/ui/Modal';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
-import { Sparkles, Heart } from 'lucide-react';
+import { Sparkles, Heart, ShieldAlert } from 'lucide-react';
 
 interface PostFormProps {
   partners: Partner[];
@@ -20,6 +21,8 @@ export function PostForm({ partners, userId }: PostFormProps) {
   const [partnerId, setPartnerId] = useState(partners[0]?.id || '');
   const [isPublic, setIsPublic] = useState(true);
   const [aiResult, setAiResult] = useState<AIScoreResult | null>(null);
+  const [showFlaggedModal, setShowFlaggedModal] = useState(false);
+  const [flaggedReason, setFlaggedReason] = useState('');
   const router = useRouter();
   const { addToast } = useToast();
   const createPost = useCreatePost();
@@ -37,17 +40,26 @@ export function PostForm({ partners, userId }: PostFormProps) {
       return;
     }
 
-    const result = await createPost.mutateAsync({
-      user_id: userId,
-      partner_id: partnerId,
-      description: description.trim(),
-      is_public: isPublic,
-    });
+    try {
+      const result = await createPost.mutateAsync({
+        user_id: userId,
+        partner_id: partnerId,
+        description: description.trim(),
+        is_public: isPublic,
+      });
 
-    setAiResult(result.aiResult);
+      setAiResult(result.aiResult);
 
-    addToast(`Posted! Score: ${result.aiResult.score}/100 ❤️`, 'success');
-    router.push('/dashboard');
+      addToast(`Posted! Score: ${result.aiResult.score}/100 ❤️`, 'success');
+      router.push('/dashboard');
+    } catch (err: any) {
+      if (err.flagged) {
+        setFlaggedReason(err.message);
+        setShowFlaggedModal(true);
+      } else {
+        addToast(err.message || 'Failed to post. Please try again.', 'error');
+      }
+    }
   };
 
   return (
@@ -122,6 +134,49 @@ export function PostForm({ partners, userId }: PostFormProps) {
         <Heart className="h-5 w-5" />
         Post & Get Scored
       </Button>
+
+      {/* Sarcastic Flagged Entry Modal */}
+      <Modal
+        isOpen={showFlaggedModal}
+        onClose={() => setShowFlaggedModal(false)}
+        title="Love Referee: Red Card! 🟥"
+        className="max-w-md"
+      >
+        <div className="text-center py-4 space-y-4">
+          <div className="mx-auto w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 animate-bounce">
+            <ShieldAlert className="h-8 w-8" />
+          </div>
+          
+          <div className="space-y-2">
+            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              Nice Try, Shakespeare! 🤨
+            </h3>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Our LoveScore AI guardrails caught some creative writing in your entry.
+            </p>
+          </div>
+
+          <div className="relative p-5 rounded-2xl bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-900/10 dark:to-orange-900/10 border border-rose-100 dark:border-rose-900/30 text-left">
+            <span className="absolute -top-3 left-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-rose-500 text-white rounded-full">
+              Sarcasm Detector 🚨
+            </span>
+            <p className="text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed">
+              "{flaggedReason}"
+            </p>
+          </div>
+
+          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
+            <Button
+              type="button"
+              variant="primary"
+              className="w-full sm:w-auto"
+              onClick={() => setShowFlaggedModal(false)}
+            >
+              My bad, let me tell the truth 😅
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </form>
   );
 }

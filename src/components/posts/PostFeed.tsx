@@ -48,7 +48,7 @@ export function PostFeed({
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-6">
       {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}

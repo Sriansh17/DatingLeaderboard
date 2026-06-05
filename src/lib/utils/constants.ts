@@ -28,7 +28,7 @@ export const ROUTES = {
   SETTINGS: '/settings',
 } as const;
 
-export const MIN_POSTS_FOR_LEADERBOARD = 3;
+export const MIN_POSTS_FOR_LEADERBOARD = 1;
 export const LEADERBOARD_PAGE_SIZE = 50;
 export const LOCAL_RADIUS_KM = 10;
 export const POSTS_PER_PAGE = 20;

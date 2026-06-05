@@ -46,6 +46,13 @@ export async function POST(request: Request) {
     // Get AI score
     const aiResult = await scorePost(description);
 
+    if (aiResult.flagged) {
+      return NextResponse.json(
+        { success: false, flagged: true, error: aiResult.flag_reason || 'This post was flagged as invalid or unrealistic.' },
+        { status: 400 }
+      );
+    }
+
     // Create post
     const { data, error } = await supabase
       .from('posts')

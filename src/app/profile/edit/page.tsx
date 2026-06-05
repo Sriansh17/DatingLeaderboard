@@ -12,7 +12,14 @@ export default function EditProfilePage() {
   const router = useRouter();
 
   if (authLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
-  if (!profile) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (!profile) {
+    return (
+      <div className="text-center py-20 text-gray-500">
+        <p className="mb-4">Profile not found.</p>
+        <p className="text-sm">Please log in again or check your database settings.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-lg mx-auto">

@@ -45,7 +45,15 @@ export default function ProfilePage() {
     }
   }, [posts]);
 
-  if (authLoading || !profile) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (authLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (!profile) {
+    return (
+      <div className="text-center py-20 text-gray-500">
+        <p className="mb-4">Profile not found.</p>
+        <p className="text-sm">Please log in again or check your database settings.</p>
+      </div>
+    );
+  }
 
   const scoredPosts = posts?.filter((p) => p.ai_score) || [];
   const totalScore = scoredPosts.reduce((a, b) => a + (b.ai_score || 0), 0);

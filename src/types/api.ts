@@ -23,6 +23,8 @@ export interface AIScoreResult {
     uniqueness: number;
     emotional_impact: number;
   };
+  flagged?: boolean;
+  flag_reason?: string;
 }
 
 export interface CreatePostPayload {
