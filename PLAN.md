@@ -4,11 +4,13 @@
 
 **Status: Phases 1-4 Complete ✅ | Phase 5 (Polish & PWA) Mostly Done 🔲**
 
-**What's left:**
-- Wire Razorpay payment UI (API routes exist)
+**Brownie points (nice to have):**
+- Wire Razorpay payment UI (API routes exist, not connected to frontend)
 - Vercel deployment config
-- Set real Upstash Redis URL (falls back gracefully for now)
-- Set real Claude API key for AI scoring
+
+**Required for full functionality:**
+- Set real Claude API key (`CLAUDE_API_KEY` in `.env.local`) — AI scoring won't work without it
+- Set real Upstash Redis URL — leaderboard falls back to DB-only for now
 
 ---
 

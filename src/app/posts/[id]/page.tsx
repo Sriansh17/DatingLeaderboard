@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { formatRelativeTime, getScoreColor, getScoreBgColor } from '@/lib/utils/format';
 import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
+import { ShareCard } from '@/components/posts/ShareCard';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
@@ -112,11 +113,17 @@ export default function PostDetailPage() {
 
       {/* Actions */}
       {user && post.user_id === user.id && (
-        <div className="flex justify-end">
+        <div className="flex items-center justify-between">
+          <ShareCard post={post} />
           <Button variant="ghost" size="sm" onClick={handleDelete}>
             <Trash2 className="h-4 w-4" />
             Delete
           </Button>
+        </div>
+      )}
+      {(!user || post.user_id !== user.id) && (
+        <div className="flex justify-start">
+          <ShareCard post={post} />
         </div>
       )}
     </div>

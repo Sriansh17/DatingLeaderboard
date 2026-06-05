@@ -6,8 +6,9 @@ import { ProfileStats } from '@/components/profile/ProfileStats';
 import { PostFeed } from '@/components/posts/PostFeed';
 import { Spinner } from '@/components/ui/Spinner';
 import { usePosts } from '@/lib/hooks/usePosts';
+import { calculateStreak } from '@/lib/utils/streak';
 import { createClient } from '@/lib/supabase/client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 export default function ProfilePage() {
   const { user, profile, loading: authLoading } = useUser();
@@ -20,6 +21,11 @@ export default function ProfilePage() {
     supabase.from('partners').select('id', { count: 'exact', head: true }).eq('user_id', user.id)
       .then(({ count }) => setPartnerCount(count || 0));
   }, [user]);
+
+  const streak = useMemo(() => {
+    if (!posts || posts.length === 0) return null;
+    return calculateStreak(posts.map((p) => p.created_at));
+  }, [posts]);
 
   if (authLoading || !profile) return <Spinner size="lg" className="mx-auto mt-20" />;
 
@@ -37,6 +43,7 @@ export default function ProfilePage() {
         postCount={posts?.length || 0}
         partnerCount={partnerCount}
         averageScore={avgScore}
+        streak={streak}
       />
 
       <ProfileStats

@@ -6,16 +6,26 @@ import { PostCard } from '@/components/posts/PostCard';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
 import { Card } from '@/components/ui/Card';
+import { LeaderboardTable } from '@/components/leaderboards/LeaderboardTable';
+import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
+import { calculateStreak } from '@/lib/utils/streak';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
-import { useState, useEffect } from 'react';
-import { Heart, PlusCircle, Trophy } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { Heart, PlusCircle, Trophy, Flame } from 'lucide-react';
 
 export default function DashboardPage() {
   const { user, profile } = useUser();
   const { data: posts, isLoading } = usePosts();
   const [partnerCount, setPartnerCount] = useState(0);
   const [avgScore, setAvgScore] = useState(0);
+
+  const { data: globalLeaderboard } = useLeaderboard({ type: 'global', limit: 3 });
+
+  const streak = useMemo(() => {
+    if (!posts || posts.length === 0) return null;
+    return calculateStreak(posts.map((p) => p.created_at));
+  }, [posts]);
 
   useEffect(() => {
     if (!user) return;
@@ -47,11 +57,19 @@ export default function DashboardPage() {
       {/* Welcome + Stats */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-            Hey, {profile?.username || 'there'}! ❤️
-          </h1>
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+              Hey, {profile?.username || 'there'}! ❤️
+            </h1>
+            {streak && streak.currentStreak > 0 && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-xs font-semibold">
+                <Flame className="h-3.5 w-3.5 fill-orange-500" />
+                {streak.currentStreak}
+              </span>
+            )}
+          </div>
           <p className="text-gray-500 dark:text-gray-400 text-sm mt-1">
-            Share what your partner did for you today
+            {streak ? streak.message : 'Share what your partner did for you today'}
           </p>
         </div>
         <div className="flex gap-2">
@@ -71,10 +89,10 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-4 gap-4">
         <Card className="text-center !p-4">
           <p className="text-2xl font-bold text-pink-500">{posts?.length || 0}</p>
-          <p className="text-xs text-gray-500">Total Posts</p>
+          <p className="text-xs text-gray-500">Posts</p>
         </Card>
         <Card className="text-center !p-4">
           <p className="text-2xl font-bold text-pink-500">{partnerCount}</p>
@@ -84,7 +102,28 @@ export default function DashboardPage() {
           <p className="text-2xl font-bold text-pink-500">{avgScore}</p>
           <p className="text-xs text-gray-500">Avg Score</p>
         </Card>
+        <Card className="text-center !p-4">
+          <p className="text-2xl font-bold text-orange-500">{streak?.currentStreak || 0}</p>
+          <p className="text-xs text-gray-500">🔥 Streak</p>
+        </Card>
       </div>
+
+      {/* Weekly Top 3 */}
+      {globalLeaderboard && globalLeaderboard.length > 0 && (
+        <div>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+              🏆 This Week&apos;s Champions
+            </h2>
+            <Link href="/leaderboards">
+              <Button variant="ghost" size="sm">
+                View All
+              </Button>
+            </Link>
+          </div>
+          <LeaderboardTable entries={globalLeaderboard.slice(0, 3)} />
+        </div>
+      )}
 
       {/* Recent Posts */}
       <div>

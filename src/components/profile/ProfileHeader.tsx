@@ -3,17 +3,19 @@
 import { Avatar } from '@/components/ui/Avatar';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
-import { Settings, Edit3 } from 'lucide-react';
+import { Settings, Edit3, Flame } from 'lucide-react';
 import type { Profile } from '@/types/database';
+import type { StreakResult } from '@/lib/utils/streak';
 
 interface ProfileHeaderProps {
   profile: Profile;
   postCount?: number;
   partnerCount?: number;
   averageScore?: number;
+  streak?: StreakResult | null;
 }
 
-export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averageScore = 0 }: ProfileHeaderProps) {
+export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averageScore = 0, streak }: ProfileHeaderProps) {
   return (
     <div className="text-center">
       <div className="flex justify-center mb-4">
@@ -24,6 +26,13 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
         {profile.full_name || profile.username}
       </h1>
       <p className="text-gray-500 dark:text-gray-400">@{profile.username}</p>
+
+      {streak && streak.currentStreak > 0 && (
+        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
+          <Flame className="h-4 w-4 fill-orange-500" />
+          {streak.currentStreak}-day streak!
+        </div>
+      )}
 
       {profile.bio && (
         <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-md mx-auto">{profile.bio}</p>
@@ -48,7 +57,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mt-8 max-w-md mx-auto">
+      <div className="grid grid-cols-4 gap-3 mt-8 max-w-md mx-auto">
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <p className="text-2xl font-bold text-pink-500">{postCount}</p>
           <p className="text-xs text-gray-500">Posts</p>
@@ -60,6 +69,10 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <p className="text-2xl font-bold text-pink-500">{averageScore}</p>
           <p className="text-xs text-gray-500">Avg Score</p>
+        </div>
+        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+          <p className="text-2xl font-bold text-orange-500">{streak?.currentStreak || 0}</p>
+          <p className="text-xs text-gray-500">🔥 Streak</p>
         </div>
       </div>
     </div>
