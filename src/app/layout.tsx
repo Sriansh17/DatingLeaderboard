@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { Navbar } from '@/components/layout/Navbar';
 import { BottomNav } from '@/components/layout/BottomNav';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Footer } from '@/components/layout/Footer';
@@ -44,14 +43,13 @@ export default function RootLayout({
           <ThemeProvider>
             <AuthProvider>
               <ToastProvider>
-                <div className="min-h-screen flex flex-col pb-16 md:pb-0">
-                  <Navbar />
-                  <div className="flex flex-1">
-                    <Sidebar />
-                    <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6">
+                <div className="min-h-screen flex pb-16 md:pb-0">
+                  <Sidebar />
+                  <main className="flex-1 min-w-0 overflow-x-hidden">
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                       {children}
-                    </main>
-                  </div>
+                    </div>
+                  </main>
                   <Footer />
                   <BottomNav />
                 </div>
