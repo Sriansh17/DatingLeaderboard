@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { PostCard } from '@/components/posts/PostCard';
 import { Spinner } from '@/components/ui/Spinner';
-import { createClient } from '@/lib/supabase/client';
 import { Heart, Compass } from 'lucide-react';
 import type { Post } from '@/types/database';
 
@@ -12,16 +11,16 @@ export default function ExplorePage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const supabase = createClient();
-    supabase
-      .from('posts')
-      .select('*, partner:partners(*), profile:profiles(*)')
-      .eq('is_public', true)
-      .not('ai_score', 'is', null)
-      .order('created_at', { ascending: false })
-      .limit(50)
-      .then(({ data }) => {
+    fetch('/api/posts/explore')
+      .then((res) => res.json())
+      .then(({ data, error }) => {
+        if (error) console.error('[Explore] API error:', error);
+        console.log(`[Explore] Fetched ${data?.length || 0} posts`);
         setPosts(data || []);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error('[Explore] Fetch failed:', err);
         setLoading(false);
       });
   }, []);

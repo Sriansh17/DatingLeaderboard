@@ -3,7 +3,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { PostCard } from '@/components/posts/PostCard';
 import { Card } from '@/components/ui/Card';
-import { createClient } from '@/lib/supabase/client';
 import { Heart, Compass, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
@@ -29,16 +28,10 @@ function ExploreSkeleton() {
 }
 
 async function fetchExplorePosts(): Promise<Post[]> {
-  const supabase = createClient();
-  const { data } = await supabase
-    .from('posts')
-    .select('*, partner:partners(*), profile:profiles(*)')
-    .eq('is_public', true)
-    .not('ai_score', 'is', null)
-    .order('created_at', { ascending: false })
-    .limit(25);
-
-  return data || [];
+  const res = await fetch('/api/posts/explore');
+  if (!res.ok) throw new Error('Failed to fetch posts');
+  const json = await res.json();
+  return json.data || [];
 }
 
 export default function DashboardPage() {

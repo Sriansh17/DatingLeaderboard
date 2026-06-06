@@ -23,15 +23,18 @@ export default function LeaderboardsPage() {
     type: 'local',
     latitude: latitude || undefined,
     longitude: longitude || undefined,
+    enabled: activeTab === 'local',
   });
 
   const { data: cityData, isLoading: cityLoading } = useLeaderboard({
     type: 'city',
     city: profile?.city || undefined,
+    enabled: activeTab === 'city',
   });
 
   const { data: globalData, isLoading: globalLoading } = useLeaderboard({
     type: 'global',
+    enabled: activeTab === 'global',
   });
 
   return (

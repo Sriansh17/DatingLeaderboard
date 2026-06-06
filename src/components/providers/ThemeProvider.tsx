@@ -25,8 +25,8 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'system';
-  return (localStorage.getItem('loveboard-theme') as Theme) || 'system';
+  if (typeof window === 'undefined') return 'dark';
+  return (localStorage.getItem('loveboard-theme') as Theme) || 'dark';
 }
 
 function resolveTheme(theme: Theme): 'light' | 'dark' {

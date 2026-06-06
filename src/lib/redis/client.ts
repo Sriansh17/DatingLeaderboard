@@ -25,10 +25,14 @@ export async function getCachedLeaderboard(type: string, identifier: string) {
     const key = `leaderboard:${type}:${identifier}`;
     const cached = await redis.get(key);
     if (cached) {
-      return JSON.parse(cached as string);
+      // Upstash auto-deserializes JSON, so cached is already an object
+      if (typeof cached === 'string') {
+        return JSON.parse(cached);
+      }
+      return cached;
     }
-  } catch {
-    // Redis unavailable — skip cache
+  } catch (err) {
+    console.error('[Redis] getCachedLeaderboard error:', err);
   }
   return null;
 }
@@ -41,9 +45,10 @@ export async function setCachedLeaderboard(
   if (!redis) return;
   try {
     const key = `leaderboard:${type}:${identifier}`;
-    await redis.set(key, JSON.stringify(data), { ex: LEADERBOARD_TTL });
-  } catch {
-    // Redis unavailable — skip cache
+    // Upstash handles JSON serialization automatically
+    await redis.set(key, data, { ex: LEADERBOARD_TTL });
+  } catch (err) {
+    console.error('[Redis] setCachedLeaderboard error:', err);
   }
 }
 

@@ -4,6 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import type { LeaderboardQuery } from '@/types/api';
 import type { LeaderboardEntry } from '@/types/database';
 
+interface UseLeaderboardParams extends LeaderboardQuery {
+  enabled?: boolean;
+}
+
 async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEntry[]> {
   const searchParams = new URLSearchParams();
   searchParams.set('type', params.type);
@@ -19,10 +23,13 @@ async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEn
   return json.data;
 }
 
-export function useLeaderboard(params: LeaderboardQuery) {
+export function useLeaderboard(params: UseLeaderboardParams) {
+  const { enabled = true, ...queryParams } = params;
+
   return useQuery({
-    queryKey: ['leaderboards', params],
-    queryFn: () => fetchLeaderboard(params),
+    queryKey: ['leaderboards', queryParams],
+    queryFn: () => fetchLeaderboard(queryParams),
     staleTime: 5 * 60 * 1000, // 5 minutes
+    enabled,
   });
 }

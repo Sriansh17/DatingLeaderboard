@@ -3,7 +3,7 @@
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
-import { getRankEmoji, getScoreColor } from '@/lib/utils/format';
+import { getRankEmoji, getScoreBgColor } from '@/lib/utils/format';
 import type { LeaderboardEntry } from '@/types/database';
 
 interface LeaderboardTableProps {
@@ -67,7 +67,7 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
           {/* Score */}
           <div className="text-right">
             <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white font-bold text-lg ${
-              getScoreColor(entry.average_score).replace('text-', 'bg-')
+              getScoreBgColor(entry.average_score)
             }`}>
               {entry.average_score}
             </div>

@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { formatRelativeTime, getScoreColor } from '@/lib/utils/format';
+import { formatRelativeTime, getScoreBgColor } from '@/lib/utils/format';
 import { Avatar } from '@/components/ui/Avatar';
 import { Heart, Sparkles } from 'lucide-react';
 import type { Post } from '@/types/database';
@@ -21,7 +21,7 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex-shrink-0">
             <div
               className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white font-bold text-lg ${
-                post.ai_score ? getScoreColor(post.ai_score).replace('text-', 'bg-') : 'bg-gray-300'
+                post.ai_score ? getScoreBgColor(post.ai_score) : 'bg-gray-300'
               }`}
             >
               {post.ai_score || '?'}

@@ -4,6 +4,9 @@ import { getCachedLeaderboard, setCachedLeaderboard } from '@/lib/redis/client';
 import { MIN_POSTS_FOR_LEADERBOARD, LEADERBOARD_PAGE_SIZE } from '@/lib/utils/constants';
 
 export async function GET(request: Request) {
+  const startTime = Date.now();
+  console.log(`[Leaderboard] ⏱️ Request started`);
+
   try {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type') || 'global';
@@ -13,6 +16,8 @@ export async function GET(request: Request) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || String(LEADERBOARD_PAGE_SIZE));
 
+    console.log(`[Leaderboard] Type: ${type}, Page: ${page}`);
+
     // Build cache identifier
     const cacheId = type === 'local'
       ? `${latitude},${longitude}`
@@ -21,32 +26,44 @@ export async function GET(request: Request) {
         : 'world';
 
     // Try cache first
+    const cacheStart = Date.now();
     const cached = await getCachedLeaderboard(type, cacheId);
+    console.log(`[Leaderboard] Redis lookup: ${Date.now() - cacheStart}ms | Hit: ${!!cached}`);
+
     if (cached) {
       const start = (page - 1) * limit;
       const paginated = cached.slice(start, start + limit);
+      console.log(`[Leaderboard] ✅ Served from cache in ${Date.now() - startTime}ms`);
       return NextResponse.json({ success: true, data: paginated });
     }
 
+    const supabaseStart = Date.now();
     const supabase = await createServerSupabaseClient();
+    console.log(`[Leaderboard] Supabase client created: ${Date.now() - supabaseStart}ms`);
 
     // Get all profiles with posts
+    const profilesStart = Date.now();
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, username, full_name, avatar_url, city, latitude, longitude');
+    console.log(`[Leaderboard] Profiles query: ${Date.now() - profilesStart}ms | Count: ${profiles?.length || 0}`);
 
     if (!profiles) {
+      console.log(`[Leaderboard] ⚠️ No profiles found, returning empty`);
       return NextResponse.json({ success: true, data: [] });
     }
 
     // Get all posts with scores
+    const postsStart = Date.now();
     const { data: posts } = await supabase
       .from('posts')
       .select('*, partner:partners(name, avatar_url, emoji)')
       .not('ai_score', 'is', null)
       .eq('is_public', true);
+    console.log(`[Leaderboard] Posts query: ${Date.now() - postsStart}ms | Count: ${posts?.length || 0}`);
 
     if (!posts) {
+      console.log(`[Leaderboard] ⚠️ No posts found, returning empty`);
       return NextResponse.json({ success: true, data: [] });
     }
 
@@ -110,16 +127,21 @@ export async function GET(request: Request) {
       .sort((a, b) => b.average_score - a.average_score)
       .map((entry, index) => ({ ...entry, rank: index + 1 }));
 
+    console.log(`[Leaderboard] Entries computed: ${entries.length} qualified`);
+
     // Cache the full result
+    const cacheWriteStart = Date.now();
     await setCachedLeaderboard(type, cacheId, entries);
+    console.log(`[Leaderboard] Redis write: ${Date.now() - cacheWriteStart}ms`);
 
     // Paginate
     const start = (page - 1) * limit;
     const paginated = entries.slice(start, start + limit);
 
+    console.log(`[Leaderboard] ✅ Total request time: ${Date.now() - startTime}ms`);
     return NextResponse.json({ success: true, data: paginated });
   } catch (error) {
-    console.error('Leaderboard API error:', error);
+    console.error(`[Leaderboard] ❌ Error after ${Date.now() - startTime}ms:`, error);
     return NextResponse.json(
       { success: false, error: 'Failed to fetch leaderboard' },
       { status: 500 }
