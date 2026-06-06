@@ -140,7 +140,7 @@ export function ProfileForm({ profile, onSuccess }: ProfileFormProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
+            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -155,7 +155,7 @@ export function ProfileForm({ profile, onSuccess }: ProfileFormProps) {
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className="text-xs text-pink-500 hover:text-pink-600 font-medium"
+          className="text-xs text-primary hover:text-primary font-medium"
         >
           Change Photo
         </button>

@@ -14,7 +14,7 @@ const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-
 export const metadata: Metadata = {
   title: 'Love Leaderboard — Your Relationship Has a Score',
   description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
-  themeColor: '#0E0E14',
+  themeColor: '#0D0A14',
 };
 
 export default function RootLayout({

@@ -55,12 +55,12 @@ export function PostDetail({ post }: PostDetailProps) {
 
       {/* AI Feedback */}
       {post.ai_feedback && (
-        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-800">
+        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-primary/30 dark:border-primary/30">
           <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-pink-500" />
-            <span className="font-semibold text-pink-600 dark:text-pink-400">LoveScore AI</span>
+            <Sparkles className="h-5 w-5 text-primary" />
+            <span className="font-semibold text-primary dark:text-primary">LoveScore AI</span>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 italic">{post.ai_feedback}</p>
+          <p className="text-foreground/90 italic">{post.ai_feedback}</p>
         </Card>
       )}
 
@@ -79,20 +79,20 @@ export function PostDetail({ post }: PostDetailProps) {
       {/* Breakdown */}
       {Object.keys(breakdown).length > 0 && (
         <Card>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Score Breakdown</h3>
+          <h3 className="font-semibold text-foreground mb-4">Score Breakdown</h3>
           <div className="space-y-3">
             {Object.entries(breakdown).map(([key, value]) => (
               <div key={key} className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize w-32">
+                <span className="text-sm text-muted-foreground capitalize w-32">
                   {key.replace('_', ' ')}
                 </span>
-                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-1000"
+                    className="h-full bg-gradient-to-r from-pink-400 to-accent rounded-full transition-all duration-1000"
                     style={{ width: `${(value / getMax(key)) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-8 text-right">
+                <span className="text-sm font-medium text-foreground/90 w-8 text-right">
                   {value}
                 </span>
               </div>

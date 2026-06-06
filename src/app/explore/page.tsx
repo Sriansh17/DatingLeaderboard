@@ -32,7 +32,7 @@ export default function ExplorePage() {
           <Compass className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Explore</h1>
+          <h1 className="text-2xl font-bold text-foreground">Explore</h1>
           <p className="text-sm text-gray-500">See what others are appreciating ❤️</p>
         </div>
       </div>
@@ -44,7 +44,7 @@ export default function ExplorePage() {
       ) : posts.length === 0 ? (
         <div className="text-center py-20">
           <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+          <h3 className="text-lg font-semibold text-foreground/90 mb-2">
             No public posts yet
           </h3>
           <p className="text-gray-500 text-sm">

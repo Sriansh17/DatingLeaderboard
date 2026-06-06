@@ -7,8 +7,8 @@ export default function NotFound() {
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center max-w-md">
         <Heart className="h-16 w-16 text-pink-300 mx-auto mb-4" />
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">404</h1>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">
+        <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
+        <p className="text-muted-foreground mb-6">
           Oops! This page got lost. Maybe it ran off with your partner? 😄
         </p>
         <Link href="/">

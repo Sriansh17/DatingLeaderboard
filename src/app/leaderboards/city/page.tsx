@@ -15,8 +15,8 @@ export default function CityLeaderboardPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-2">
-        <Building2 className="h-5 w-5 text-pink-500" />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+        <Building2 className="h-5 w-5 text-primary" />
+        <h1 className="text-2xl font-bold text-foreground">
           City Leaderboard {profile?.city ? `- ${profile.city}` : ''}
         </h1>
       </div>

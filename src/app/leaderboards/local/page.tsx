@@ -26,7 +26,7 @@ export default function LocalLeaderboardPage() {
     return (
       <div className="max-w-2xl mx-auto text-center py-20 text-gray-500">
         <MapPin className="h-12 w-12 text-pink-300 mx-auto mb-4" />
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Location Required</h2>
+        <h2 className="text-lg font-semibold text-foreground/90">Location Required</h2>
         <p className="text-sm mt-1">Enable location access to see local leaderboards</p>
       </div>
     );
@@ -35,8 +35,8 @@ export default function LocalLeaderboardPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center gap-2">
-        <MapPin className="h-5 w-5 text-pink-500" />
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Local Leaderboard</h1>
+        <MapPin className="h-5 w-5 text-primary" />
+        <h1 className="text-2xl font-bold text-foreground">Local Leaderboard</h1>
       </div>
       <p className="text-sm text-gray-500">Partners ranked within 10km of your location</p>
       <LeaderboardTable entries={data} loading={isLoading} />

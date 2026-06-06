@@ -23,7 +23,7 @@ interface LeaderboardTabsProps {
 
 export function LeaderboardTabs({ activeTab, onTabChange, className }: LeaderboardTabsProps) {
   return (
-    <div className={cn('flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl', className)}>
+    <div className={cn('flex gap-1 p-1 bg-muted rounded-xl', className)}>
       {tabs.map((tab) => (
         <button
           key={tab.id}
@@ -31,8 +31,8 @@ export function LeaderboardTabs({ activeTab, onTabChange, className }: Leaderboa
           className={cn(
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-1 justify-center',
             activeTab === tab.id
-              ? 'bg-white dark:bg-gray-900 text-pink-600 dark:text-pink-400 shadow-sm'
-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              ? 'bg-surface text-primary dark:text-primary shadow-sm'
+              : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300'
           )}
         >
           {tab.icon}

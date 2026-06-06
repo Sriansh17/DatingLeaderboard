@@ -22,10 +22,10 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
         <Avatar src={profile.avatar_url} alt={profile.username} size="lg" />
       </div>
 
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+      <h1 className="text-2xl font-bold text-foreground">
         {profile.full_name || profile.username}
       </h1>
-      <p className="text-gray-500 dark:text-gray-400">@{profile.username}</p>
+      <p className="text-muted-foreground">@{profile.username}</p>
 
       {streak && streak.currentStreak > 0 && (
         <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
@@ -35,7 +35,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       )}
 
       {profile.bio && (
-        <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-md mx-auto">{profile.bio}</p>
+        <p className="mt-2 text-muted-foreground max-w-md mx-auto">{profile.bio}</p>
       )}
 
       {profile.city && (
@@ -59,15 +59,15 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-2xl font-bold text-pink-500">{postCount}</p>
+          <p className="text-2xl font-bold text-primary">{postCount}</p>
           <p className="text-xs text-gray-500">Posts</p>
         </div>
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-2xl font-bold text-pink-500">{partnerCount}</p>
+          <p className="text-2xl font-bold text-primary">{partnerCount}</p>
           <p className="text-xs text-gray-500">Partners</p>
         </div>
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-2xl font-bold text-pink-500">{averageScore}</p>
+          <p className="text-2xl font-bold text-primary">{averageScore}</p>
           <p className="text-xs text-gray-500">Avg Score</p>
         </div>
       </div>

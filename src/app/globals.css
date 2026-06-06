@@ -24,50 +24,50 @@
   :root {
     --radius: 0.875rem;
 
-    /* Romance Meets Reality TV — dark by default */
-    --background: oklch(0.14 0.02 295);          /* #0E0E14 */
-    --foreground: oklch(0.96 0.012 75);          /* #F8F4F0 */
+    /* Midnight Rose — Option B: slightly lighter background */
+    --background: #17111F;
+    --foreground: #F5E6FF;
 
-    --surface: oklch(0.18 0.022 290);            /* #1A1A24 */
-    --elevated: oklch(0.22 0.024 290);           /* #22222E */
+    --surface: #221B2D;
+    --elevated: #2D2538;
 
-    --card: var(--surface);
-    --card-foreground: var(--foreground);
-    --popover: var(--elevated);
-    --popover-foreground: var(--foreground);
+    --card: #221B2D;
+    --card-foreground: #F5E6FF;
+    --popover: #2D2538;
+    --popover-foreground: #F5E6FF;
 
-    --primary: oklch(0.55 0.21 18);              /* #C0162C crimson */
-    --primary-foreground: oklch(0.98 0.01 75);
+    --primary: #FF6B9D;
+    --primary-foreground: #17111F;
 
-    --secondary: oklch(0.24 0.025 290);
-    --secondary-foreground: var(--foreground);
+    --secondary: #2D2538;
+    --secondary-foreground: #F5E6FF;
 
-    --muted: oklch(0.24 0.025 290);
-    --muted-foreground: oklch(0.65 0.025 310);   /* #9B8FA0 */
+    --muted: #2D2538;
+    --muted-foreground: #A99BB8;
 
-    --accent: oklch(0.74 0.14 15);               /* #FF6B8A blush */
-    --accent-foreground: oklch(0.18 0.022 290);
+    --accent: #C77DFF;
+    --accent-foreground: #17111F;
 
-    --gold: oklch(0.78 0.13 85);                 /* #D4AF37 */
-    --gold-foreground: oklch(0.18 0.022 290);
-    --blush: oklch(0.74 0.14 15);
+    --gold: #E8C86A;
+    --gold-foreground: #17111F;
+    --blush: #FF6B9D;
 
-    --destructive: oklch(0.62 0.22 25);
-    --destructive-foreground: oklch(0.98 0.01 75);
-    --success: oklch(0.72 0.17 152);             /* #2ECC71 */
-    --warning: oklch(0.78 0.16 70);              /* #F39C12 */
+    --destructive: #E54D6A;
+    --destructive-foreground: #17111F;
+    --success: #4ADE80;
+    --warning: #FBBF24;
 
-    --score-low: oklch(0.62 0.22 25);
-    --score-mid: oklch(0.78 0.16 70);
-    --score-high: oklch(0.72 0.17 152);
-    --score-legendary: oklch(0.78 0.13 85);
+    --score-low: #E54D6A;
+    --score-mid: #FBBF24;
+    --score-high: #4ADE80;
+    --score-legendary: #E8C86A;
 
-    --border: oklch(0.27 0.022 290);             /* #2A2A38 */
-    --input: oklch(0.27 0.022 290);
-    --ring: oklch(0.55 0.21 18);
+    --border: #352D45;
+    --input: #352D45;
+    --ring: #FF6B9D;
     
-    --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--primary) 60%, transparent);
-    --shadow-gold: 0 0 30px -6px color-mix(in oklab, var(--gold) 45%, transparent);
+    --shadow-glow: 0 0 40px -8px color-mix(in srgb, var(--primary) 60%, transparent);
+    --shadow-gold: 0 0 30px -6px color-mix(in srgb, var(--gold) 45%, transparent);
   }
 
   body {

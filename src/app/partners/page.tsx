@@ -47,7 +47,7 @@ export default function PartnersPage() {
     <div className="max-w-lg mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your Partners</h1>
+          <h1 className="text-2xl font-bold text-foreground">Your Partners</h1>
           <p className="text-sm text-gray-500">Add and manage your loved ones</p>
         </div>
         <Link href="/partners/new">
@@ -61,7 +61,7 @@ export default function PartnersPage() {
       {partners.length === 0 ? (
         <div className="text-center py-16">
           <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No partners yet</h3>
+          <h3 className="text-lg font-semibold text-foreground/90 mb-2">No partners yet</h3>
           <p className="text-gray-500 text-sm mb-6">Add your partner to start posting!</p>
           <Link href="/partners/new">
             <Button>Add Your Partner 💕</Button>
