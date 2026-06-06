@@ -2,7 +2,6 @@
 
 import { useUser } from '@/components/providers/AuthProvider';
 import { ProfileHeader } from '@/components/profile/ProfileHeader';
-import { ProfileStats } from '@/components/profile/ProfileStats';
 import { PostCard } from '@/components/posts/PostCard';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -67,14 +66,6 @@ export default function ProfilePage() {
         partnerCount={partnerCount}
         averageScore={avgScore}
         streak={streak}
-      />
-
-      <ProfileStats
-        postCount={posts?.length || 0}
-        partnerCount={partnerCount}
-        averageScore={avgScore}
-        totalScore={totalScore}
-        bestScore={bestScore}
       />
 
       {/* Streak + Quick Actions */}

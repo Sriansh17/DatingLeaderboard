@@ -57,7 +57,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3 mt-8 max-w-md mx-auto">
+      <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <p className="text-2xl font-bold text-pink-500">{postCount}</p>
           <p className="text-xs text-gray-500">Posts</p>
@@ -69,10 +69,6 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
         <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
           <p className="text-2xl font-bold text-pink-500">{averageScore}</p>
           <p className="text-xs text-gray-500">Avg Score</p>
-        </div>
-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
-          <p className="text-2xl font-bold text-orange-500">{streak?.currentStreak || 0}</p>
-          <p className="text-xs text-gray-500">🔥 Streak</p>
         </div>
       </div>
     </div>
