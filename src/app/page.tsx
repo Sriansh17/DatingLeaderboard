@@ -1,112 +1,178 @@
-import Link from 'next/link';
-import { Heart, Trophy, Sparkles, MapPin, Globe, ArrowRight } from 'lucide-react';
+'use client';
+
+import Link from "next/link";
+import { VerdictCard } from "@/components/ui/VerdictCard";
+import { stories, tickerItems, leaderboard, scoreColor } from "@/lib/mock-data";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function LandingPage() {
+  const hero = stories[0];
+
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center">
+    <div className="min-h-screen bg-radial-spotlight">
+      {/* Nav */}
+      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+        <span className="font-display text-lg italic text-gold">Love Leaderboard</span>
+        <Link
+          href="/auth/login"
+          className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur"
+        >
+          Open the App →
+        </Link>
+      </header>
+
       {/* Hero */}
-      <div className="text-center max-w-3xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 text-sm font-medium mb-6">
-          <Sparkles className="h-4 w-4" />
-          AI-Powered Love Scoring
-        </div>
-
-        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-red-500 bg-clip-text text-transparent">
-            Share the Love
+      <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-20 pt-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
+        <div className="animate-float-up">
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold">
+            <Sparkles className="h-3.5 w-3.5" /> The world's first relationship leaderboard
           </span>
-          <br />
-          <span className="text-gray-900 dark:text-gray-100">
-            Get Scored. Get Ranked.
-          </span>
-        </h1>
+          <h1 className="mt-5 font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
+            Your relationship has a{" "}
+            <span className="text-gradient-crimson italic">score.</span>{" "}
+            <br />
+            What's <span className="text-gradient-gold italic">yours?</span>
+          </h1>
+          <p className="mt-5 max-w-lg text-lg text-muted-foreground">
+            Post one story. AI judges it. The world sees it. Compete with couples in your city — and on the
+            planet.
+          </p>
+          <div className="mt-7 flex flex-wrap gap-3">
+            <Link
+              href="/auth/signup"
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+            >
+              Get My Score <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/leaderboards"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-6 py-3.5 text-base text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+            >
+              See the Leaderboard
+            </Link>
+          </div>
+        </div>
 
-        <p className="mt-6 text-lg sm:text-xl text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-          Describe what your partner did for you today. Our AI scores their gesture, and they climb the local, city, and global leaderboards.
-          <span className="text-pink-500 font-semibold"> The most thoughtful partners win.</span>
-        </p>
+        <div className="lg:pl-6">
+          <VerdictCard
+            score={hero.score}
+            verdict={hero.verdict}
+            username={hero.username}
+            partnerNickname={hero.partnerNickname}
+            city={hero.city}
+            globalRank={4}
+          />
+        </div>
+      </section>
 
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <Link
-            href="/auth/signup"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 text-white font-semibold text-lg shadow-lg shadow-pink-500/25 hover:shadow-pink-500/40 hover:scale-105 transition-all duration-200"
-          >
-            Get Started Free
-            <ArrowRight className="h-5 w-5" />
+      {/* Ticker */}
+      <section className="overflow-hidden border-y border-border bg-elevated/40 py-3">
+        <div className="flex w-max gap-10 whitespace-nowrap animate-marquee text-sm text-muted-foreground">
+          {[...tickerItems, ...tickerItems].map((t, i) => (
+            <span key={i} className="flex items-center gap-3">
+              <span className="h-1.5 w-1.5 rounded-full bg-blush" /> {t}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto max-w-6xl px-6 py-20">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">How it works</p>
+        <h2 className="mt-2 font-display text-4xl italic text-foreground">Three steps to a verdict.</h2>
+
+        <div className="mt-10 grid gap-5 md:grid-cols-3">
+          {[
+            { n: "01", t: "Write the story", d: "Tell us what your partner did. Be specific. Be honest." },
+            { n: "02", t: "AI scores and roasts", d: "Out of 100. The verdict is one line. It will sting or sing." },
+            { n: "03", t: "Share. Climb. Repeat.", d: "Share the card. Watch your rank move. Try to dethrone someone." },
+          ].map((s) => (
+            <div key={s.n} className="rounded-2xl border border-border bg-card p-6">
+              <div className="font-score text-5xl text-blush">{s.n}</div>
+              <h3 className="mt-3 font-display text-xl text-foreground">{s.t}</h3>
+              <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* AI humor showcase */}
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <p className="text-xs uppercase tracking-[0.3em] text-gold">Receipts</p>
+        <h2 className="mt-2 font-display text-4xl italic text-foreground">The verdicts heard 'round the world.</h2>
+
+        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {stories.slice(0, 3).map((s) => (
+            <VerdictCard
+              key={s.id}
+              score={s.score}
+              verdict={s.verdict}
+              username={s.username}
+              partnerNickname={s.partnerNickname}
+              city={s.city}
+              suspectedFabrication={s.suspectedFabrication}
+              compact
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Leaderboard preview */}
+      <section className="mx-auto max-w-6xl px-6 pb-20">
+        <div className="flex items-end justify-between">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold">This week</p>
+            <h2 className="mt-2 font-display text-4xl italic text-foreground">Top of the world.</h2>
+          </div>
+          <Link href="/leaderboards" className="text-sm text-blush hover:underline">
+            View all →
           </Link>
-          <Link
-            href="/auth/login"
-            className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl border-2 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 font-semibold text-lg hover:border-pink-500 hover:text-pink-500 transition-all duration-200"
-          >
-            Sign In
-          </Link>
-        </div>
-      </div>
-
-      {/* Features */}
-      <div className="mt-24 grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto w-full">
-        <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-          <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-4">
-            <Sparkles className="h-6 w-6 text-pink-500" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">AI Scoring</h3>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Our AI evaluates thoughtfulness, romance, effort, uniqueness, and emotional impact — scoring each gesture from 1-100.
-          </p>
         </div>
 
-        <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-          <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-4">
-            <Trophy className="h-6 w-6 text-pink-500" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Leaderboards</h3>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            Compete on local (10km), city-wide, and global leaderboards. See who has the most thoughtful partner!
-          </p>
-        </div>
+        <ol className="mt-6 overflow-hidden rounded-2xl border border-border bg-card">
+          {leaderboard.slice(0, 5).map((e, i) => (
+            <li
+              key={e.rank}
+              className={`flex items-center gap-4 px-5 py-4 ${
+                i !== 0 ? "border-t border-border" : ""
+              }`}
+            >
+              <div className="font-score text-3xl" style={{ color: e.rank <= 3 ? "var(--gold)" : "var(--muted-foreground)", width: 44 }}>
+                {e.rank}
+              </div>
+              <div className="flex-1">
+                <div className="font-medium text-foreground">{e.username}</div>
+                <div className="text-xs text-muted-foreground">
+                  with {e.partnerNickname} · {e.city}, {e.country}
+                </div>
+              </div>
+              <div className="font-score text-2xl" style={{ color: scoreColor(e.score) }}>
+                {e.score.toFixed(1)}
+              </div>
+            </li>
+          ))}
+        </ol>
+      </section>
 
-        <div className="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800">
-          <div className="w-12 h-12 rounded-xl bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center mb-4">
-            <Heart className="h-6 w-6 text-pink-500" />
-          </div>
-          <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 mb-2">Celebrate Love</h3>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">
-            A positive space to appreciate your partner publicly. Every post is a celebration of the love in your life.
-          </p>
-        </div>
-      </div>
-
-      {/* Leaderboard Preview */}
-      <div className="mt-24 text-center">
-        <h2 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-          Three Tiers of <span className="text-pink-500">Love</span>
+      {/* Final CTA */}
+      <section className="mx-auto max-w-3xl px-6 pb-24 text-center">
+        <h2 className="font-display text-4xl italic sm:text-5xl text-foreground">
+          Your partner deserves a score. <br />
+          <span className="text-gradient-crimson">Give them one.</span>
         </h2>
-        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-xl mx-auto">
-          Whether you&apos;re across the street or across the world, see how your partner ranks.
+        <Link
+          href="/auth/signup"
+          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-105"
+        >
+          Start For Free <ArrowRight className="h-5 w-5" />
+        </Link>
+        <p className="mt-4 text-xs text-muted-foreground">
+          12,402 couples ranked. No credit card. Just feelings.
         </p>
+      </section>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
-          <div className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-200 dark:border-pink-800">
-            <MapPin className="h-8 w-8 text-pink-500 mx-auto mb-2" />
-            <h4 className="font-bold text-gray-900 dark:text-gray-100">Local</h4>
-            <p className="text-xs text-gray-500">10km radius</p>
-          </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-200 dark:border-pink-800">
-            <Heart className="h-8 w-8 text-pink-500 mx-auto mb-2" />
-            <h4 className="font-bold text-gray-900 dark:text-gray-100">City</h4>
-            <p className="text-xs text-gray-500">Your city</p>
-          </div>
-          <div className="p-4 rounded-xl bg-gradient-to-br from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-200 dark:border-pink-800">
-            <Globe className="h-8 w-8 text-pink-500 mx-auto mb-2" />
-            <h4 className="font-bold text-gray-900 dark:text-gray-100">Global</h4>
-            <p className="text-xs text-gray-500">Worldwide</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Footer */}
-      <footer className="mt-24 text-center text-sm text-gray-400">
-        <p>Made with ❤️ for couples everywhere</p>
+      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
+        <span className="font-display italic text-gold">Love Leaderboard</span> · Romance meets reality TV
       </footer>
     </div>
   );

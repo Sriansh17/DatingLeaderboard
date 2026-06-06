@@ -2,54 +2,138 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   LOVE LEADERBOARD - CENTRAL THEME CONTROLLER
+   ==========================================================================
+   This file acts as your central control panel. Change the values below 
+   to instantly update the colors, fonts, and aesthetics across the entire app.
+   
+   HOW TO CHANGE FONTS:
+   Fonts are loaded via next/font in `src/app/layout.tsx`.
+   - `--font-sans`: Used for body text (Default: DM Sans)
+   - `--font-display`: Used for headings and italics (Default: Playfair Display)
+   - `--font-score`: Used for the massive numbers (Default: Bebas Neue)
+   
+   HOW TO CHANGE COLORS:
+   We use OKLCH color space for vibrant, modern colors. 
+   You can use a converter (like oklch.com) to convert HEX/RGB to OKLCH.
+   Example: oklch(0.55 0.21 18) = Lightness 55%, Chroma 0.21, Hue 18 (Crimson Red)
+   ========================================================================== */
+
 @layer base {
   :root {
-    --background: 250 250 249;
-    --foreground: 15 23 42;
+    --radius: 0.875rem;
+
+    /* Romance Meets Reality TV — dark by default */
+    --background: oklch(0.14 0.02 295);          /* #0E0E14 */
+    --foreground: oklch(0.96 0.012 75);          /* #F8F4F0 */
+
+    --surface: oklch(0.18 0.022 290);            /* #1A1A24 */
+    --elevated: oklch(0.22 0.024 290);           /* #22222E */
+
+    --card: var(--surface);
+    --card-foreground: var(--foreground);
+    --popover: var(--elevated);
+    --popover-foreground: var(--foreground);
+
+    --primary: oklch(0.55 0.21 18);              /* #C0162C crimson */
+    --primary-foreground: oklch(0.98 0.01 75);
+
+    --secondary: oklch(0.24 0.025 290);
+    --secondary-foreground: var(--foreground);
+
+    --muted: oklch(0.24 0.025 290);
+    --muted-foreground: oklch(0.65 0.025 310);   /* #9B8FA0 */
+
+    --accent: oklch(0.74 0.14 15);               /* #FF6B8A blush */
+    --accent-foreground: oklch(0.18 0.022 290);
+
+    --gold: oklch(0.78 0.13 85);                 /* #D4AF37 */
+    --gold-foreground: oklch(0.18 0.022 290);
+    --blush: oklch(0.74 0.14 15);
+
+    --destructive: oklch(0.62 0.22 25);
+    --destructive-foreground: oklch(0.98 0.01 75);
+    --success: oklch(0.72 0.17 152);             /* #2ECC71 */
+    --warning: oklch(0.78 0.16 70);              /* #F39C12 */
+
+    --score-low: oklch(0.62 0.22 25);
+    --score-mid: oklch(0.78 0.16 70);
+    --score-high: oklch(0.72 0.17 152);
+    --score-legendary: oklch(0.78 0.13 85);
+
+    --border: oklch(0.27 0.022 290);             /* #2A2A38 */
+    --input: oklch(0.27 0.022 290);
+    --ring: oklch(0.55 0.21 18);
+    
+    --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--primary) 60%, transparent);
+    --shadow-gold: 0 0 30px -6px color-mix(in oklab, var(--gold) 45%, transparent);
   }
 
-  .dark {
-    --background: 2 6 23;
-    --foreground: 226 232 240;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-display);
+    letter-spacing: -0.01em;
   }
 }
 
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  .font-score {
+    font-family: var(--font-score);
+    letter-spacing: 0.02em;
+  }
+
+  .text-gradient-gold {
+    background: linear-gradient(135deg, oklch(0.86 0.14 90), oklch(0.68 0.14 60));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .text-gradient-crimson {
+    background: linear-gradient(135deg, oklch(0.65 0.24 18), oklch(0.74 0.14 15));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .bg-radial-spotlight {
+    background:
+      radial-gradient(60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%),
+      radial-gradient(40% 40% at 100% 100%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 70%),
+      var(--background);
+  }
+
+  .animate-float-up {
+    animation: float-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .animate-pulse-glow {
+    animation: pulse-glow 2.4s ease-out infinite;
+  }
+  .animate-marquee {
+    animation: marquee 40s linear infinite;
   }
 }
 
-/* Custom animations */
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
 }
-
-.animate-slide-up {
-  animation: slide-up 0.3s ease-out;
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--primary) 35%, transparent); }
+  50% { box-shadow: 0 0 0 12px color-mix(in oklab, var(--primary) 0%, transparent); }
 }
-
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
+@keyframes float-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 3px;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #374151;
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

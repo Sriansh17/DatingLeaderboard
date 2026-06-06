@@ -3,9 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
 import { useToast } from '@/components/ui/Toast';
+import { Mail, Lock, User, ArrowRight } from 'lucide-react';
 
 export function SignupForm() {
   const [email, setEmail] = useState('');
@@ -35,7 +34,6 @@ export function SignupForm() {
     }
 
     if (data.user) {
-      // Create profile entry
       const { error: profileError } = await supabase.from('profiles').insert({
         id: data.user.id,
         username: username,
@@ -46,42 +44,60 @@ export function SignupForm() {
       }
     }
 
-    addToast('Account created! Check your email to verify. ❤️', 'success');
-    router.push('/auth/login');
+    // Automatically push to onboarding instead of login 
+    router.push('/onboarding');
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <Input
-        id="username"
-        label="Username"
-        placeholder="lovestruck42"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        required
-      />
-      <Input
-        id="email"
-        label="Email"
-        type="email"
-        placeholder="you@example.com"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        required
-      />
-      <Input
-        id="password"
-        label="Password"
-        type="password"
-        placeholder="At least 6 characters"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        minLength={6}
-        required
-      />
-      <Button type="submit" loading={loading} className="w-full">
-        Create Account
-      </Button>
+      <div className="space-y-3">
+        <div className="relative">
+          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <input
+            id="username"
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required
+            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+          />
+        </div>
+        <div className="relative">
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <input
+            id="email"
+            type="email"
+            placeholder="Email Address"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+          />
+        </div>
+        <div className="relative">
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <input
+            id="password"
+            type="password"
+            placeholder="Password (min 6 chars)"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={6}
+            required
+            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+          />
+        </div>
+      </div>
+      
+      <button 
+        type="submit" 
+        disabled={loading} 
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
+      >
+        <span>Create Account</span>
+        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+      </button>
     </form>
   );
 }

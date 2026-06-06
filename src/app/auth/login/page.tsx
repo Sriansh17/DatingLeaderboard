@@ -1,27 +1,43 @@
 import Link from 'next/link';
 import { LoginForm } from '@/components/auth/LoginForm';
-import { Heart } from 'lucide-react';
 
 export default function LoginPage() {
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <Heart className="h-10 w-10 text-pink-500 mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Welcome Back</h1>
-          <p className="text-sm text-gray-500 mt-1">Sign in to continue sharing the love</p>
-        </div>
+    <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background">
+      {/* Immersive Glowing Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-[#E92B54] opacity-20 mix-blend-screen blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full bg-gold opacity-10 mix-blend-screen blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] rounded-full bg-[#E92B54] opacity-10 mix-blend-screen blur-[140px]" />
+      </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
-          <LoginForm />
-        </div>
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col h-full justify-between sm:justify-center">
+          
+          <div className="text-center sm:mb-12 mt-12 sm:mt-0">
+            <h1 className="font-display text-5xl italic font-bold tracking-tight text-foreground leading-tight">
+              Welcome back to <br />
+              <span className="text-[#E92B54]">Love Leaderboard</span>
+            </h1>
+            <p className="text-muted-foreground mt-4 text-sm font-medium">
+              Continue sharing your story.
+            </p>
+          </div>
 
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Don&apos;t have an account?{' '}
-          <Link href="/auth/signup" className="text-pink-500 hover:text-pink-600 font-medium">
-            Sign up
-          </Link>
-        </p>
+          <div className="mt-auto sm:mt-0 space-y-6">
+            <LoginForm />
+
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">
+                Don't have an account?{' '}
+                <Link href="/auth/signup" className="text-white hover:text-[#E92B54] font-bold transition-colors">
+                  Create one
+                </Link>
+              </p>
+            </div>
+          </div>
+
+        </div>
       </div>
     </div>
   );

@@ -5,8 +5,8 @@ import { usePost } from '@/lib/hooks/usePosts';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
-import { Card } from '@/components/ui/Card';
-import { formatRelativeTime, getScoreColor, getScoreBgColor } from '@/lib/utils/format';
+import { ScoreRing } from '@/components/ui/ScoreRing';
+import { formatRelativeTime } from '@/lib/utils/format';
 import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
 import { ShareCard } from '@/components/posts/ShareCard';
 import { createClient } from '@/lib/supabase/client';
@@ -41,38 +41,40 @@ export default function PostDetailPage() {
   if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
   if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
 
-  const scoreColor = post.ai_score ? getScoreColor(post.ai_score) : 'text-gray-400';
-  const scoreBg = post.ai_score ? getScoreBgColor(post.ai_score) : 'bg-gray-300';
   let breakdown: Record<string, number> = {};
   try {
     if (post.ai_explanation) breakdown = JSON.parse(post.ai_explanation);
   } catch {}
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
-      <button
-        onClick={() => router.back()}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back
-      </button>
+    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-32">
+      <div className="absolute top-8 left-6 sm:left-12">
+        <button
+          onClick={() => router.back()}
+          className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group tracking-wide"
+        >
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+          Back to Feed
+        </button>
+      </div>
+
+      <div className="max-w-2xl mx-auto space-y-8 pt-16">
 
       {/* Score Hero */}
-      <div className="text-center py-8">
-        <div className={`w-24 h-24 rounded-3xl ${scoreBg} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
-          <span className="text-3xl font-bold text-white">{post.ai_score || '?'}</span>
+      <div className="text-center py-10 relative">
+        <div className="absolute inset-0 bg-gradient-radial from-primary/10 to-transparent blur-3xl -z-10" />
+        <div className="flex justify-center mb-6">
+          <ScoreRing score={post.ai_score || 0} size={120} />
         </div>
-        <h1 className={`text-2xl font-bold ${scoreColor}`}>
-          {post.ai_score ? `${post.ai_score}/100` : 'Not yet scored'}
-        </h1>
+        
         {post.partner && (
-          <p className="text-gray-500 mt-1">
-            {post.partner.emoji} {post.partner.name}
-          </p>
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-elevated border border-border mt-2">
+            <span>{post.partner.emoji}</span>
+            <span className="text-sm font-medium">with {post.partner.name}</span>
+          </div>
         )}
         {authorRank && (
-          <p className="text-sm text-pink-500 font-medium mt-1">
+          <p className="text-sm text-gold font-medium mt-4 animate-pulse">
             Ranked #{authorRank} globally 🏆
           </p>
         )}
@@ -80,68 +82,80 @@ export default function PostDetailPage() {
 
       {/* AI Feedback */}
       {post.ai_feedback && (
-        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-800">
-          <div className="flex items-center gap-2 mb-2">
-            <Sparkles className="h-5 w-5 text-pink-500" />
-            <span className="font-semibold text-pink-600 dark:text-pink-400">LoveScore AI</span>
+        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-blush/20 to-transparent p-8 shadow-xl backdrop-blur-md relative overflow-hidden">
+          <div className="relative z-10">
+            <div className="flex items-center gap-2 mb-4">
+              <Sparkles className="h-6 w-6 text-blush" />
+              <span className="font-display tracking-widest uppercase text-xs font-bold text-blush">LoveScore AI Verdict</span>
+            </div>
+            <p className="font-display text-2xl italic leading-relaxed text-foreground">
+              “{post.ai_feedback}”
+            </p>
           </div>
-          <p className="text-gray-700 dark:text-gray-300 italic">{post.ai_feedback}</p>
-        </Card>
+        </div>
       )}
 
       {/* Description */}
-      <Card>
-        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{post.description}</p>
-        <div className="flex items-center gap-2 mt-4 text-xs text-gray-400">
-          <span>{formatRelativeTime(post.created_at)}</span>
-          <span>•</span>
-          <Badge variant={post.is_public ? 'success' : 'default'}>
-            {post.is_public ? 'Public' : 'Private'}
+      <div className="rounded-3xl border border-border bg-card p-8">
+        <h4 className="font-display tracking-widest uppercase text-[10px] font-bold text-muted-foreground mb-4">
+          Original Story
+        </h4>
+        <p className="text-foreground/90 leading-relaxed text-lg whitespace-pre-wrap">{post.description}</p>
+        <div className="flex flex-wrap items-center gap-3 mt-8 pt-6 border-t border-border">
+          <span className="text-xs text-muted-foreground font-medium uppercase tracking-wider">{formatRelativeTime(post.created_at)}</span>
+          <span className="text-muted-foreground/30">•</span>
+          <Badge variant={post.is_public ? 'success' : 'default'} className="bg-elevated border-border text-xs">
+            {post.is_public ? 'Public Record' : 'Private Archive'}
           </Badge>
         </div>
-      </Card>
+      </div>
 
       {/* Breakdown */}
       {Object.keys(breakdown).length > 0 && (
-        <Card>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Score Breakdown</h3>
-          <div className="space-y-3">
-            {Object.entries(breakdown).map(([key, value]) => (
-              <div key={key} className="flex items-center gap-3">
-                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize w-32">
-                  {key.replace('_', ' ')}
-                </span>
-                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-1000"
-                    style={{ width: `${(value / getMax(key)) * 100}%` }}
-                  />
+        <div className="rounded-3xl border border-border bg-card p-8">
+          <h3 className="font-display text-2xl italic text-foreground mb-6">Score Breakdown</h3>
+          <div className="space-y-5">
+            {Object.entries(breakdown).map(([key, value]) => {
+              const max = getMax(key);
+              const percentage = (value / max) * 100;
+              return (
+                <div key={key} className="flex flex-col gap-2">
+                  <div className="flex justify-between items-end">
+                    <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
+                      {key.replace('_', ' ')}
+                    </span>
+                    <span className="font-score text-lg text-foreground leading-none">
+                      {value} <span className="text-muted-foreground text-sm">/ {max}</span>
+                    </span>
+                  </div>
+                  <div className="h-2 w-full bg-elevated rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-gradient-to-r from-blush to-primary rounded-full transition-all duration-1000 ease-out"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
                 </div>
-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-8 text-right">
-                  {value}
-                </span>
-              </div>
-            ))}
+              );
+            })}
           </div>
-        </Card>
+        </div>
       )}
 
       {/* Actions */}
-      {user && post.user_id === user.id && (
-        <div className="flex items-center justify-between">
-          <ShareCard post={post} rank={authorRank} />
-          <Button variant="ghost" size="sm" onClick={handleDelete}>
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/50">
+        <ShareCard post={post} rank={authorRank} />
+        {user && post.user_id === user.id && (
+          <button 
+            onClick={handleDelete}
+            className="flex items-center gap-2 px-4 py-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm font-medium"
+          >
             <Trash2 className="h-4 w-4" />
-            Delete
-          </Button>
-        </div>
-      )}
-      {(!user || post.user_id !== user.id) && (
-        <div className="flex justify-start">
-          <ShareCard post={post} rank={authorRank} />
-        </div>
-      )}
-    </div>
+            Delete Memory
+          </button>
+        )}
+      </div>
+      </div>
+    </main>
   );
 }
 

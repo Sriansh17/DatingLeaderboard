@@ -1,9 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Button } from '@/components/ui/Button';
-import { Input } from '@/components/ui/Input';
-import { Avatar } from '@/components/ui/Avatar';
 import { useToast } from '@/components/ui/Toast';
 import { createClient } from '@/lib/supabase/client';
 import { Camera } from 'lucide-react';
@@ -127,20 +124,21 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {/* Avatar Upload */}
-      <div className="flex flex-col items-center gap-3">
-        <div className="relative">
-          <Avatar
-            src={avatarPreview}
-            alt={name || 'Partner'}
-            size="lg"
-            className="ring-2 ring-pink-200 dark:ring-pink-800"
-          />
+      <div className="flex flex-col items-center gap-4 py-4">
+        <div className="relative group">
+          <div className="w-28 h-28 rounded-full overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center transition-all group-hover:border-blush/50">
+            {avatarPreview ? (
+              <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-5xl">{emoji}</span>
+            )}
+          </div>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
+            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-card border border-white/10 text-foreground flex items-center justify-center hover:bg-white/5 hover:text-blush transition-colors shadow-xl"
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -152,39 +150,35 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           onChange={handleFileSelect}
           className="hidden"
         />
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className="text-xs text-pink-500 hover:text-pink-600 font-medium"
-        >
-          Add Photo
-        </button>
       </div>
 
-      <Input
-        id="partnerName"
-        label="Partner's Name"
-        placeholder="Alex"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        required
-      />
+      <div className="space-y-3">
+        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Partner's Name</label>
+        <input
+          id="partnerName"
+          placeholder="e.g. Alex"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className="w-full rounded-2xl border border-white/10 bg-black/40 px-6 py-4 text-lg font-display text-foreground outline-none focus:border-blush/50 transition-colors placeholder:text-muted-foreground/50"
+        />
+      </div>
 
       {/* Relationship Type */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+      <div className="space-y-3">
+        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
           Relationship
         </label>
-        <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+        <div className="flex flex-wrap gap-3">
           {RELATIONSHIPS.map((rel) => (
             <button
               key={rel.value}
               type="button"
               onClick={() => setRelationship(rel.value)}
-              className={`px-3 py-2 rounded-lg text-sm font-medium border transition-all ${
+              className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
                 relationship === rel.value
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-500/10 text-pink-600 dark:text-pink-400'
-                  : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:border-pink-300'
+                  ? 'border-blush/30 bg-blush/10 text-blush shadow-[0_0_15px_rgba(255,100,150,0.1)]'
+                  : 'border-white/5 bg-black/40 text-muted-foreground hover:bg-white/5 hover:text-foreground'
               }`}
             >
               {rel.label}
@@ -194,9 +188,9 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
       </div>
 
       {/* Emoji Selector */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Choose an Emoji
+      <div className="space-y-3">
+        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
+          Signature Emoji
         </label>
         <div className="flex flex-wrap gap-2">
           {EMOJI_OPTIONS.map((e) => (
@@ -204,10 +198,10 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               key={e}
               type="button"
               onClick={() => setEmoji(e)}
-              className={`text-2xl p-2 rounded-lg border transition-all ${
+              className={`text-2xl h-12 w-12 rounded-full border flex items-center justify-center transition-all ${
                 emoji === e
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-500/10 scale-110'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
+                  ? 'border-blush/30 bg-blush/10 scale-110 shadow-[0_0_15px_rgba(255,100,150,0.1)]'
+                  : 'border-white/5 bg-black/40 hover:bg-white/5'
               }`}
             >
               {e}
@@ -216,9 +210,15 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
         </div>
       </div>
 
-      <Button type="submit" loading={loading} className="w-full">
-        Add Partner 💕
-      </Button>
+      <div className="pt-6 border-t border-white/5 mt-8">
+        <button
+        type="submit"
+        disabled={loading || !name.trim()}
+        className="w-full flex items-center justify-center rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+      >
+        Add Partner 💖
+      </button>
+      </div>
     </form>
   );
 }

@@ -68,16 +68,16 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-gray-400 hover:text-red-500 transition-colors flex items-center gap-1"
+        className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
         title="Flag this post"
       >
         <Flag className="h-3 w-3" />
         {flagged ? 'Flagged' : 'Flag'}
       </button>
 
-      <Modal open={open} onClose={() => setOpen(false)} title="Flag Post">
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600 dark:text-gray-400">
+      <Modal isOpen={open} onClose={() => setOpen(false)} title="Flag Post">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
             Why are you flagging this post?
           </p>
           {FLAG_REASONS.map((reason) => (
@@ -85,28 +85,29 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
               key={reason.value}
               type="button"
               onClick={() => setSelectedReason(reason.value)}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-medium border transition-all ${
+              className={`w-full text-left px-5 py-3 rounded-2xl text-sm font-medium border transition-all ${
                 selectedReason === reason.value
-                  ? 'border-red-500 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
-                  : 'border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-red-300'
+                  ? 'border-destructive bg-destructive/10 text-destructive shadow-[0_0_15px_rgba(var(--destructive-rgb),0.2)]'
+                  : 'border-white/10 bg-white/5 text-foreground hover:border-white/20 hover:bg-white/10'
               }`}
             >
               {reason.label}
             </button>
           ))}
-          <div className="flex gap-2 pt-2">
-            <Button variant="ghost" className="flex-1" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button
-              className="flex-1"
-              variant="danger"
-              onClick={handleFlag}
-              loading={submitting}
-              disabled={!selectedReason}
+          <div className="flex gap-3 pt-4">
+            <button 
+              className="flex-1 py-3 rounded-xl border border-white/10 bg-transparent text-foreground hover:bg-white/5 transition-colors font-medium text-sm" 
+              onClick={() => setOpen(false)}
             >
-              Flag Post
-            </Button>
+              Cancel
+            </button>
+            <button
+              className="flex-1 py-3 rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 disabled:opacity-50 transition-opacity font-medium text-sm shadow-[0_0_30px_-5px_var(--destructive)]"
+              onClick={handleFlag}
+              disabled={!selectedReason || submitting}
+            >
+              {submitting ? 'Flagging...' : 'Flag Post'}
+            </button>
           </div>
         </div>
       </Modal>

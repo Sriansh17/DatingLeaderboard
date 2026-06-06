@@ -2,44 +2,50 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/Button';
-import { Textarea } from '@/components/ui/Textarea';
 import { useToast } from '@/components/ui/Toast';
 import { Modal } from '@/components/ui/Modal';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
-import { Sparkles, Heart, ShieldAlert } from 'lucide-react';
+import { ShieldAlert, Sparkles, Mic } from 'lucide-react';
+import { VerdictCard } from '@/components/ui/VerdictCard';
+
+type Step = "write" | "loading" | "verdict";
 
 interface PostFormProps {
   partners: Partner[];
   userId: string;
 }
 
+function lenFeedback(n: number) {
+  if (n < 30) return "Give the AI something to work with.";
+  if (n < 80) return "Keep going. Details = better verdict.";
+  if (n < 240) return "Perfect length. Chef's kiss.";
+  return "Okay Shakespeare, wrap it up.";
+}
+
 export function PostForm({ partners, userId }: PostFormProps) {
+  const [step, setStep] = useState<Step>("write");
   const [description, setDescription] = useState('');
   const [partnerId, setPartnerId] = useState(partners[0]?.id || '');
   const [isPublic, setIsPublic] = useState(true);
+  
   const [aiResult, setAiResult] = useState<AIScoreResult | null>(null);
   const [showFlaggedModal, setShowFlaggedModal] = useState(false);
   const [flaggedReason, setFlaggedReason] = useState('');
+  
   const router = useRouter();
   const { addToast } = useToast();
   const createPost = useCreatePost();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const selectedPartner = partners.find(p => p.id === partnerId);
+  const partnerNickname = selectedPartner?.name || "your partner";
 
-    if (!description.trim()) {
-      addToast('Please describe what your partner did!', 'warning');
-      return;
-    }
-
-    if (!partnerId) {
-      addToast('Please select your partner', 'warning');
-      return;
-    }
-
+  const submit = async () => {
+    if (description.length < 30) return;
+    
+    setStep("loading");
+    
     try {
       const result = await createPost.mutateAsync({
         user_id: userId,
@@ -49,10 +55,9 @@ export function PostForm({ partners, userId }: PostFormProps) {
       });
 
       setAiResult(result.aiResult);
-
-      addToast(`Posted! Score: ${result.aiResult.score}/100 ❤️`, 'success');
-      router.push('/dashboard');
+      setStep("verdict");
     } catch (err: any) {
+      setStep("write");
       if (err.flagged) {
         setFlaggedReason(err.message);
         setShowFlaggedModal(true);
@@ -62,121 +67,173 @@ export function PostForm({ partners, userId }: PostFormProps) {
     }
   };
 
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Partner Select */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-          Who are you appreciating?
-        </label>
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-          {partners.map((partner) => (
-            <button
-              key={partner.id}
-              type="button"
-              onClick={() => setPartnerId(partner.id)}
-              className={`p-3 rounded-xl border-2 text-center transition-all ${
-                partnerId === partner.id
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-500/10'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
-              }`}
-            >
-              <span className="text-2xl">{partner.emoji}</span>
-              <p className="text-sm font-medium mt-1">{partner.name}</p>
-            </button>
-          ))}
+  if (step === "loading") {
+    return (
+      <div className="grid min-h-[60vh] place-items-center px-6 animate-in fade-in duration-500">
+        <div className="text-center relative">
+          <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/10 shadow-[0_0_40px_-10px_var(--gold)]">
+            {/* Animated concentric rings centered correctly */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
+            
+            <Sparkles className="h-8 w-8 text-gold animate-pulse relative z-10" />
+          </div>
+          
+          <div className="mt-8 space-y-2">
+            <p className="font-display text-2xl italic text-foreground animate-pulse">
+              Consulting the archives...
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Cross-referencing relationship standards.
+            </p>
+          </div>
         </div>
       </div>
+    );
+  }
 
-      {/* Description */}
-      <Textarea
-        id="description"
-        label="What did your partner do today?"
-        placeholder="They made me breakfast in bed... They surprised me with tickets to my favorite band..."
+  if (step === "verdict" && aiResult) {
+    return (
+      <div className="py-2">
+        <div className="mb-4 text-center">
+          <p className="text-xs uppercase tracking-[0.25em] text-gold">The Algorithm Speaks</p>
+          <h1 className="font-display text-2xl italic text-foreground">Your Verdict</h1>
+        </div>
+        
+        <VerdictCard
+          score={aiResult.score}
+          verdict={aiResult.feedback}
+          explanationStr={aiResult.breakdown ? JSON.stringify(aiResult.breakdown) : undefined}
+          username="@you" // We don't have the current user's profile object here, using placeholder
+          partnerNickname={partnerNickname}
+          city="Your City"
+        />
+        
+        <div className="mt-6 space-y-2">
+          <button 
+            onClick={() => router.push('/leaderboards')}
+            className="w-full rounded-xl bg-primary py-3.5 font-medium text-primary-foreground transition-transform hover:scale-[1.01]"
+          >
+            See My New Rank ↑
+          </button>
+          <button
+            onClick={() => router.push("/dashboard")}
+            className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Back to feed
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <p className="text-xs uppercase tracking-[0.25em] text-gold">Step 1 of 1</p>
+      <h1 className="mt-1 font-display text-3xl italic leading-tight text-foreground">
+        Tell us what {partnerNickname} did.
+      </h1>
+      <p className="mt-2 text-sm text-muted-foreground">
+        The AI will score it. Brutally. Be specific.
+      </p>
+
+      {/* Partner Selection as glowing pills */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {partners.map(p => (
+          <button
+            key={p.id}
+            onClick={() => setPartnerId(p.id)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
+              partnerId === p.id 
+                ? 'border-blush bg-blush/10 text-blush' 
+                : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {p.emoji} {p.name}
+          </button>
+        ))}
+      </div>
+
+      <textarea
         value={description}
         onChange={(e) => setDescription(e.target.value)}
-        rows={5}
-        required
+        rows={8}
+        className="mt-6 w-full resize-none rounded-3xl border border-white/10 bg-black/40 p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 placeholder:text-muted-foreground/30 shadow-inner"
+        placeholder="They did something. Tell us about it."
       />
 
-      {/* AI Score Preview */}
-      {aiResult && (
-        <div className="p-4 rounded-xl bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border border-pink-200 dark:border-pink-800">
-          <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="h-5 w-5 text-pink-500" />
-            <span className="font-semibold text-pink-600 dark:text-pink-400">LoveScore AI</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="text-3xl font-bold text-pink-500">{aiResult.score}/100</div>
-            <div className="flex-1">
-              <p className="text-sm text-gray-700 dark:text-gray-300 italic">{aiResult.feedback}</p>
-            </div>
-          </div>
-        </div>
-      )}
+      <div className="mt-2 flex items-center justify-between text-xs">
+        <span className="text-muted-foreground">{lenFeedback(description.length)}</span>
+        <span className="text-muted-foreground">{description.length} chars</span>
+      </div>
 
-      {/* Options */}
-      <div className="flex items-center gap-2">
-        <input
-          type="checkbox"
-          id="isPublic"
-          checked={isPublic}
-          onChange={(e) => setIsPublic(e.target.checked)}
-          className="rounded border-gray-300 text-pink-500 focus:ring-pink-500"
-        />
-        <label htmlFor="isPublic" className="text-sm text-gray-600 dark:text-gray-400">
-          Make this post public (visible on leaderboards)
+      <div className="mt-4 flex items-center justify-between">
+        <button className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-elevated/40 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <Mic className="h-3.5 w-3.5" /> Use voice instead
+        </button>
+
+        <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
+          <input
+            type="checkbox"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.target.checked)}
+            className="rounded border-border bg-card text-primary focus:ring-primary focus:ring-offset-background"
+          />
+          Make Public
         </label>
       </div>
 
-      {/* Submit */}
-      <Button type="submit" loading={createPost.isPending} className="w-full" size="lg">
-        <Heart className="h-5 w-5" />
-        Post & Get Scored
-      </Button>
+      <button
+        onClick={submit}
+        disabled={description.length < 30 || createPost.isPending}
+        className="mt-8 w-full flex items-center justify-center rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+      >
+        Submit for Judgement
+      </button>
 
-      {/* Sarcastic Flagged Entry Modal */}
+      {/* Flagged Modal styled for dark theme */}
       <Modal
         isOpen={showFlaggedModal}
         onClose={() => setShowFlaggedModal(false)}
-        title="Love Referee: Red Card! 🟥"
-        className="max-w-md"
+        title="Love Referee"
+        className="max-w-md bg-[#0a0a0a] border-border/40 backdrop-blur-3xl shadow-2xl"
       >
-        <div className="text-center py-4 space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 animate-bounce">
-            <ShieldAlert className="h-8 w-8" />
+        <div className="text-center py-6 space-y-8">
+          <div className="relative mx-auto w-24 h-24">
+            <div className="absolute inset-0 rounded-full bg-[#E92B54]/20 animate-ping" />
+            <div className="relative w-full h-full rounded-full border border-[#E92B54]/30 bg-black/50 flex items-center justify-center text-[#E92B54] backdrop-blur-md shadow-[0_0_30px_rgba(233,43,84,0.3)]">
+              <ShieldAlert className="h-10 w-10" />
+            </div>
           </div>
           
-          <div className="space-y-2">
-            <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">
-              Nice Try, Shakespeare! 🤨
+          <div className="space-y-3">
+            <h3 className="font-display text-3xl italic text-foreground">
+              Red Card! 🟥
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Our LoveScore AI guardrails caught some creative writing in your entry.
+            <p className="text-sm font-medium tracking-wide text-muted-foreground/80">
+              Our AI guardrails caught some creative writing.
             </p>
           </div>
 
-          <div className="relative p-5 rounded-2xl bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-900/10 dark:to-orange-900/10 border border-rose-100 dark:border-rose-900/30 text-left">
-            <span className="absolute -top-3 left-4 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-rose-500 text-white rounded-full">
-              Sarcasm Detector 🚨
+          <div className="relative p-6 rounded-3xl bg-black/40 border border-white/10 text-left shadow-inner">
+            <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-[#E92B54] text-white rounded-full shadow-[0_0_15px_rgba(233,43,84,0.5)]">
+              AI Detector 🚨
             </span>
-            <p className="text-gray-700 dark:text-gray-300 italic font-medium leading-relaxed">
+            <p className="font-display text-xl italic text-foreground/90 leading-relaxed">
               "{flaggedReason}"
             </p>
           </div>
 
-          <div className="pt-2 flex flex-col sm:flex-row gap-2 justify-center">
-            <Button
-              type="button"
-              variant="primary"
-              className="w-full sm:w-auto"
+          <div className="pt-2 flex justify-center">
+            <button
               onClick={() => setShowFlaggedModal(false)}
+              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-colors"
             >
               My bad, let me tell the truth 😅
-            </Button>
+            </button>
           </div>
         </div>
       </Modal>
-    </form>
+    </>
   );
 }

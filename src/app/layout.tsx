@@ -1,31 +1,20 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans, Playfair_Display, Bebas_Neue } from 'next/font/google';
 import './globals.css';
-import { BottomNav } from '@/components/layout/BottomNav';
-import { Sidebar } from '@/components/layout/Sidebar';
-import { Footer } from '@/components/layout/Footer';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
+import { AppDock } from '@/components/ui/AppDock';
 
-const inter = Inter({ subsets: ['latin'] });
+const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-sans' });
+const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-display' });
+const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-score' });
 
 export const metadata: Metadata = {
-  title: 'LoveBoard — Share & Score Love',
-  description: 'Share what your partner did for you today, get an AI score, and compete on leaderboards!',
-  manifest: '/manifest.json',
-  themeColor: '#f43f5e',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'LoveBoard',
-  },
-  openGraph: {
-    title: 'LoveBoard',
-    description: 'Share what your partner did for you today, get an AI score, and compete on leaderboards!',
-    type: 'website',
-  },
+  title: 'Love Leaderboard — Your Relationship Has a Score',
+  description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
+  themeColor: '#0E0E14',
 };
 
 export default function RootLayout({
@@ -35,25 +24,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
-      </head>
-      <body className={`${inter.className} bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 antialiased`}>
+      <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground`}>
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
               <ToastProvider>
-                <div className="min-h-screen flex pb-16 md:pb-0">
-                  <Sidebar />
-                  <div className="flex-1 flex flex-col min-w-0">
-                    <main className="flex-1 overflow-x-hidden">
-                      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                        {children}
-                      </div>
-                    </main>
-                    <Footer />
+                <div className="min-h-screen flex flex-col relative overflow-hidden">
+                  <div className="flex-1 w-full mx-auto pb-24 md:pb-28 animate-in fade-in duration-700">
+                    {children}
                   </div>
-                  <BottomNav />
+                  <AppDock />
                 </div>
               </ToastProvider>
             </AuthProvider>

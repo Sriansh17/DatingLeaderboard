@@ -13,24 +13,25 @@ export default function NewPartnerPage() {
   if (!user) return null;
 
   return (
-    <div className="max-w-lg mx-auto">
+    <main className="max-w-2xl mx-auto px-5 py-6 min-h-screen">
       <Link
-        href="/partners"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors mb-6"
+        href="/profile"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
         <ArrowLeft className="h-4 w-4" />
-        Back to Partners
+        Back to Profile
       </Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Add a Partner 💕</h1>
-      <p className="text-sm text-gray-500 mb-6">Tell us about your special someone</p>
+      <p className="text-xs uppercase tracking-[0.25em] text-gold mt-6">Step 1 of 1</p>
+      <h1 className="mt-1 font-display text-3xl italic leading-tight text-foreground">Add a Partner 💕</h1>
+      <p className="mt-2 text-sm text-muted-foreground mb-8">Tell us about your special someone before you submit a verdict.</p>
 
-      <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6">
+      <div className="mt-8">
         <PartnerForm
           userId={user.id}
-          onSuccess={() => router.push('/partners')}
+          onSuccess={() => router.push('/profile')}
         />
       </div>
-    </div>
+    </main>
   );
 }
