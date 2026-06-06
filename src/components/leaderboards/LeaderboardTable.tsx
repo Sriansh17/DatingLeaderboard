@@ -66,10 +66,12 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
 
           {/* Score */}
           <div className="text-right">
-            <p className={`text-2xl font-bold ${getScoreColor(entry.average_score)}`}>
+            <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white font-bold text-lg ${
+              getScoreColor(entry.average_score).replace('text-', 'bg-')
+            }`}>
               {entry.average_score}
-            </p>
-            <p className="text-xs text-gray-400">avg score</p>
+            </div>
+            <p className="text-xs text-gray-400 mt-1">avg</p>
           </div>
         </div>
       ))}

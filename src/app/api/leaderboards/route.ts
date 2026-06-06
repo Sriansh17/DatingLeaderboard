@@ -42,7 +42,7 @@ export async function GET(request: Request) {
     // Get all posts with scores
     const { data: posts } = await supabase
       .from('posts')
-      .select('user_id, ai_score, partner:partners(name, avatar_url, emoji)')
+      .select('*, partner:partners(name, avatar_url, emoji)')
       .not('ai_score', 'is', null)
       .eq('is_public', true);
 
@@ -57,18 +57,14 @@ export async function GET(request: Request) {
         userPosts[post.user_id] = { scores: [], partnerName: '', partnerAvatar: null, partnerEmoji: '' };
       }
       userPosts[post.user_id].scores.push(post.ai_score!);
-      const partnerData = post.partner as unknown;
-      const partner = Array.isArray(partnerData)
-        ? (partnerData as { name?: string; avatar_url?: string | null; emoji?: string }[])[0]
-        : (partnerData as { name?: string; avatar_url?: string | null; emoji?: string } | null);
-      if (partner?.name) {
-        userPosts[post.user_id].partnerName = partner.name;
-      }
-      if (partner?.avatar_url) {
-        userPosts[post.user_id].partnerAvatar = partner.avatar_url;
-      }
-      if (partner?.emoji) {
-        userPosts[post.user_id].partnerEmoji = partner.emoji;
+
+      // Extract partner data — Supabase returns array for joined relations
+      const rawPartner = post.partner;
+      if (rawPartner) {
+        const partner = Array.isArray(rawPartner) ? rawPartner[0] : rawPartner;
+        if (partner?.name) userPosts[post.user_id].partnerName = partner.name;
+        if (partner?.avatar_url) userPosts[post.user_id].partnerAvatar = partner.avatar_url;
+        if (partner?.emoji) userPosts[post.user_id].partnerEmoji = partner.emoji;
       }
     }
 

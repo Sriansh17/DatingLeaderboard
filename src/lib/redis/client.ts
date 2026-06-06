@@ -3,7 +3,9 @@ import { Redis } from '@upstash/redis';
 const isRedisConfigured =
   process.env.UPSTASH_REDIS_REST_URL &&
   process.env.UPSTASH_REDIS_REST_TOKEN &&
-  !process.env.UPSTASH_REDIS_REST_URL.includes('xxxxx');
+  !process.env.UPSTASH_REDIS_REST_URL.includes('xxxxx') &&
+  !process.env.UPSTASH_REDIS_REST_URL.includes('placeholder') &&
+  !process.env.UPSTASH_REDIS_REST_TOKEN.includes('placeholder');
 
 let redis: Redis | null = null;
 
