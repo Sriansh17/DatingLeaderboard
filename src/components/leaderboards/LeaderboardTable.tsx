@@ -25,7 +25,6 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
     return (
       <div className="text-center py-20 text-muted-foreground">
         <p className="text-lg font-medium">{emptyMessage}</p>
-        <p className="text-sm mt-1">Post at least once to appear on the leaderboard!</p>
       </div>
     );
   }

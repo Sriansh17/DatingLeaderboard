@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const latitude = searchParams.get('latitude');
     const longitude = searchParams.get('longitude');
     const city = searchParams.get('city');
+    const country = searchParams.get('country');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || String(LEADERBOARD_PAGE_SIZE));
 
@@ -23,6 +24,8 @@ export async function GET(request: Request) {
       ? `${latitude},${longitude}`
       : type === 'city'
         ? city || 'unknown'
+        : type === 'country'
+          ? country || 'unknown'
         : 'world';
 
     // Try cache first
@@ -45,7 +48,7 @@ export async function GET(request: Request) {
     const profilesStart = Date.now();
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, username, full_name, avatar_url, city, latitude, longitude');
+      .select('id, username, full_name, avatar_url, city, country, latitude, longitude');
     console.log(`[Leaderboard] Profiles query: ${Date.now() - profilesStart}ms | Count: ${profiles?.length || 0}`);
 
     if (!profiles) {
@@ -92,17 +95,25 @@ export async function GET(request: Request) {
         if (!data || data.scores.length < MIN_POSTS_FOR_LEADERBOARD) return false;
 
         // Filter by location
-        if (type === 'local' && latitude && longitude) {
-          const dist = calculateDistance(
-            parseFloat(latitude),
-            parseFloat(longitude),
-            p.latitude || 0,
-            p.longitude || 0
-          );
-          return dist <= 10; // 10km radius
+        if (type === 'local') {
+          // Only filter if we have valid coordinates
+          if (latitude && longitude && parseFloat(latitude) !== 0 && parseFloat(longitude) !== 0) {
+            const dist = calculateDistance(
+              parseFloat(latitude),
+              parseFloat(longitude),
+              p.latitude || 0,
+              p.longitude || 0
+            );
+            return dist <= 10; // 10km radius
+          }
+          // No location data — show all (same as global)
+          return true;
         }
         if (type === 'city' && city) {
           return p.city?.toLowerCase() === city.toLowerCase();
+        }
+        if (type === 'country' && country) {
+          return (p as any).country?.toLowerCase() === country.toLowerCase();
         }
         return true; // global
       })

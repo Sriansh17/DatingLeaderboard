@@ -8,12 +8,13 @@ interface UseLeaderboardParams extends LeaderboardQuery {
   enabled?: boolean;
 }
 
-async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEntry[]> {
+async function fetchLeaderboard(params: LeaderboardQuery & { country?: string }): Promise<LeaderboardEntry[]> {
   const searchParams = new URLSearchParams();
   searchParams.set('type', params.type);
   if (params.latitude) searchParams.set('latitude', String(params.latitude));
   if (params.longitude) searchParams.set('longitude', String(params.longitude));
   if (params.city) searchParams.set('city', params.city);
+  if ((params as any).country) searchParams.set('country', (params as any).country);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.limit) searchParams.set('limit', String(params.limit));
 

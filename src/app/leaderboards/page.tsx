@@ -9,8 +9,8 @@ import { Spinner } from '@/components/ui/Spinner';
 import { Avatar } from '@/components/ui/Avatar';
 import { ArrowUp, ArrowDown, Minus, Crown } from 'lucide-react';
 
-const scopes = ['global', 'city', 'local'] as const;
-const scopeLabels = ['Global', 'Country', 'City'] as const;
+const scopes = ['local', 'country', 'global'] as const;
+const scopeLabels = ['Local', 'Country', 'Global'] as const;
 
 function PodiumRank({ rank }: { rank: number }) {
   const colors = ['var(--gold)', '#C0C0C0', '#CD7F32'];
@@ -38,8 +38,9 @@ export default function RanksPage() {
   const { latitude, longitude } = useGeolocation();
 
   const params = {
-    type: scope as 'global' | 'city' | 'local',
-    city: scope === 'city' ? profile?.city || undefined : undefined,
+    type: scope as 'global' | 'local' | 'country',
+    city: scope === 'local' ? profile?.city || undefined : undefined,
+    country: scope === 'country' ? (profile as any)?.country || (profile as any)?.user_metadata?.country || undefined : undefined,
     latitude: scope === 'local' ? latitude || undefined : undefined,
     longitude: scope === 'local' ? longitude || undefined : undefined,
     limit: 50,
@@ -79,9 +80,9 @@ export default function RanksPage() {
         <p className="mt-2 text-center text-xs text-muted-foreground">
           {scope === 'global'
             ? 'Top couples worldwide'
-            : scope === 'city'
-              ? profile?.city ? `Top in ${profile.city}` : 'Set your city in profile'
-              : latitude ? 'Top near you' : 'Enable location for local rankings'}
+            : scope === 'country'
+              ? (profile as any)?.country || (profile as any)?.user_metadata?.country ? `Top in ${(profile as any)?.country || (profile as any)?.user_metadata?.country}` : 'Set your country in profile'
+              : latitude ? `Top near you${profile?.city ? ` in ${profile.city}` : ''}` : 'Enable location for local rankings'}
         </p>
       </div>
 
@@ -92,11 +93,10 @@ export default function RanksPage() {
       ) : !entries || entries.length === 0 ? (
         <div className="text-center py-20 text-muted-foreground">
           <p className="text-lg font-medium">No entries yet</p>
-          <p className="text-sm mt-1">Post at least 3 times to appear on the leaderboard!</p>
         </div>
       ) : (
         <>
-          {/* Top 3 Podium */}
+          {/* Top 3 Podium — only show if we have 3+ entries */}
           {top3.length === 3 && (
             <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 py-8 mt-2">
               <div className="flex flex-col items-center w-24 sm:w-32">
@@ -144,7 +144,7 @@ export default function RanksPage() {
 
           {/* Rest of the list */}
           <ol className="space-y-2 p-4">
-            {rest.map((entry) => (
+            {(top3.length < 3 ? entries : rest).map((entry) => (
               <li
                 key={entry.user_id}
                 className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"

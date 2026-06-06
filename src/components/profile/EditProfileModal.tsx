@@ -16,11 +16,11 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
   
   // Use metadata if passed, otherwise default
   const meta = currentProfile?.user_metadata || {};
-  const [age, setAge] = useState(meta.age || '24');
-  const [gender, setGender] = useState(meta.gender || 'Non-binary');
-  const [city, setCity] = useState(meta.city || 'San Francisco');
-  const [occupation, setOccupation] = useState(meta.occupation || 'Creative Director');
-  const [status, setStatus] = useState(meta.status || 'Exploring');
+  const [age, setAge] = useState(meta.age || '');
+  const [gender, setGender] = useState(meta.gender || '');
+  const [city, setCity] = useState(meta.city || currentProfile?.city || '');
+  const [occupation, setOccupation] = useState(meta.occupation || '');
+  const [country, setCountry] = useState(meta.country || currentProfile?.country || '');
   
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,12 +35,12 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ username, bio })
+        .update({ username, bio, city, country })
         .eq('id', currentProfile.id);
         
       // Update user metadata
       const { error: metaError } = await supabase.auth.updateUser({
-        data: { age, gender, city, occupation, status }
+        data: { age, gender, city, occupation, country }
       });
         
       if (!profileError && !metaError) {
@@ -128,11 +128,12 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
           </div>
 
           <div className="space-y-1 group">
-            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Status</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
             <input
               type="text"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="e.g. India"
               className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>

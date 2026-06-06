@@ -125,15 +125,15 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">City</p>
-                  <p className="text-foreground/90 font-medium">{meta.city || 'San Francisco'}</p>
+                  <p className="text-foreground/90 font-medium">{meta.city || profile?.city || '-'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Occupation</p>
-                  <p className="text-foreground/90 font-medium">{meta.occupation || 'Creative Director'}</p>
+                  <p className="text-foreground/90 font-medium">{meta.occupation || '-'}</p>
                 </div>
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Status</p>
-                  <p className="text-foreground/90 font-medium">{meta.status || 'Exploring'}</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Country</p>
+                  <p className="text-foreground/90 font-medium">{meta.country || (profile as any)?.country || '-'}</p>
                 </div>
               </div>
 
