@@ -35,7 +35,7 @@ export default function RanksPage() {
   const [scopeIdx, setScopeIdx] = useState(0);
   const scope = scopes[scopeIdx];
   const { profile } = useUser();
-  const { latitude, longitude } = useGeolocation();
+  const { latitude, longitude, loading: geoLoading } = useGeolocation();
 
   const params = {
     type: scope as 'global' | 'local' | 'country',
@@ -46,7 +46,11 @@ export default function RanksPage() {
     limit: 50,
   };
 
-  const { data: entries, isLoading } = useLeaderboard(params);
+  // Don't fetch local leaderboard until geolocation resolves
+  const { data: entries, isLoading } = useLeaderboard({
+    ...params,
+    enabled: scope !== 'local' || !geoLoading,
+  });
 
   const top3 = entries?.slice(0, 3) || [];
   const rest = entries?.slice(3) || [];
@@ -101,7 +105,7 @@ export default function RanksPage() {
             <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 py-8 mt-2">
               <div className="flex flex-col items-center w-24 sm:w-32">
                 <div className="relative mb-3">
-                  <Avatar src={top3[1].top_partner_avatar || top3[1].avatar_url} alt={top3[1].top_partner_name} size="lg" />
+                  <Avatar src={top3[1].avatar_url} alt={top3[1].top_partner_name} size="lg" />
                   <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-300 border-2 border-background grid place-items-center text-[10px] font-bold text-gray-700">2</div>
                 </div>
                 <div className="text-center mb-3 w-full px-1">
@@ -116,7 +120,7 @@ export default function RanksPage() {
 
               <div className="flex flex-col items-center w-24 sm:w-32">
                 <div className="relative mb-3">
-                  <Avatar src={top3[0].top_partner_avatar || top3[0].avatar_url} alt={top3[0].top_partner_name} size="lg" />
+                  <Avatar src={top3[0].avatar_url} alt={top3[0].top_partner_name} size="lg" />
                   <div className="absolute -top-3 -right-2 text-2xl drop-shadow-xl z-20">👑</div>
                 </div>
                 <div className="text-center mb-3 w-full px-1">
@@ -129,7 +133,7 @@ export default function RanksPage() {
 
               <div className="flex flex-col items-center w-24 sm:w-32">
                 <div className="relative mb-3">
-                  <Avatar src={top3[2].top_partner_avatar || top3[2].avatar_url} alt={top3[2].top_partner_name} size="lg" />
+                  <Avatar src={top3[2].avatar_url} alt={top3[2].top_partner_name} size="lg" />
                   <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-700 border-2 border-background grid place-items-center text-[10px] font-bold text-white">3</div>
                 </div>
                 <div className="text-center mb-3 w-full px-1">
@@ -153,7 +157,7 @@ export default function RanksPage() {
                   {entry.rank}
                 </div>
                 <Avatar
-                  src={entry.top_partner_avatar || entry.avatar_url}
+                  src={entry.avatar_url}
                   alt={entry.top_partner_name}
                   size="sm"
                 />
@@ -183,7 +187,7 @@ export default function RanksPage() {
                 #{myRank}
               </div>
               <Avatar
-                src={myEntry.top_partner_avatar || myEntry.avatar_url}
+                src={myEntry.avatar_url}
                 alt={myEntry.top_partner_name}
                 size="sm"
               />

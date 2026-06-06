@@ -48,10 +48,11 @@ export interface UpdateProfilePayload {
 }
 
 export interface LeaderboardQuery {
-  type: 'local' | 'city' | 'global';
+  type: 'local' | 'city' | 'country' | 'global';
   latitude?: number;
   longitude?: number;
   city?: string;
+  country?: string;
   page?: number;
   limit?: number;
 }

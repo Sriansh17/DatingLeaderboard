@@ -15,7 +15,6 @@ export async function GET() {
     const { data, error } = await supabase
       .from('posts')
       .select('*, partner:partners!partner_id(*), profile:profiles!user_id(*)')
-      .eq('is_public', true)
       .order('created_at', { ascending: false })
       .limit(50);
 

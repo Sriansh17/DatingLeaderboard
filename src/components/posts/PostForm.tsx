@@ -7,7 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
-import { ShieldAlert, Sparkles, Mic } from 'lucide-react';
+import { ShieldAlert, Sparkles } from 'lucide-react';
 import { VerdictCard } from '@/components/ui/VerdictCard';
 
 type Step = "write" | "loading" | "verdict";
@@ -167,11 +167,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         <span className="text-muted-foreground">{description.length} chars</span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
-        <button className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-elevated/40 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <Mic className="h-3.5 w-3.5" /> Use voice instead
-        </button>
-
+      <div className="mt-4 flex items-center justify-end">
         <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
           <input
             type="checkbox"
