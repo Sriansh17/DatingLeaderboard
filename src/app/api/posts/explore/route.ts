@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   const start = Date.now();
   try {
@@ -23,7 +25,9 @@ export async function GET() {
     }
 
     console.log(`[Explore API] Fetched ${data?.length || 0} posts in ${Date.now() - start}ms`);
-    return NextResponse.json({ success: true, data: data || [] });
+    return NextResponse.json({ success: true, data: data || [] }, {
+      headers: { 'Cache-Control': 'no-store' },
+    });
   } catch (error) {
     console.error('[Explore API] Error:', error);
     return NextResponse.json({ success: false, error: 'Failed to fetch posts' }, { status: 500 });

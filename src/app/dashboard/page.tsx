@@ -39,7 +39,8 @@ export default function DashboardPage() {
   const { data: posts, isLoading } = useQuery({
     queryKey: ['explore-posts'],
     queryFn: fetchExplorePosts,
-    staleTime: 30_000, // cache for 30s
+    staleTime: 0, // always refetch on mount
+    refetchOnWindowFocus: true,
   });
 
   return (
