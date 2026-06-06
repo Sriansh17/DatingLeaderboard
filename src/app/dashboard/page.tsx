@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PostCard } from '@/components/posts/PostCard';
 import { Card } from '@/components/ui/Card';
 import { Heart, Compass, PlusCircle } from 'lucide-react';
+import { FlagButton } from '@/components/posts/FlagButton';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
 import type { Post } from '@/types/database';
@@ -92,6 +93,9 @@ export default function DashboardPage() {
                 </div>
               )}
               <PostCard post={post} />
+              <div className="flex justify-end px-1 mt-1">
+                <FlagButton postId={post.id} postUserId={post.user_id} />
+              </div>
             </div>
           ))}
         </div>

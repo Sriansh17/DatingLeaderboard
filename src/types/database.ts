@@ -52,6 +52,14 @@ export interface LeaderboardEntry {
   top_partner_emoji: string;
 }
 
+export interface Flag {
+  id: string;
+  post_id: string;
+  user_id: string;
+  reason: string;
+  created_at: string;
+}
+
 export interface LeaderboardCache {
   id: string;
   data: LeaderboardEntry[];
