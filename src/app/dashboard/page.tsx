@@ -77,25 +77,25 @@ export default function DashboardPage() {
             {/* Editorial Widgets Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {/* Daily Prompt */}
-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
+              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Sparkles className="h-3 w-3 text-[#ff3366]" />
-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ff3366]">Daily Prompt</span>
+                    <Sparkles className="h-3 w-3 text-primary" />
+                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-primary">Daily Prompt</span>
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">What was your favorite date this month?</p>
                 </div>
-                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:border-white/20">
-                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-[#E92B54]" />
+                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary transition-all hover:bg-primary/10 hover:border-primary/30">
+                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
                 </Link>
               </div>
 
               {/* AI Insight */}
-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
+              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <TrendingUp className="h-3 w-3 text-[#ffb6b6]" />
-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ffb6b6]">Insight</span>
+                    <TrendingUp className="h-3 w-3 text-accent" />
+                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-accent">Insight</span>
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground/90 leading-snug font-light">
                     Couples who post weekly maintain a 30% higher romance score.
@@ -104,17 +104,17 @@ export default function DashboardPage() {
               </div>
 
               {/* Top Mover */}
-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
+              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
-                    <Trophy className="h-3 w-3 text-[#ffd700]" />
-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ffd700]">Top Mover</span>
+                    <Trophy className="h-3 w-3 text-gold" />
+                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-gold">Top Mover</span>
                   </div>
                   <div className="flex items-center gap-4 mt-2">
-                    <div className="h-10 w-10 rounded-full border border-white/20 bg-transparent grid place-items-center font-display text-lg text-[#ffd700]">J</div>
+                    <div className="h-10 w-10 rounded-full border border-border bg-secondary grid place-items-center font-display text-lg text-gold">J</div>
                     <div>
                       <p className="font-display text-xl text-foreground font-light mb-0.5">@jessica</p>
-                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#00ff88] flex items-center gap-1">
+                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-emerald-600 flex items-center gap-1">
                         <TrendingUp className="h-2.5 w-2.5"/> Up 42 ranks
                       </p>
                     </div>

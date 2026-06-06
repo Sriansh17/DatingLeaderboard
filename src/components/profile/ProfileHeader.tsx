@@ -58,17 +58,17 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+        <div className="p-3 rounded-xl bg-secondary">
           <p className="text-2xl font-bold text-primary">{postCount}</p>
-          <p className="text-xs text-gray-500">Posts</p>
+          <p className="text-xs text-muted-foreground">Posts</p>
         </div>
-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+        <div className="p-3 rounded-xl bg-secondary">
           <p className="text-2xl font-bold text-primary">{partnerCount}</p>
-          <p className="text-xs text-gray-500">Partners</p>
+          <p className="text-xs text-muted-foreground">Partners</p>
         </div>
-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+        <div className="p-3 rounded-xl bg-secondary">
           <p className="text-2xl font-bold text-primary">{averageScore}</p>
-          <p className="text-xs text-gray-500">Avg Score</p>
+          <p className="text-xs text-muted-foreground">Avg Score</p>
         </div>
       </div>
     </div>

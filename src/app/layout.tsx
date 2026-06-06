@@ -14,7 +14,7 @@ const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-
 export const metadata: Metadata = {
   title: 'Love Leaderboard — Your Relationship Has a Score',
   description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
-  themeColor: '#0D0A14',
+  themeColor: '#FFF5F5',
 };
 
 export default function RootLayout({
@@ -23,13 +23,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground`}>
         <QueryProvider>
           <ThemeProvider>
             <AuthProvider>
               <ToastProvider>
-                <div className="min-h-screen flex flex-col relative overflow-hidden">
+                <div className="min-h-screen flex flex-col relative overflow-hidden bg-radial-spotlight">
                   <div className="flex-1 w-full mx-auto pb-24 md:pb-28 animate-in fade-in duration-700">
                     {children}
                   </div>

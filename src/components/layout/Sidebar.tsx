@@ -54,8 +54,8 @@ export function Sidebar() {
       )}
     >
       {/* Decorative art blob */}
-      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-pink-300/20 to-rose-400/10 dark:from-primary/10 dark:to-accent/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-300/20 to-pink-300/10 dark:from-purple-500/10 dark:to-pink-500/5 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-[#FFB3C6]/30 to-[#FFDEE6]/20 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-[#FFDEE6]/25 to-[#FFB3C6]/15 rounded-full blur-3xl pointer-events-none" />
 
       {/* Collapse Toggle Button */}
       {isMounted && (

@@ -72,27 +72,27 @@ export default function ContactPage() {
           {/* Email */}
           <a
             href="mailto:rajritulrajrazi@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Email</p>
-              <p className="text-sm text-gray-500">rajritulrajrazi@gmail.com</p>
+              <p className="text-sm text-muted-foreground">rajritulrajrazi@gmail.com</p>
             </div>
           </a>
 
           <a
             href="mailto:rishabhb.career@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Email</p>
-              <p className="text-sm text-gray-500">rishabhb.career@gmail.com</p>
+              <p className="text-sm text-muted-foreground">rishabhb.career@gmail.com</p>
             </div>
           </a>
         </div>

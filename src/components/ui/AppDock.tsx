@@ -28,7 +28,7 @@ export function AppDock() {
 
   return (
     <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
-      <nav className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)]">
+      <nav className="flex items-center gap-2 rounded-full border border-border bg-white/80 px-4 py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)]">
         
         {/* Brand Icon (Desktop only) */}
         <Link 

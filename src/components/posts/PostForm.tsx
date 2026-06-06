@@ -158,7 +158,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={8}
-        className="mt-6 w-full resize-none rounded-3xl border border-white/10 bg-black/40 p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 placeholder:text-muted-foreground/30 shadow-inner"
+        className="mt-6 w-full resize-none rounded-3xl border border-border bg-white p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
         placeholder="They did something. Tell us about it."
       />
 

@@ -24,7 +24,7 @@ export function StoryCard({ story }: { story: Story }) {
 
   return (
     <Link href={`/posts/${story.id}`} className="block outline-none group relative">
-      <article className="rounded-3xl border border-white/5 bg-gradient-to-br from-card to-transparent p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/10 group-hover:shadow-xl group-hover:bg-white/[0.02] backdrop-blur-md h-full relative overflow-hidden">
+      <article className="rounded-3xl border border-border bg-white p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/20 group-hover:shadow-xl h-full relative overflow-hidden">
         
         <header className="flex items-start justify-between gap-4 relative z-10">
           <div className="min-w-0">
@@ -63,19 +63,19 @@ export function StoryCard({ story }: { story: Story }) {
         <div className="absolute right-5 bottom-5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-20">
           <button 
             onClick={(e) => handleReact(e, 'Heart')}
-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Heart' ? 'bg-black/80 text-blush ring-2 ring-blush ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-blush'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Heart' ? 'bg-primary/10 text-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-primary'}`}
           >
             <Heart className={`h-5 w-5 ${activeReaction === 'Heart' ? 'fill-current' : ''}`} />
           </button>
           <button 
             onClick={(e) => handleReact(e, 'Flame')}
-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Flame' ? 'bg-black/80 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-orange-500'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Flame' ? 'bg-orange-50 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-orange-500'}`}
           >
             <Flame className={`h-5 w-5 ${activeReaction === 'Flame' ? 'fill-current' : ''}`} />
           </button>
           <button 
             onClick={(e) => handleReact(e, 'Trophy')}
-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-black/80 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-gold'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-amber-50 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-gold'}`}
           >
             <Trophy className={`h-5 w-5 ${activeReaction === 'Trophy' ? 'fill-current' : ''}`} />
           </button>

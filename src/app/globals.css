@@ -24,50 +24,56 @@
   :root {
     --radius: 0.875rem;
 
-    /* Midnight Rose — Option B: slightly lighter background */
-    --background: #17111F;
-    --foreground: #F5E6FF;
+    /* Soft Rose Romance — light, warm, intimate
+       Inspired by rose quartz + blush satin palettes
+       Background: warm cream-rose
+       Cards: pure white with blush borders  
+       Inputs/buttons: soft rose-tinted neutrals
+       Primary: rich romantic rose
+    */
+    --background: #FEF6F4;
+    --foreground: #4A2C3A;
 
-    --surface: #221B2D;
-    --elevated: #2D2538;
+    --surface: #FFF9F8;
+    --elevated: #FFF2EF;
 
-    --card: #221B2D;
-    --card-foreground: #F5E6FF;
-    --popover: #2D2538;
-    --popover-foreground: #F5E6FF;
+    --card: #FFFFFF;
+    --card-foreground: #4A2C3A;
+    --popover: #FFFFFF;
+    --popover-foreground: #4A2C3A;
 
-    --primary: #FF6B9D;
-    --primary-foreground: #17111F;
+    --primary: #E8456B;
+    --primary-foreground: #FFFFFF;
 
-    --secondary: #2D2538;
-    --secondary-foreground: #F5E6FF;
+    --secondary: #FFF2EF;
+    --secondary-foreground: #4A2C3A;
 
-    --muted: #2D2538;
-    --muted-foreground: #A99BB8;
+    --muted: #F9E8E4;
+    --muted-foreground: #8C5A6A;
 
-    --accent: #C77DFF;
-    --accent-foreground: #17111F;
+    --accent: #F472B6;
+    --accent-foreground: #FFFFFF;
 
-    --gold: #E8C86A;
-    --gold-foreground: #17111F;
-    --blush: #FF6B9D;
+    --gold: #D97706;
+    --gold-foreground: #FFFFFF;
+    --blush: #FBCFE8;
 
-    --destructive: #E54D6A;
-    --destructive-foreground: #17111F;
-    --success: #4ADE80;
-    --warning: #FBBF24;
+    --destructive: #DC2626;
+    --destructive-foreground: #FFFFFF;
+    --success: #16A34A;
+    --warning: #D97706;
 
-    --score-low: #E54D6A;
-    --score-mid: #FBBF24;
-    --score-high: #4ADE80;
-    --score-legendary: #E8C86A;
+    --score-low: #EF4444;
+    --score-mid: #F59E0B;
+    --score-high: #10B981;
+    --score-legendary: #D97706;
 
-    --border: #352D45;
-    --input: #352D45;
-    --ring: #FF6B9D;
+    --border: #F5DAD2;
+    --input: #FFFFFF;
+    --ring: #E8456B;
     
-    --shadow-glow: 0 0 40px -8px color-mix(in srgb, var(--primary) 60%, transparent);
-    --shadow-gold: 0 0 30px -6px color-mix(in srgb, var(--gold) 45%, transparent);
+    --shadow-glow: 0 4px 24px -4px rgba(232, 69, 107, 0.12);
+    --shadow-gold: 0 4px 20px -4px rgba(217, 119, 6, 0.12);
   }
 
   body {
@@ -84,20 +90,27 @@
 }
 
 @layer utilities {
+  .glass {
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 8px -2px rgba(232, 69, 107, 0.06);
+  }
+
   .font-score {
     font-family: var(--font-score);
     letter-spacing: 0.02em;
   }
 
   .text-gradient-gold {
-    background: linear-gradient(135deg, oklch(0.86 0.14 90), oklch(0.68 0.14 60));
+    background: linear-gradient(135deg, #E8C86A, #D4A843);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
 
   .text-gradient-crimson {
-    background: linear-gradient(135deg, oklch(0.65 0.24 18), oklch(0.74 0.14 15));
+    background: linear-gradient(135deg, #FF5E7D, #FFB3C6);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -105,8 +118,8 @@
 
   .bg-radial-spotlight {
     background:
-      radial-gradient(60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%),
-      radial-gradient(40% 40% at 100% 100%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 70%),
+      radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, #FFB3C6 20%, transparent), transparent 70%),
+      radial-gradient(40% 40% at 80% 80%, color-mix(in srgb, #FFDEE6 15%, transparent), transparent 60%),
       var(--background);
   }
 
