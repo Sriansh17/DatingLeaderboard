@@ -14,8 +14,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('posts')
-      .select('*, partner:partners(*), profile:profiles(*)')
-      .eq('is_public', true)
+      .select('*, partner:partners!partner_id(*), profile:profiles!user_id(*)')
       .order('created_at', { ascending: false })
       .limit(50);
 
@@ -25,6 +24,9 @@ export async function GET() {
     }
 
     console.log(`[Explore API] Fetched ${data?.length || 0} posts in ${Date.now() - start}ms`);
+    if (data && data.length > 0) {
+      console.log(`[Explore API] Latest post: "${data[0].description}" | created: ${data[0].created_at} | score: ${data[0].ai_score}`);
+    }
     return NextResponse.json({ success: true, data: data || [] }, {
       headers: { 'Cache-Control': 'no-store' },
     });

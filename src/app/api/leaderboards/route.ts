@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { getCachedLeaderboard, setCachedLeaderboard } from '@/lib/redis/client';
 import { MIN_POSTS_FOR_LEADERBOARD, LEADERBOARD_PAGE_SIZE } from '@/lib/utils/constants';
 
@@ -13,6 +13,7 @@ export async function GET(request: Request) {
     const latitude = searchParams.get('latitude');
     const longitude = searchParams.get('longitude');
     const city = searchParams.get('city');
+    const country = searchParams.get('country');
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || String(LEADERBOARD_PAGE_SIZE));
 
@@ -23,29 +24,25 @@ export async function GET(request: Request) {
       ? `${latitude},${longitude}`
       : type === 'city'
         ? city || 'unknown'
+        : type === 'country'
+          ? country || 'unknown'
         : 'world';
 
-    // Try cache first
-    const cacheStart = Date.now();
-    const cached = await getCachedLeaderboard(type, cacheId);
-    console.log(`[Leaderboard] Redis lookup: ${Date.now() - cacheStart}ms | Hit: ${!!cached}`);
-
-    if (cached) {
-      const start = (page - 1) * limit;
-      const paginated = cached.slice(start, start + limit);
-      console.log(`[Leaderboard] ✅ Served from cache in ${Date.now() - startTime}ms`);
-      return NextResponse.json({ success: true, data: paginated });
-    }
+    // Skip cache — always fetch fresh data to avoid stale partner names
+    // TODO: Re-enable caching once data stabilizes
 
     const supabaseStart = Date.now();
-    const supabase = await createServerSupabaseClient();
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
     console.log(`[Leaderboard] Supabase client created: ${Date.now() - supabaseStart}ms`);
 
     // Get all profiles with posts
     const profilesStart = Date.now();
     const { data: profiles } = await supabase
       .from('profiles')
-      .select('id, username, full_name, avatar_url, city, latitude, longitude');
+      .select('id, username, full_name, avatar_url, city, country, latitude, longitude');
     console.log(`[Leaderboard] Profiles query: ${Date.now() - profilesStart}ms | Count: ${profiles?.length || 0}`);
 
     if (!profiles) {
@@ -68,20 +65,23 @@ export async function GET(request: Request) {
     }
 
     // Group posts by user
-    const userPosts: Record<string, { scores: number[]; partnerName: string; partnerAvatar: string | null; partnerEmoji: string }> = {};
+    const userPosts: Record<string, { scores: number[]; partners: Record<string, { count: number; avatar: string | null; emoji: string }> }> = {};
     for (const post of posts) {
       if (!userPosts[post.user_id]) {
-        userPosts[post.user_id] = { scores: [], partnerName: '', partnerAvatar: null, partnerEmoji: '' };
+        userPosts[post.user_id] = { scores: [], partners: {} };
       }
       userPosts[post.user_id].scores.push(post.ai_score!);
 
-      // Extract partner data — Supabase returns array for joined relations
+      // Extract partner data
       const rawPartner = post.partner;
       if (rawPartner) {
         const partner = Array.isArray(rawPartner) ? rawPartner[0] : rawPartner;
-        if (partner?.name) userPosts[post.user_id].partnerName = partner.name;
-        if (partner?.avatar_url) userPosts[post.user_id].partnerAvatar = partner.avatar_url;
-        if (partner?.emoji) userPosts[post.user_id].partnerEmoji = partner.emoji;
+        if (partner?.name) {
+          if (!userPosts[post.user_id].partners[partner.name]) {
+            userPosts[post.user_id].partners[partner.name] = { count: 0, avatar: partner.avatar_url || null, emoji: partner.emoji || '❤️' };
+          }
+          userPosts[post.user_id].partners[partner.name].count++;
+        }
       }
     }
 
@@ -92,17 +92,25 @@ export async function GET(request: Request) {
         if (!data || data.scores.length < MIN_POSTS_FOR_LEADERBOARD) return false;
 
         // Filter by location
-        if (type === 'local' && latitude && longitude) {
-          const dist = calculateDistance(
-            parseFloat(latitude),
-            parseFloat(longitude),
-            p.latitude || 0,
-            p.longitude || 0
-          );
-          return dist <= 10; // 10km radius
+        if (type === 'local') {
+          // Only filter if we have valid coordinates
+          if (latitude && longitude && parseFloat(latitude) !== 0 && parseFloat(longitude) !== 0) {
+            const dist = calculateDistance(
+              parseFloat(latitude),
+              parseFloat(longitude),
+              p.latitude || 0,
+              p.longitude || 0
+            );
+            return dist <= 10; // 10km radius
+          }
+          // No location data — show all (same as global)
+          return true;
         }
         if (type === 'city' && city) {
           return p.city?.toLowerCase() === city.toLowerCase();
+        }
+        if (type === 'country' && country) {
+          return (p as any).country?.toLowerCase() === country.toLowerCase();
         }
         return true; // global
       })
@@ -111,6 +119,19 @@ export async function GET(request: Request) {
         const avgScore = Math.round(
           data.scores.reduce((a, b) => a + b, 0) / data.scores.length
         );
+
+        // Find the most-used partner
+        const partnerEntries = Object.entries(data.partners);
+        let topPartnerName = '';
+        let topPartnerAvatar: string | null = null;
+        let topPartnerEmoji = '❤️';
+        if (partnerEntries.length > 0) {
+          const sorted = partnerEntries.sort((a, b) => b[1].count - a[1].count);
+          topPartnerName = sorted[0][0];
+          topPartnerAvatar = sorted[0][1].avatar;
+          topPartnerEmoji = sorted[0][1].emoji;
+        }
+
         return {
           rank: 0, // Will be set after sorting
           user_id: p.id,
@@ -119,9 +140,9 @@ export async function GET(request: Request) {
           avatar_url: p.avatar_url,
           average_score: avgScore,
           total_posts: data.scores.length,
-          top_partner_name: data.partnerName,
-          top_partner_avatar: data.partnerAvatar,
-          top_partner_emoji: data.partnerEmoji || '❤️',
+          top_partner_name: topPartnerName,
+          top_partner_avatar: topPartnerAvatar,
+          top_partner_emoji: topPartnerEmoji,
         };
       })
       .sort((a, b) => b.average_score - a.average_score)
@@ -129,10 +150,8 @@ export async function GET(request: Request) {
 
     console.log(`[Leaderboard] Entries computed: ${entries.length} qualified`);
 
-    // Cache the full result
-    const cacheWriteStart = Date.now();
-    await setCachedLeaderboard(type, cacheId, entries);
-    console.log(`[Leaderboard] Redis write: ${Date.now() - cacheWriteStart}ms`);
+    // Cache disabled temporarily — re-enable once data is stable
+    // await setCachedLeaderboard(type, cacheId, entries);
 
     // Paginate
     const start = (page - 1) * limit;

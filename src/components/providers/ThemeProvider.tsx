@@ -25,8 +25,8 @@ function getSystemTheme(): 'light' | 'dark' {
 }
 
 function getStoredTheme(): Theme {
-  if (typeof window === 'undefined') return 'dark';
-  return (localStorage.getItem('loveboard-theme') as Theme) || 'dark';
+  if (typeof window === 'undefined') return 'light';
+  return (localStorage.getItem('loveboard-theme') as Theme) || 'light';
 }
 
 function resolveTheme(theme: Theme): 'light' | 'dark' {
@@ -59,11 +59,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (resolvedTheme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
+    // Always light theme — remove dark class
+    root.classList.remove('dark');
   }, [resolvedTheme]);
 
   return (

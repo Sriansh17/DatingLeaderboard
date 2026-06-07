@@ -5,20 +5,20 @@ export default function ContactPage() {
     <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Heart className="h-10 w-10 text-pink-500 mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Get in Touch</h1>
+          <Heart className="h-10 w-10 text-primary mx-auto mb-3" />
+          <h1 className="text-2xl font-bold text-foreground">Get in Touch</h1>
           <p className="text-sm text-gray-500 mt-1">
             Have feedback, suggestions, or just want to say hi?
           </p>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
+        <div className="bg-surface rounded-2xl border border-border p-6 space-y-4">
           {/* Instagram */}
           <a
             href="https://instagram.com/sriansh._.raj"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-pink-200 dark:border-pink-800 hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-primary/30 dark:border-primary/30 hover:shadow-md transition-all"
           >
             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center">
               <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
@@ -26,10 +26,10 @@ export default function ContactPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Instagram</p>
+              <p className="font-semibold text-foreground">Instagram</p>
               <p className="text-sm text-gray-500">@sriansh._.raj</p>
             </div>
-            <span className="text-sm text-pink-500 font-medium">DM me →</span>
+            <span className="text-sm text-primary font-medium">DM me →</span>
           </a>
 
           {/* LinkedIn */}
@@ -45,7 +45,7 @@ export default function ContactPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">LinkedIn</p>
+              <p className="font-semibold text-foreground">LinkedIn</p>
               <p className="text-sm text-gray-500">Sriansh Raj</p>
             </div>
             <span className="text-sm text-blue-600 font-medium">Connect →</span>
@@ -63,7 +63,7 @@ export default function ContactPage() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">LinkedIn</p>
+              <p className="font-semibold text-foreground">LinkedIn</p>
               <p className="text-sm text-gray-500">Rishabh Bassi</p>
             </div>
             <span className="text-sm text-blue-600 font-medium">Connect →</span>
@@ -72,27 +72,27 @@ export default function ContactPage() {
           {/* Email */}
           <a
             href="mailto:rajritulrajrazi@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Email</p>
-              <p className="text-sm text-gray-500">rajritulrajrazi@gmail.com</p>
+              <p className="font-semibold text-foreground">Email</p>
+              <p className="text-sm text-muted-foreground">rajritulrajrazi@gmail.com</p>
             </div>
           </a>
 
           <a
             href="mailto:rishabhb.career@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
           >
-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
             </div>
             <div className="flex-1">
-              <p className="font-semibold text-gray-900 dark:text-gray-100">Email</p>
-              <p className="text-sm text-gray-500">rishabhb.career@gmail.com</p>
+              <p className="font-semibold text-foreground">Email</p>
+              <p className="text-sm text-muted-foreground">rishabhb.career@gmail.com</p>
             </div>
           </a>
         </div>

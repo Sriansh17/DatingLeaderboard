@@ -59,9 +59,11 @@ export default function DashboardPage() {
   // Dynamic AI Insight (Sports Analytics)
   const globalAverage = globalEntries?.length 
     ? (globalEntries.reduce((acc, curr) => acc + curr.average_score, 0) / globalEntries.length).toFixed(1)
-    : "7.1";
-  // Mocking the user's score for the insight since we don't have personal stats here yet
-  const userScore = "8.4";
+    : "0";
+  // User's own score from their posts
+  const userScore = posts?.length
+    ? (posts.filter(p => p.ai_score).reduce((acc, p) => acc + (p.ai_score || 0), 0) / posts.filter(p => p.ai_score).length).toFixed(1)
+    : "0";
 
 
   return (

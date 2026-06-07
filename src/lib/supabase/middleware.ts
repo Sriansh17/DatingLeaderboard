@@ -7,6 +7,9 @@ const PROTECTED_PATHS = ['/dashboard', '/posts', '/partners', '/profile', '/sett
 // Routes where logged-in users should be redirected away
 const AUTH_PATHS = ['/auth'];
 
+// API routes that need session but shouldn't redirect
+const API_PATHS = ['/api'];
+
 export async function updateSession(request: NextRequest) {
   const start = Date.now();
   const pathname = request.nextUrl.pathname;
@@ -15,11 +18,10 @@ export async function updateSession(request: NextRequest) {
 
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
   const isAuthPage = AUTH_PATHS.some((path) => pathname.startsWith(path));
+  const isApiRoute = API_PATHS.some((path) => pathname.startsWith(path));
 
-  // Skip Supabase auth call entirely for public pages that aren't auth pages
-  // This saves 150-400ms per request for /, /contact, /health, etc.
-  if (!isProtected && !isAuthPage) {
-    console.log(`[Middleware] ${pathname} | SKIPPED auth (public route) | ${Date.now() - start}ms`);
+  // Skip auth entirely for public pages (not protected, not auth, not API)
+  if (!isProtected && !isAuthPage && !isApiRoute) {
     return supabaseResponse;
   }
 
@@ -49,6 +51,11 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   console.log(`[Middleware] ${pathname} | auth.getUser: ${Date.now() - start}ms | user: ${!!user}`);
+
+  // API routes: just refresh session cookies, don't redirect
+  if (isApiRoute) {
+    return supabaseResponse;
+  }
 
   // Protected route without auth → redirect to login
   if (isProtected && !user) {

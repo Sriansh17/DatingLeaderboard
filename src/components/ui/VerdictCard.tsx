@@ -79,7 +79,7 @@ export function VerdictCard({
 
       {/* Detailed Score Breakdown */}
       {breakdown && !compact && (
-        <div className="mt-8 space-y-4 rounded-2xl bg-black/20 p-5 border border-white/5 backdrop-blur-sm">
+        <div className="mt-8 space-y-4 rounded-2xl bg-secondary p-5 border border-border">
           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
             AI Score Breakdown
           </h4>

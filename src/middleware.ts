@@ -13,8 +13,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public folder files (manifest, sw, icons)
-     * - ALL API routes (they handle their own auth)
      */
-    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons|api).*)',
+    '/((?!_next/static|_next/image|favicon.ico|manifest.json|sw.js|icons).*)',
   ],
 };

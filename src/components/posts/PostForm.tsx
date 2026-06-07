@@ -7,7 +7,7 @@ import { Modal } from '@/components/ui/Modal';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
-import { ShieldAlert, Sparkles, Mic } from 'lucide-react';
+import { ShieldAlert, Sparkles } from 'lucide-react';
 import { VerdictCard } from '@/components/ui/VerdictCard';
 
 type Step = "write" | "loading" | "verdict";
@@ -158,7 +158,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={8}
-        className="mt-6 w-full resize-none rounded-3xl border border-white/10 bg-black/40 p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 placeholder:text-muted-foreground/30 shadow-inner"
+        className="mt-6 w-full resize-none rounded-3xl border border-border bg-white p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
         placeholder="They did something. Tell us about it."
       />
 
@@ -167,11 +167,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         <span className="text-muted-foreground">{description.length} chars</span>
       </div>
 
-      <div className="mt-4 flex items-center justify-between">
-        <button className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-elevated/40 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <Mic className="h-3.5 w-3.5" /> Use voice instead
-        </button>
-
+      <div className="mt-4 flex items-center justify-end">
         <label className="flex items-center gap-2 text-xs text-muted-foreground cursor-pointer">
           <input
             type="checkbox"

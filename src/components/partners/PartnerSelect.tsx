@@ -28,8 +28,8 @@ export function PartnerSelect({ partners, selectedId, onSelect, className }: Par
           className={cn(
             'p-3 rounded-xl border-2 text-center transition-all',
             selectedId === partner.id
-              ? 'border-pink-500 bg-pink-50 dark:bg-pink-500/10'
-              : 'border-gray-200 dark:border-gray-700 hover:border-pink-300'
+              ? 'border-pink-500 bg-primary/10 dark:bg-primary/10'
+              : 'border-gray-200 dark:border-gray-700 hover:border-primary/40'
           )}
         >
           {partner.avatar_url ? (

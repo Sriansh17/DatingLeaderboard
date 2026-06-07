@@ -28,7 +28,7 @@ export function RankBadge({ rank, size = 'md', className }: RankBadgeProps) {
   return (
     <div
       className={cn(
-        'flex items-center justify-center rounded-lg bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 font-bold',
+        'flex items-center justify-center rounded-lg bg-muted text-muted-foreground font-bold',
         sizeMap[size],
         className
       )}

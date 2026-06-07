@@ -32,47 +32,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchUserAndProfile = async () => {
     try {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single();
-      if (error) {
-        console.error('Error fetching profile:', error);
-        setProfile(null);
-      } else {
-        setProfile(data);
-      }
+      const res = await fetch('/api/users/me');
+      const data = await res.json();
+      setUser(data.user);
+      setProfile(data.profile);
     } catch (err) {
-      console.error('Exception fetching profile:', err);
+      console.error('[AuthProvider] Failed to fetch user:', err);
+      setUser(null);
       setProfile(null);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchUserAndProfile();
+
+    // Listen for auth changes (sign in/out) from Supabase client
     const supabase = createClient();
-
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        await fetchProfile(session.user.id);
-      }
-      setLoading(false);
-    });
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
-        setLoading(true);
-        setUser(session?.user ?? null);
         if (session?.user) {
-          await fetchProfile(session.user.id);
+          // Refetch from server to get fresh profile
+          await fetchUserAndProfile();
         } else {
+          setUser(null);
           setProfile(null);
+          setLoading(false);
         }
-        setLoading(false);
       }
     );
 
@@ -94,9 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         loading,
         signOut,
-        refreshProfile: async () => {
-          if (user) await fetchProfile(user.id);
-        },
+        refreshProfile: fetchUserAndProfile,
       }}
     >
       {children}

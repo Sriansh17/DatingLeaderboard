@@ -25,13 +25,13 @@ export default function EditProfilePage() {
     <div className="max-w-lg mx-auto">
       <Link
         href="/profile"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors mb-6"
+        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         Back to Profile
       </Link>
 
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit Profile</h1>
+      <h1 className="text-2xl font-bold text-foreground mb-6">Edit Profile</h1>
 
       <ProfileForm
         profile={profile}

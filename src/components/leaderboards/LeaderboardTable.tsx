@@ -23,9 +23,8 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
 
   if (!entries || entries.length === 0) {
     return (
-      <div className="text-center py-20 text-gray-500 dark:text-gray-400">
+      <div className="text-center py-20 text-muted-foreground">
         <p className="text-lg font-medium">{emptyMessage}</p>
-        <p className="text-sm mt-1">Post at least once to appear on the leaderboard!</p>
       </div>
     );
   }
@@ -35,7 +34,7 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
       {entries.map((entry) => (
         <div
           key={entry.user_id}
-          className="flex items-center gap-4 p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
         >
           {/* Rank */}
           <div className="w-10 text-center">
@@ -50,10 +49,10 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
               <span className="text-2xl">{entry.top_partner_emoji}</span>
             )}
             <div className="min-w-0">
-              <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+              <p className="font-semibold text-foreground truncate">
                 {entry.top_partner_name}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 by {entry.full_name || entry.username}
               </p>
             </div>

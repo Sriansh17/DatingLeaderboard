@@ -14,6 +14,7 @@ async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEn
   if (params.latitude) searchParams.set('latitude', String(params.latitude));
   if (params.longitude) searchParams.set('longitude', String(params.longitude));
   if (params.city) searchParams.set('city', params.city);
+  if (params.country) searchParams.set('country', params.country);
   if (params.page) searchParams.set('page', String(params.page));
   if (params.limit) searchParams.set('limit', String(params.limit));
 

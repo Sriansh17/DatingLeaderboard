@@ -34,7 +34,7 @@ export function PostFeed({
     return (
       <div className="text-center py-16">
         <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
+        <h3 className="text-lg font-semibold text-foreground/90 mb-2">
           {emptyTitle}
         </h3>
         <p className="text-gray-500 text-sm mb-6">{emptyDescription}</p>

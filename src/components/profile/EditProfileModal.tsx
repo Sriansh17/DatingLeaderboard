@@ -16,11 +16,11 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
   
   // Use metadata if passed, otherwise default
   const meta = currentProfile?.user_metadata || {};
-  const [age, setAge] = useState(meta.age || '24');
-  const [gender, setGender] = useState(meta.gender || 'Non-binary');
-  const [city, setCity] = useState(meta.city || 'San Francisco');
-  const [occupation, setOccupation] = useState(meta.occupation || 'Creative Director');
-  const [status, setStatus] = useState(meta.status || 'Exploring');
+  const [age, setAge] = useState(meta.age || '');
+  const [gender, setGender] = useState(meta.gender || '');
+  const [city, setCity] = useState(meta.city || currentProfile?.city || '');
+  const [occupation, setOccupation] = useState(meta.occupation || '');
+  const [country, setCountry] = useState(meta.country || currentProfile?.country || '');
   
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,12 +35,12 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
       // Update profile
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ username, bio })
+        .update({ username, bio, city, country })
         .eq('id', currentProfile.id);
         
       // Update user metadata
       const { error: metaError } = await supabase.auth.updateUser({
-        data: { age, gender, city, occupation, status }
+        data: { age, gender, city, occupation, country }
       });
         
       if (!profileError && !metaError) {
@@ -59,10 +59,10 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
       <form onSubmit={handleSubmit} className="space-y-8 mt-4 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
         <div className="flex flex-col items-center gap-4 py-4">
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-            <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 flex items-center justify-center transition-all bg-background font-display text-4xl text-muted-foreground shadow-lg group-hover:border-blush/50">
+            <div className="w-24 h-24 rounded-full overflow-hidden border border-border flex items-center justify-center transition-all bg-background font-display text-4xl text-muted-foreground shadow-lg group-hover:border-blush/50">
               {username[1]?.toUpperCase() || 'U'}
             </div>
-            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+            <div className="absolute inset-0 bg-primary/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
               <Camera className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -82,7 +82,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
               required
             />
           </div>
@@ -93,7 +93,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={age}
               onChange={(e) => setAge(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -103,7 +103,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={gender}
               onChange={(e) => setGender(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -113,7 +113,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -123,17 +123,18 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={occupation}
               onChange={(e) => setOccupation(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
           <div className="space-y-1 group">
-            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Status</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
             <input
               type="text"
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="e.g. India"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
         </div>
@@ -144,7 +145,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
-            className="w-full resize-none border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+            className="w-full resize-none border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
           />
         </div>
 

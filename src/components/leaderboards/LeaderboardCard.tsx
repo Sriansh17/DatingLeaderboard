@@ -26,10 +26,10 @@ export function LeaderboardCard({ entry }: LeaderboardCardProps) {
           <span className="text-2xl">{entry.top_partner_emoji}</span>
         )}
         <div className="min-w-0">
-          <p className="font-semibold text-gray-900 dark:text-gray-100 truncate">
+          <p className="font-semibold text-foreground truncate">
             {entry.top_partner_name}
           </p>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+          <p className="text-xs text-muted-foreground truncate">
             by {entry.full_name || entry.username}
           </p>
         </div>

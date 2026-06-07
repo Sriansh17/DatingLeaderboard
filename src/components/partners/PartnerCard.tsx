@@ -30,7 +30,7 @@ export function PartnerCard({ partner, onDelete }: PartnerCardProps) {
           <span className="text-3xl">{partner.emoji}</span>
         )}
         <div>
-          <h3 className="font-semibold text-gray-900 dark:text-gray-100">{partner.name}</h3>
+          <h3 className="font-semibold text-foreground">{partner.name}</h3>
           <div className="flex items-center gap-2 mt-1">
             <Badge variant="info">{relationshipLabels[partner.relationship]}</Badge>
             <span className="text-xs text-gray-400">
