@@ -6,12 +6,15 @@ import { formatRelativeTime } from '@/lib/utils/format';
 import { Avatar } from '@/components/ui/Avatar';
 import type { Post } from '@/types/database';
 import { Share } from 'lucide-react';
+import { useShare } from '@/components/providers/ShareProvider';
 
 interface PostCardProps {
   post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const { openShare } = useShare();
+
   return (
     <Link href={`/posts/${post.id}`} className="block w-full max-w-2xl mx-auto mb-8">
       <Card hover>
@@ -62,6 +65,16 @@ export function PostCard({ post }: PostCardProps) {
             className="bg-gradient-to-br from-gradientStart to-gradientEnd px-6 py-2.5 rounded-[18px] text-[#111] font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity"
             onClick={(e) => {
               e.preventDefault();
+              openShare('post', {
+                username: post.profile?.username || 'Someone',
+                partnerName: post.partner?.name || 'Partner',
+                avatarUrl: post.partner?.avatar_url,
+                headline: post.description,
+                verdict: post.ai_feedback || undefined,
+                score: post.ai_score || undefined,
+                city: post.profile?.city || undefined,
+                date: new Date(post.created_at).toLocaleDateString(),
+              });
             }}
           >
             <Share className="w-4 h-4" /> Share

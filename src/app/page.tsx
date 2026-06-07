@@ -9,7 +9,7 @@ export default function LandingPage() {
   const hero = stories[0];
 
   return (
-    <div className="min-h-screen bg-radial-spotlight">
+    <div className="min-h-screen bg-transparent">
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <span className="font-display text-lg italic text-gold">Love Leaderboard</span>

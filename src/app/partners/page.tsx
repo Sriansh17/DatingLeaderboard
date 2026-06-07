@@ -1,21 +1,21 @@
 'use client';
 
 import { useUser } from '@/components/providers/AuthProvider';
-import { PartnerCard } from '@/components/partners/PartnerCard';
 import { Button } from '@/components/ui/Button';
 import { Spinner } from '@/components/ui/Spinner';
-import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import type { Partner } from '@/types/database';
-import { Heart, PlusCircle } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { PartnerForm } from '@/components/partners/PartnerForm';
 
 export default function PartnersPage() {
   const { user } = useUser();
   const { addToast } = useToast();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddForm, setShowAddForm] = useState(false);
 
   const loadPartners = async () => {
     if (!user) return;
@@ -33,7 +33,9 @@ export default function PartnersPage() {
     loadPartners();
   }, [user]);
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
     if (!confirm('Remove this partner?')) return;
     const supabase = createClient();
     await supabase.from('partners').delete().eq('id', id);
@@ -41,39 +43,85 @@ export default function PartnersPage() {
     loadPartners();
   };
 
-  if (loading) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (loading) return (
+    <div className="flex h-screen items-center justify-center bg-transparent">
+      <Spinner size="lg" className="text-primary" />
+    </div>
+  );
 
   return (
-    <div className="max-w-lg mx-auto space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your Partners</h1>
-          <p className="text-sm text-gray-500">Add and manage your loved ones</p>
-        </div>
-        <Link href="/partners/new">
-          <Button size="sm">
-            <PlusCircle className="h-4 w-4" />
-            Add
-          </Button>
-        </Link>
-      </div>
+    <main className="min-h-screen bg-transparent py-16 px-6 relative">
+      <div className="max-w-4xl mx-auto flex flex-col items-center">
+        {/* Header Section */}
+        <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-4">
+          My Circle
+        </p>
+        <h1 className="font-display text-5xl sm:text-6xl italic text-foreground mb-12">
+          Partners
+        </h1>
 
-      {partners.length === 0 ? (
-        <div className="text-center py-16">
-          <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No partners yet</h3>
-          <p className="text-gray-500 text-sm mb-6">Add your partner to start posting!</p>
-          <Link href="/partners/new">
-            <Button>Add Your Partner 💕</Button>
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {partners.map((partner) => (
-            <PartnerCard key={partner.id} partner={partner} onDelete={handleDelete} />
-          ))}
-        </div>
-      )}
-    </div>
+        {/* Partners Grid */}
+        {partners.length > 0 ? (
+          <div className="flex flex-wrap justify-center gap-4 mb-12 max-w-3xl">
+            {partners.map((partner) => (
+              <div 
+                key={partner.id}
+                className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl border border-border bg-card/60 hover:bg-card hover:border-primary/20 transition-all duration-300 backdrop-blur-xl cursor-default shadow-sm hover:shadow-md"
+              >
+                <span className="text-xl group-hover:scale-110 transition-transform">{partner.emoji || '💖'}</span>
+                <span className="font-medium text-foreground text-lg tracking-wide">{partner.name}</span>
+                
+                {/* Delete button (shows on hover) */}
+                <button 
+                  onClick={(e) => handleDelete(partner.id, e)}
+                  className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                >
+                  &times;
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 mb-8 text-muted-foreground italic font-display text-xl">
+            Your circle is currently empty.
+          </div>
+        )}
+
+        {/* Add Partner Button */}
+        {!showAddForm && (
+          <button 
+            onClick={() => setShowAddForm(true)}
+            className="flex items-center gap-2 px-8 py-3 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-primary font-medium tracking-wide shadow-sm"
+          >
+            <Plus className="w-5 h-5" />
+            Add Partner
+          </button>
+        )}
+
+        {/* Add Form Container */}
+        {showAddForm && (
+          <div className="w-full max-w-xl mt-8 p-8 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative shadow-2xl">
+            <button 
+              onClick={() => setShowAddForm(false)}
+              className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              Cancel
+            </button>
+            <p className="text-xs uppercase tracking-[0.25em] text-gold mt-2">Step 1 of 1</p>
+            <h2 className="text-3xl font-display italic text-foreground mb-8 mt-1">Add a Partner 💕</h2>
+            {user && (
+              <PartnerForm 
+                userId={user.id} 
+                onSuccess={() => {
+                  setShowAddForm(false);
+                  loadPartners();
+                  addToast('Partner added successfully!', 'success');
+                }} 
+              />
+            )}
+          </div>
+        )}
+      </div>
+    </main>
   );
 }

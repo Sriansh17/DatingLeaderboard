@@ -5,6 +5,7 @@ import { useToast } from '@/components/ui/Toast';
 import { createClient } from '@/lib/supabase/client';
 import { Camera } from 'lucide-react';
 import type { Partner } from '@/types/database';
+import { AvatarPicker, type Gender } from '@/components/ui/AvatarPicker';
 
 const EMOJI_OPTIONS = ['💖', '❤️', '💕', '💗', '💓', '🩷', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎'];
 
@@ -61,6 +62,7 @@ function resizeImage(file: File): Promise<string> {
 export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
   const [name, setName] = useState('');
   const [relationship, setRelationship] = useState<string>('partner');
+  const [gender, setGender] = useState<Gender>('');
   const [emoji, setEmoji] = useState('💖');
   const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
@@ -139,6 +141,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-card border border-white/10 text-foreground flex items-center justify-center hover:bg-white/5 hover:text-blush transition-colors shadow-xl"
+            title="Upload custom photo"
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -150,9 +153,43 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           onChange={handleFileSelect}
           className="hidden"
         />
+
       </div>
 
+      {/* Gender Selection */}
       <div className="space-y-3">
+        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
+          Partner's Gender (To suggest characters)
+        </label>
+        <div className="flex flex-wrap gap-3">
+          {(['male', 'female', 'other'] as const).map((g) => (
+            <button
+              key={g}
+              type="button"
+              onClick={() => setGender(g)}
+              className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all capitalize ${
+                gender === g
+                  ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_15px_rgba(233,43,84,0.1)]'
+                  : 'border-white/5 bg-black/40 text-muted-foreground hover:bg-white/5 hover:text-foreground'
+              }`}
+            >
+              {g}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Avatar Selection Grid */}
+      <AvatarPicker 
+        selectedGender={gender} 
+        currentAvatar={avatarPreview} 
+        onSelect={(url) => {
+          setAvatarBase64(url);
+          setAvatarPreview(url);
+        }} 
+      />
+
+      <div className="space-y-3 pt-4 border-t border-white/5">
         <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Partner's Name</label>
         <input
           id="partnerName"

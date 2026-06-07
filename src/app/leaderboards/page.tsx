@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { leaderboard, currentUser, scoreColor } from "@/lib/mock-data";
-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Share2 } from "lucide-react";
+import { useShare } from "@/components/providers/ShareProvider";
 
 const scopes = ["Global", "Country", "City"] as const;
 
@@ -34,16 +35,17 @@ function PodiumItem({ entry, rank }: { entry: typeof leaderboard[0], rank: numbe
 
 export default function RanksPage() {
   const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
+  const { openShare } = useShare();
 
   return (
-    <main className="pb-32 max-w-4xl mx-auto w-full border-x border-border min-h-screen bg-background relative">
-      <header className="px-5 pb-3 pt-6">
+    <main className="pb-32 w-full min-h-screen bg-transparent relative">
+      <header className="px-5 pb-3 pt-6 max-w-7xl mx-auto">
         <p className="text-xs uppercase tracking-[0.25em] text-gold">The Standings</p>
         <h1 className="font-display text-3xl italic text-foreground">Leaderboard</h1>
       </header>
 
       <div className="sticky top-0 z-10 border-b border-border bg-background/90 px-5 py-3 backdrop-blur-xl">
-        <div className="flex rounded-full border border-border bg-elevated/60 p-1">
+        <div className="flex rounded-full border border-border bg-elevated/60 p-1 max-w-7xl mx-auto">
           {scopes.map((s) => (
             <button
               key={s}
@@ -56,7 +58,7 @@ export default function RanksPage() {
             </button>
           ))}
         </div>
-        <p className="mt-2 text-center text-xs text-muted-foreground">
+        <p className="mt-2 text-center text-xs text-muted-foreground max-w-7xl mx-auto">
           {scope === "Global"
             ? "Top couples worldwide · resets weekly"
             : scope === "Country"
@@ -64,6 +66,8 @@ export default function RanksPage() {
             : `Top in ${currentUser.city}`}
         </p>
       </div>
+
+      <div className="max-w-7xl mx-auto">
 
       {/* Top 3 Podium */}
       <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 py-8 mt-2">
@@ -107,25 +111,39 @@ export default function RanksPage() {
             </div>
           </li>
         ))}
-      </ol>
+        </ol>
+      </div>
 
       {/* Pinned self */}
-      <div className="fixed inset-x-0 bottom-28 z-30 mx-auto max-w-2xl px-4">
-        <div className="rounded-2xl border-2 border-blush/60 bg-background/95 p-3 backdrop-blur-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
-          <div className="flex items-center gap-3">
-            <div className="font-score text-2xl text-blush" style={{ width: 44 }}>
+      <div className="fixed inset-x-0 bottom-28 z-30 mx-auto max-w-7xl px-4">
+        <div className="rounded-3xl border border-white/10 bg-black/60 p-4 backdrop-blur-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] flex items-center justify-between gap-4">
+            <div className="font-score text-2xl text-blush shrink-0" style={{ width: 44 }}>
               #{currentUser.globalRank}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-medium text-foreground">You · {currentUser.username}</div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-muted-foreground truncate">
                 #{currentUser.cityRank} in {currentUser.city} · keep climbing
               </div>
             </div>
-            <div className="font-score text-2xl" style={{ color: scoreColor(currentUser.bestScore) }}>
-              {currentUser.bestScore.toFixed(1)}
+            <div className="flex items-center gap-4 shrink-0">
+              <div className="font-score text-2xl" style={{ color: scoreColor(currentUser.bestScore) }}>
+                {currentUser.bestScore.toFixed(1)}
+              </div>
+              <button 
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors text-white"
+                onClick={() => {
+                  openShare('rank', {
+                    username: currentUser.username,
+                    score: currentUser.bestScore,
+                    rank: currentUser.globalRank,
+                    city: currentUser.city,
+                  });
+                }}
+              >
+                <Share2 className="w-4 h-4" />
+              </button>
             </div>
-          </div>
         </div>
       </div>
     </main>
