@@ -45,7 +45,7 @@ export function LeaderboardCard({ entry }: LeaderboardCardProps) {
         <p className={`text-2xl font-bold ${getScoreColor(entry.average_score)}`}>
           {entry.average_score}
         </p>
-        <p className="text-xs text-gray-400">avg score</p>
+        <p className="text-xs text-muted-foreground">avg score</p>
       </div>
     </Card>
   );

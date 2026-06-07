@@ -3,16 +3,19 @@
 import Link from "next/link";
 import { VerdictCard } from "@/components/ui/VerdictCard";
 import { stories, tickerItems, leaderboard, scoreColor } from "@/lib/mock-data";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Share2 } from "lucide-react";
+import { useState } from "react";
+import { ShareExperienceModal } from "@/components/share/ShareExperienceModal";
 
 export default function LandingPage() {
   const hero = stories[0];
+  const [selectedRank, setSelectedRank] = useState<typeof leaderboard[0] | null>(null);
 
   return (
     <div className="min-h-screen bg-radial-spotlight">
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <span className="font-display text-lg italic text-gold">Love Leaderboard</span>
+        <span className="flex items-center gap-1.5 font-display text-xl italic text-gold"><Sparkles className="h-5 w-5" /> Fond</span>
         <Link
           href="/auth/login"
           className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur"
@@ -149,9 +152,26 @@ export default function LandingPage() {
               <div className="font-score text-2xl" style={{ color: scoreColor(e.score) }}>
                 {e.score.toFixed(1)}
               </div>
+              <button
+                onClick={() => setSelectedRank(e)}
+                className="ml-4 p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground hover:text-foreground transition-colors"
+                title="Share Rank"
+              >
+                <Share2 className="w-5 h-5" />
+              </button>
             </li>
           ))}
         </ol>
+
+        {selectedRank && (
+          <ShareExperienceModal
+            isOpen={true}
+            onClose={() => setSelectedRank(null)}
+            profileName={selectedRank.username.replace('@', '')}
+            rank={selectedRank.rank}
+            city={selectedRank.city}
+          />
+        )}
       </section>
 
       {/* Final CTA */}
@@ -172,7 +192,7 @@ export default function LandingPage() {
       </section>
 
       <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        <span className="font-display italic text-gold">Love Leaderboard</span> · Romance meets reality TV
+        <span className="font-display italic text-gold">Fond</span> · Romance meets reality TV
       </footer>
     </div>
   );

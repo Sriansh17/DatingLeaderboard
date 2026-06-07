@@ -39,7 +39,7 @@ export default function PostDetailPage() {
   };
 
   if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
-  if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
+  if (!post) return <div className="text-center py-20 text-muted-foreground">Post not found</div>;
 
   let breakdown: Record<string, number> = {};
   try {
@@ -86,7 +86,7 @@ export default function PostDetailPage() {
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
               <Sparkles className="h-6 w-6 text-blush" />
-              <span className="font-display tracking-widest uppercase text-xs font-bold text-blush">LoveScore AI Verdict</span>
+              <span className="font-display tracking-widest uppercase text-xs font-bold text-primary dark:text-blush">LoveScore AI Verdict</span>
             </div>
             <p className="font-display text-2xl italic leading-relaxed text-foreground">
               “{post.ai_feedback}”

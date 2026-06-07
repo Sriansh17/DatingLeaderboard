@@ -33,7 +33,7 @@ export default function ExplorePage() {
         </div>
         <div>
           <h1 className="text-2xl font-bold text-foreground">Explore</h1>
-          <p className="text-sm text-gray-500">See what others are appreciating ❤️</p>
+          <p className="text-sm text-muted-foreground">See what others are appreciating ❤️</p>
         </div>
       </div>
 
@@ -47,7 +47,7 @@ export default function ExplorePage() {
           <h3 className="text-lg font-semibold text-foreground/90 mb-2">
             No public posts yet
           </h3>
-          <p className="text-gray-500 text-sm">
+          <p className="text-muted-foreground text-sm">
             Be the first to share an appreciation post!
           </p>
         </div>
@@ -57,11 +57,11 @@ export default function ExplorePage() {
             <div key={post.id}>
               {post.profile && (
                 <div className="flex items-center gap-2 mb-1.5 px-1">
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-muted-foreground">
                     {post.profile.full_name || post.profile.username}
                   </span>
-                  <span className="text-xs text-gray-300">•</span>
-                  <span className="text-xs text-gray-400">
+                  <span className="text-xs text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground">
                     {post.partner?.emoji} {post.partner?.name}
                   </span>
                 </div>

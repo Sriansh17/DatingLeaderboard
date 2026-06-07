@@ -20,7 +20,7 @@ export default function CityLeaderboardPage() {
           City Leaderboard {profile?.city ? `- ${profile.city}` : ''}
         </h1>
       </div>
-      <p className="text-sm text-gray-500">Partners ranked across your city</p>
+      <p className="text-sm text-muted-foreground">Partners ranked across your city</p>
       <LeaderboardTable
         entries={data}
         loading={isLoading}

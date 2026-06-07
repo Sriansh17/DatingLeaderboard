@@ -145,8 +145,8 @@ export function PostForm({ partners, userId }: PostFormProps) {
             onClick={() => setPartnerId(p.id)}
             className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
               partnerId === p.id 
-                ? 'border-blush bg-blush/10 text-blush' 
-                : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+                ? 'border-foreground bg-foreground text-background shadow-md' 
+                : 'border-border bg-background/50 backdrop-blur-sm text-muted-foreground hover:border-foreground/30 hover:text-foreground'
             }`}
           >
             {p.emoji} {p.name}
@@ -158,7 +158,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={8}
-        className="mt-6 w-full resize-none rounded-3xl border border-border bg-white p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
+        className="mt-6 w-full resize-none rounded-3xl border border-border bg-background/50 dark:bg-black/40 backdrop-blur-xl p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
         placeholder="They did something. Tell us about it."
       />
 
@@ -168,7 +168,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
       </div>
 
       <div className="mt-4 flex items-center justify-between">
-        <button className="inline-flex items-center gap-2 rounded-full border border-white/5 bg-elevated/40 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+        <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-white/10 bg-elevated/40 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Mic className="h-3.5 w-3.5" /> Use voice instead
         </button>
 
@@ -196,12 +196,12 @@ export function PostForm({ partners, userId }: PostFormProps) {
         isOpen={showFlaggedModal}
         onClose={() => setShowFlaggedModal(false)}
         title="Love Referee"
-        className="max-w-md bg-[#0a0a0a] border-border/40 backdrop-blur-3xl shadow-2xl"
+        className="max-w-md bg-card dark:bg-[#0a0a0a] border-border/40 dark:border-white/10 backdrop-blur-3xl shadow-2xl"
       >
         <div className="text-center py-6 space-y-8">
           <div className="relative mx-auto w-24 h-24">
             <div className="absolute inset-0 rounded-full bg-[#E92B54]/20 animate-ping" />
-            <div className="relative w-full h-full rounded-full border border-[#E92B54]/30 bg-black/50 flex items-center justify-center text-[#E92B54] backdrop-blur-md shadow-[0_0_30px_rgba(233,43,84,0.3)]">
+            <div className="relative w-full h-full rounded-full border border-[#E92B54]/30 bg-background/80 dark:bg-black/50 flex items-center justify-center text-[#E92B54] backdrop-blur-md shadow-[0_0_30px_rgba(233,43,84,0.3)]">
               <ShieldAlert className="h-10 w-10" />
             </div>
           </div>
@@ -215,7 +215,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
             </p>
           </div>
 
-          <div className="relative p-6 rounded-3xl bg-black/40 border border-white/10 text-left shadow-inner">
+          <div className="relative p-6 rounded-3xl bg-secondary/50 dark:bg-black/40 border border-border dark:border-white/10 text-left shadow-inner">
             <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-[#E92B54] text-white rounded-full shadow-[0_0_15px_rgba(233,43,84,0.5)]">
               AI Detector 🚨
             </span>
@@ -227,7 +227,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
           <div className="pt-2 flex justify-center">
             <button
               onClick={() => setShowFlaggedModal(false)}
-              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-colors"
+              className="px-8 py-4 rounded-full bg-secondary dark:bg-white/5 border border-border dark:border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
             >
               My bad, let me tell the truth 😅
             </button>

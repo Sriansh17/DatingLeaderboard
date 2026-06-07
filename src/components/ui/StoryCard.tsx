@@ -4,12 +4,14 @@ import { useState } from "react";
 import { ScoreRing } from "./ScoreRing";
 import type { Story } from "@/lib/mock-data";
 import Link from "next/link";
-import { Heart, Flame, Trophy, Sparkles } from "lucide-react";
+import { Heart, Flame, Trophy, Share2 } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
+import { ShareExperienceModal } from "@/components/share/ShareExperienceModal";
 
 export function StoryCard({ story }: { story: Story }) {
   const { addToast } = useToast();
   const [activeReaction, setActiveReaction] = useState<string | null>(null);
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   const handleReact = (e: React.MouseEvent, type: string) => {
     e.preventDefault();
@@ -23,8 +25,9 @@ export function StoryCard({ story }: { story: Story }) {
   };
 
   return (
-    <Link href={`/posts/${story.id}`} className="block outline-none group relative">
-      <article className="rounded-3xl border border-border bg-white p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/20 group-hover:shadow-xl h-full relative overflow-hidden">
+    <>
+      <Link href={`/posts/${story.id}`} className="block outline-none group relative">
+        <article className="rounded-3xl border border-border dark:border-white/5 bg-card dark:bg-gradient-to-br dark:from-card dark:to-transparent p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/20 dark:group-hover:border-white/10 group-hover:shadow-xl dark:group-hover:bg-white/[0.02] dark:backdrop-blur-md h-full relative overflow-hidden">
         
         <header className="flex items-start justify-between gap-4 relative z-10">
           <div className="min-w-0">
@@ -63,24 +66,55 @@ export function StoryCard({ story }: { story: Story }) {
         <div className="absolute right-5 bottom-5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-20">
           <button 
             onClick={(e) => handleReact(e, 'Heart')}
-            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Heart' ? 'bg-primary/10 text-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-primary'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm dark:shadow-lg dark:backdrop-blur-md hover:scale-110 ${activeReaction === 'Heart' ? 'bg-primary/10 dark:bg-black/80 text-primary dark:text-blush ring-2 ring-primary dark:ring-blush ring-offset-2 ring-offset-background' : 'bg-secondary dark:bg-black/60 border border-border dark:border-white/10 text-muted-foreground hover:text-primary dark:hover:text-blush'}`}
           >
             <Heart className={`h-5 w-5 ${activeReaction === 'Heart' ? 'fill-current' : ''}`} />
           </button>
           <button 
             onClick={(e) => handleReact(e, 'Flame')}
-            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Flame' ? 'bg-orange-50 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-orange-500'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm dark:shadow-lg dark:backdrop-blur-md hover:scale-110 ${activeReaction === 'Flame' ? 'bg-orange-50 dark:bg-black/80 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-secondary dark:bg-black/60 border border-border dark:border-white/10 text-muted-foreground hover:text-orange-500'}`}
           >
             <Flame className={`h-5 w-5 ${activeReaction === 'Flame' ? 'fill-current' : ''}`} />
           </button>
           <button 
             onClick={(e) => handleReact(e, 'Trophy')}
-            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-amber-50 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-gold'}`}
+            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm dark:shadow-lg dark:backdrop-blur-md hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-amber-50 dark:bg-black/80 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-secondary dark:bg-black/60 border border-border dark:border-white/10 text-muted-foreground hover:text-gold'}`}
           >
             <Trophy className={`h-5 w-5 ${activeReaction === 'Trophy' ? 'fill-current' : ''}`} />
           </button>
+          <button 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsShareOpen(true);
+            }}
+            className="h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm dark:shadow-lg dark:backdrop-blur-md hover:scale-110 bg-secondary dark:bg-black/60 border border-border dark:border-white/10 text-muted-foreground hover:text-white"
+            title="Share"
+          >
+            <Share2 className="h-5 w-5" />
+          </button>
         </div>
       </article>
-    </Link>
+      </Link>
+
+      {isShareOpen && (
+        <ShareExperienceModal
+          isOpen={isShareOpen}
+          onClose={() => setIsShareOpen(false)}
+          post={{
+            id: story.id,
+            description: story.headline,
+            ai_score: story.score,
+            ai_feedback: story.verdict,
+            created_at: story.postedAt,
+            user_id: 'anonymous',
+            partner_id: 'anonymous',
+            partner: { id: 'p1', name: story.partnerNickname, emoji: '👤', user_id: 'anonymous' }
+          } as any}
+          profileName={story.username.replace('@', '')}
+          city={story.city}
+        />
+      )}
+    </>
   );
 }

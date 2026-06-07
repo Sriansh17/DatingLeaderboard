@@ -13,7 +13,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg backdrop-blur-lg border-b border-border">
+    <nav className="sticky top-0 z-40 bg-background/80 dark:bg-black/40 backdrop-blur-lg border-b border-border dark:border-white/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -79,7 +79,7 @@ export function Navbar() {
 
           {/* Mobile menu button */}
           <button
-            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-black/5 dark:hover:bg-white/5"
             onClick={() => setMobileOpen(!mobileOpen)}
           >
             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -97,17 +97,17 @@ export function Navbar() {
         <div className="px-4 py-3 space-y-2 border-t border-border">
           {user ? (
             <>
-              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Dashboard</Link>
-              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
-              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>New Post</Link>
-              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Partners</Link>
-              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Contact</Link>
-              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Profile</Link>
-              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Sign Out</button>
+              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
+              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>New Post</Link>
+              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Partners</Link>
+              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Contact</Link>
+              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Profile</Link>
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10">Sign Out</button>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Sign In</Link>
+              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-black/5 dark:hover:bg-white/5" onClick={() => setMobileOpen(false)}>Sign In</Link>
               <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/15" onClick={() => setMobileOpen(false)}>Get Started</Link>
             </>
           )}

@@ -7,12 +7,12 @@ export default function ContactPage() {
         <div className="text-center mb-8">
           <Heart className="h-10 w-10 text-primary mx-auto mb-3" />
           <h1 className="text-2xl font-bold text-foreground">Get in Touch</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-muted-foreground mt-1">
             Have feedback, suggestions, or just want to say hi?
           </p>
         </div>
 
-        <div className="bg-surface rounded-2xl border border-border p-6 space-y-4">
+        <div className="bg-surface dark:bg-black/40 rounded-2xl border border-border dark:border-white/10 p-6 space-y-4">
           {/* Instagram */}
           <a
             href="https://instagram.com/sriansh._.raj"
@@ -27,7 +27,7 @@ export default function ContactPage() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">Instagram</p>
-              <p className="text-sm text-gray-500">@sriansh._.raj</p>
+              <p className="text-sm text-muted-foreground">@sriansh._.raj</p>
             </div>
             <span className="text-sm text-primary font-medium">DM me →</span>
           </a>
@@ -46,7 +46,7 @@ export default function ContactPage() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">LinkedIn</p>
-              <p className="text-sm text-gray-500">Sriansh Raj</p>
+              <p className="text-sm text-muted-foreground">Sriansh Raj</p>
             </div>
             <span className="text-sm text-blue-600 font-medium">Connect →</span>
           </a>
@@ -64,7 +64,7 @@ export default function ContactPage() {
             </div>
             <div className="flex-1">
               <p className="font-semibold text-foreground">LinkedIn</p>
-              <p className="text-sm text-gray-500">Rishabh Bassi</p>
+              <p className="text-sm text-muted-foreground">Rishabh Bassi</p>
             </div>
             <span className="text-sm text-blue-600 font-medium">Connect →</span>
           </a>
@@ -72,7 +72,7 @@ export default function ContactPage() {
           {/* Email */}
           <a
             href="mailto:rajritulrajrazi@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary dark:bg-black/40 border border-border dark:border-white/10 hover:shadow-md transition-all"
           >
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
@@ -85,7 +85,7 @@ export default function ContactPage() {
 
           <a
             href="mailto:rishabhb.career@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
+            className="flex items-center gap-4 p-4 rounded-xl bg-secondary dark:bg-black/40 border border-border dark:border-white/10 hover:shadow-md transition-all"
           >
             <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="h-5 w-5 text-white" />
@@ -97,7 +97,7 @@ export default function ContactPage() {
           </a>
         </div>
 
-        <p className="text-center text-xs text-gray-400 mt-6">
+        <p className="text-center text-xs text-muted-foreground mt-6">
           Built with ❤️ — LoveBoard
         </p>
       </div>

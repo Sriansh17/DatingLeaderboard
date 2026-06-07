@@ -3,7 +3,7 @@ import { SignupForm } from '@/components/auth/SignupForm';
 
 export default function SignupPage() {
   return (
-    <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background">
+    <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background text-foreground">
       {/* Immersive Glowing Background */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-[#E92B54] opacity-20 mix-blend-screen blur-[120px] animate-pulse-glow" />
@@ -17,7 +17,7 @@ export default function SignupPage() {
           <div className="text-center sm:mb-12 mt-12 sm:mt-0">
             <h1 className="font-display text-4xl sm:text-5xl italic font-bold tracking-tight text-foreground leading-tight">
               Join the <br />
-              <span className="text-[#E92B54]">Love Leaderboard</span>
+              <span className="text-[#E92B54]">Fond</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-sm font-medium px-4">
               Find genuine connections built on shared values, interests, and goals.

@@ -128,7 +128,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
       {/* Avatar Upload */}
       <div className="flex flex-col items-center gap-4 py-4">
         <div className="relative group">
-          <div className="w-28 h-28 rounded-full overflow-hidden bg-secondary border border-border flex items-center justify-center transition-all group-hover:border-primary/50">
+          <div className="w-28 h-28 rounded-full overflow-hidden border border-border bg-background/50 dark:bg-black/40 backdrop-blur-xl flex items-center justify-center transition-all group-hover:border-primary/50 shadow-sm">
             {avatarPreview ? (
               <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
             ) : (
@@ -138,7 +138,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-white border border-border text-foreground flex items-center justify-center hover:bg-secondary hover:text-primary transition-colors shadow-md"
+            className="absolute bottom-0 right-0 w-10 h-10 rounded-full border border-border bg-background/80 dark:bg-black/80 backdrop-blur-xl text-foreground flex items-center justify-center hover:border-primary/50 transition-colors shadow-xl"
           >
             <Camera className="h-4 w-4" />
           </button>
@@ -160,7 +160,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full rounded-2xl border border-border bg-white px-6 py-4 text-lg font-display text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-colors placeholder:text-muted-foreground/50"
+          className="w-full rounded-2xl border border-border bg-background/50 dark:bg-black/40 backdrop-blur-xl px-6 py-4 text-lg font-display text-foreground outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/20 transition-all placeholder:text-muted-foreground/50 shadow-sm"
         />
       </div>
 
@@ -178,7 +178,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
                 relationship === rel.value
                   ? 'border-primary/30 bg-primary/10 text-primary shadow-[0_0_15px_rgba(232,69,107,0.1)]'
-                  : 'border-border bg-secondary text-muted-foreground hover:bg-muted hover:text-foreground'
+                  : 'border-border bg-background/50 dark:bg-black/40 backdrop-blur-xl text-muted-foreground hover:border-primary/30 hover:text-foreground'
               }`}
             >
               {rel.label}
@@ -200,8 +200,8 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               onClick={() => setEmoji(e)}
               className={`text-2xl h-12 w-12 rounded-full border flex items-center justify-center transition-all ${
                 emoji === e
-                  ? 'border-primary/30 bg-primary/10 scale-110 shadow-[0_0_15px_rgba(232,69,107,0.15)]'
-                  : 'border-border bg-secondary hover:bg-muted'
+                  ? 'border-primary/30 bg-primary/10 scale-110 shadow-[0_0_15px_rgba(232,69,107,0.1)]'
+                  : 'border-border bg-background/50 dark:bg-black/40 backdrop-blur-xl hover:border-primary/30'
               }`}
             >
               {e}

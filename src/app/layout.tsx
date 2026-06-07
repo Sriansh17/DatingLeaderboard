@@ -6,13 +6,14 @@ import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { AppDock } from '@/components/ui/AppDock';
+import { FloatingThemeToggle } from '@/components/ui/FloatingThemeToggle';
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-sans' });
 const playfair = Playfair_Display({ subsets: ['latin'], variable: '--font-display' });
 const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-score' });
 
 export const metadata: Metadata = {
-  title: 'Love Leaderboard — Your Relationship Has a Score',
+  title: 'Fond — Your Relationship Has a Score',
   description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
   themeColor: '#FFF5F5',
 };
@@ -34,6 +35,7 @@ export default function RootLayout({
                     {children}
                   </div>
                   <AppDock />
+          <FloatingThemeToggle />
                 </div>
               </ToastProvider>
             </AuthProvider>

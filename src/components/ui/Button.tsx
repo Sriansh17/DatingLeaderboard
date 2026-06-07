@@ -14,11 +14,11 @@ const variantStyles: Record<ButtonVariant, string> = {
   primary:
     'bg-gradient-to-br from-gradientStart to-gradientEnd text-[#111] hover:opacity-90 shadow-sm',
   secondary:
-    'bg-white/60 text-gray-900 hover:bg-white/80 border border-white/40',
+    'bg-white/60 text-foreground hover:bg-white/80 border border-white/40',
   outline:
-    'border border-gray-300 text-gray-700 hover:bg-white/40',
+    'border border-gray-300 text-foreground hover:bg-white/40',
   ghost:
-    'text-gray-600 hover:bg-white/40',
+    'text-muted-foreground hover:bg-white/40',
   danger:
     'bg-red-500 text-white hover:bg-red-600',
 };

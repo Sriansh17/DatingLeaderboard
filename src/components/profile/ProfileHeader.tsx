@@ -28,7 +28,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       <p className="text-muted-foreground">@{profile.username}</p>
 
       {streak && streak.currentStreak > 0 && (
-        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
+        <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 text-sm font-medium">
           <Flame className="h-4 w-4 fill-orange-500" />
           {streak.currentStreak}-day streak!
         </div>
@@ -39,7 +39,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       )}
 
       {profile.city && (
-        <p className="mt-1 text-sm text-gray-400">📍 {profile.city}</p>
+        <p className="mt-1 text-sm text-muted-foreground">📍 {profile.city}</p>
       )}
 
       <div className="flex items-center justify-center gap-4 mt-4">
@@ -58,15 +58,15 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
 
       {/* Stats */}
       <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
-        <div className="p-3 rounded-xl bg-secondary">
+        <div className="p-3 rounded-xl bg-secondary dark:bg-black/40 border border-transparent dark:border-white/10">
           <p className="text-2xl font-bold text-primary">{postCount}</p>
           <p className="text-xs text-muted-foreground">Posts</p>
         </div>
-        <div className="p-3 rounded-xl bg-secondary">
+        <div className="p-3 rounded-xl bg-secondary dark:bg-black/40 border border-transparent dark:border-white/10">
           <p className="text-2xl font-bold text-primary">{partnerCount}</p>
           <p className="text-xs text-muted-foreground">Partners</p>
         </div>
-        <div className="p-3 rounded-xl bg-secondary">
+        <div className="p-3 rounded-xl bg-secondary dark:bg-black/40 border border-transparent dark:border-white/10">
           <p className="text-2xl font-bold text-primary">{averageScore}</p>
           <p className="text-xs text-muted-foreground">Avg Score</p>
         </div>

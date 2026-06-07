@@ -19,7 +19,7 @@ export default function EditPostPage() {
   const [saving, setSaving] = useState(false);
 
   if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
-  if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
+  if (!post) return <div className="text-center py-20 text-muted-foreground">Post not found</div>;
 
   // Set initial description
   if (!description && post.description) {
@@ -47,7 +47,7 @@ export default function EditPostPage() {
     <div className="max-w-lg mx-auto">
       <button
         onClick={() => router.back()}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors mb-6"
+        className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary transition-colors mb-6"
       >
         <ArrowLeft className="h-4 w-4" />
         Back

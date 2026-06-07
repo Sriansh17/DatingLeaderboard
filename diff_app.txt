@@ -1,0 +1,1010 @@
+diff --git a/src/app/api/leaderboards/route.ts b/src/app/api/leaderboards/route.ts
+index 72f45f5..e5805dc 100644
+--- a/src/app/api/leaderboards/route.ts
++++ b/src/app/api/leaderboards/route.ts
+@@ -13,6 +13,7 @@ export async function GET(request: Request) {
+     const latitude = searchParams.get('latitude');
+     const longitude = searchParams.get('longitude');
+     const city = searchParams.get('city');
++    const country = searchParams.get('country');
+     const page = parseInt(searchParams.get('page') || '1');
+     const limit = parseInt(searchParams.get('limit') || String(LEADERBOARD_PAGE_SIZE));
+ 
+@@ -23,6 +24,8 @@ export async function GET(request: Request) {
+       ? `${latitude},${longitude}`
+       : type === 'city'
+         ? city || 'unknown'
++        : type === 'country'
++          ? country || 'unknown'
+         : 'world';
+ 
+     // Try cache first
+@@ -45,7 +48,7 @@ export async function GET(request: Request) {
+     const profilesStart = Date.now();
+     const { data: profiles } = await supabase
+       .from('profiles')
+-      .select('id, username, full_name, avatar_url, city, latitude, longitude');
++      .select('id, username, full_name, avatar_url, city, country, latitude, longitude');
+     console.log(`[Leaderboard] Profiles query: ${Date.now() - profilesStart}ms | Count: ${profiles?.length || 0}`);
+ 
+     if (!profiles) {
+@@ -92,18 +95,26 @@ export async function GET(request: Request) {
+         if (!data || data.scores.length < MIN_POSTS_FOR_LEADERBOARD) return false;
+ 
+         // Filter by location
+-        if (type === 'local' && latitude && longitude) {
+-          const dist = calculateDistance(
+-            parseFloat(latitude),
+-            parseFloat(longitude),
+-            p.latitude || 0,
+-            p.longitude || 0
+-          );
+-          return dist <= 10; // 10km radius
++        if (type === 'local') {
++          // Only filter if we have valid coordinates
++          if (latitude && longitude && parseFloat(latitude) !== 0 && parseFloat(longitude) !== 0) {
++            const dist = calculateDistance(
++              parseFloat(latitude),
++              parseFloat(longitude),
++              p.latitude || 0,
++              p.longitude || 0
++            );
++            return dist <= 10; // 10km radius
++          }
++          // No location data — show all (same as global)
++          return true;
+         }
+         if (type === 'city' && city) {
+           return p.city?.toLowerCase() === city.toLowerCase();
+         }
++        if (type === 'country' && country) {
++          return (p as any).country?.toLowerCase() === country.toLowerCase();
++        }
+         return true; // global
+       })
+       .map((p) => {
+diff --git a/src/app/api/posts/explore/route.ts b/src/app/api/posts/explore/route.ts
+index aeb675e..0b98860 100644
+--- a/src/app/api/posts/explore/route.ts
++++ b/src/app/api/posts/explore/route.ts
+@@ -14,7 +14,7 @@ export async function GET() {
+ 
+     const { data, error } = await supabase
+       .from('posts')
+-      .select('*, partner:partners(*), profile:profiles(*)')
++      .select('*, partner:partners!partner_id(*), profile:profiles!user_id(*)')
+       .eq('is_public', true)
+       .order('created_at', { ascending: false })
+       .limit(50);
+@@ -25,6 +25,9 @@ export async function GET() {
+     }
+ 
+     console.log(`[Explore API] Fetched ${data?.length || 0} posts in ${Date.now() - start}ms`);
++    if (data && data.length > 0) {
++      console.log(`[Explore API] Latest post: "${data[0].description}" | created: ${data[0].created_at} | score: ${data[0].ai_score}`);
++    }
+     return NextResponse.json({ success: true, data: data || [] }, {
+       headers: { 'Cache-Control': 'no-store' },
+     });
+diff --git a/src/app/api/users/me/route.ts b/src/app/api/users/me/route.ts
+new file mode 100644
+index 0000000..76eb862
+--- /dev/null
++++ b/src/app/api/users/me/route.ts
+@@ -0,0 +1,49 @@
++import { NextResponse } from 'next/server';
++import { createServerClient } from '@supabase/ssr';
++import { cookies } from 'next/headers';
++import { createClient } from '@supabase/supabase-js';
++
++export const dynamic = 'force-dynamic';
++
++export async function GET() {
++  try {
++    const cookieStore = await cookies();
++
++    // Use the SSR client to get the user from the session cookie
++    const supabase = createServerClient(
++      process.env.NEXT_PUBLIC_SUPABASE_URL!,
++      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
++      {
++        cookies: {
++          getAll() {
++            return cookieStore.getAll();
++          },
++          setAll() {},
++        },
++      }
++    );
++
++    const { data: { user }, error: authError } = await supabase.auth.getUser();
++
++    if (authError || !user) {
++      return NextResponse.json({ user: null, profile: null });
++    }
++
++    // Use service role to fetch profile (bypasses RLS)
++    const adminClient = createClient(
++      process.env.NEXT_PUBLIC_SUPABASE_URL!,
++      process.env.SUPABASE_SERVICE_ROLE_KEY!
++    );
++
++    const { data: profile } = await adminClient
++      .from('profiles')
++      .select('*')
++      .eq('id', user.id)
++      .single();
++
++    return NextResponse.json({ user, profile });
++  } catch (error) {
++    console.error('[/api/users/me] Error:', error);
++    return NextResponse.json({ user: null, profile: null });
++  }
++}
+diff --git a/src/app/contact/page.tsx b/src/app/contact/page.tsx
+index f168dd6..3cd7f72 100644
+--- a/src/app/contact/page.tsx
++++ b/src/app/contact/page.tsx
+@@ -5,20 +5,20 @@ export default function ContactPage() {
+     <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center">
+       <div className="w-full max-w-md">
+         <div className="text-center mb-8">
+-          <Heart className="h-10 w-10 text-pink-500 mx-auto mb-3" />
+-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Get in Touch</h1>
++          <Heart className="h-10 w-10 text-primary mx-auto mb-3" />
++          <h1 className="text-2xl font-bold text-foreground">Get in Touch</h1>
+           <p className="text-sm text-gray-500 mt-1">
+             Have feedback, suggestions, or just want to say hi?
+           </p>
+         </div>
+ 
+-        <div className="bg-white dark:bg-gray-900 rounded-2xl border border-gray-200 dark:border-gray-800 p-6 space-y-4">
++        <div className="bg-surface rounded-2xl border border-border p-6 space-y-4">
+           {/* Instagram */}
+           <a
+             href="https://instagram.com/sriansh._.raj"
+             target="_blank"
+             rel="noopener noreferrer"
+-            className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-pink-200 dark:border-pink-800 hover:shadow-md transition-all"
++            className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-primary/30 dark:border-primary/30 hover:shadow-md transition-all"
+           >
+             <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center">
+               <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
+@@ -26,10 +26,10 @@ export default function ContactPage() {
+               </svg>
+             </div>
+             <div className="flex-1">
+-              <p className="font-semibold text-gray-900 dark:text-gray-100">Instagram</p>
++              <p className="font-semibold text-foreground">Instagram</p>
+               <p className="text-sm text-gray-500">@sriansh._.raj</p>
+             </div>
+-            <span className="text-sm text-pink-500 font-medium">DM me →</span>
++            <span className="text-sm text-primary font-medium">DM me →</span>
+           </a>
+ 
+           {/* LinkedIn */}
+@@ -45,7 +45,7 @@ export default function ContactPage() {
+               </svg>
+             </div>
+             <div className="flex-1">
+-              <p className="font-semibold text-gray-900 dark:text-gray-100">LinkedIn</p>
++              <p className="font-semibold text-foreground">LinkedIn</p>
+               <p className="text-sm text-gray-500">Sriansh Raj</p>
+             </div>
+             <span className="text-sm text-blue-600 font-medium">Connect →</span>
+@@ -63,7 +63,7 @@ export default function ContactPage() {
+               </svg>
+             </div>
+             <div className="flex-1">
+-              <p className="font-semibold text-gray-900 dark:text-gray-100">LinkedIn</p>
++              <p className="font-semibold text-foreground">LinkedIn</p>
+               <p className="text-sm text-gray-500">Rishabh Bassi</p>
+             </div>
+             <span className="text-sm text-blue-600 font-medium">Connect →</span>
+@@ -72,27 +72,27 @@ export default function ContactPage() {
+           {/* Email */}
+           <a
+             href="mailto:rajritulrajrazi@gmail.com"
+-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
++            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
+           >
+-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
++            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+               <Mail className="h-5 w-5 text-white" />
+             </div>
+             <div className="flex-1">
+-              <p className="font-semibold text-gray-900 dark:text-gray-100">Email</p>
+-              <p className="text-sm text-gray-500">rajritulrajrazi@gmail.com</p>
++              <p className="font-semibold text-foreground">Email</p>
++              <p className="text-sm text-muted-foreground">rajritulrajrazi@gmail.com</p>
+             </div>
+           </a>
+ 
+           <a
+             href="mailto:rishabhb.career@gmail.com"
+-            className="flex items-center gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-all"
++            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
+           >
+-            <div className="w-10 h-10 rounded-xl bg-gray-700 dark:bg-gray-600 flex items-center justify-center">
++            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
+               <Mail className="h-5 w-5 text-white" />
+             </div>
+             <div className="flex-1">
+-              <p className="font-semibold text-gray-900 dark:text-gray-100">Email</p>
+-              <p className="text-sm text-gray-500">rishabhb.career@gmail.com</p>
++              <p className="font-semibold text-foreground">Email</p>
++              <p className="text-sm text-muted-foreground">rishabhb.career@gmail.com</p>
+             </div>
+           </a>
+         </div>
+diff --git a/src/app/dashboard/page.tsx b/src/app/dashboard/page.tsx
+index 2abdb35..0dc2298 100644
+--- a/src/app/dashboard/page.tsx
++++ b/src/app/dashboard/page.tsx
+@@ -77,25 +77,25 @@ export default function DashboardPage() {
+             {/* Editorial Widgets Row */}
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+               {/* Daily Prompt */}
+-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
++              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+                 <div>
+                   <div className="flex items-center gap-2 mb-4">
+-                    <Sparkles className="h-3 w-3 text-[#ff3366]" />
+-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ff3366]">Daily Prompt</span>
++                    <Sparkles className="h-3 w-3 text-primary" />
++                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-primary">Daily Prompt</span>
+                   </div>
+                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">What was your favorite date this month?</p>
+                 </div>
+-                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-white transition-all hover:bg-white/10 hover:border-white/20">
+-                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-[#E92B54]" />
++                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary transition-all hover:bg-primary/10 hover:border-primary/30">
++                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
+                 </Link>
+               </div>
+ 
+               {/* AI Insight */}
+-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
++              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+                 <div>
+                   <div className="flex items-center gap-2 mb-4">
+-                    <TrendingUp className="h-3 w-3 text-[#ffb6b6]" />
+-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ffb6b6]">Insight</span>
++                    <TrendingUp className="h-3 w-3 text-accent" />
++                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-accent">Insight</span>
+                   </div>
+                   <p className="font-display text-lg md:text-xl italic text-foreground/90 leading-snug font-light">
+                     Couples who post weekly maintain a 30% higher romance score.
+@@ -104,17 +104,17 @@ export default function DashboardPage() {
+               </div>
+ 
+               {/* Top Mover */}
+-              <div className="rounded-2xl border border-white/5 bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-xl">
++              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+                 <div>
+                   <div className="flex items-center gap-2 mb-4">
+-                    <Trophy className="h-3 w-3 text-[#ffd700]" />
+-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-[#ffd700]">Top Mover</span>
++                    <Trophy className="h-3 w-3 text-gold" />
++                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-gold">Top Mover</span>
+                   </div>
+                   <div className="flex items-center gap-4 mt-2">
+-                    <div className="h-10 w-10 rounded-full border border-white/20 bg-transparent grid place-items-center font-display text-lg text-[#ffd700]">J</div>
++                    <div className="h-10 w-10 rounded-full border border-border bg-secondary grid place-items-center font-display text-lg text-gold">J</div>
+                     <div>
+                       <p className="font-display text-xl text-foreground font-light mb-0.5">@jessica</p>
+-                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-[#00ff88] flex items-center gap-1">
++                      <p className="text-[8px] font-bold uppercase tracking-[0.2em] text-emerald-600 flex items-center gap-1">
+                         <TrendingUp className="h-2.5 w-2.5"/> Up 42 ranks
+                       </p>
+                     </div>
+diff --git a/src/app/error.tsx b/src/app/error.tsx
+index 53cd54e..f955deb 100644
+--- a/src/app/error.tsx
++++ b/src/app/error.tsx
+@@ -14,10 +14,10 @@ export default function Error({
+     <div className="flex items-center justify-center min-h-[60vh]">
+       <div className="text-center max-w-md">
+         <Heart className="h-16 w-16 text-pink-300 mx-auto mb-4" />
+-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">
++        <h1 className="text-2xl font-bold text-foreground mb-2">
+           Something went wrong
+         </h1>
+-        <p className="text-gray-500 dark:text-gray-400 mb-6">
++        <p className="text-muted-foreground mb-6">
+           {error.message || 'An unexpected error occurred. Please try again.'}
+         </p>
+         <Button onClick={reset}>
+diff --git a/src/app/explore/page.tsx b/src/app/explore/page.tsx
+index 385b75d..2382c98 100644
+--- a/src/app/explore/page.tsx
++++ b/src/app/explore/page.tsx
+@@ -32,7 +32,7 @@ export default function ExplorePage() {
+           <Compass className="h-5 w-5 text-white" />
+         </div>
+         <div>
+-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Explore</h1>
++          <h1 className="text-2xl font-bold text-foreground">Explore</h1>
+           <p className="text-sm text-gray-500">See what others are appreciating ❤️</p>
+         </div>
+       </div>
+@@ -44,7 +44,7 @@ export default function ExplorePage() {
+       ) : posts.length === 0 ? (
+         <div className="text-center py-20">
+           <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
+-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
++          <h3 className="text-lg font-semibold text-foreground/90 mb-2">
+             No public posts yet
+           </h3>
+           <p className="text-gray-500 text-sm">
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 4e10f99..63d2048 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -24,50 +24,56 @@
+   :root {
+     --radius: 0.875rem;
+ 
+-    /* Romance Meets Reality TV — dark by default */
+-    --background: oklch(0.14 0.02 295);          /* #0E0E14 */
+-    --foreground: oklch(0.96 0.012 75);          /* #F8F4F0 */
+-
+-    --surface: oklch(0.18 0.022 290);            /* #1A1A24 */
+-    --elevated: oklch(0.22 0.024 290);           /* #22222E */
+-
+-    --card: var(--surface);
+-    --card-foreground: var(--foreground);
+-    --popover: var(--elevated);
+-    --popover-foreground: var(--foreground);
+-
+-    --primary: oklch(0.55 0.21 18);              /* #C0162C crimson */
+-    --primary-foreground: oklch(0.98 0.01 75);
+-
+-    --secondary: oklch(0.24 0.025 290);
+-    --secondary-foreground: var(--foreground);
+-
+-    --muted: oklch(0.24 0.025 290);
+-    --muted-foreground: oklch(0.65 0.025 310);   /* #9B8FA0 */
+-
+-    --accent: oklch(0.74 0.14 15);               /* #FF6B8A blush */
+-    --accent-foreground: oklch(0.18 0.022 290);
+-
+-    --gold: oklch(0.78 0.13 85);                 /* #D4AF37 */
+-    --gold-foreground: oklch(0.18 0.022 290);
+-    --blush: oklch(0.74 0.14 15);
+-
+-    --destructive: oklch(0.62 0.22 25);
+-    --destructive-foreground: oklch(0.98 0.01 75);
+-    --success: oklch(0.72 0.17 152);             /* #2ECC71 */
+-    --warning: oklch(0.78 0.16 70);              /* #F39C12 */
+-
+-    --score-low: oklch(0.62 0.22 25);
+-    --score-mid: oklch(0.78 0.16 70);
+-    --score-high: oklch(0.72 0.17 152);
+-    --score-legendary: oklch(0.78 0.13 85);
+-
+-    --border: oklch(0.27 0.022 290);             /* #2A2A38 */
+-    --input: oklch(0.27 0.022 290);
+-    --ring: oklch(0.55 0.21 18);
++    /* Soft Rose Romance — light, warm, intimate
++       Inspired by rose quartz + blush satin palettes
++       Background: warm cream-rose
++       Cards: pure white with blush borders  
++       Inputs/buttons: soft rose-tinted neutrals
++       Primary: rich romantic rose
++    */
++    --background: #FEF6F4;
++    --foreground: #4A2C3A;
++
++    --surface: #FFF9F8;
++    --elevated: #FFF2EF;
++
++    --card: #FFFFFF;
++    --card-foreground: #4A2C3A;
++    --popover: #FFFFFF;
++    --popover-foreground: #4A2C3A;
++
++    --primary: #E8456B;
++    --primary-foreground: #FFFFFF;
++
++    --secondary: #FFF2EF;
++    --secondary-foreground: #4A2C3A;
++
++    --muted: #F9E8E4;
++    --muted-foreground: #8C5A6A;
++
++    --accent: #F472B6;
++    --accent-foreground: #FFFFFF;
++
++    --gold: #D97706;
++    --gold-foreground: #FFFFFF;
++    --blush: #FBCFE8;
++
++    --destructive: #DC2626;
++    --destructive-foreground: #FFFFFF;
++    --success: #16A34A;
++    --warning: #D97706;
++
++    --score-low: #EF4444;
++    --score-mid: #F59E0B;
++    --score-high: #10B981;
++    --score-legendary: #D97706;
++
++    --border: #F5DAD2;
++    --input: #FFFFFF;
++    --ring: #E8456B;
+     
+-    --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--primary) 60%, transparent);
+-    --shadow-gold: 0 0 30px -6px color-mix(in oklab, var(--gold) 45%, transparent);
++    --shadow-glow: 0 4px 24px -4px rgba(232, 69, 107, 0.12);
++    --shadow-gold: 0 4px 20px -4px rgba(217, 119, 6, 0.12);
+   }
+ 
+   body {
+@@ -84,20 +90,27 @@
+ }
+ 
+ @layer utilities {
++  .glass {
++    background-color: var(--card);
++    border: 1px solid var(--border);
++    border-radius: var(--radius);
++    box-shadow: 0 1px 8px -2px rgba(232, 69, 107, 0.06);
++  }
++
+   .font-score {
+     font-family: var(--font-score);
+     letter-spacing: 0.02em;
+   }
+ 
+   .text-gradient-gold {
+-    background: linear-gradient(135deg, oklch(0.86 0.14 90), oklch(0.68 0.14 60));
++    background: linear-gradient(135deg, #E8C86A, #D4A843);
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+   }
+ 
+   .text-gradient-crimson {
+-    background: linear-gradient(135deg, oklch(0.65 0.24 18), oklch(0.74 0.14 15));
++    background: linear-gradient(135deg, #FF5E7D, #FFB3C6);
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+@@ -105,8 +118,8 @@
+ 
+   .bg-radial-spotlight {
+     background:
+-      radial-gradient(60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%),
+-      radial-gradient(40% 40% at 100% 100%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 70%),
++      radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, #FFB3C6 20%, transparent), transparent 70%),
++      radial-gradient(40% 40% at 80% 80%, color-mix(in srgb, #FFDEE6 15%, transparent), transparent 60%),
+       var(--background);
+   }
+ 
+diff --git a/src/app/layout.tsx b/src/app/layout.tsx
+index 437edfe..8a1c757 100644
+--- a/src/app/layout.tsx
++++ b/src/app/layout.tsx
+@@ -14,7 +14,7 @@ const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-
+ export const metadata: Metadata = {
+   title: 'Love Leaderboard — Your Relationship Has a Score',
+   description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
+-  themeColor: '#0E0E14',
++  themeColor: '#FFF5F5',
+ };
+ 
+ export default function RootLayout({
+@@ -23,13 +23,13 @@ export default function RootLayout({
+   children: React.ReactNode;
+ }) {
+   return (
+-    <html lang="en" className="dark" suppressHydrationWarning>
++    <html lang="en" suppressHydrationWarning>
+       <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground`}>
+         <QueryProvider>
+           <ThemeProvider>
+             <AuthProvider>
+               <ToastProvider>
+-                <div className="min-h-screen flex flex-col relative overflow-hidden">
++                <div className="min-h-screen flex flex-col relative overflow-hidden bg-radial-spotlight">
+                   <div className="flex-1 w-full mx-auto pb-24 md:pb-28 animate-in fade-in duration-700">
+                     {children}
+                   </div>
+diff --git a/src/app/leaderboards/city/page.tsx b/src/app/leaderboards/city/page.tsx
+index 998e62b..0545d1a 100644
+--- a/src/app/leaderboards/city/page.tsx
++++ b/src/app/leaderboards/city/page.tsx
+@@ -15,8 +15,8 @@ export default function CityLeaderboardPage() {
+   return (
+     <div className="max-w-2xl mx-auto space-y-6">
+       <div className="flex items-center gap-2">
+-        <Building2 className="h-5 w-5 text-pink-500" />
+-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
++        <Building2 className="h-5 w-5 text-primary" />
++        <h1 className="text-2xl font-bold text-foreground">
+           City Leaderboard {profile?.city ? `- ${profile.city}` : ''}
+         </h1>
+       </div>
+diff --git a/src/app/leaderboards/global/page.tsx b/src/app/leaderboards/global/page.tsx
+index 23e4999..f56e6ed 100644
+--- a/src/app/leaderboards/global/page.tsx
++++ b/src/app/leaderboards/global/page.tsx
+@@ -10,8 +10,8 @@ export default function GlobalLeaderboardPage() {
+   return (
+     <div className="max-w-2xl mx-auto space-y-6">
+       <div className="flex items-center gap-2">
+-        <Globe className="h-5 w-5 text-pink-500" />
+-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Global Leaderboard</h1>
++        <Globe className="h-5 w-5 text-primary" />
++        <h1 className="text-2xl font-bold text-foreground">Global Leaderboard</h1>
+       </div>
+       <p className="text-sm text-gray-500">The most thoughtful partners around the world</p>
+       <LeaderboardTable entries={data} loading={isLoading} />
+diff --git a/src/app/leaderboards/local/page.tsx b/src/app/leaderboards/local/page.tsx
+index 2d30c5b..6c02c92 100644
+--- a/src/app/leaderboards/local/page.tsx
++++ b/src/app/leaderboards/local/page.tsx
+@@ -26,7 +26,7 @@ export default function LocalLeaderboardPage() {
+     return (
+       <div className="max-w-2xl mx-auto text-center py-20 text-gray-500">
+         <MapPin className="h-12 w-12 text-pink-300 mx-auto mb-4" />
+-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300">Location Required</h2>
++        <h2 className="text-lg font-semibold text-foreground/90">Location Required</h2>
+         <p className="text-sm mt-1">Enable location access to see local leaderboards</p>
+       </div>
+     );
+@@ -35,8 +35,8 @@ export default function LocalLeaderboardPage() {
+   return (
+     <div className="max-w-2xl mx-auto space-y-6">
+       <div className="flex items-center gap-2">
+-        <MapPin className="h-5 w-5 text-pink-500" />
+-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Local Leaderboard</h1>
++        <MapPin className="h-5 w-5 text-primary" />
++        <h1 className="text-2xl font-bold text-foreground">Local Leaderboard</h1>
+       </div>
+       <p className="text-sm text-gray-500">Partners ranked within 10km of your location</p>
+       <LeaderboardTable entries={data} loading={isLoading} />
+diff --git a/src/app/leaderboards/page.tsx b/src/app/leaderboards/page.tsx
+index 0b3d5c3..70d1233 100644
+--- a/src/app/leaderboards/page.tsx
++++ b/src/app/leaderboards/page.tsx
+@@ -1,39 +1,59 @@
+ 'use client';
+ 
+-import { useState } from "react";
+-import { leaderboard, currentUser, scoreColor } from "@/lib/mock-data";
+-import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+-
+-const scopes = ["Global", "Country", "City"] as const;
+-
+-function PodiumItem({ entry, rank }: { entry: typeof leaderboard[0], rank: number }) {
+-  const isFirst = rank === 1;
+-  const height = isFirst ? 'h-40 sm:h-48' : rank === 2 ? 'h-32 sm:h-36' : 'h-28 sm:h-28';
+-  const color = isFirst ? 'var(--gold)' : rank === 2 ? '#C0C0C0' : '#CD7F32';
+-  const bgColor = isFirst ? 'from-gold/20 to-gold/5 border-gold/30' : rank === 2 ? 'from-gray-300/20 to-gray-300/5 border-gray-300/30' : 'from-orange-400/20 to-orange-400/5 border-orange-400/30';
+-  
++import { useState } from 'react';
++import { useUser } from '@/components/providers/AuthProvider';
++import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
++import { useGeolocation } from '@/lib/hooks/useGeolocation';
++import { getScoreColor } from '@/lib/utils/format';
++import { Spinner } from '@/components/ui/Spinner';
++import { Avatar } from '@/components/ui/Avatar';
++import { ArrowUp, ArrowDown, Minus, Crown } from 'lucide-react';
++
++const scopes = ['local', 'country', 'global'] as const;
++const scopeLabels = ['Local', 'Country', 'Global'] as const;
++
++function PodiumRank({ rank }: { rank: number }) {
++  const colors = ['var(--gold)', '#C0C0C0', '#CD7F32'];
++  const heights = ['h-40 sm:h-48', 'h-32 sm:h-36', 'h-28 sm:h-28'];
++  const bgGradients = [
++    'from-gold/20 to-gold/5 border-gold/30',
++    'from-gray-300/20 to-gray-300/5 border-gray-300/30',
++    'from-orange-400/20 to-orange-400/5 border-orange-400/30',
++  ];
++
+   return (
+-    <div className={`flex flex-col items-center w-24 sm:w-32 transition-transform duration-500 hover:-translate-y-2`}>
+-      <div className="relative mb-3">
+-        <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-elevated border-2 grid place-items-center font-display text-xl sm:text-2xl shadow-[0_0_20px_-5px_currentColor] z-10 relative" style={{ borderColor: color, color }}>
+-          {entry.username[1]?.toUpperCase() || 'U'}
+-        </div>
+-        {isFirst && <div className="absolute -top-5 -right-3 text-3xl animate-bounce drop-shadow-xl z-20">👑</div>}
+-      </div>
+-      <div className="text-center mb-3 w-full px-1">
+-        <div className="text-xs sm:text-sm font-medium text-foreground truncate">{entry.username}</div>
+-        <div className="text-[10px] text-muted-foreground truncate font-score" style={{ color }}>{entry.score.toFixed(1)}</div>
+-      </div>
+-      <div className={`w-full ${height} rounded-t-2xl bg-gradient-to-b ${bgColor} border-t border-x flex flex-col items-center justify-start pt-3 sm:pt-4 shadow-inner relative overflow-hidden backdrop-blur-md`}>
+-        <div className="absolute inset-0 bg-white/5 opacity-50" />
+-        <span className="font-score text-4xl sm:text-5xl leading-none relative z-10" style={{ color }}>{rank}</span>
+-      </div>
++    <div className={`w-full ${heights[rank]} rounded-t-2xl bg-gradient-to-b ${bgGradients[rank]} border-t border-x flex flex-col items-center justify-start pt-3 sm:pt-4 shadow-inner relative overflow-hidden backdrop-blur-md`}>
++      <div className="absolute inset-0 bg-white/5 opacity-50" />
++      <span className="font-score text-4xl sm:text-5xl leading-none relative z-10" style={{ color: colors[rank] }}>
++        {rank + 1}
++      </span>
+     </div>
+   );
+ }
+ 
+ export default function RanksPage() {
+-  const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
++  const [scopeIdx, setScopeIdx] = useState(0);
++  const scope = scopes[scopeIdx];
++  const { profile } = useUser();
++  const { latitude, longitude } = useGeolocation();
++
++  const params = {
++    type: scope as 'global' | 'local' | 'country',
++    city: scope === 'local' ? profile?.city || undefined : undefined,
++    country: scope === 'country' ? (profile as any)?.country || (profile as any)?.user_metadata?.country || undefined : undefined,
++    latitude: scope === 'local' ? latitude || undefined : undefined,
++    longitude: scope === 'local' ? longitude || undefined : undefined,
++    limit: 50,
++  };
++
++  const { data: entries, isLoading } = useLeaderboard(params);
++
++  const top3 = entries?.slice(0, 3) || [];
++  const rest = entries?.slice(3) || [];
++
++  // Find current user's rank
++  const myEntry = entries?.find((e) => e.user_id === profile?.id);
++  const myRank = myEntry?.rank;
+ 
+   return (
+     <main className="pb-32 max-w-4xl mx-auto w-full border-x border-border min-h-screen bg-background relative">
+@@ -42,92 +62,144 @@ export default function RanksPage() {
+         <h1 className="font-display text-3xl italic text-foreground">Leaderboard</h1>
+       </header>
+ 
++      {/* Scope Tabs */}
+       <div className="sticky top-0 z-10 border-b border-border bg-background/90 px-5 py-3 backdrop-blur-xl">
+         <div className="flex rounded-full border border-border bg-elevated/60 p-1">
+-          {scopes.map((s) => (
++          {scopes.map((s, i) => (
+             <button
+               key={s}
+-              onClick={() => setScope(s)}
++              onClick={() => setScopeIdx(i)}
+               className={`flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
+-                scope === s ? "bg-primary text-primary-foreground" : "text-muted-foreground"
++                scopeIdx === i ? 'bg-primary text-primary-foreground' : 'text-muted-foreground'
+               }`}
+             >
+-              {s}
++              {scopeLabels[i]}
+             </button>
+           ))}
+         </div>
+         <p className="mt-2 text-center text-xs text-muted-foreground">
+-          {scope === "Global"
+-            ? "Top couples worldwide · resets weekly"
+-            : scope === "Country"
+-            ? "Top in your country"
+-            : `Top in ${currentUser.city}`}
++          {scope === 'global'
++            ? 'Top couples worldwide'
++            : scope === 'country'
++              ? (profile as any)?.country || (profile as any)?.user_metadata?.country ? `Top in ${(profile as any)?.country || (profile as any)?.user_metadata?.country}` : 'Set your country in profile'
++              : latitude ? `Top near you${profile?.city ? ` in ${profile.city}` : ''}` : 'Enable location for local rankings'}
+         </p>
+       </div>
+ 
+-      {/* Top 3 Podium */}
+-      <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 py-8 mt-2">
+-        {leaderboard[1] && <PodiumItem entry={leaderboard[1]} rank={2} />}
+-        {leaderboard[0] && <PodiumItem entry={leaderboard[0]} rank={1} />}
+-        {leaderboard[2] && <PodiumItem entry={leaderboard[2]} rank={3} />}
+-      </div>
+-
+-      <ol className="space-y-2 p-4">
+-        {leaderboard.slice(3).map((e) => (
+-          <li
+-            key={e.rank}
+-            className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
+-          >
+-            <div
+-              className="font-score text-3xl leading-none text-muted-foreground"
+-              style={{ width: 44 }}
+-            >
+-              {e.rank}
+-            </div>
+-            <div className="min-w-0 flex-1">
+-              <div className="truncate text-sm font-medium text-foreground">{e.username}</div>
+-              <div className="truncate text-xs text-muted-foreground">
+-                with {e.partnerNickname} · {e.city}
++      {isLoading ? (
++        <div className="flex justify-center py-20">
++          <Spinner size="lg" />
++        </div>
++      ) : !entries || entries.length === 0 ? (
++        <div className="text-center py-20 text-muted-foreground">
++          <p className="text-lg font-medium">No entries yet</p>
++        </div>
++      ) : (
++        <>
++          {/* Top 3 Podium — only show if we have 3+ entries */}
++          {top3.length === 3 && (
++            <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 py-8 mt-2">
++              <div className="flex flex-col items-center w-24 sm:w-32">
++                <div className="relative mb-3">
++                  <Avatar src={top3[1].top_partner_avatar || top3[1].avatar_url} alt={top3[1].top_partner_name} size="lg" />
++                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-gray-300 border-2 border-background grid place-items-center text-[10px] font-bold text-gray-700">2</div>
++                </div>
++                <div className="text-center mb-3 w-full px-1">
++                  <div className="text-xs sm:text-sm font-medium text-foreground truncate">{top3[1].top_partner_name}</div>
++                  <div className="text-[10px] text-muted-foreground truncate">by {top3[1].username}</div>
++                  <div className="text-xs font-score mt-1" style={{ color: getScoreColor(top3[1].average_score).replace('text-', '') === 'green' ? '#4ADE80' : getScoreColor(top3[1].average_score).replace('text-', '') === 'emerald' ? '#4ADE80' : getScoreColor(top3[1].average_score).replace('text-', '') === 'yellow' ? '#FBBF24' : getScoreColor(top3[1].average_score).replace('text-', '') === 'orange' ? '#FB923C' : '#E54D6A' }}>
++                    {top3[1].average_score}
++                  </div>
++                </div>
++                <PodiumRank rank={1} />
+               </div>
+-            </div>
+-            <div className="text-right">
+-              <div className="font-score text-2xl leading-none" style={{ color: scoreColor(e.score) }}>
+-                {e.score.toFixed(1)}
++
++              <div className="flex flex-col items-center w-24 sm:w-32">
++                <div className="relative mb-3">
++                  <Avatar src={top3[0].top_partner_avatar || top3[0].avatar_url} alt={top3[0].top_partner_name} size="lg" />
++                  <div className="absolute -top-3 -right-2 text-2xl drop-shadow-xl z-20">👑</div>
++                </div>
++                <div className="text-center mb-3 w-full px-1">
++                  <div className="text-xs sm:text-sm font-medium text-foreground truncate">{top3[0].top_partner_name}</div>
++                  <div className="text-[10px] text-muted-foreground truncate">by {top3[0].username}</div>
++                  <div className="text-xs font-score mt-1" style={{ color: '#E8C86A' }}>{top3[0].average_score}</div>
++                </div>
++                <PodiumRank rank={0} />
+               </div>
+-              <div className="mt-1 flex items-center justify-end gap-0.5 text-[10px] text-muted-foreground">
+-                {e.change > 0 ? (
+-                  <ArrowUp className="h-3 w-3 text-success" />
+-                ) : e.change < 0 ? (
+-                  <ArrowDown className="h-3 w-3 text-destructive" />
+-                ) : (
+-                  <Minus className="h-3 w-3" />
+-                )}
+-                {Math.abs(e.change) || "—"}
++
++              <div className="flex flex-col items-center w-24 sm:w-32">
++                <div className="relative mb-3">
++                  <Avatar src={top3[2].top_partner_avatar || top3[2].avatar_url} alt={top3[2].top_partner_name} size="lg" />
++                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-amber-700 border-2 border-background grid place-items-center text-[10px] font-bold text-white">3</div>
++                </div>
++                <div className="text-center mb-3 w-full px-1">
++                  <div className="text-xs sm:text-sm font-medium text-foreground truncate">{top3[2].top_partner_name}</div>
++                  <div className="text-[10px] text-muted-foreground truncate">by {top3[2].username}</div>
++                  <div className="text-xs font-score mt-1" style={{ color: '#CD7F32' }}>{top3[2].average_score}</div>
++                </div>
++                <PodiumRank rank={2} />
+               </div>
+             </div>
+-          </li>
+-        ))}
+-      </ol>
++          )}
++
++          {/* Rest of the list */}
++          <ol className="space-y-2 p-4">
++            {(top3.length < 3 ? entries : rest).map((entry) => (
++              <li
++                key={entry.user_id}
++                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3"
++              >
++                <div className="font-score text-3xl leading-none text-muted-foreground" style={{ width: 44 }}>
++                  {entry.rank}
++                </div>
++                <Avatar
++                  src={entry.top_partner_avatar || entry.avatar_url}
++                  alt={entry.top_partner_name}
++                  size="sm"
++                />
++                <div className="min-w-0 flex-1">
++                  <div className="truncate text-sm font-medium text-foreground">{entry.top_partner_name}</div>
++                  <div className="truncate text-xs text-muted-foreground">
++                    by {entry.username} · {entry.total_posts} posts
++                  </div>
++                </div>
++                <div className="text-right">
++                  <div className={`font-score text-2xl leading-none ${getScoreColor(entry.average_score)}`}>
++                    {entry.average_score}
++                  </div>
++                </div>
++              </li>
++            ))}
++          </ol>
++        </>
++      )}
+ 
+       {/* Pinned self */}
+-      <div className="fixed inset-x-0 bottom-28 z-30 mx-auto max-w-2xl px-4">
+-        <div className="rounded-2xl border-2 border-blush/60 bg-background/95 p-3 backdrop-blur-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
+-          <div className="flex items-center gap-3">
+-            <div className="font-score text-2xl text-blush" style={{ width: 44 }}>
+-              #{currentUser.globalRank}
+-            </div>
+-            <div className="min-w-0 flex-1">
+-              <div className="text-sm font-medium text-foreground">You · {currentUser.username}</div>
+-              <div className="text-xs text-muted-foreground">
+-                #{currentUser.cityRank} in {currentUser.city} · keep climbing
++      {myEntry && myRank && (
++        <div className="fixed inset-x-0 bottom-28 z-30 mx-auto max-w-2xl px-4">
++          <div className="rounded-2xl border-2 border-blush/60 bg-background/95 p-3 backdrop-blur-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)]">
++            <div className="flex items-center gap-3">
++              <div className="font-score text-2xl text-blush" style={{ width: 44 }}>
++                #{myRank}
++              </div>
++              <Avatar
++                src={myEntry.top_partner_avatar || myEntry.avatar_url}
++                alt={myEntry.top_partner_name}
++                size="sm"
++              />
++              <div className="min-w-0 flex-1">
++                <div className="text-sm font-medium text-foreground">You · {myEntry.top_partner_name}</div>
++                <div className="text-xs text-muted-foreground">
++                  {myEntry.total_posts} posts · keep climbing
++                </div>
++              </div>
++              <div className={`font-score text-2xl ${getScoreColor(myEntry.average_score)}`}>
++                {myEntry.average_score}
+               </div>
+-            </div>
+-            <div className="font-score text-2xl" style={{ color: scoreColor(currentUser.bestScore) }}>
+-              {currentUser.bestScore.toFixed(1)}
+             </div>
+           </div>
+         </div>
+-      </div>
++      )}
+     </main>
+   );
+ }
+diff --git a/src/app/loading.tsx b/src/app/loading.tsx
+index d8c69e2..49a9c67 100644
+--- a/src/app/loading.tsx
++++ b/src/app/loading.tsx
+@@ -5,7 +5,7 @@ export default function Loading() {
+     <div className="flex items-center justify-center min-h-[60vh]">
+       <div className="text-center">
+         <Spinner size="lg" />
+-        <p className="mt-4 text-gray-500 dark:text-gray-400 text-sm">Loading LoveBoard...</p>
++        <p className="mt-4 text-muted-foreground text-sm">Loading LoveBoard...</p>
+       </div>
+     </div>
+   );
+diff --git a/src/app/not-found.tsx b/src/app/not-found.tsx
+index 1829efe..0f7fe5e 100644
+--- a/src/app/not-found.tsx
++++ b/src/app/not-found.tsx
+@@ -7,8 +7,8 @@ export default function NotFound() {
+     <div className="flex items-center justify-center min-h-[60vh]">
+       <div className="text-center max-w-md">
+         <Heart className="h-16 w-16 text-pink-300 mx-auto mb-4" />
+-        <h1 className="text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">404</h1>
+-        <p className="text-gray-500 dark:text-gray-400 mb-6">
++        <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
++        <p className="text-muted-foreground mb-6">
+           Oops! This page got lost. Maybe it ran off with your partner? 😄
+         </p>
+         <Link href="/">
+diff --git a/src/app/partners/page.tsx b/src/app/partners/page.tsx
+index 823002b..76a8d7d 100644
+--- a/src/app/partners/page.tsx
++++ b/src/app/partners/page.tsx
+@@ -47,7 +47,7 @@ export default function PartnersPage() {
+     <div className="max-w-lg mx-auto space-y-6">
+       <div className="flex items-center justify-between">
+         <div>
+-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Your Partners</h1>
++          <h1 className="text-2xl font-bold text-foreground">Your Partners</h1>
+           <p className="text-sm text-gray-500">Add and manage your loved ones</p>
+         </div>
+         <Link href="/partners/new">
+@@ -61,7 +61,7 @@ export default function PartnersPage() {
+       {partners.length === 0 ? (
+         <div className="text-center py-16">
+           <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
+-          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No partners yet</h3>
++          <h3 className="text-lg font-semibold text-foreground/90 mb-2">No partners yet</h3>
+           <p className="text-gray-500 text-sm mb-6">Add your partner to start posting!</p>
+           <Link href="/partners/new">
+             <Button>Add Your Partner 💕</Button>
+diff --git a/src/app/posts/[id]/edit/page.tsx b/src/app/posts/[id]/edit/page.tsx
+index dd5b3aa..86a7367 100644
+--- a/src/app/posts/[id]/edit/page.tsx
++++ b/src/app/posts/[id]/edit/page.tsx
+@@ -47,13 +47,13 @@ export default function EditPostPage() {
+     <div className="max-w-lg mx-auto">
+       <button
+         onClick={() => router.back()}
+-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors mb-6"
++        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors mb-6"
+       >
+         <ArrowLeft className="h-4 w-4" />
+         Back
+       </button>
+ 
+-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Edit Post</h1>
++      <h1 className="text-2xl font-bold text-foreground mb-4">Edit Post</h1>
+ 
+       <div className="space-y-4">
+         <Textarea
+diff --git a/src/app/profile/edit/page.tsx b/src/app/profile/edit/page.tsx
+index e87ae97..a1d2ef4 100644
+--- a/src/app/profile/edit/page.tsx
++++ b/src/app/profile/edit/page.tsx
+@@ -25,13 +25,13 @@ export default function EditProfilePage() {
+     <div className="max-w-lg mx-auto">
+       <Link
+         href="/profile"
+-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-pink-500 transition-colors mb-6"
++        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors mb-6"
+       >
+         <ArrowLeft className="h-4 w-4" />
+         Back to Profile
+       </Link>
+ 
+-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Edit Profile</h1>
++      <h1 className="text-2xl font-bold text-foreground mb-6">Edit Profile</h1>
+ 
+       <ProfileForm
+         profile={profile}
+diff --git a/src/app/profile/page.tsx b/src/app/profile/page.tsx
+index d160932..bffa8b3 100644
+--- a/src/app/profile/page.tsx
++++ b/src/app/profile/page.tsx
+@@ -125,15 +125,15 @@ export default function ProfilePage() {
+                 </div>
+                 <div>
+                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">City</p>
+-                  <p className="text-foreground/90 font-medium">{meta.city || 'San Francisco'}</p>
++                  <p className="text-foreground/90 font-medium">{meta.city || profile?.city || '-'}</p>
+                 </div>
+                 <div>
+                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Occupation</p>
+-                  <p className="text-foreground/90 font-medium">{meta.occupation || 'Creative Director'}</p>
++                  <p className="text-foreground/90 font-medium">{meta.occupation || '-'}</p>
+                 </div>
+                 <div>
+-                  <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Status</p>
+-                  <p className="text-foreground/90 font-medium">{meta.status || 'Exploring'}</p>
++                  <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Country</p>
++                  <p className="text-foreground/90 font-medium">{meta.country || (profile as any)?.country || '-'}</p>
+                 </div>
+               </div>
+ 
+diff --git a/src/app/settings/page.tsx b/src/app/settings/page.tsx
+index 65b3eb4..c5951d7 100644
+--- a/src/app/settings/page.tsx
++++ b/src/app/settings/page.tsx
+@@ -17,13 +17,13 @@ export default function SettingsPage() {
+   return (
+     <div className="max-w-lg mx-auto space-y-6">
+       <div className="flex items-center gap-2">
+-        <Settings className="h-6 w-6 text-pink-500" />
+-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Settings</h1>
++        <Settings className="h-6 w-6 text-primary" />
++        <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+       </div>
+ 
+       {/* Account */}
+       <Card>
+-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Account</h2>
++        <h2 className="font-semibold text-foreground mb-4">Account</h2>
+         <div className="space-y-3">
+           <Button variant="outline" className="w-full justify-start" onClick={handleUpgrade}>
+             <CreditCard className="h-4 w-4" />
+@@ -38,7 +38,7 @@ export default function SettingsPage() {
+ 
+       {/* About */}
+       <Card>
+-        <h2 className="font-semibold text-gray-900 dark:text-gray-100 mb-2">About LoveBoard</h2>
++        <h2 className="font-semibold text-foreground mb-2">About LoveBoard</h2>
+         <p className="text-sm text-gray-500">
+           LoveBoard is a social app where you share what your partner did for you today.
+           Our AI scores each gesture, and partners get ranked on local, city, and global leaderboards.

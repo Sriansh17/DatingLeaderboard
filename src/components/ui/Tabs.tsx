@@ -26,7 +26,7 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
             activeTab === tab.id
               ? 'bg-surface text-primary dark:text-primary shadow-sm'
-              : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300'
+              : 'text-muted-foreground hover:text-foreground dark:hover:text-muted-foreground'
           )}
         >
           {tab.icon}

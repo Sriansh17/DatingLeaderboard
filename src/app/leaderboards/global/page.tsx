@@ -13,7 +13,7 @@ export default function GlobalLeaderboardPage() {
         <Globe className="h-5 w-5 text-primary" />
         <h1 className="text-2xl font-bold text-foreground">Global Leaderboard</h1>
       </div>
-      <p className="text-sm text-gray-500">The most thoughtful partners around the world</p>
+      <p className="text-sm text-muted-foreground">The most thoughtful partners around the world</p>
       <LeaderboardTable entries={data} loading={isLoading} />
     </div>
   );

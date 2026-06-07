@@ -1,10 +1,14 @@
 'use client';
 
+import { useState } from 'react';
+
 import { Avatar } from '@/components/ui/Avatar';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { getRankEmoji, getScoreBgColor } from '@/lib/utils/format';
 import type { LeaderboardEntry } from '@/types/database';
+import { Share2 } from 'lucide-react';
+import { ShareExperienceModal } from '@/components/share/ShareExperienceModal';
 
 interface LeaderboardTableProps {
   entries?: LeaderboardEntry[];
@@ -13,6 +17,8 @@ interface LeaderboardTableProps {
 }
 
 export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries yet' }: LeaderboardTableProps) {
+  const [selectedEntry, setSelectedEntry] = useState<LeaderboardEntry | null>(null);
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -63,17 +69,37 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
             <Badge variant="info">{entry.total_posts} posts</Badge>
           </div>
 
-          {/* Score */}
-          <div className="text-right">
-            <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white font-bold text-lg ${
-              getScoreBgColor(entry.average_score)
-            }`}>
-              {entry.average_score}
+          {/* Score & Share */}
+          <div className="flex items-center gap-4 text-right">
+            <div>
+              <div className={`inline-flex items-center justify-center w-14 h-14 rounded-2xl text-white font-bold text-lg ${
+                getScoreBgColor(entry.average_score)
+              }`}>
+                {entry.average_score}
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">avg</p>
             </div>
-            <p className="text-xs text-gray-400 mt-1">avg</p>
+            
+            <button
+              onClick={() => setSelectedEntry(entry)}
+              className="p-3 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-muted-foreground transition-colors group"
+              title="Share Rank"
+            >
+              <Share2 className="w-5 h-5 group-hover:text-foreground transition-colors" />
+            </button>
           </div>
         </div>
       ))}
+
+      {selectedEntry && (
+        <ShareExperienceModal
+          isOpen={true}
+          onClose={() => setSelectedEntry(null)}
+          profileName={selectedEntry.username || 'anonymous'}
+          rank={selectedEntry.rank}
+          city={selectedEntry.city}
+        />
+      )}
     </div>
   );
 }

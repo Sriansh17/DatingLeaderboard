@@ -77,7 +77,7 @@ export default function DashboardPage() {
             {/* Editorial Widgets Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {/* Daily Prompt */}
-              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+              <div className="rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Sparkles className="h-3 w-3 text-primary" />
@@ -85,13 +85,13 @@ export default function DashboardPage() {
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">What was your favorite date this month?</p>
                 </div>
-                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary transition-all hover:bg-primary/10 hover:border-primary/30">
-                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
+                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-white/10 bg-primary/5 dark:bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary dark:text-white transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20">
+                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary dark:text-[#E92B54]" />
                 </Link>
               </div>
 
               {/* AI Insight */}
-              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+              <div className="rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <TrendingUp className="h-3 w-3 text-accent" />
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               </div>
 
               {/* Top Mover */}
-              <div className="rounded-2xl border border-border bg-white p-5 flex flex-col justify-between shadow-sm">
+              <div className="rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Trophy className="h-3 w-3 text-gold" />

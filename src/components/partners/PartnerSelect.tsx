@@ -14,7 +14,7 @@ interface PartnerSelectProps {
 export function PartnerSelect({ partners, selectedId, onSelect, className }: PartnerSelectProps) {
   if (partners.length === 0) {
     return (
-      <p className="text-sm text-gray-400 italic">No partners added yet. Add one first!</p>
+      <p className="text-sm text-muted-foreground italic">No partners added yet. Add one first!</p>
     );
   }
 

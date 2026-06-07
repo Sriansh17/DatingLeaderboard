@@ -1,0 +1,870 @@
+diff --git a/src/app/globals.css b/src/app/globals.css
+index 4e10f99..63d2048 100644
+--- a/src/app/globals.css
++++ b/src/app/globals.css
+@@ -24,50 +24,56 @@
+   :root {
+     --radius: 0.875rem;
+ 
+-    /* Romance Meets Reality TV — dark by default */
+-    --background: oklch(0.14 0.02 295);          /* #0E0E14 */
+-    --foreground: oklch(0.96 0.012 75);          /* #F8F4F0 */
+-
+-    --surface: oklch(0.18 0.022 290);            /* #1A1A24 */
+-    --elevated: oklch(0.22 0.024 290);           /* #22222E */
+-
+-    --card: var(--surface);
+-    --card-foreground: var(--foreground);
+-    --popover: var(--elevated);
+-    --popover-foreground: var(--foreground);
+-
+-    --primary: oklch(0.55 0.21 18);              /* #C0162C crimson */
+-    --primary-foreground: oklch(0.98 0.01 75);
+-
+-    --secondary: oklch(0.24 0.025 290);
+-    --secondary-foreground: var(--foreground);
+-
+-    --muted: oklch(0.24 0.025 290);
+-    --muted-foreground: oklch(0.65 0.025 310);   /* #9B8FA0 */
+-
+-    --accent: oklch(0.74 0.14 15);               /* #FF6B8A blush */
+-    --accent-foreground: oklch(0.18 0.022 290);
+-
+-    --gold: oklch(0.78 0.13 85);                 /* #D4AF37 */
+-    --gold-foreground: oklch(0.18 0.022 290);
+-    --blush: oklch(0.74 0.14 15);
+-
+-    --destructive: oklch(0.62 0.22 25);
+-    --destructive-foreground: oklch(0.98 0.01 75);
+-    --success: oklch(0.72 0.17 152);             /* #2ECC71 */
+-    --warning: oklch(0.78 0.16 70);              /* #F39C12 */
+-
+-    --score-low: oklch(0.62 0.22 25);
+-    --score-mid: oklch(0.78 0.16 70);
+-    --score-high: oklch(0.72 0.17 152);
+-    --score-legendary: oklch(0.78 0.13 85);
+-
+-    --border: oklch(0.27 0.022 290);             /* #2A2A38 */
+-    --input: oklch(0.27 0.022 290);
+-    --ring: oklch(0.55 0.21 18);
++    /* Soft Rose Romance — light, warm, intimate
++       Inspired by rose quartz + blush satin palettes
++       Background: warm cream-rose
++       Cards: pure white with blush borders  
++       Inputs/buttons: soft rose-tinted neutrals
++       Primary: rich romantic rose
++    */
++    --background: #FEF6F4;
++    --foreground: #4A2C3A;
++
++    --surface: #FFF9F8;
++    --elevated: #FFF2EF;
++
++    --card: #FFFFFF;
++    --card-foreground: #4A2C3A;
++    --popover: #FFFFFF;
++    --popover-foreground: #4A2C3A;
++
++    --primary: #E8456B;
++    --primary-foreground: #FFFFFF;
++
++    --secondary: #FFF2EF;
++    --secondary-foreground: #4A2C3A;
++
++    --muted: #F9E8E4;
++    --muted-foreground: #8C5A6A;
++
++    --accent: #F472B6;
++    --accent-foreground: #FFFFFF;
++
++    --gold: #D97706;
++    --gold-foreground: #FFFFFF;
++    --blush: #FBCFE8;
++
++    --destructive: #DC2626;
++    --destructive-foreground: #FFFFFF;
++    --success: #16A34A;
++    --warning: #D97706;
++
++    --score-low: #EF4444;
++    --score-mid: #F59E0B;
++    --score-high: #10B981;
++    --score-legendary: #D97706;
++
++    --border: #F5DAD2;
++    --input: #FFFFFF;
++    --ring: #E8456B;
+     
+-    --shadow-glow: 0 0 40px -8px color-mix(in oklab, var(--primary) 60%, transparent);
+-    --shadow-gold: 0 0 30px -6px color-mix(in oklab, var(--gold) 45%, transparent);
++    --shadow-glow: 0 4px 24px -4px rgba(232, 69, 107, 0.12);
++    --shadow-gold: 0 4px 20px -4px rgba(217, 119, 6, 0.12);
+   }
+ 
+   body {
+@@ -84,20 +90,27 @@
+ }
+ 
+ @layer utilities {
++  .glass {
++    background-color: var(--card);
++    border: 1px solid var(--border);
++    border-radius: var(--radius);
++    box-shadow: 0 1px 8px -2px rgba(232, 69, 107, 0.06);
++  }
++
+   .font-score {
+     font-family: var(--font-score);
+     letter-spacing: 0.02em;
+   }
+ 
+   .text-gradient-gold {
+-    background: linear-gradient(135deg, oklch(0.86 0.14 90), oklch(0.68 0.14 60));
++    background: linear-gradient(135deg, #E8C86A, #D4A843);
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+   }
+ 
+   .text-gradient-crimson {
+-    background: linear-gradient(135deg, oklch(0.65 0.24 18), oklch(0.74 0.14 15));
++    background: linear-gradient(135deg, #FF5E7D, #FFB3C6);
+     -webkit-background-clip: text;
+     background-clip: text;
+     color: transparent;
+@@ -105,8 +118,8 @@
+ 
+   .bg-radial-spotlight {
+     background:
+-      radial-gradient(60% 50% at 50% 0%, color-mix(in oklab, var(--primary) 18%, transparent), transparent 70%),
+-      radial-gradient(40% 40% at 100% 100%, color-mix(in oklab, var(--gold) 10%, transparent), transparent 70%),
++      radial-gradient(60% 50% at 50% 0%, color-mix(in srgb, #FFB3C6 20%, transparent), transparent 70%),
++      radial-gradient(40% 40% at 80% 80%, color-mix(in srgb, #FFDEE6 15%, transparent), transparent 60%),
+       var(--background);
+   }
+ 
+diff --git a/src/components/layout/BottomNav.tsx b/src/components/layout/BottomNav.tsx
+index 33c16e1..4f8d78e 100644
+--- a/src/components/layout/BottomNav.tsx
++++ b/src/components/layout/BottomNav.tsx
+@@ -16,7 +16,7 @@ export function BottomNav() {
+   const pathname = usePathname();
+ 
+   return (
+-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 md:hidden">
++    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg backdrop-blur-lg border-t border-border md:hidden">
+       <div className="flex items-center justify-around h-16 px-2">
+         {navItems.map((item) => {
+           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+@@ -28,8 +28,8 @@ export function BottomNav() {
+               className={cn(
+                 'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors',
+                 isActive
+-                  ? 'text-pink-500'
+-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
++                  ? 'text-primary'
++                  : 'text-muted-foreground hover:text-gray-600 dark:hover:text-gray-400'
+               )}
+             >
+               <Icon className="h-5 w-5" />
+diff --git a/src/components/layout/Footer.tsx b/src/components/layout/Footer.tsx
+index cc94429..d1ed2d1 100644
+--- a/src/components/layout/Footer.tsx
++++ b/src/components/layout/Footer.tsx
+@@ -6,12 +6,12 @@ export function Footer() {
+     <footer className="md:hidden border-t border-gray-200/50 dark:border-gray-800/50 bg-transparent">
+       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-12">
+         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+-          <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+-            <Heart className="h-4 w-4 text-pink-500 fill-pink-500" />
++          <div className="flex items-center gap-2 text-sm text-muted-foreground">
++            <Heart className="h-4 w-4 text-primary fill-pink-500" />
+             <span>LoveBoard — Share & Score Love</span>
+           </div>
+-          <div className="flex items-center gap-6 text-sm text-gray-400 dark:text-gray-500">
+-            <Link href="/contact" className="hover:text-pink-500 transition-colors flex items-center gap-1">
++          <div className="flex items-center gap-6 text-sm text-muted-foreground">
++            <Link href="/contact" className="hover:text-primary transition-colors flex items-center gap-1">
+               <Mail className="h-3.5 w-3.5" />
+               Contact
+             </Link>
+diff --git a/src/components/layout/MobileNav.tsx b/src/components/layout/MobileNav.tsx
+index 18188d0..5e460bf 100644
+--- a/src/components/layout/MobileNav.tsx
++++ b/src/components/layout/MobileNav.tsx
+@@ -16,7 +16,7 @@ export function MobileNav() {
+   const pathname = usePathname();
+ 
+   return (
+-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-t border-gray-200 dark:border-gray-800 safe-area-bottom md:hidden">
++    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-lg backdrop-blur-lg border-t border-border safe-area-bottom md:hidden">
+       <div className="flex items-center justify-around h-16 px-2">
+         {navItems.map((item) => {
+           const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+@@ -28,8 +28,8 @@ export function MobileNav() {
+               className={cn(
+                 'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors',
+                 isActive
+-                  ? 'text-pink-500'
+-                  : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-400'
++                  ? 'text-primary'
++                  : 'text-muted-foreground hover:text-gray-600 dark:hover:text-gray-400'
+               )}
+             >
+               <Icon className="h-5 w-5" />
+diff --git a/src/components/layout/Navbar.tsx b/src/components/layout/Navbar.tsx
+index fed60ff..6cd2368 100644
+--- a/src/components/layout/Navbar.tsx
++++ b/src/components/layout/Navbar.tsx
+@@ -13,13 +13,13 @@ export function Navbar() {
+   const [mobileOpen, setMobileOpen] = useState(false);
+ 
+   return (
+-    <nav className="sticky top-0 z-40 bg-white/80 dark:bg-gray-950/80 backdrop-blur-lg border-b border-gray-200 dark:border-gray-800">
++    <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg backdrop-blur-lg border-b border-border">
+       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+         <div className="flex items-center justify-between h-16">
+           {/* Logo */}
+           <Link href="/" className="flex items-center gap-2">
+-            <Heart className="h-7 w-7 text-pink-500 fill-pink-500" />
+-            <span className="text-xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
++            <Heart className="h-7 w-7 text-primary fill-pink-500" />
++            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+               LoveBoard
+             </span>
+           </Link>
+@@ -30,33 +30,33 @@ export function Navbar() {
+               <>
+                 <Link
+                   href="/dashboard"
+-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
++                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                 >
+                   Dashboard
+                 </Link>
+                 <Link
+                   href="/leaderboards"
+-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
++                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                 >
+                   Leaderboards
+                 </Link>
+                 <Link
+                   href="/posts/new"
+-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
++                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                 >
+                   New Post
+                 </Link>
+                 <Link
+                   href="/contact"
+-                  className="text-sm text-gray-600 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors"
++                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                 >
+                   <Mail className="h-4 w-4 inline mr-1" />
+                   Contact
+                 </Link>
+-                <div className="flex items-center gap-3 ml-4 pl-4 border-l border-gray-200 dark:border-gray-800">
++                <div className="flex items-center gap-3 ml-4 pl-4 border-l border-border">
+                   <Link href="/profile" className="flex items-center gap-2">
+                     <Avatar src={profile?.avatar_url} alt={profile?.username || user.email || ''} size="sm" />
+-                    <span className="text-sm text-gray-700 dark:text-gray-300">
++                    <span className="text-sm text-foreground/90">
+                       {profile?.username || user.email?.split('@')[0]}
+                     </span>
+                   </Link>
+@@ -79,7 +79,7 @@ export function Navbar() {
+ 
+           {/* Mobile menu button */}
+           <button
+-            className="md:hidden p-2 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800"
++            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-gray-100 dark:hover:bg-gray-800"
+             onClick={() => setMobileOpen(!mobileOpen)}
+           >
+             {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+@@ -94,7 +94,7 @@ export function Navbar() {
+           mobileOpen ? 'max-h-96' : 'max-h-0'
+         )}
+       >
+-        <div className="px-4 py-3 space-y-2 border-t border-gray-200 dark:border-gray-800">
++        <div className="px-4 py-3 space-y-2 border-t border-border">
+           {user ? (
+             <>
+               <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+@@ -108,7 +108,7 @@ export function Navbar() {
+           ) : (
+             <>
+               <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Sign In</Link>
+-              <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-pink-500 hover:bg-pink-50 dark:hover:bg-pink-900/20" onClick={() => setMobileOpen(false)}>Get Started</Link>
++              <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/15" onClick={() => setMobileOpen(false)}>Get Started</Link>
+             </>
+           )}
+         </div>
+diff --git a/src/components/layout/Sidebar.tsx b/src/components/layout/Sidebar.tsx
+index bfff8da..4a21d82 100644
+--- a/src/components/layout/Sidebar.tsx
++++ b/src/components/layout/Sidebar.tsx
+@@ -49,20 +49,20 @@ export function Sidebar() {
+   return (
+     <aside
+       className={cn(
+-        'hidden md:flex flex-col h-screen sticky top-0 self-start bg-gradient-to-b from-white via-pink-50/30 to-white dark:from-gray-950 dark:via-pink-950/10 dark:to-gray-950 border-r border-pink-100/50 dark:border-pink-900/20 transition-all duration-300 ease-in-out relative group/sidebar',
++        'hidden md:flex flex-col h-screen sticky top-0 self-start bg-gradient-to-b from-background via-primary/5 to-background border-r border-primary/15 dark:border-primary/15 transition-all duration-300 ease-in-out relative group/sidebar',
+         isCollapsed ? 'w-20' : 'w-64'
+       )}
+     >
+       {/* Decorative art blob */}
+-      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-pink-300/20 to-rose-400/10 dark:from-pink-500/10 dark:to-rose-500/5 rounded-full blur-3xl pointer-events-none" />
+-      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-purple-300/20 to-pink-300/10 dark:from-purple-500/10 dark:to-pink-500/5 rounded-full blur-3xl pointer-events-none" />
++      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-[#FFB3C6]/30 to-[#FFDEE6]/20 rounded-full blur-3xl pointer-events-none" />
++      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-[#FFDEE6]/25 to-[#FFB3C6]/15 rounded-full blur-3xl pointer-events-none" />
+ 
+       {/* Collapse Toggle Button */}
+       {isMounted && (
+         <button
+           onClick={toggleCollapse}
+           className={cn(
+-            'absolute top-12 -right-3 z-50 w-6 h-6 rounded-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-pink-500 shadow-md hover:scale-115 transition-all cursor-pointer',
++            'absolute top-12 -right-3 z-50 w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-muted-foreground hover:text-primary shadow-md hover:scale-115 transition-all cursor-pointer',
+             'opacity-0 group-hover/sidebar:opacity-100 focus:opacity-100'
+           )}
+         >
+@@ -74,8 +74,8 @@ export function Sidebar() {
+       <div className={cn('relative pt-10 pb-8 transition-all duration-300', isCollapsed ? 'px-5' : 'px-6')}>
+         <div className="flex items-center gap-3">
+           <div className="relative flex-shrink-0">
+-            <div className="absolute inset-0 bg-pink-500/20 dark:bg-pink-500/30 blur-xl rounded-full" />
+-            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center shadow-lg shadow-pink-500/20">
++            <div className="absolute inset-0 bg-primary/20 dark:bg-primary/30 blur-xl rounded-full" />
++            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-accent flex items-center justify-center shadow-lg shadow-pink-500/20">
+               <Heart className="h-5 w-5 text-white fill-white/90" />
+             </div>
+           </div>
+@@ -85,10 +85,10 @@ export function Sidebar() {
+               isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'
+             )}
+           >
+-            <h1 className="text-lg font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent">
++            <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-rose-500 to-purple-500 bg-clip-text text-transparent">
+               LoveBoard
+             </h1>
+-            <p className="text-[11px] text-gray-400 dark:text-gray-500 tracking-wide uppercase">
++            <p className="text-[11px] text-muted-foreground tracking-wide uppercase">
+               Share the love
+             </p>
+           </div>
+@@ -108,14 +108,14 @@ export function Sidebar() {
+               className={cn(
+                 'flex items-center rounded-2xl text-sm font-medium transition-all duration-300 relative group',
+                 isActive
+-                  ? 'text-pink-600 dark:text-pink-400'
+-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300',
++                  ? 'text-primary dark:text-primary'
++                  : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300',
+                 isCollapsed ? 'justify-center p-3' : 'px-4 py-2.5 gap-3'
+               )}
+             >
+               {/* Active background with glassmorphism */}
+               {isActive && (
+-                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-100/80 to-rose-100/50 dark:from-pink-500/15 dark:to-rose-500/10 border border-pink-200/50 dark:border-pink-400/20 shadow-sm backdrop-blur-sm" />
++                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-100/80 to-rose-100/50 dark:from-primary/15 dark:to-accent/10 border border-primary/30/50 dark:border-pink-400/20 shadow-sm backdrop-blur-sm" />
+               )}
+ 
+               {/* Hover glow */}
+@@ -125,7 +125,7 @@ export function Sidebar() {
+ 
+               {/* Active indicator dot */}
+               {isActive && !isCollapsed && (
+-                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-gradient-to-b from-pink-500 to-rose-500 shadow-sm shadow-pink-500/30" />
++                <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-full bg-gradient-to-b from-primary to-accent shadow-sm shadow-pink-500/30" />
+               )}
+ 
+               <Icon
+@@ -149,11 +149,11 @@ export function Sidebar() {
+ 
+       {/* Bottom section */}
+       <div className={cn('relative py-6 transition-all duration-300 flex justify-center', isCollapsed ? 'px-2' : 'px-6')}>
+-        <div className={cn('border-t border-pink-100/50 dark:border-pink-900/20 pt-4 w-full text-center', isCollapsed ? 'border-t-0 pt-0' : '')}>
++        <div className={cn('border-t border-primary/15 dark:border-primary/15 pt-4 w-full text-center', isCollapsed ? 'border-t-0 pt-0' : '')}>
+           {isCollapsed ? (
+             <span className="animate-pulse text-lg">❤️</span>
+           ) : (
+-            <p className="text-[11px] text-gray-400 dark:text-gray-500 tracking-wide whitespace-nowrap overflow-hidden">
++            <p className="text-[11px] text-muted-foreground tracking-wide whitespace-nowrap overflow-hidden">
+               Made with
+               <span className="inline-block mx-1 animate-pulse">❤️</span>
+               for lovers
+diff --git a/src/components/posts/PostDetail.tsx b/src/components/posts/PostDetail.tsx
+index 12f73db..95aab90 100644
+--- a/src/components/posts/PostDetail.tsx
++++ b/src/components/posts/PostDetail.tsx
+@@ -55,12 +55,12 @@ export function PostDetail({ post }: PostDetailProps) {
+ 
+       {/* AI Feedback */}
+       {post.ai_feedback && (
+-        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-pink-200 dark:border-pink-800">
++        <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-primary/30 dark:border-primary/30">
+           <div className="flex items-center gap-2 mb-2">
+-            <Sparkles className="h-5 w-5 text-pink-500" />
+-            <span className="font-semibold text-pink-600 dark:text-pink-400">LoveScore AI</span>
++            <Sparkles className="h-5 w-5 text-primary" />
++            <span className="font-semibold text-primary dark:text-primary">LoveScore AI</span>
+           </div>
+-          <p className="text-gray-700 dark:text-gray-300 italic">{post.ai_feedback}</p>
++          <p className="text-foreground/90 italic">{post.ai_feedback}</p>
+         </Card>
+       )}
+ 
+@@ -79,20 +79,20 @@ export function PostDetail({ post }: PostDetailProps) {
+       {/* Breakdown */}
+       {Object.keys(breakdown).length > 0 && (
+         <Card>
+-          <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-4">Score Breakdown</h3>
++          <h3 className="font-semibold text-foreground mb-4">Score Breakdown</h3>
+           <div className="space-y-3">
+             {Object.entries(breakdown).map(([key, value]) => (
+               <div key={key} className="flex items-center gap-3">
+-                <span className="text-sm text-gray-600 dark:text-gray-400 capitalize w-32">
++                <span className="text-sm text-muted-foreground capitalize w-32">
+                   {key.replace('_', ' ')}
+                 </span>
+-                <div className="flex-1 h-2 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
++                <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
+                   <div
+-                    className="h-full bg-gradient-to-r from-pink-400 to-rose-500 rounded-full transition-all duration-1000"
++                    className="h-full bg-gradient-to-r from-pink-400 to-accent rounded-full transition-all duration-1000"
+                     style={{ width: `${(value / getMax(key)) * 100}%` }}
+                   />
+                 </div>
+-                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 w-8 text-right">
++                <span className="text-sm font-medium text-foreground/90 w-8 text-right">
+                   {value}
+                 </span>
+               </div>
+diff --git a/src/components/posts/PostFeed.tsx b/src/components/posts/PostFeed.tsx
+index c92bfc6..afbf196 100644
+--- a/src/components/posts/PostFeed.tsx
++++ b/src/components/posts/PostFeed.tsx
+@@ -34,7 +34,7 @@ export function PostFeed({
+     return (
+       <div className="text-center py-16">
+         <Heart className="h-12 w-12 text-pink-300 mx-auto mb-4" />
+-        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">
++        <h3 className="text-lg font-semibold text-foreground/90 mb-2">
+           {emptyTitle}
+         </h3>
+         <p className="text-gray-500 text-sm mb-6">{emptyDescription}</p>
+diff --git a/src/components/posts/PostForm.tsx b/src/components/posts/PostForm.tsx
+index 9eaebe1..816f9f2 100644
+--- a/src/components/posts/PostForm.tsx
++++ b/src/components/posts/PostForm.tsx
+@@ -158,7 +158,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
+         value={description}
+         onChange={(e) => setDescription(e.target.value)}
+         rows={8}
+-        className="mt-6 w-full resize-none rounded-3xl border border-white/10 bg-black/40 p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-white/20 focus:ring-1 focus:ring-white/20 placeholder:text-muted-foreground/30 shadow-inner"
++        className="mt-6 w-full resize-none rounded-3xl border border-border bg-white p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
+         placeholder="They did something. Tell us about it."
+       />
+ 
+diff --git a/src/components/profile/EditProfileModal.tsx b/src/components/profile/EditProfileModal.tsx
+index 072655d..f3467b5 100644
+--- a/src/components/profile/EditProfileModal.tsx
++++ b/src/components/profile/EditProfileModal.tsx
+@@ -16,11 +16,11 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+   
+   // Use metadata if passed, otherwise default
+   const meta = currentProfile?.user_metadata || {};
+-  const [age, setAge] = useState(meta.age || '24');
+-  const [gender, setGender] = useState(meta.gender || 'Non-binary');
+-  const [city, setCity] = useState(meta.city || 'San Francisco');
+-  const [occupation, setOccupation] = useState(meta.occupation || 'Creative Director');
+-  const [status, setStatus] = useState(meta.status || 'Exploring');
++  const [age, setAge] = useState(meta.age || '');
++  const [gender, setGender] = useState(meta.gender || '');
++  const [city, setCity] = useState(meta.city || currentProfile?.city || '');
++  const [occupation, setOccupation] = useState(meta.occupation || '');
++  const [country, setCountry] = useState(meta.country || currentProfile?.country || '');
+   
+   const [loading, setLoading] = useState(false);
+   const fileInputRef = useRef<HTMLInputElement>(null);
+@@ -35,12 +35,12 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+       // Update profile
+       const { error: profileError } = await supabase
+         .from('profiles')
+-        .update({ username, bio })
++        .update({ username, bio, city, country })
+         .eq('id', currentProfile.id);
+         
+       // Update user metadata
+       const { error: metaError } = await supabase.auth.updateUser({
+-        data: { age, gender, city, occupation, status }
++        data: { age, gender, city, occupation, country }
+       });
+         
+       if (!profileError && !metaError) {
+@@ -59,10 +59,10 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+       <form onSubmit={handleSubmit} className="space-y-8 mt-4 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
+         <div className="flex flex-col items-center gap-4 py-4">
+           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+-            <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 flex items-center justify-center transition-all bg-background font-display text-4xl text-muted-foreground shadow-lg group-hover:border-blush/50">
++            <div className="w-24 h-24 rounded-full overflow-hidden border border-border flex items-center justify-center transition-all bg-background font-display text-4xl text-muted-foreground shadow-lg group-hover:border-blush/50">
+               {username[1]?.toUpperCase() || 'U'}
+             </div>
+-            <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
++            <div className="absolute inset-0 bg-primary/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
+               <Camera className="w-6 h-6 text-white" />
+             </div>
+           </div>
+@@ -82,7 +82,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+               type="text"
+               value={username}
+               onChange={(e) => setUsername(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+               required
+             />
+           </div>
+@@ -93,7 +93,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+               type="text"
+               value={age}
+               onChange={(e) => setAge(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+             />
+           </div>
+ 
+@@ -103,7 +103,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+               type="text"
+               value={gender}
+               onChange={(e) => setGender(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+             />
+           </div>
+ 
+@@ -113,7 +113,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+               type="text"
+               value={city}
+               onChange={(e) => setCity(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+             />
+           </div>
+ 
+@@ -123,17 +123,18 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+               type="text"
+               value={occupation}
+               onChange={(e) => setOccupation(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+             />
+           </div>
+ 
+           <div className="space-y-1 group">
+-            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Status</label>
++            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
+             <input
+               type="text"
+-              value={status}
+-              onChange={(e) => setStatus(e.target.value)}
+-              className="w-full border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++              value={country}
++              onChange={(e) => setCountry(e.target.value)}
++              placeholder="e.g. India"
++              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+             />
+           </div>
+         </div>
+@@ -144,7 +145,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
+             value={bio}
+             onChange={(e) => setBio(e.target.value)}
+             rows={3}
+-            className="w-full resize-none border-b border-white/10 bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
++            className="w-full resize-none border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+           />
+         </div>
+ 
+diff --git a/src/components/profile/ProfileForm.tsx b/src/components/profile/ProfileForm.tsx
+index ec181ed..76fa2de 100644
+--- a/src/components/profile/ProfileForm.tsx
++++ b/src/components/profile/ProfileForm.tsx
+@@ -140,7 +140,7 @@ export function ProfileForm({ profile, onSuccess }: ProfileFormProps) {
+           <button
+             type="button"
+             onClick={() => fileInputRef.current?.click()}
+-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-pink-500 text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
++            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
+           >
+             <Camera className="h-4 w-4" />
+           </button>
+@@ -155,7 +155,7 @@ export function ProfileForm({ profile, onSuccess }: ProfileFormProps) {
+         <button
+           type="button"
+           onClick={() => fileInputRef.current?.click()}
+-          className="text-xs text-pink-500 hover:text-pink-600 font-medium"
++          className="text-xs text-primary hover:text-primary font-medium"
+         >
+           Change Photo
+         </button>
+diff --git a/src/components/profile/ProfileHeader.tsx b/src/components/profile/ProfileHeader.tsx
+index d93bf58..73d5ce4 100644
+--- a/src/components/profile/ProfileHeader.tsx
++++ b/src/components/profile/ProfileHeader.tsx
+@@ -22,10 +22,10 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
+         <Avatar src={profile.avatar_url} alt={profile.username} size="lg" />
+       </div>
+ 
+-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
++      <h1 className="text-2xl font-bold text-foreground">
+         {profile.full_name || profile.username}
+       </h1>
+-      <p className="text-gray-500 dark:text-gray-400">@{profile.username}</p>
++      <p className="text-muted-foreground">@{profile.username}</p>
+ 
+       {streak && streak.currentStreak > 0 && (
+         <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-sm font-medium">
+@@ -35,7 +35,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
+       )}
+ 
+       {profile.bio && (
+-        <p className="mt-2 text-gray-600 dark:text-gray-400 max-w-md mx-auto">{profile.bio}</p>
++        <p className="mt-2 text-muted-foreground max-w-md mx-auto">{profile.bio}</p>
+       )}
+ 
+       {profile.city && (
+@@ -58,17 +58,17 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
+ 
+       {/* Stats */}
+       <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
+-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+-          <p className="text-2xl font-bold text-pink-500">{postCount}</p>
+-          <p className="text-xs text-gray-500">Posts</p>
++        <div className="p-3 rounded-xl bg-secondary">
++          <p className="text-2xl font-bold text-primary">{postCount}</p>
++          <p className="text-xs text-muted-foreground">Posts</p>
+         </div>
+-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+-          <p className="text-2xl font-bold text-pink-500">{partnerCount}</p>
+-          <p className="text-xs text-gray-500">Partners</p>
++        <div className="p-3 rounded-xl bg-secondary">
++          <p className="text-2xl font-bold text-primary">{partnerCount}</p>
++          <p className="text-xs text-muted-foreground">Partners</p>
+         </div>
+-        <div className="p-3 rounded-xl bg-gray-50 dark:bg-gray-800/50">
+-          <p className="text-2xl font-bold text-pink-500">{averageScore}</p>
+-          <p className="text-xs text-gray-500">Avg Score</p>
++        <div className="p-3 rounded-xl bg-secondary">
++          <p className="text-2xl font-bold text-primary">{averageScore}</p>
++          <p className="text-xs text-muted-foreground">Avg Score</p>
+         </div>
+       </div>
+     </div>
+diff --git a/src/components/profile/ProfileStats.tsx b/src/components/profile/ProfileStats.tsx
+index 617386f..4672ccb 100644
+--- a/src/components/profile/ProfileStats.tsx
++++ b/src/components/profile/ProfileStats.tsx
+@@ -15,26 +15,26 @@ export function ProfileStats({
+ }: ProfileStatsProps) {
+   return (
+     <div className="grid grid-cols-3 gap-4">
+-      <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center">
+-        <p className="text-2xl font-bold text-pink-500">{postCount}</p>
++      <div className="p-4 rounded-xl bg-surface border border-border text-center">
++        <p className="text-2xl font-bold text-primary">{postCount}</p>
+         <p className="text-xs text-gray-500 mt-1">Posts</p>
+       </div>
+-      <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center">
+-        <p className="text-2xl font-bold text-pink-500">{partnerCount}</p>
++      <div className="p-4 rounded-xl bg-surface border border-border text-center">
++        <p className="text-2xl font-bold text-primary">{partnerCount}</p>
+         <p className="text-xs text-gray-500 mt-1">Partners</p>
+       </div>
+-      <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center">
+-        <p className="text-2xl font-bold text-pink-500">{averageScore}</p>
++      <div className="p-4 rounded-xl bg-surface border border-border text-center">
++        <p className="text-2xl font-bold text-primary">{averageScore}</p>
+         <p className="text-xs text-gray-500 mt-1">Avg Score</p>
+       </div>
+       {totalScore !== undefined && (
+-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center">
++        <div className="p-4 rounded-xl bg-surface border border-border text-center">
+           <p className="text-2xl font-bold text-purple-500">{totalScore}</p>
+           <p className="text-xs text-gray-500 mt-1">Total Score</p>
+         </div>
+       )}
+       {bestScore !== undefined && (
+-        <div className="p-4 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 text-center">
++        <div className="p-4 rounded-xl bg-surface border border-border text-center">
+           <p className="text-2xl font-bold text-emerald-500">{bestScore}</p>
+           <p className="text-xs text-gray-500 mt-1">Best Score</p>
+         </div>
+diff --git a/src/components/ui/AppDock.tsx b/src/components/ui/AppDock.tsx
+index f827185..ff5077a 100644
+--- a/src/components/ui/AppDock.tsx
++++ b/src/components/ui/AppDock.tsx
+@@ -28,7 +28,7 @@ export function AppDock() {
+ 
+   return (
+     <div className={`fixed bottom-6 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'}`}>
+-      <nav className="flex items-center gap-2 rounded-full border border-white/10 bg-black/40 px-4 py-3 backdrop-blur-2xl shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)]">
++      <nav className="flex items-center gap-2 rounded-full border border-border bg-white/80 px-4 py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)]">
+         
+         {/* Brand Icon (Desktop only) */}
+         <Link 
+diff --git a/src/components/ui/Avatar.tsx b/src/components/ui/Avatar.tsx
+index 7591cbb..b7a63da 100644
+--- a/src/components/ui/Avatar.tsx
++++ b/src/components/ui/Avatar.tsx
+@@ -27,7 +27,7 @@ export function Avatar({ src, alt = '', size = 'md', className }: AvatarProps) {
+   return (
+     <div
+       className={cn(
+-        'rounded-full bg-gradient-to-br from-pink-400 to-rose-500 flex items-center justify-center text-white font-semibold',
++        'rounded-full bg-gradient-to-br from-pink-400 to-accent flex items-center justify-center text-white font-semibold',
+         sizeMap[size],
+         className
+       )}
+diff --git a/src/components/ui/Input.tsx b/src/components/ui/Input.tsx
+index e0760aa..84cae09 100644
+--- a/src/components/ui/Input.tsx
++++ b/src/components/ui/Input.tsx
+@@ -13,7 +13,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
+     return (
+       <div className="space-y-1.5">
+         {label && (
+-          <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
++          <label htmlFor={id} className="block text-sm font-medium text-foreground/90">
+             {label}
+           </label>
+         )}
+@@ -21,7 +21,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
+           ref={ref}
+           id={id}
+           className={cn(
+-            'w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500 transition-colors',
++            'w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors',
+             error && 'border-red-500 focus:ring-red-500/50 focus:border-red-500',
+             className
+           )}
+diff --git a/src/components/ui/Modal.tsx b/src/components/ui/Modal.tsx
+index bd4c7f8..746b030 100644
+--- a/src/components/ui/Modal.tsx
++++ b/src/components/ui/Modal.tsx
+@@ -51,7 +51,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
+           {title && <h2 className="text-2xl font-display italic font-bold text-foreground">{title}</h2>}
+           <button
+             onClick={onClose}
+-            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-white/10 transition-colors bg-white/5 border border-white/5"
++            className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors border border-border"
+           >
+             <X className="h-5 w-5" />
+           </button>
+diff --git a/src/components/ui/StoryCard.tsx b/src/components/ui/StoryCard.tsx
+index 96e9475..c9db1ec 100644
+--- a/src/components/ui/StoryCard.tsx
++++ b/src/components/ui/StoryCard.tsx
+@@ -24,7 +24,7 @@ export function StoryCard({ story }: { story: Story }) {
+ 
+   return (
+     <Link href={`/posts/${story.id}`} className="block outline-none group relative">
+-      <article className="rounded-3xl border border-white/5 bg-gradient-to-br from-card to-transparent p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-white/10 group-hover:shadow-xl group-hover:bg-white/[0.02] backdrop-blur-md h-full relative overflow-hidden">
++      <article className="rounded-3xl border border-border bg-white p-6 transition-all duration-300 group-hover:-translate-y-1 group-hover:border-primary/20 group-hover:shadow-xl h-full relative overflow-hidden">
+         
+         <header className="flex items-start justify-between gap-4 relative z-10">
+           <div className="min-w-0">
+@@ -63,19 +63,19 @@ export function StoryCard({ story }: { story: Story }) {
+         <div className="absolute right-5 bottom-5 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-2 group-hover:translate-y-0 z-20">
+           <button 
+             onClick={(e) => handleReact(e, 'Heart')}
+-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Heart' ? 'bg-black/80 text-blush ring-2 ring-blush ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-blush'}`}
++            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Heart' ? 'bg-primary/10 text-primary ring-2 ring-primary ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-primary'}`}
+           >
+             <Heart className={`h-5 w-5 ${activeReaction === 'Heart' ? 'fill-current' : ''}`} />
+           </button>
+           <button 
+             onClick={(e) => handleReact(e, 'Flame')}
+-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Flame' ? 'bg-black/80 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-orange-500'}`}
++            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Flame' ? 'bg-orange-50 text-orange-500 ring-2 ring-orange-500 ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-orange-500'}`}
+           >
+             <Flame className={`h-5 w-5 ${activeReaction === 'Flame' ? 'fill-current' : ''}`} />
+           </button>
+           <button 
+             onClick={(e) => handleReact(e, 'Trophy')}
+-            className={`h-10 w-10 rounded-full backdrop-blur-md grid place-items-center transition-all shadow-lg hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-black/80 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-black/60 border border-white/10 text-muted-foreground hover:text-gold'}`}
++            className={`h-10 w-10 rounded-full grid place-items-center transition-all shadow-sm hover:scale-110 ${activeReaction === 'Trophy' ? 'bg-amber-50 text-gold ring-2 ring-gold ring-offset-2 ring-offset-background' : 'bg-secondary border border-border text-muted-foreground hover:text-gold'}`}
+           >
+             <Trophy className={`h-5 w-5 ${activeReaction === 'Trophy' ? 'fill-current' : ''}`} />
+           </button>
+diff --git a/src/components/ui/Tabs.tsx b/src/components/ui/Tabs.tsx
+index e167675..ccb3c4f 100644
+--- a/src/components/ui/Tabs.tsx
++++ b/src/components/ui/Tabs.tsx
+@@ -17,7 +17,7 @@ interface TabsProps {
+ 
+ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
+   return (
+-    <div className={cn('flex gap-1 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl', className)}>
++    <div className={cn('flex gap-1 p-1 bg-muted rounded-xl', className)}>
+       {tabs.map((tab) => (
+         <button
+           key={tab.id}
+@@ -25,8 +25,8 @@ export function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
+           className={cn(
+             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200',
+             activeTab === tab.id
+-              ? 'bg-white dark:bg-gray-900 text-pink-600 dark:text-pink-400 shadow-sm'
+-              : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
++              ? 'bg-surface text-primary dark:text-primary shadow-sm'
++              : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300'
+           )}
+         >
+           {tab.icon}
+diff --git a/src/components/ui/Textarea.tsx b/src/components/ui/Textarea.tsx
+index fa1eedd..7b2c87c 100644
+--- a/src/components/ui/Textarea.tsx
++++ b/src/components/ui/Textarea.tsx
+@@ -13,7 +13,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+     return (
+       <div className="space-y-1.5">
+         {label && (
+-          <label htmlFor={id} className="block text-sm font-medium text-gray-700 dark:text-gray-300">
++          <label htmlFor={id} className="block text-sm font-medium text-foreground/90">
+             {label}
+           </label>
+         )}
+@@ -21,7 +21,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
+           ref={ref}
+           id={id}
+           className={cn(
+-            'w-full rounded-xl border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-pink-500/50 focus:border-pink-500 transition-colors resize-none',
++            'w-full rounded-xl border border-border bg-white px-4 py-2.5 text-sm text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors resize-none',
+             error && 'border-red-500 focus:ring-red-500/50 focus:border-red-500',
+             className
+           )}
+diff --git a/src/components/ui/VerdictCard.tsx b/src/components/ui/VerdictCard.tsx
+index dafc519..19f1389 100644
+--- a/src/components/ui/VerdictCard.tsx
++++ b/src/components/ui/VerdictCard.tsx
+@@ -79,7 +79,7 @@ export function VerdictCard({
+ 
+       {/* Detailed Score Breakdown */}
+       {breakdown && !compact && (
+-        <div className="mt-8 space-y-4 rounded-2xl bg-black/20 p-5 border border-white/5 backdrop-blur-sm">
++        <div className="mt-8 space-y-4 rounded-2xl bg-secondary p-5 border border-border">
+           <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+             AI Score Breakdown
+           </h4>
+diff --git a/tailwind.config.ts b/tailwind.config.ts
+index f624f0f..f6a0eec 100644
+--- a/tailwind.config.ts
++++ b/tailwind.config.ts
+@@ -19,7 +19,7 @@ const config: Config = {
+     'text-orange-500',
+     'text-red-500',
+   ],
+-  darkMode: 'class',
++  darkMode: 'class', // kept for future use but dark class is never applied
+   theme: {
+     extend: {
+       colors: {

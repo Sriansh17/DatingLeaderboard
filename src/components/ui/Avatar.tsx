@@ -13,7 +13,17 @@ const sizeMap = {
   lg: 'h-16 w-16 text-lg',
 };
 
+const DEFAULT_3D_AVATARS = [
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Grinning%20Face%20with%20Big%20Eyes.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Sunglasses.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Star-Struck.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Cowboy%20Hat%20Face.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Partying%20Face.png"
+];
+
 export function Avatar({ src, alt = '', size = 'md', className }: AvatarProps) {
+  // Deterministic fallback based on name length so it stays consistent
+  const fallbackSrc = DEFAULT_3D_AVATARS[alt.length % DEFAULT_3D_AVATARS.length];
   if (src) {
     return (
       <img
@@ -27,12 +37,16 @@ export function Avatar({ src, alt = '', size = 'md', className }: AvatarProps) {
   return (
     <div
       className={cn(
-        'rounded-full bg-gradient-to-br from-pink-400 to-accent flex items-center justify-center text-white font-semibold',
+        'rounded-full bg-secondary/50 dark:bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden',
         sizeMap[size],
         className
       )}
     >
-      {alt.charAt(0).toUpperCase() || '?'}
+      <img
+        src={fallbackSrc}
+        alt={alt}
+        className="w-[80%] h-[80%] object-contain drop-shadow-lg"
+      />
     </div>
   );
 }

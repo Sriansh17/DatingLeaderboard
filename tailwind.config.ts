@@ -19,7 +19,7 @@ const config: Config = {
     'text-orange-500',
     'text-red-500',
   ],
-  darkMode: 'class', // kept for future use but dark class is never applied
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {

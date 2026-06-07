@@ -29,7 +29,7 @@ export function MobileNav() {
                 'flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-lg transition-colors',
                 isActive
                   ? 'text-primary'
-                  : 'text-muted-foreground hover:text-gray-600 dark:hover:text-gray-400'
+                  : 'text-muted-foreground hover:text-muted-foreground dark:hover:text-muted-foreground'
               )}
             >
               <Icon className="h-5 w-5" />

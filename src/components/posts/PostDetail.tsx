@@ -20,8 +20,8 @@ export function PostDetail({ post }: PostDetailProps) {
   const { user } = useUser();
   const { addToast } = useToast();
 
-  const scoreColor = post.ai_score ? getScoreColor(post.ai_score) : 'text-gray-400';
-  const scoreBg = post.ai_score ? getScoreBgColor(post.ai_score) : 'bg-gray-300';
+  const scoreColor = post.ai_score ? getScoreColor(post.ai_score) : 'text-muted-foreground';
+  const scoreBg = post.ai_score ? getScoreBgColor(post.ai_score) : 'bg-secondary';
 
   let breakdown: Record<string, number> = {};
   try {
@@ -47,7 +47,7 @@ export function PostDetail({ post }: PostDetailProps) {
           {post.ai_score ? `${post.ai_score}/100` : 'Not yet scored'}
         </h1>
         {post.partner && (
-          <p className="text-gray-500 mt-1">
+          <p className="text-muted-foreground mt-1">
             {post.partner.emoji} {post.partner.name}
           </p>
         )}
@@ -66,8 +66,8 @@ export function PostDetail({ post }: PostDetailProps) {
 
       {/* Description */}
       <Card>
-        <p className="text-gray-800 dark:text-gray-200 leading-relaxed">{post.description}</p>
-        <div className="flex items-center gap-2 mt-4 text-xs text-gray-400">
+        <p className="text-foreground leading-relaxed">{post.description}</p>
+        <div className="flex items-center gap-2 mt-4 text-xs text-muted-foreground">
           <span>{formatRelativeTime(post.created_at)}</span>
           <span>•</span>
           <Badge variant={post.is_public ? 'success' : 'default'}>

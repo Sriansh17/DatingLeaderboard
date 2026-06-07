@@ -18,10 +18,10 @@ export function ScoreBadge({ score, size = 'md', showLabel = false, className }:
   if (score === null) {
     return (
       <div className="flex flex-col items-center gap-1">
-        <div className={cn('flex items-center justify-center bg-gray-200 dark:bg-gray-700 text-gray-400 font-bold', sizeMap[size], className)}>
+        <div className={cn('flex items-center justify-center bg-secondary dark:bg-gray-700 text-muted-foreground font-bold', sizeMap[size], className)}>
           ?
         </div>
-        {showLabel && <span className="text-xs text-gray-400">Pending</span>}
+        {showLabel && <span className="text-xs text-muted-foreground">Pending</span>}
       </div>
     );
   }

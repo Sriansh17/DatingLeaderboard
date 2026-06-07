@@ -52,7 +52,7 @@ export function VerdictCard({
       />
 
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
-        <span className="font-display italic text-gold">Love Leaderboard</span>
+        <span className="font-display italic text-gold">Fond</span>
         <span>Verdict № {Math.floor(score * 137) % 9999}</span>
       </div>
 

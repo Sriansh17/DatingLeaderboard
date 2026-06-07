@@ -42,10 +42,10 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
 }
 
 const variantStyles: Record<ToastVariant, { border: string; icon: React.ReactNode }> = {
-  success: { border: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-200', icon: <CheckCircle2 className="h-5 w-5 text-emerald-400" /> },
-  error: { border: 'border-rose-500/50 bg-rose-500/10 text-rose-200', icon: <AlertCircle className="h-5 w-5 text-rose-400" /> },
-  info: { border: 'border-blue-500/50 bg-blue-500/10 text-blue-200', icon: <Info className="h-5 w-5 text-blue-400" /> },
-  warning: { border: 'border-amber-500/50 bg-amber-500/10 text-amber-200', icon: <AlertTriangle className="h-5 w-5 text-amber-400" /> },
+  success: { border: 'border-emerald-500/50 bg-emerald-500/10 text-emerald-800 dark:text-emerald-200', icon: <CheckCircle2 className="h-5 w-5 text-emerald-400" /> },
+  error: { border: 'border-rose-500/50 bg-rose-500/10 text-rose-800 dark:text-rose-200', icon: <AlertCircle className="h-5 w-5 text-rose-400" /> },
+  info: { border: 'border-blue-500/50 bg-blue-500/10 text-blue-800 dark:text-blue-200', icon: <Info className="h-5 w-5 text-blue-400" /> },
+  warning: { border: 'border-amber-500/50 bg-amber-500/10 text-amber-800 dark:text-amber-200', icon: <AlertTriangle className="h-5 w-5 text-amber-400" /> },
 };
 
 function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
