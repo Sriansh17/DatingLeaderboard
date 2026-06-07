@@ -70,12 +70,12 @@ export default function DashboardPage() {
     <main className="w-full min-h-screen bg-transparent">
       {/* Ticker at the very top */}
       <div className="overflow-hidden border-b border-border/50 bg-background/40 backdrop-blur-md py-3">
-        <div className="flex w-max gap-12 whitespace-nowrap animate-marquee text-[10px] uppercase tracking-[0.2em] font-bold text-white/70">
+        <div className="flex w-max gap-12 whitespace-nowrap animate-marquee text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/70">
           {[...dynamicTicker, ...dynamicTicker, ...dynamicTicker, ...dynamicTicker].map((t, i) => (
             <span key={i} className="flex items-center gap-12">
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E92B54] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E92B54]"></span>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
               </span>
               {t}
             </span>
@@ -120,7 +120,7 @@ export default function DashboardPage() {
             {/* Editorial Widgets Row */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {/* Daily Prompt */}
-              <div className="rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] p-5 flex flex-col justify-between shadow-sm">
+              <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Sparkles className="h-3 w-3 text-primary" />
@@ -129,19 +129,19 @@ export default function DashboardPage() {
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">{dailyPrompt}</p>
                 </div>
                 <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-white/10 bg-primary/5 dark:bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary dark:text-white transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20">
-                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary dark:text-[#E92B54]" />
+                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
                 </Link>
               </div>
 
               {/* AI Insight (Carousel of Options) */}
-              <div className="col-span-1 rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] overflow-hidden relative shadow-sm h-full min-h-[160px] pb-6">
+              <div className="col-span-1 rounded-2xl border border-border bg-card overflow-hidden relative shadow-sm h-full min-h-[160px]">
                 <div 
                   className="flex overflow-x-auto snap-x snap-mandatory h-full w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                   onScroll={handleInsightScroll}
                 >
                   
                   {/* Option 1: Original Insight */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-between border-r border-border relative bg-card dark:bg-[#0a0a0a]">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-3 w-3 text-accent" />
@@ -154,7 +154,7 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Option 2: Brutal AI Warning */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-between border-r border-border relative bg-destructive/5 dark:bg-destructive/10">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-destructive/5 dark:bg-destructive/10">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
@@ -163,44 +163,44 @@ export default function DashboardPage() {
                     </div>
                     <div>
                       <div className="font-score text-4xl text-red-500 mb-1 leading-none drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">Btm 10%</div>
-                      <p className="font-display text-sm text-white/80 italic leading-snug">
+                      <p className="font-display text-sm text-foreground/80 dark:text-white/80 italic leading-snug">
                         Your spontaneity rating has flatlined. The AI strongly suggests booking a flight.
                       </p>
                     </div>
                   </div>
 
                   {/* Option 3: The Mystical Prediction */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-between border-r border-border relative bg-purple-500/5 dark:bg-purple-500/10">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-fuchsia-100/50 via-purple-100/30 to-blue-100/50 dark:from-fuchsia-900/30 dark:via-purple-900/20 dark:to-blue-900/20">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="h-3 w-3 text-fuchsia-400" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-fuchsia-400">AI Oracle</span>
+                        <Sparkles className="h-3 w-3 text-fuchsia-500 dark:text-fuchsia-400" />
+                        <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-fuchsia-500 dark:text-fuchsia-400">AI Oracle</span>
                       </div>
                     </div>
                     <div className="relative mt-auto">
                       <div className="absolute -left-2 -top-3 text-5xl text-fuchsia-500/20 font-serif">&quot;</div>
-                      <p className="font-display text-lg text-white font-light italic leading-snug pl-4">
-                        Based on sentiment, there is an <span className="text-fuchsia-400 font-bold not-italic">87% probability</span> of a romantic gesture tonight.
+                      <p className="font-display text-lg text-foreground dark:text-white font-light italic leading-snug pl-4">
+                        Based on sentiment, there is an <span className="text-fuchsia-600 dark:text-fuchsia-400 font-bold not-italic">87% probability</span> of a romantic gesture tonight.
                       </p>
                     </div>
                   </div>
 
                   {/* Option 4: Sports Analytics */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-center border-r border-border relative bg-card dark:bg-[#0a0a0a]">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-center border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-3 w-3 text-blue-400" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-blue-400">Head-to-Head</span>
+                        <TrendingUp className="h-3 w-3 text-blue-500 dark:text-blue-400" />
+                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-blue-500 dark:text-blue-400">Head-to-Head</span>
                       </div>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-[9px] uppercase tracking-widest text-muted-foreground mb-1.5">
                           <span>Your Average Score</span>
-                          <span className="text-blue-400 font-bold">{userScore}</span>
+                          <span className="text-blue-500 dark:text-blue-400 font-bold">{userScore}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all" style={{ width: `${(parseFloat(userScore) / 10) * 100}%` }} />
+                        <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all" style={{ width: `${(parseFloat(userScore) / 10) * 100}%` }} />
                         </div>
                       </div>
                       <div>
@@ -208,32 +208,32 @@ export default function DashboardPage() {
                           <span>Global Top 10 Average</span>
                           <span>{globalAverage}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-white/20 transition-all" style={{ width: `${(parseFloat(globalAverage) / 10) * 100}%` }} />
+                        <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
+                          <div className="h-full bg-black/20 dark:bg-white/20 transition-all" style={{ width: `${(parseFloat(globalAverage) / 10) * 100}%` }} />
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Option 5: Relationship Weather */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-between border-r border-border relative bg-amber-500/5 dark:bg-amber-500/10">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-slate-200 via-slate-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-amber-900/40">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-400 text-[10px]">⛅</span>
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-amber-400">Forecast</span>
+                        <span className="text-amber-500 dark:text-amber-400 text-[10px]">⛅</span>
+                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-amber-500 dark:text-amber-400">Forecast</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-auto">
                       <div className="text-5xl drop-shadow-md">🌩️</div>
                       <div>
-                        <p className="font-display text-lg text-white font-light leading-tight mb-1">High tension this morning...</p>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-400">Clearing up by dinner</p>
+                        <p className="font-display text-lg text-foreground dark:text-white font-light leading-tight mb-1">High tension this morning...</p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">Clearing up by dinner</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Option 6: Vibe Check Meter */}
-                  <div className="min-w-full snap-center p-5 flex flex-col justify-between relative bg-card dark:bg-[#0a0a0a]">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="h-2 w-2 rounded-full bg-pink-500" />
@@ -244,31 +244,31 @@ export default function DashboardPage() {
                     <div className="flex flex-col items-center mt-auto">
                       {/* Fake half-circle meter */}
                       <div className="relative w-32 h-16 overflow-hidden mb-3">
-                        <div className="absolute top-0 left-0 w-32 h-32 rounded-full border-[8px] border-white/5 border-t-pink-500/80 border-l-pink-500/80 rotate-45" />
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-12 bg-white rounded-t-full origin-bottom rotate-[60deg] shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full translate-y-1/2" />
+                        <div className="absolute top-0 left-0 w-32 h-32 rounded-full border-[8px] border-black/5 dark:border-white/5 border-t-pink-500/80 border-l-pink-500/80 rotate-45" />
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-12 bg-foreground dark:bg-white rounded-t-full origin-bottom rotate-[60deg] shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
+                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-foreground dark:bg-white rounded-full translate-y-1/2" />
                       </div>
-                      <p className="font-score text-xl text-pink-500 uppercase tracking-widest drop-shadow-md">Simp Energy</p>
+                      <p className="font-score text-xl text-pink-500 uppercase tracking-widest drop-shadow-sm dark:drop-shadow-md">Simp Energy</p>
                       <p className="text-[8px] text-muted-foreground uppercase tracking-[0.2em] mt-1">You liked 14 of their posts</p>
                     </div>
                   </div>
 
                 </div>
                 
-                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
+                <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
                   {[0, 1, 2, 3, 4, 5].map((idx) => (
                     <div 
                       key={idx} 
-                      className={`h-1 rounded-full transition-all duration-300 ${activeInsight === idx ? 'w-4 bg-primary' : 'w-1.5 bg-primary/20 dark:bg-white/20'}`} 
+                      className={`h-1.5 rounded-full transition-all duration-300 ${activeInsight === idx ? 'w-5 bg-primary' : 'w-1.5 bg-black/20 dark:bg-white/20'}`} 
                     />
                   ))}
                 </div>
               </div>
 
               {/* Top Mover (Cinematic Spotlight) */}
-              <Link href="/leaderboards" className="col-span-1 rounded-2xl border border-border bg-card dark:bg-[#0a0a0a] overflow-hidden relative shadow-sm h-full min-h-[160px] flex flex-col justify-end p-5 group cursor-pointer">
-                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
+              <Link href="/leaderboards" className="col-span-1 rounded-2xl border border-border bg-card overflow-hidden relative shadow-sm h-full min-h-[160px] flex flex-col justify-end p-5 group cursor-pointer">
+                <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center opacity-40 dark:opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 dark:from-black dark:via-black/80 to-transparent" />
                 
                 <div className="absolute top-4 right-4 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-20">
                   <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1 shadow-xl">
@@ -278,36 +278,24 @@ export default function DashboardPage() {
 
                 <div className="relative z-10 w-full">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="tracking-[0.3em] uppercase text-[8px] font-bold text-gold drop-shadow-md">The Spotlight</span>
-                    <Trophy className="h-3 w-3 text-gold drop-shadow-md" />
+                    <span className="tracking-[0.3em] uppercase text-[8px] font-bold text-amber-600 dark:text-gold drop-shadow-md">The Spotlight</span>
+                    <Trophy className="h-3 w-3 text-amber-600 dark:text-gold drop-shadow-md" />
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="font-display text-3xl text-white font-light italic leading-none mb-1.5 drop-shadow-lg group-hover:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-400 drop-shadow-md">
+                      <p className="font-display text-3xl text-black dark:text-white font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
+                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 drop-shadow-sm dark:drop-shadow-md">
                         {topScorer ? `Secured ${topScorer.average_score} Points` : 'Taking the Lead'}
                       </p>
                     </div>
-                    <div className="h-10 w-10 rounded-full border-2 border-gold/50 bg-black/50 backdrop-blur-md grid place-items-center font-display text-lg text-gold shadow-[0_0_15px_rgba(233,200,106,0.4)]">{displayInitial}</div>
+                    <div className="h-10 w-10 rounded-full border-2 border-amber-600/50 dark:border-gold/50 bg-black/5 dark:bg-black/50 backdrop-blur-md grid place-items-center font-display text-lg text-amber-600 dark:text-gold shadow-[0_0_15px_rgba(217,119,6,0.3)] dark:shadow-[0_0_15px_rgba(233,200,106,0.4)]">{displayInitial}</div>
                   </div>
                 </div>
               </Link>
             </div>
 
-            <div className="columns-1 sm:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
-            {posts.map((post, idx) => {
-              const variants = ['A', 'B', 'C', 'D', 'E', 'F', 'G'] as const;
-              const variantNames = {
-                'A': 'Concept 1: Notion Style',
-                'B': 'Concept 2: Frosted Glass',
-                'C': 'Concept 3: Hybrid (Glass & Luxury)',
-                'D': 'Concept 4: Luxury Paper',
-                'E': 'Concept 5: Dark Gradient',
-                'F': 'Concept 6: Raycast Style',
-                'G': 'Concept 7: Classic Profile'
-              };
-              const variant = variants[idx % variants.length];
-
+            <div className="columns-1 md:columns-2 xl:columns-3 gap-8 space-y-8">
+            {posts.map((post) => {
               const story = {
                 id: post.id,
                 username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
@@ -326,18 +314,7 @@ export default function DashboardPage() {
 
               return (
                 <div key={post.id} className="break-inside-avoid relative pb-6">
-                  <div className="mb-4 text-center">
-                    <span className="inline-flex items-center gap-2 rounded-full border border-border/50 bg-black/5 dark:bg-white/5 px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest text-muted-foreground backdrop-blur-sm">
-                      <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-                      {variantNames[variant]}
-                    </span>
-                  </div>
-                  <StoryCard story={story} variant={variant} />
-                  <div className="mt-4 flex justify-center opacity-0 hover:opacity-100 transition-opacity absolute inset-0 z-20 items-center bg-black/40 rounded-[2rem] backdrop-blur-sm">
-                    <button className="px-6 py-3 bg-white text-black rounded-full text-xs font-bold uppercase tracking-widest hover:scale-105 transition-transform shadow-xl">
-                      Select {variant}
-                    </button>
-                  </div>
+                  <StoryCard story={story} />
                 </div>
               );
             })}

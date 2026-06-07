@@ -4,6 +4,7 @@ import Link from "next/link";
 import { VerdictCard } from "@/components/ui/VerdictCard";
 import { stories, tickerItems, leaderboard, scoreColor } from "@/lib/mock-data";
 import { ArrowRight, Sparkles } from "lucide-react";
+import { ThemeToggle } from "@/components/ui/ThemeToggle";
 
 export default function LandingPage() {
   const hero = stories[0];
@@ -12,13 +13,24 @@ export default function LandingPage() {
     <div className="min-h-screen bg-transparent">
       {/* Nav */}
       <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
-        <span className="font-display text-lg italic text-gold">Love Leaderboard</span>
-        <Link
-          href="/auth/login"
-          className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur"
-        >
-          Open the App →
-        </Link>
+        <span className="font-display text-lg italic text-gold flex items-center gap-2">
+          <Sparkles className="h-4 w-4" /> Fond
+        </span>
+        <div className="flex items-center gap-4">
+          <Link
+            href="/contact"
+            className="hidden sm:inline-flex text-xs font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Creators
+          </Link>
+          <ThemeToggle />
+          <Link
+            href="/auth/login"
+            className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+          >
+            Open the App →
+          </Link>
+        </div>
       </header>
 
       {/* Hero */}
@@ -171,8 +183,16 @@ export default function LandingPage() {
         </p>
       </section>
 
-      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground">
-        <span className="font-display italic text-gold">Love Leaderboard</span> · Romance meets reality TV
+      <footer className="border-t border-border py-8 text-center text-xs text-muted-foreground flex flex-col items-center gap-3">
+        <div className="flex items-center justify-center gap-2">
+          <span className="font-display italic text-gold flex items-center gap-1.5">
+            <Sparkles className="h-3.5 w-3.5" /> Fond
+          </span> 
+          <span>· Romance meets reality TV</span>
+        </div>
+        <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-border">
+          Meet the Creators
+        </Link>
       </footer>
     </div>
   );

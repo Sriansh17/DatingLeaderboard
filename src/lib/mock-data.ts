@@ -20,10 +20,10 @@ export function tierForScore(score: number): Tier {
 }
 
 export function scoreColor(score: number) {
-  if (score < 55) return "var(--score-low)";
-  if (score < 75) return "var(--score-mid)";
-  if (score < 92) return "var(--score-high)";
-  return "var(--score-legendary)";
+  if (score < 55) return "rgb(var(--score-low))";
+  if (score < 75) return "rgb(var(--score-mid))";
+  if (score < 92) return "rgb(var(--score-high))";
+  return "rgb(var(--score-legendary))";
 }
 
 export interface Story {

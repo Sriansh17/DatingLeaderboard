@@ -15,7 +15,7 @@ interface StoryCardProps {
   variant?: StoryCardVariant;
 }
 
-export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
+export function StoryCard({ story, variant = 'C' }: StoryCardProps) {
   const { addToast } = useToast();
   const { openShare } = useShare();
   const [activeReaction, setActiveReaction] = useState<string | null>(null);
@@ -193,20 +193,16 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
   if (variant === 'C') {
     return (
       <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-        <article className="rounded-[2rem] border border-white/10 bg-[#0a0a0a]/60 backdrop-blur-3xl p-8 sm:p-10 transition-all duration-500 hover:shadow-2xl hover:border-white/20 hover:bg-[#0a0a0a]/80 relative flex flex-col h-full min-h-[400px]">
+        <article className="rounded-[2rem] border border-border bg-card/60 backdrop-blur-3xl p-8 sm:p-10 transition-all duration-500 hover:shadow-xl hover:shadow-glow hover:border-primary/20 hover:bg-card/80 relative flex flex-col h-full min-h-[400px]">
           
-          <div className="absolute top-0 right-8 bg-[#E92B54] text-white text-[8px] font-bold tracking-widest uppercase px-3 py-1 rounded-b-lg shadow-lg">
-            PREVIEW: HYBRID VARIANT
-          </div>
-
-          <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-10 mt-6">
-            <div className="flex flex-col gap-1 min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-bold tracking-tight text-xl">{story.username}</span>
-                <span className="text-white/30 text-sm">×</span>
-                <span className="text-white/80 font-medium text-lg">{story.partnerNickname}</span>
+          <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-10 mt-2">
+            <div className="flex flex-col gap-1 min-w-0 flex-1 pr-4">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 w-full">
+                <span className="text-foreground dark:text-white font-bold tracking-tight text-xl break-words">{story.username}</span>
+                <span className="text-muted-foreground dark:text-white/30 text-sm">×</span>
+                <span className="text-foreground/80 dark:text-white/80 font-medium text-lg break-words">{story.partnerNickname}</span>
               </div>
-              <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/40 mt-1">
+              <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground dark:text-white/40 mt-1">
                 {story.city} • {story.postedAt}
               </div>
             </div>
@@ -217,30 +213,30 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
           </header>
 
           <div className="flex-1 flex flex-col justify-center py-4 relative z-10">
-            <h3 className="font-display italic text-[2.75rem] leading-[1.1] text-white line-clamp-4">
+            <h3 className="font-display italic text-[2.75rem] leading-[1.1] text-foreground dark:text-white line-clamp-4">
               &quot;{story.headline}&quot;
             </h3>
             <div className="mt-10">
-              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-white/50 block mb-3">AI Verdict</span>
-              <p className="text-base text-white/80 leading-relaxed line-clamp-2 font-sans font-light">
+              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary dark:text-white/50 block mb-3">AI Verdict</span>
+              <p className="text-base text-foreground/80 dark:text-white/80 leading-relaxed line-clamp-2 font-sans font-light">
                 {story.verdict}
               </p>
             </div>
           </div>
           
-          <footer className="mt-10 pt-6 flex items-center justify-between relative z-10 border-t border-white/10">
-            <div className="flex items-center gap-4">
+          <footer className="mt-10 pt-6 flex w-full items-center justify-between gap-2 relative z-10 border-t border-border dark:border-white/10">
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button 
                 onClick={(e) => handleReact(e, 'Heart')}
-                className={`flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full border border-white/20 transition-colors ${activeReaction === 'Heart' ? 'bg-primary border-primary text-white' : 'bg-black/40 text-white hover:bg-white/10'}`}
+                className={`flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Heart' ? 'bg-primary border-primary text-white' : 'border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 text-foreground/70 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
               >
-                <Heart className={`h-6 w-6 ${activeReaction === 'Heart' ? 'fill-current text-white' : 'text-white/90'}`} />
+                <Heart className={`h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Heart' ? 'fill-current text-white' : 'text-foreground/70 dark:text-white/90'}`} />
               </button>
               <button 
                 onClick={(e) => handleReact(e, 'Trophy')}
-                className={`flex h-[3.25rem] w-[3.25rem] items-center justify-center rounded-full border border-white/20 transition-colors ${activeReaction === 'Trophy' ? 'bg-gold border-gold text-white' : 'bg-black/40 text-white hover:bg-white/10'}`}
+                className={`flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Trophy' ? 'bg-gold border-gold text-white' : 'border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 text-foreground/70 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
               >
-                <Trophy className={`h-6 w-6 ${activeReaction === 'Trophy' ? 'fill-current text-white' : 'text-white/90'}`} />
+                <Trophy className={`h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Trophy' ? 'fill-current text-white' : 'text-foreground/70 dark:text-white/90'}`} />
               </button>
             </div>
 
@@ -258,10 +254,9 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
                   date: story.postedAt,
                 });
               }}
-              className="flex flex-col items-center justify-center px-8 h-[3.25rem] rounded-[2rem] border border-white/20 bg-black/40 hover:bg-white/10 transition-colors"
+              className="flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 hover:bg-black/10 dark:hover:bg-white/10 transition-colors group/share shrink-0"
             >
-              <span className="text-[13px] font-medium text-white/90 leading-tight">Share</span>
-              <span className="text-[13px] font-medium text-white/90 leading-tight">Experience</span>
+              <span className="text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 dark:text-white/90 group-hover/share:text-foreground dark:group-hover/share:text-white">SHARE</span>
             </button>
           </footer>
         </article>
@@ -273,7 +268,7 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
   if (variant === 'D') {
     return (
       <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-        <article className="rounded-[2rem] border border-white/20 bg-[#0a0a0a] p-8 sm:p-10 transition-all duration-500 hover:border-white/40 hover:bg-[#0f0f0f] relative overflow-hidden flex flex-col h-full min-h-[400px]">
+        <article className="rounded-[2rem] border border-border bg-card text-card-foreground p-8 sm:p-10 transition-all duration-500 hover:border-primary/40 hover:bg-accent relative overflow-hidden flex flex-col h-full min-h-[400px]">
           
           <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-12">
             <div className="flex flex-col gap-1 min-w-0 flex-1 mt-2">
@@ -358,7 +353,7 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
   if (variant === 'E') {
     return (
       <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-        <article className="rounded-2xl border border-black/5 dark:border-white/10 bg-white dark:bg-[#1A1A1A] p-5 sm:p-6 transition-all duration-300 shadow-[0_2px_8px_-2px_rgba(0,0,0,0.05),0_4px_16px_-4px_rgba(0,0,0,0.02)] hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.1),0_12px_32px_-12px_rgba(0,0,0,0.04)] hover:-translate-y-1 relative flex flex-col h-full min-h-[300px]">
+        <article className="rounded-2xl border border-border bg-card p-5 sm:p-6 transition-all duration-300 shadow-sm hover:shadow-md hover:-translate-y-1 relative flex flex-col h-full min-h-[300px]">
           {renderHeader()}
           <div className="flex-1 flex flex-col justify-center py-4 sm:py-6 relative z-10">
             <h3 className="font-sans font-medium text-xl sm:text-2xl leading-tight text-foreground line-clamp-4">
@@ -402,7 +397,7 @@ export function StoryCard({ story, variant = 'A' }: StoryCardProps) {
   if (variant === 'G') {
     return (
       <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-        <article className="rounded-[2rem] bg-[#0c0c10] border border-white/5 p-6 sm:p-8 transition-all duration-500 hover:bg-[#111116] hover:border-white/10 relative overflow-hidden flex flex-col h-full min-h-[400px]">
+        <article className="rounded-[2rem] bg-card text-card-foreground border border-border p-6 sm:p-8 transition-all duration-500 hover:bg-accent hover:border-primary/20 relative overflow-hidden flex flex-col h-full min-h-[400px]">
           
           <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-8">
             <div className="flex items-center gap-3 mt-2">

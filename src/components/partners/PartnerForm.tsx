@@ -19,6 +19,7 @@ const RELATIONSHIPS = [
 
 interface PartnerFormProps {
   userId: string;
+  partner?: Partner;
   onSuccess?: (partner: Partner) => void;
 }
 
@@ -59,13 +60,13 @@ function resizeImage(file: File): Promise<string> {
   });
 }
 
-export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
-  const [name, setName] = useState('');
-  const [relationship, setRelationship] = useState<string>('partner');
+export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
+  const [name, setName] = useState(partner?.name || '');
+  const [relationship, setRelationship] = useState<string>(partner?.relationship || 'partner');
   const [gender, setGender] = useState<Gender>('');
-  const [emoji, setEmoji] = useState('💖');
-  const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [emoji, setEmoji] = useState(partner?.emoji || '💖');
+  const [avatarBase64, setAvatarBase64] = useState<string | null>(partner?.avatar_url || null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(partner?.avatar_url || null);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
@@ -105,11 +106,23 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
       payload.avatar_url = avatarBase64;
     }
 
-    const { data, error } = await supabase
-      .from('partners')
-      .insert(payload)
-      .select()
-      .single();
+    let result;
+    if (partner) {
+      result = await supabase
+        .from('partners')
+        .update(payload)
+        .eq('id', partner.id)
+        .select()
+        .single();
+    } else {
+      result = await supabase
+        .from('partners')
+        .insert(payload)
+        .select()
+        .single();
+    }
+
+    const { data, error } = result;
 
     if (error) {
       addToast(error.message, 'error');
@@ -117,7 +130,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
       return;
     }
 
-    addToast(`Added ${name} to your partners! ❤️`, 'success');
+    addToast(partner ? `Updated ${name}'s profile!` : `Added ${name} to your partners! ❤️`, 'success');
     setName('');
     setAvatarBase64(null);
     setAvatarPreview(null);
@@ -140,7 +153,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-card border border-white/10 text-foreground flex items-center justify-center hover:bg-white/5 hover:text-blush transition-colors shadow-xl"
+            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-elevated border border-border text-foreground flex items-center justify-center hover:bg-card hover:text-blush transition-colors shadow-xl"
             title="Upload custom photo"
           >
             <Camera className="h-4 w-4" />
@@ -169,8 +182,8 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               onClick={() => setGender(g)}
               className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all capitalize ${
                 gender === g
-                  ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_15px_rgba(233,43,84,0.1)]'
-                  : 'border-white/5 bg-black/40 text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                  ? 'border-primary/50 bg-primary/10 text-primary shadow-glow'
+                  : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
               }`}
             >
               {g}
@@ -197,7 +210,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
-          className="w-full rounded-2xl border border-white/10 bg-black/40 px-6 py-4 text-lg font-display text-foreground outline-none focus:border-blush/50 transition-colors placeholder:text-muted-foreground/50"
+          className="w-full rounded-2xl border border-border bg-elevated/40 px-6 py-4 text-lg font-display text-foreground outline-none focus:bg-card focus:border-blush/50 transition-colors placeholder:text-muted-foreground/50 shadow-sm"
         />
       </div>
 
@@ -214,8 +227,8 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               onClick={() => setRelationship(rel.value)}
               className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
                 relationship === rel.value
-                  ? 'border-blush/30 bg-blush/10 text-blush shadow-[0_0_15px_rgba(255,100,150,0.1)]'
-                  : 'border-white/5 bg-black/40 text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                  ? 'border-blush/30 bg-blush/10 text-blush shadow-glow'
+                  : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
               }`}
             >
               {rel.label}
@@ -237,8 +250,8 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
               onClick={() => setEmoji(e)}
               className={`text-2xl h-12 w-12 rounded-full border flex items-center justify-center transition-all ${
                 emoji === e
-                  ? 'border-blush/30 bg-blush/10 scale-110 shadow-[0_0_15px_rgba(255,100,150,0.1)]'
-                  : 'border-white/5 bg-black/40 hover:bg-white/5'
+                  ? 'border-blush/30 bg-blush/10 scale-110 shadow-glow'
+                  : 'border-border bg-elevated/40 hover:bg-elevated'
               }`}
             >
               {e}
@@ -251,7 +264,7 @@ export function PartnerForm({ userId, onSuccess }: PartnerFormProps) {
         <button
         type="submit"
         disabled={loading || !name.trim()}
-        className="w-full flex items-center justify-center rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+        className="w-full flex items-center justify-center rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
       >
         Add Partner 💖
       </button>

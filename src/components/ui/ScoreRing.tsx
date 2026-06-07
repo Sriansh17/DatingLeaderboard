@@ -37,7 +37,7 @@ export function ScoreRing({ score, size = 64 }: { score: number; size?: number }
           style={{ filter: `drop-shadow(0 0 3px ${color})` }}
         />
       </svg>
-      <div className="font-score text-foreground" style={{ fontSize: size * 0.4 }}>
+      <div className="font-score drop-shadow-sm transition-colors duration-1000" style={{ fontSize: size * 0.4, color: color }}>
         {score.toFixed(0)}
       </div>
     </div>

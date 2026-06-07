@@ -55,7 +55,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Edit Profile" className="max-w-2xl bg-[#0a0a0a] border-border/40 backdrop-blur-3xl shadow-2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Edit Profile" className="max-w-2xl bg-popover border-border/40 backdrop-blur-3xl shadow-2xl">
       <form onSubmit={handleSubmit} className="space-y-8 mt-4 max-h-[70vh] overflow-y-auto pr-4 custom-scrollbar">
         <div className="flex flex-col items-center gap-4 py-4">
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
@@ -82,7 +82,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
               required
             />
           </div>
@@ -93,7 +93,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={age}
               onChange={(e) => setAge(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -103,7 +103,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={gender}
               onChange={(e) => setGender(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -113,7 +113,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -123,7 +123,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               type="text"
               value={occupation}
               onChange={(e) => setOccupation(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
 
@@ -134,7 +134,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
               value={country}
               onChange={(e) => setCountry(e.target.value)}
               placeholder="e.g. India"
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
         </div>
@@ -145,14 +145,14 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
             value={bio}
             onChange={(e) => setBio(e.target.value)}
             rows={3}
-            className="w-full resize-none border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-[#E92B54] transition-colors placeholder:text-muted-foreground/30"
+            className="w-full resize-none border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading || !username.trim()}
-          className="w-full flex items-center justify-center rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px] mt-8"
+          className="w-full flex items-center justify-center rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px] mt-8"
         >
           {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
         </button>

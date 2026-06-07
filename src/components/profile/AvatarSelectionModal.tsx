@@ -34,7 +34,7 @@ export function AvatarSelectionModal({ isOpen, onClose, currentProfile, onSucces
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Choose Avatar" className="max-w-2xl bg-[#0a0a0a] border-border/40 backdrop-blur-3xl shadow-2xl">
+    <Modal isOpen={isOpen} onClose={onClose} title="Choose Avatar" className="max-w-2xl bg-popover border-border/40 backdrop-blur-3xl shadow-2xl">
       <div className="py-6 space-y-6">
         <p className="text-sm text-muted-foreground/80 text-center font-medium">
           Select a 2D or 3D character for your profile.
@@ -50,16 +50,16 @@ export function AvatarSelectionModal({ isOpen, onClose, currentProfile, onSucces
           <button
             disabled={loading}
             onClick={() => alert('Custom photo upload coming soon!')}
-            className="w-full p-4 rounded-2xl border-2 border-dashed border-white/20 hover:border-[#E92B54] hover:bg-white/5 transition-all group flex items-center justify-center gap-3"
+            className="w-full p-4 rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 transition-all group flex items-center justify-center gap-3"
           >
-            <Upload className="w-5 h-5 text-muted-foreground group-hover:text-[#E92B54] transition-colors" />
+            <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
             <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-white transition-colors">Upload Custom Photo</span>
           </button>
         </div>
 
         {loading && (
           <div className="flex justify-center">
-            <Loader2 className="w-6 h-6 animate-spin text-[#E92B54]" />
+            <Loader2 className="w-6 h-6 animate-spin text-primary" />
           </div>
         )}
       </div>

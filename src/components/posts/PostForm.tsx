@@ -106,7 +106,6 @@ export function PostForm({ partners, userId }: PostFormProps) {
           explanationStr={aiResult.breakdown ? JSON.stringify(aiResult.breakdown) : undefined}
           username="@you" // We don't have the current user's profile object here, using placeholder
           partnerNickname={partnerNickname}
-          city="Your City"
         />
         
         <div className="mt-6 space-y-2">
@@ -158,7 +157,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         rows={8}
-        className="mt-6 w-full resize-none rounded-3xl border border-border bg-white p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm"
+        className="mt-6 w-full resize-none rounded-3xl border border-border bg-card p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm transition-colors"
         placeholder="They did something. Tell us about it."
       />
 
@@ -182,50 +181,50 @@ export function PostForm({ partners, userId }: PostFormProps) {
       <button
         onClick={submit}
         disabled={description.length < 30 || createPost.isPending}
-        className="mt-8 w-full flex items-center justify-center rounded-full bg-[#E92B54] py-4 font-bold text-white shadow-[0_0_20px_-5px_rgba(233,43,84,0.5)] transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+        className="mt-8 w-full flex items-center justify-center rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
       >
         Submit for Judgement
       </button>
 
-      {/* Flagged Modal styled for dark theme */}
+      {/* Flagged Modal styled for Fond theme */}
       <Modal
         isOpen={showFlaggedModal}
         onClose={() => setShowFlaggedModal(false)}
         title="Love Referee"
-        className="max-w-md bg-[#0a0a0a] border-border/40 backdrop-blur-3xl shadow-2xl"
+        className="max-w-md bg-background/95 border-border backdrop-blur-2xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]"
       >
         <div className="text-center py-6 space-y-8">
-          <div className="relative mx-auto w-24 h-24">
-            <div className="absolute inset-0 rounded-full bg-[#E92B54]/20 animate-ping" />
-            <div className="relative w-full h-full rounded-full border border-[#E92B54]/30 bg-black/50 flex items-center justify-center text-[#E92B54] backdrop-blur-md shadow-[0_0_30px_rgba(233,43,84,0.3)]">
-              <ShieldAlert className="h-10 w-10" />
+          <div className="relative mx-auto w-20 h-20">
+            <div className="absolute inset-0 rounded-full bg-destructive/10 animate-pulse" />
+            <div className="relative w-full h-full rounded-full border border-destructive/20 bg-background flex items-center justify-center text-destructive backdrop-blur-md shadow-[0_0_40px_rgba(230,90,90,0.15)]">
+              <ShieldAlert className="h-8 w-8" />
             </div>
           </div>
           
           <div className="space-y-3">
-            <h3 className="font-display text-3xl italic text-foreground">
-              Red Card! 🟥
+            <h3 className="font-display text-4xl italic text-foreground tracking-tight">
+              Red Card.
             </h3>
-            <p className="text-sm font-medium tracking-wide text-muted-foreground/80">
-              Our AI guardrails caught some creative writing.
+            <p className="text-sm tracking-wide text-muted-foreground/80">
+              Our AI caught some creative writing.
             </p>
           </div>
 
-          <div className="relative p-6 rounded-3xl bg-black/40 border border-white/10 text-left shadow-inner">
-            <span className="absolute -top-3 left-6 px-3 py-1 text-[10px] font-bold uppercase tracking-widest bg-[#E92B54] text-white rounded-full shadow-[0_0_15px_rgba(233,43,84,0.5)]">
-              AI Detector 🚨
+          <div className="relative p-6 rounded-2xl bg-destructive/5 border border-destructive/10 text-left">
+            <span className="absolute -top-3 left-6 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] bg-destructive text-destructive-foreground rounded-full">
+              AI Detector
             </span>
-            <p className="font-display text-xl italic text-foreground/90 leading-relaxed">
+            <p className="font-display text-xl italic text-foreground/90 leading-relaxed pt-2">
               "{flaggedReason}"
             </p>
           </div>
 
-          <div className="pt-2 flex justify-center">
+          <div className="pt-4 flex justify-center">
             <button
               onClick={() => setShowFlaggedModal(false)}
-              className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-[10px] font-bold uppercase tracking-[0.2em] text-white hover:bg-white/10 transition-colors"
+              className="w-full py-4 rounded-full bg-foreground text-background font-bold uppercase tracking-[0.2em] text-[10px] hover:scale-[1.02] transition-transform shadow-lg"
             >
-              My bad, let me tell the truth 😅
+              My bad, let me tell the truth
             </button>
           </div>
         </div>

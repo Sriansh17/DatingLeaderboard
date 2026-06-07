@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import type { Partner } from '@/types/database';
-import { Plus } from 'lucide-react';
+import { Plus, Edit3 } from 'lucide-react';
 import { PartnerForm } from '@/components/partners/PartnerForm';
 
 export default function PartnersPage() {
@@ -16,6 +16,7 @@ export default function PartnersPage() {
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
 
   const loadPartners = async () => {
     if (!user) return;
@@ -71,13 +72,23 @@ export default function PartnersPage() {
                 <span className="text-xl group-hover:scale-110 transition-transform">{partner.emoji || '💖'}</span>
                 <span className="font-medium text-foreground text-lg tracking-wide">{partner.name}</span>
                 
-                {/* Delete button (shows on hover) */}
-                <button 
-                  onClick={(e) => handleDelete(partner.id, e)}
-                  className="absolute -top-2 -right-2 bg-red-500/80 hover:bg-red-500 text-white w-6 h-6 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
-                >
-                  &times;
-                </button>
+                {/* Edit & Delete buttons (show on hover) */}
+                <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button 
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingPartner(partner); setShowAddForm(true); }}
+                    className="bg-primary hover:bg-primary/80 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    title="Edit Partner"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                  </button>
+                  <button 
+                    onClick={(e) => handleDelete(partner.id, e)}
+                    className="bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    title="Delete Partner"
+                  >
+                    &times;
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -102,20 +113,21 @@ export default function PartnersPage() {
         {showAddForm && (
           <div className="w-full max-w-xl mt-8 p-8 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative shadow-2xl">
             <button 
-              onClick={() => setShowAddForm(false)}
+              onClick={() => { setShowAddForm(false); setEditingPartner(null); }}
               className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors"
             >
               Cancel
             </button>
             <p className="text-xs uppercase tracking-[0.25em] text-gold mt-2">Step 1 of 1</p>
-            <h2 className="text-3xl font-display italic text-foreground mb-8 mt-1">Add a Partner 💕</h2>
+            <h2 className="text-3xl font-display italic text-foreground mb-8 mt-1">{editingPartner ? 'Edit Partner ✨' : 'Add a Partner 💕'}</h2>
             {user && (
               <PartnerForm 
                 userId={user.id} 
+                partner={editingPartner || undefined}
                 onSuccess={() => {
                   setShowAddForm(false);
+                  setEditingPartner(null);
                   loadPartners();
-                  addToast('Partner added successfully!', 'success');
                 }} 
               />
             )}

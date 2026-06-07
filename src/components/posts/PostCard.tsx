@@ -27,42 +27,42 @@ export function PostCard({ post }: PostCardProps) {
             ) : null}
           </div>
           <div>
-            <div className="font-semibold text-[16px] text-[#111]">
+            <div className="font-semibold text-[16px] text-foreground">
               {post.partner ? post.partner.name : 'Unknown Partner'}
             </div>
-            <div className="text-[#888] text-[13px] mt-1">
+            <div className="text-muted-foreground text-[13px] mt-1">
               {formatRelativeTime(post.created_at)}
             </div>
           </div>
         </div>
         
-        <div className="mt-6 text-[18px] leading-[1.6] text-[#333] font-light italic">
+        <div className="mt-6 text-[18px] leading-[1.6] text-foreground/90 font-light italic">
           "{post.description}"
         </div>
         
         {post.ai_score ? (
           <div className="mt-8 text-center">
-            <div className="inline-block px-4 py-2 rounded-full bg-white/65 text-[12px] tracking-[1px] text-[#7b7b7b] mb-6 font-medium">
+            <div className="inline-block px-4 py-2 rounded-full bg-muted text-[12px] tracking-[1px] text-muted-foreground mb-6 font-medium">
               LOVE SCORE
             </div>
-            <div className="font-serif text-[110px] leading-[1] font-bold text-[#191919]">
+            <div className="font-serif text-[110px] leading-[1] font-bold text-foreground">
               {post.ai_score}
             </div>
             {post.ai_feedback && (
-              <div className="font-serif text-[24px] text-[#444] mt-4 leading-relaxed">
+              <div className="font-serif text-[24px] text-foreground/80 mt-4 leading-relaxed">
                 {post.ai_feedback}
               </div>
             )}
           </div>
         ) : null}
         
-        <div className="mt-8 pt-5 border-t border-black/5 flex justify-between items-center text-[14px] text-[#8f8f8f]">
+        <div className="mt-8 pt-5 border-t border-border flex justify-between items-center text-[14px] text-muted-foreground">
           <div className="flex items-center gap-2">
             {/* Fake likes for aesthetic demo */}
             ♡ {Math.floor(Math.random() * 50) + 10} &nbsp;&nbsp; ✨ {Math.floor(Math.random() * 20) + 5}
           </div>
           <button 
-            className="bg-gradient-to-br from-gradientStart to-gradientEnd px-6 py-2.5 rounded-[18px] text-[#111] font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity"
+            className="bg-primary px-6 py-2.5 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity"
             onClick={(e) => {
               e.preventDefault();
               openShare('post', {

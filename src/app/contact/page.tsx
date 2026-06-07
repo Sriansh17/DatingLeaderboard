@@ -1,106 +1,141 @@
-import { Heart, Mail } from 'lucide-react';
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { Sparkles, Mail, ArrowLeft } from 'lucide-react';
+
+const InstagramIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+  </svg>
+);
+
+const LinkedinIcon = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
+    <rect width="4" height="12" x="2" y="9"/>
+    <circle cx="4" cy="4" r="2"/>
+  </svg>
+);
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 export default function ContactPage() {
+  const router = useRouter();
+  
+  const developers = [
+    {
+      name: "Sriansh Raj",
+      role: "Creator & Developer",
+      instagram: "https://instagram.com/sriansh._.raj",
+      linkedin: "https://www.linkedin.com/in/sriansh-raj-8b9227228/",
+      email: "mailto:rajritulrajrazi@gmail.com"
+    },
+    {
+      name: "Rishabh Bassi",
+      role: "Creator & Developer",
+      instagram: "#",
+      linkedin: "https://in.linkedin.com/in/rishabh-bassi-5981a9223",
+      email: "mailto:rishabhb.career@gmail.com"
+    }
+  ];
+
   return (
-    <div className="min-h-[calc(100vh-12rem)] flex items-center justify-center">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <Heart className="h-10 w-10 text-primary mx-auto mb-3" />
-          <h1 className="text-2xl font-bold text-foreground">Get in Touch</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            Have feedback, suggestions, or just want to say hi?
+    <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background pb-20">
+      {/* Immersive Glowing Background */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-primary opacity-20 mix-blend-screen blur-[120px] animate-pulse-glow" />
+        <div className="absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full bg-gold opacity-10 mix-blend-screen blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] rounded-full bg-primary opacity-10 mix-blend-screen blur-[140px]" />
+      </div>
+
+      {/* Nav */}
+      <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
+        <Link href="/" className="font-display text-lg italic text-gold flex items-center gap-2 hover:opacity-80 transition-opacity">
+          <Sparkles className="h-4 w-4" /> Fond
+        </Link>
+        <div className="flex items-center gap-4">
+          <ThemeToggle />
+          <button
+            onClick={() => router.back()}
+            className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors flex items-center gap-2"
+          >
+            <ArrowLeft className="h-3 w-3" /> Back
+          </button>
+        </div>
+      </header>
+
+      <main className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-12 sm:pt-20">
+        <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-4">Get in Touch</p>
+          <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
+            Meet the creators
+          </h1>
+          <p className="mt-4 text-muted-foreground max-w-lg mx-auto">
+            Have a question, feedback, or just want to say hi? Reach out to the team behind Fond.
           </p>
         </div>
 
-        <div className="bg-surface rounded-2xl border border-border p-6 space-y-4">
-          {/* Instagram */}
-          <a
-            href="https://instagram.com/sriansh._.raj"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-4 p-4 rounded-xl bg-gradient-to-r from-pink-50 to-purple-50 dark:from-pink-900/20 dark:to-purple-900/20 border border-primary/30 dark:border-primary/30 hover:shadow-md transition-all"
-          >
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-yellow-400 via-pink-500 to-purple-600 flex items-center justify-center">
-              <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground">Instagram</p>
-              <p className="text-sm text-gray-500">@sriansh._.raj</p>
-            </div>
-            <span className="text-sm text-primary font-medium">DM me →</span>
-          </a>
+        <div className="grid md:grid-cols-2 gap-8 animate-in fade-in slide-in-from-bottom-8 duration-1000 delay-150">
+          {developers.map((dev, i) => (
+            <div 
+              key={i} 
+              className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 transition-all hover:border-gold/30 hover:shadow-glow"
+            >
+              {/* Decorative gradient orb */}
+              <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-3xl transition-all group-hover:bg-primary/20" />
+              
+              <div className="relative z-10">
+                <h2 className="font-display text-3xl text-foreground mb-1">{dev.name}</h2>
+                <p className="text-sm uppercase tracking-widest text-gold mb-8">{dev.role}</p>
 
-          {/* LinkedIn */}
-          <a
-            href="https://www.linkedin.com/in/sriansh-raj-8b9227228/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all"
-          >
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-              <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground">LinkedIn</p>
-              <p className="text-sm text-gray-500">Sriansh Raj</p>
-            </div>
-            <span className="text-sm text-blue-600 font-medium">Connect →</span>
-          </a>
+                <div className="space-y-4">
+                  {dev.instagram !== "#" && (
+                    <a 
+                      href={dev.instagram}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-4 text-muted-foreground hover:text-primary transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                    >
+                      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
+                        <InstagramIcon className="h-4 w-4" />
+                      </div>
+                      <span className="text-sm font-medium">Instagram</span>
+                    </a>
+                  )}
 
-          <a
-            href="hhttps://in.linkedin.com/in/rishabh-bassi-5981a9223"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 hover:shadow-md transition-all"
-          >
-            <div className="w-10 h-10 rounded-xl bg-blue-600 flex items-center justify-center">
-              <svg className="h-5 w-5 text-white" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
-              </svg>
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground">LinkedIn</p>
-              <p className="text-sm text-gray-500">Rishabh Bassi</p>
-            </div>
-            <span className="text-sm text-blue-600 font-medium">Connect →</span>
-          </a>
+                  <a 
+                    href={dev.linkedin}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-4 text-muted-foreground hover:text-[#0a66c2] transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
+                      <LinkedinIcon className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium">LinkedIn</span>
+                  </a>
 
-          {/* Email */}
-          <a
-            href="mailto:rajritulrajrazi@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
-          >
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Mail className="h-5 w-5 text-white" />
+                  <a 
+                    href={dev.email}
+                    className="flex items-center gap-4 text-muted-foreground hover:text-gold transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                  >
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
+                      <Mail className="h-4 w-4" />
+                    </div>
+                    <span className="text-sm font-medium">Email</span>
+                  </a>
+                </div>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground">Email</p>
-              <p className="text-sm text-muted-foreground">rajritulrajrazi@gmail.com</p>
-            </div>
-          </a>
-
-          <a
-            href="mailto:rishabhb.career@gmail.com"
-            className="flex items-center gap-4 p-4 rounded-xl bg-secondary border border-border hover:shadow-md transition-all"
-          >
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center">
-              <Mail className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="font-semibold text-foreground">Email</p>
-              <p className="text-sm text-muted-foreground">rishabhb.career@gmail.com</p>
-            </div>
-          </a>
+          ))}
         </div>
-
-        <p className="text-center text-xs text-gray-400 mt-6">
-          Built with ❤️ — LoveBoard
+        
+        <p className="text-center text-xs text-muted-foreground mt-16 opacity-60">
+          Built with <span className="text-primary">♥</span> — Fond
         </p>
-      </div>
+      </main>
     </div>
   );
 }

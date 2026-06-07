@@ -4,7 +4,7 @@ import { createContext, useContext, useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useTheme } from './ThemeProvider';
 
-export type Atmosphere = 'blush' | 'champagne' | 'crimson' | 'sunset' | 'amethyst';
+export type Atmosphere = 'soft-blush' | 'mesh-rose' | 'vignette-rose' | 'prismatic-rose' | 'minimal';
 
 interface AtmosphereContextType {
   atmosphere: Atmosphere;
@@ -12,7 +12,7 @@ interface AtmosphereContextType {
 }
 
 const AtmosphereContext = createContext<AtmosphereContextType>({
-  atmosphere: 'blush',
+  atmosphere: 'soft-blush',
   setAtmosphere: () => {},
 });
 
@@ -21,7 +21,7 @@ export function useAtmosphere() {
 }
 
 export function AtmosphereProvider({ children }: { children: React.ReactNode }) {
-  const [atmosphere, setAtmosphere] = useState<Atmosphere>('blush');
+  const [atmosphere, setAtmosphere] = useState<Atmosphere>('soft-blush');
   const pathname = usePathname();
   const { resolvedTheme } = useTheme();
 
@@ -29,45 +29,45 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
     const isDark = resolvedTheme === 'dark';
 
     switch (atmosphere) {
-      case 'blush':
+      case 'soft-blush':
         return (
           <>
-            <div className={`absolute top-0 left-1/4 w-[80vw] h-[80vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-pink-500/10' : 'bg-pink-200/40'}`} />
-            <div className={`absolute bottom-0 right-1/4 w-[60vw] h-[60vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-rose-500/5' : 'bg-rose-200/30'}`} />
+            <div className={`absolute top-0 left-1/4 w-[80vw] h-[80vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-primary/10' : 'bg-primary/20'}`} />
+            <div className={`absolute bottom-0 right-1/4 w-[60vw] h-[60vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-primary/10' : 'bg-primary/20'}`} />
           </>
         );
-      case 'champagne':
+      case 'mesh-rose':
         return (
           <>
-            <div className={`absolute top-[-10%] right-[-10%] w-[60vw] h-[60vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-rose-500/15' : 'bg-rose-200/50'}`} />
-            <div className={`absolute bottom-[-10%] left-[-10%] w-[50vw] h-[50vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-orange-400/10' : 'bg-orange-100/40'}`} />
-            <div className={`absolute top-1/2 left-1/4 w-[40vw] h-[40vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-pink-400/5' : 'bg-pink-100/30'}`} />
+            <div className={`absolute top-0 left-0 w-[60vw] h-[60vh] rounded-full blur-[140px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-primary/15' : 'bg-primary/20'}`} />
+            <div className={`absolute bottom-0 right-0 w-[70vw] h-[70vh] rounded-full blur-[140px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-gold/15' : 'bg-gold/20'}`} />
+            <div className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[50vw] h-[50vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-primary/20' : 'bg-rose-300/30'}`} />
           </>
         );
-      case 'crimson':
+      case 'vignette-rose':
         return (
           <>
-            <div className={`absolute top-0 left-1/4 w-[60vw] h-[60vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-red-700/15' : 'bg-red-400/30'}`} />
-            <div className={`absolute bottom-0 right-1/4 w-[50vw] h-[50vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-rose-900/20' : 'bg-rose-400/20'}`} />
-            <div className={`absolute top-1/3 right-0 w-[40vw] h-[40vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-orange-600/10' : 'bg-orange-300/20'}`} />
+            <div className={`absolute top-[-20%] left-1/2 -translate-x-1/2 w-[80vw] h-[80vw] rounded-full blur-[140px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-primary/25' : 'bg-primary/30'}`} />
+            <div className="absolute inset-0 bg-background/50 backdrop-blur-[100px] pointer-events-none" />
           </>
         );
-      case 'sunset':
+      case 'prismatic-rose':
         return (
           <>
-            <div className={`absolute top-0 right-0 w-[50vw] h-[50vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-orange-500/15' : 'bg-orange-400/30'}`} />
-            <div className={`absolute bottom-0 left-0 w-[60vw] h-[60vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-pink-600/15' : 'bg-pink-400/30'}`} />
-            <div className={`absolute top-1/2 left-1/4 w-[70vw] h-[40vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-rose-500/15' : 'bg-rose-400/30'}`} />
+            <div 
+              className="absolute inset-0 pointer-events-none transition-all duration-1000 opacity-100 blur-[100px]"
+              style={{
+                backgroundImage: `conic-gradient(from 180deg at 50% 50%, 
+                  ${isDark ? 'rgba(230,76,117,0.2)' : 'rgba(209,47,88,0.3)'} 0deg, 
+                  ${isDark ? 'rgba(199,169,107,0.15)' : 'rgba(199,169,107,0.2)'} 120deg, 
+                  ${isDark ? 'rgba(180,50,90,0.2)' : 'rgba(255,180,200,0.4)'} 240deg, 
+                  ${isDark ? 'rgba(230,76,117,0.2)' : 'rgba(209,47,88,0.3)'} 360deg)`
+              }}
+            />
           </>
         );
-      case 'amethyst':
-        return (
-          <>
-            <div className={`absolute top-0 left-0 w-[50vw] h-[70vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-purple-600/15' : 'bg-purple-400/30'}`} />
-            <div className={`absolute bottom-0 right-0 w-[60vw] h-[50vh] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-fuchsia-500/15' : 'bg-fuchsia-300/30'}`} />
-            <div className={`absolute top-1/4 right-1/4 w-[40vw] h-[40vh] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${isDark ? 'bg-indigo-500/10' : 'bg-indigo-300/30'}`} />
-          </>
-        );
+      case 'minimal':
+        return null;
     }
   };
 

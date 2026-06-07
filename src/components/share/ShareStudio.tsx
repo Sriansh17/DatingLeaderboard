@@ -63,7 +63,7 @@ export function ShareStudio() {
           await navigator.share({
             files: [file],
             title: 'LoveBoard Share',
-            text: 'Check this out on Love Leaderboard!',
+            text: 'Check this out on Fond!',
           });
         } else {
           // Fallback to save if share API not supported
@@ -91,7 +91,7 @@ export function ShareStudio() {
 
   return (
     <div 
-      className={`fixed inset-0 z-[100] flex flex-col lg:flex-row bg-[#050505] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-[100] flex flex-col lg:flex-row bg-background transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
     >
       {/* Background glow effects */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
@@ -131,7 +131,7 @@ export function ShareStudio() {
       </div>
 
       {/* RIGHT PANEL: Controls */}
-      <div className="w-full lg:w-[480px] flex flex-col justify-end lg:justify-center p-6 sm:p-12 z-10 border-t lg:border-t-0 lg:border-l border-white/10 bg-[#0a0a0a]/80 backdrop-blur-3xl h-[40vh] lg:h-full">
+      <div className="w-full lg:w-[480px] flex flex-col justify-end lg:justify-center p-6 sm:p-12 z-10 border-t lg:border-t-0 lg:border-l border-border bg-popover/80 backdrop-blur-3xl h-[40vh] lg:h-full">
         <div className="max-w-md w-full mx-auto space-y-10">
           
           <div className="hidden lg:block space-y-2">

@@ -1,11 +1,12 @@
 import { tierForScore, scoreColor } from "@/lib/mock-data";
+import { Sparkles } from "lucide-react";
 
 interface Props {
   score: number;
   verdict: string;
   username: string;
   partnerNickname: string;
-  city: string;
+  city?: string;
   globalRank?: number;
   suspectedFabrication?: boolean;
   compact?: boolean;
@@ -37,33 +38,30 @@ export function VerdictCard({
 
   return (
     <div
-      className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-8 animate-float-up"
-      style={{
-        background:
-          "linear-gradient(160deg, color-mix(in oklab, var(--surface) 92%, var(--primary) 8%), var(--surface))",
-        boxShadow: "0 30px 80px -20px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.04)",
-      }}
+      className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-8 animate-float-up shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_40px_-15px_rgba(0,0,0,0.4)]"
     >
       {/* decorative corner glow */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl opacity-40"
+        className="pointer-events-none absolute -right-16 -top-16 h-48 w-48 rounded-full blur-3xl opacity-10 dark:opacity-30 mix-blend-multiply dark:mix-blend-normal"
         style={{ background: color }}
       />
 
       <div className="flex items-center justify-between text-xs uppercase tracking-[0.2em] text-muted-foreground">
-        <span className="font-display italic text-gold">Love Leaderboard</span>
+        <span className="font-display italic text-gold flex items-center gap-1.5">
+          <Sparkles className="h-3.5 w-3.5" /> Fond
+        </span>
         <span>Verdict № {Math.floor(score * 137) % 9999}</span>
       </div>
 
       <div className={`mt-6 flex items-end gap-4 ${compact ? "" : "sm:gap-6"}`}>
         <div
-          className="font-score leading-none"
+          className="font-score leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:drop-shadow-none [text-shadow:none] dark:[text-shadow:0_0_30px_var(--glow-color)]"
           style={{
             fontSize: compact ? 80 : 112,
             color,
-            textShadow: `0 0 40px color-mix(in oklab, ${color} 50%, transparent)`,
-          }}
+            "--glow-color": `color-mix(in oklab, ${color} 40%, transparent)`
+          } as React.CSSProperties}
         >
           {score.toFixed(1)}
         </div>
@@ -79,8 +77,8 @@ export function VerdictCard({
 
       {/* Detailed Score Breakdown */}
       {breakdown && !compact && (
-        <div className="mt-8 space-y-4 rounded-2xl bg-secondary p-5 border border-border">
-          <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
+        <div className="mt-8 space-y-4 rounded-2xl bg-elevated/40 p-6 border border-border">
+          <h4 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-4">
             AI Score Breakdown
           </h4>
           {Object.entries(breakdown).map(([key, value]) => {
@@ -99,13 +97,13 @@ export function VerdictCard({
             return (
               <div key={key} className="space-y-1.5">
                 <div className="flex justify-between text-sm">
-                  <span className="text-foreground/80 font-medium">{formattedKey}</span>
+                  <span className="font-display text-foreground/90 text-base">{formattedKey}</span>
                   <span className="text-muted-foreground font-mono text-xs">{Number(value)}/{max}</span>
                 </div>
-                <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                <div className="h-1 w-full bg-border rounded-full overflow-hidden">
                   <div 
                     className="h-full rounded-full transition-all duration-1000 ease-out"
-                    style={{ width: `${percentage}%`, backgroundColor: color }}
+                    style={{ width: `${percentage}%`, backgroundColor: "rgb(var(--primary))" }}
                   />
                 </div>
               </div>
@@ -119,8 +117,12 @@ export function VerdictCard({
           {username} <span className="text-muted-foreground">×</span>{" "}
           <span className="text-blush">{partnerNickname}</span>
         </span>
-        <span className="text-muted-foreground">·</span>
-        <span className="text-muted-foreground">{city}</span>
+        {city && (
+          <>
+            <span className="text-muted-foreground">·</span>
+            <span className="text-muted-foreground">{city}</span>
+          </>
+        )}
         {globalRank && (
           <>
             <span className="text-muted-foreground">·</span>
