@@ -2,6 +2,8 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { StoryCard } from '@/components/ui/StoryCard';
+import { Spinner } from '@/components/ui/Spinner';
+import { motion } from 'framer-motion';
 
 import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
 import { useState } from 'react';
@@ -95,9 +97,8 @@ export default function DashboardPage() {
         </header>
 
         {isLoading ? (
-          <div className="py-32 text-center animate-pulse">
-            <Sparkles className="mx-auto h-12 w-12 text-gold mb-6 animate-spin-slow" />
-            <p className="text-muted-foreground font-display italic text-2xl">Loading latest verdicts...</p>
+          <div className="flex justify-center py-32 min-h-[50vh] items-center">
+            <Spinner size="lg" text={["SYNCING TIMELINE...", "INITIALIZING FOND...", "LOADING ARCHIVES..."]} />
           </div>
         ) : !posts || posts.length === 0 ? (
           <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
@@ -144,8 +145,8 @@ export default function DashboardPage() {
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-3 w-3 text-accent" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-accent">Insight</span>
+                        <TrendingUp className="h-3 w-3 text-primary" />
+                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-primary">Insight</span>
                       </div>
                     </div>
                     <p className="font-display text-lg md:text-xl italic text-foreground/90 leading-snug font-light">
@@ -313,9 +314,16 @@ export default function DashboardPage() {
               };
 
               return (
-                <div key={post.id} className="break-inside-avoid relative pb-6">
+                <motion.div 
+                  initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, margin: "50px" }}
+                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                  key={post.id} 
+                  className="break-inside-avoid relative pb-6"
+                >
                   <StoryCard story={story} />
-                </div>
+                </motion.div>
               );
             })}
           </div>

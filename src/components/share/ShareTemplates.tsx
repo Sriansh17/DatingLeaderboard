@@ -2,10 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ShareContent } from '../providers/ShareProvider';
 import { ScoreRing } from '../ui/ScoreRing';
 import { LoveCode } from './LoveCode';
-import { Trophy, User } from 'lucide-react';
+import { Trophy, User, Sparkles } from 'lucide-react';
 
 export type ShareFormat = 'story' | 'square';
-export type ShareTemplateTheme = 'frosted' | 'luxury' | 'receipt' | 'warning' | 'imessage' | 'wrapped' | 'trading_card';
+export type ShareTemplateTheme = 'frosted' | 'luxury' | 'receipt' | 'warning' | 'imessage' | 'wrapped' | 'trading_card' | 'aura' | 'romantic';
 
 interface TemplateProps {
   content: ShareContent;
@@ -23,25 +23,74 @@ function LuxuryTemplate({ content, format }: TemplateProps) {
       <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-gold/5 rounded-full blur-[100px] pointer-events-none" />
 
       {/* Top Left Label */}
-      <div className="flex items-center gap-3 relative z-10 mt-2">
-        <Trophy className="w-5 h-5 text-gold fill-gold" />
+      <div className="flex items-center gap-3 relative z-10 mt-4 mb-16">
+        <span className="text-[1.25rem]">🏆</span>
         <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-gold">Hall of Fame</span>
       </div>
 
       {/* Center Content */}
-      <div className="flex-1 flex items-center justify-center relative z-10 w-full">
-        <h3 className="font-display italic text-[2.75rem] sm:text-[3.5rem] leading-[1.1] text-white/90 text-left w-full max-w-[80%]">
-          {content.headline?.split('\n').map((line, i) => (
-            <React.Fragment key={i}>{line}<br/></React.Fragment>
-          )) || (
-            <>Officially ranked<br/><span className="text-gold">#{content.score || '?'}</span> in the world</>
+      <div className="flex-1 flex flex-col justify-start relative z-10 w-full">
+        <h3 className="font-display italic text-[2.75rem] sm:text-[3.25rem] leading-[1.15] text-white/95 text-left w-full max-w-[90%]">
+          {content.headline ? (
+            content.headline.replace(/(#\d+)/, '\n$1').split('\n').map((line, i) => {
+              const parts = line.split(/(#\d+)/g);
+              return (
+                <React.Fragment key={i}>
+                  {parts.map((part, j) => 
+                    part.match(/^#\d+$/) ? <span key={j} className="text-gold">{part}</span> : part
+                  )}
+                  <br/>
+                </React.Fragment>
+              );
+            })
+          ) : (
+            <>Officially ranked<br/><span className="text-gold">#{content.rank || content.score || '?'}</span> in {content.city || 'the world'}</>
           )}
         </h3>
       </div>
 
       {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2">
-        <LoveCode username={content.username} />
+      <div className="flex justify-center w-full relative z-10 mb-2 mt-auto">
+        <LoveCode username={content.username} theme="dark" />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// THE ROMANTIC TEMPLATE
+// ============================================================================
+function RomanticTemplate({ content, format }: TemplateProps) {
+  return (
+    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#fff0f5] p-10 sm:p-12">
+      {/* Soft Pastel Atmosphere */}
+      <div className="absolute top-0 left-0 w-full h-[60%] bg-gradient-to-b from-pink-300/30 to-transparent pointer-events-none" />
+      <div className="absolute -bottom-[20%] -right-[20%] w-[80%] h-[80%] bg-rose-400/20 rounded-full blur-[100px] pointer-events-none" />
+
+      {/* Top Left Label */}
+      <div className="flex items-center gap-2 relative z-10 mt-2">
+        <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-rose-500">The Romantic</span>
+      </div>
+
+      {/* Center Content */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 w-full text-center mt-8">
+        <h3 className="font-display italic text-[3rem] sm:text-[3.5rem] leading-[1.1] text-rose-950">
+          "{content.headline || content.verdict || 'True Romance'}"
+        </h3>
+        {content.partnerName && (
+          <div className="mt-6 text-sm uppercase tracking-[0.2em] font-bold text-rose-800/60">
+            WITH {content.partnerName}
+          </div>
+        )}
+        <div className="mt-8 px-6 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white inline-flex items-baseline">
+          <span className="font-score text-6xl text-rose-500 leading-none tracking-tighter">{content.score || '100'}</span>
+          <span className="text-xl font-bold ml-1 text-rose-400/80">/100</span>
+        </div>
+      </div>
+
+      {/* Bottom Footer */}
+      <div className="flex justify-center w-full relative z-10 mb-2 mt-auto">
+        <LoveCode username={content.username} theme="light" />
       </div>
     </div>
   );
@@ -53,40 +102,41 @@ function LuxuryTemplate({ content, format }: TemplateProps) {
 function FrostedTemplate({ content, format }: TemplateProps) {
   return (
     <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#0c0808] p-10 sm:p-12">
-      {/* Deep Red Atmosphere */}
-      <div className="absolute top-0 left-0 w-[120%] h-[50%] bg-[#E8456B]/20 blur-[100px] pointer-events-none -translate-x-[10%] -translate-y-[20%]" />
+      {/* Deep Red Atmosphere - Top Left and Bottom Left */}
+      <div className="absolute -top-[20%] -left-[10%] w-[100%] aspect-square rounded-full bg-[#E8456B] opacity-[0.18] blur-[120px] pointer-events-none" />
+      <div className="absolute -bottom-[10%] -left-[10%] w-[100%] aspect-square rounded-full bg-[#E8456B] opacity-[0.15] blur-[120px] pointer-events-none" />
 
       {/* Top Left Label */}
-      <div className="flex items-center gap-2 relative z-10 mt-2 mb-10">
+      <div className="flex items-center gap-2 relative z-10 mt-4 mb-8">
         <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#E8456B]">The Brutal Truth</span>
       </div>
 
       {/* Quote Content */}
       <div className="flex flex-col justify-start relative z-10 w-full flex-1">
-        <h3 className="font-display italic text-[2.5rem] sm:text-[3rem] leading-[1.1] text-white/95 mb-8">
-          "{content.verdict || content.headline}"
+        <h3 className="font-display italic text-[2.75rem] sm:text-[3.25rem] leading-[1.1] text-white/95 mb-6">
+          "{content.verdict || content.headline || 'No verdict available'}"
         </h3>
 
         {content.partnerName && (
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-white/40 mb-2">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-white/50 mb-auto">
             REGARDING <span className="text-white flex items-center gap-1.5 ml-1"><User className="w-3.5 h-3.5 text-[#3b82f6] fill-[#3b82f6]" /> {content.partnerName}</span>
           </div>
         )}
 
-        <div className="flex flex-col items-start gap-4 mt-2">
-          <div className="flex items-baseline text-[#E8456B]">
-            <span className="font-score text-[6.5rem] leading-none tracking-tighter">{content.score || '0'}</span>
-            <span className="text-2xl font-bold ml-1 opacity-60">/100</span>
+        <div className="flex flex-col items-center gap-6 mt-12 w-full">
+          <div className="flex items-baseline text-[#E8456B] ml-6">
+            <span className="font-score text-[7.5rem] sm:text-[9rem] font-bold leading-[0.8] tracking-tighter">{content.score || '0'}</span>
+            <span className="text-2xl sm:text-3xl font-bold ml-1 opacity-60">/100</span>
           </div>
-          <div className="px-5 py-2 rounded-full border border-[#E8456B]/30 text-[#E8456B] text-[9px] font-bold uppercase tracking-[0.25em]">
-            Final Verdict
+          <div className="px-5 py-2 rounded-full border border-[#E8456B]/50 text-[#E8456B] text-[9.5px] font-bold uppercase tracking-[0.25em]">
+            FINAL VERDICT
           </div>
         </div>
       </div>
 
       {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2 mt-8">
-        <LoveCode username={content.username} />
+      <div className="flex justify-center w-full relative z-10 mb-2 mt-12">
+        <LoveCode username={content.username} theme="dark" />
       </div>
     </div>
   );
@@ -345,6 +395,44 @@ function TradingCardTemplate({ content, format }: TemplateProps) {
 }
 
 // ============================================================================
+// 8. AURA TEMPLATE
+// ============================================================================
+function AuraTemplate({ content, format }: TemplateProps) {
+  return (
+    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#120E15] p-10 sm:p-12">
+      {/* Immersive Glowing Background (Mesh Gradient) */}
+      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-background">
+        <div className="absolute -top-[10%] -left-[10%] w-[120%] aspect-square rounded-full bg-primary opacity-30 mix-blend-screen blur-[100px] animate-pulse-glow" />
+        <div className="absolute top-[20%] -right-[20%] w-[100%] aspect-square rounded-full bg-gold opacity-20 mix-blend-screen blur-[120px]" />
+        <div className="absolute -bottom-[20%] left-[10%] w-[140%] aspect-square rounded-full bg-primary opacity-20 mix-blend-screen blur-[140px]" />
+      </div>
+
+      {/* Center Content */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 w-full text-center">
+        <Sparkles className="w-12 h-12 text-gold mb-8 animate-pulse-glow" />
+        <h3 className="font-display italic text-[3.5rem] leading-[1.1] text-white">
+          {content.headline?.split('\n').map((line, i) => (
+            <React.Fragment key={i}>{line}<br/></React.Fragment>
+          )) || (
+            <>My dating vibe is<br/><span className="text-gold">immaculate</span></>
+          )}
+        </h3>
+        {content.score && (
+          <div className="mt-12 px-8 py-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-md">
+            <span className="text-sm uppercase tracking-widest text-white/70 font-bold">Vibe Score: {content.score}/100</span>
+          </div>
+        )}
+      </div>
+
+      {/* Bottom Footer */}
+      <div className="flex justify-center w-full relative z-10 mb-2">
+        <LoveCode username={content.username} theme="glass" />
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // MAIN EXPORT CONTROLLER
 // ============================================================================
 interface ShareTemplatesProps {
@@ -414,6 +502,10 @@ export function ShareTemplates({ theme, content, format, captureRef }: ShareTemp
                 return <WrappedTemplate content={content} format={format} />;
               case 'trading_card':
                 return <TradingCardTemplate content={content} format={format} />;
+              case 'aura':
+                return <AuraTemplate content={content} format={format} />;
+              case 'romantic':
+                return <RomanticTemplate content={content} format={format} />;
               default:
                 return <LuxuryTemplate content={content} format={format} />;
             }

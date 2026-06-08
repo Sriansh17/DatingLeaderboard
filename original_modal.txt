@@ -1,0 +1,86 @@
+Created At: 2026-06-06T22:30:59Z
+Completed At: 2026-06-06T22:31:00Z
+File Path: `file:///Users/rishabhbassi/Desktop/leadboard/DatingLeaderboard/src/components/share/ShareExperienceModal.tsx`
+Total Lines: 156
+Total Bytes: 6411
+Showing lines 1 to 156
+The following code has been modified to include a line number before every line, in the format: <line_number>: <original_line>. Please note that any changes targeting the original code should remove the line number, colon, and leading space.
+1: 'use client';
+2: 
+3: import { useState, useRef, useCallback } from 'react';
+4: import { Modal } from '@/components/ui/Modal';
+5: import { Button } from '@/components/ui/Button';
+6: import { Loader2, Download, Instagram, ChevronLeft, ChevronRight } from 'lucide-react';
+7: import { useToast } from '@/components/ui/Toast';
+8: import html2canvas from 'html2canvas';
+9: 
+10: import { BrutalTruthTemplate } from './templates/BrutalTruthTemplate';
+11: import { TheRomanticTemplate } from './templates/TheRomanticTemplate';
+12: import { HallOfFameTemplate } from './templates/HallOfFameTemplate';
+13: import { Post } from '@/types/database';
+14: 
+15: interface ShareExperienceModalProps {
+16:   isOpen: boolean;
+17:   onClose: () => void;
+18:   post: Post;
+19:   profileName: string;
+20:   rank?: number;
+21:   city?: string;
+22: }
+23: 
+24: const TEMPLATES = [
+25:   { id: 'brutal', name: 'The Brutal Truth', component: BrutalTruthTemplate },
+26:   { id: 'romantic', name: 'The Romantic', component: TheRomanticTemplate },
+27:   { id: 'fame', name: 'Hall of Fame', component: HallOfFameTemplate },
+28: ];
+29: 
+30: export function ShareExperienceModal({ isOpen, onClose, post, profileName, rank, city }: ShareExperienceModalProps) {
+31:   const [currentIndex, setCurrentIndex] = useState(0);
+32:   const [isGenerating, setIsGenerating] = useState(false);
+33:   const templateRef = useRef<HTMLDivElement>(null);
+34:   const { addToast } = useToast();
+35: 
+36:   const handleNext = () => setCurrentIndex((i) => (i + 1) % TEMPLATES.length);
+37:   const handlePrev =
+<truncated 3560 bytes>
+leNext} className="absolute -right-12 top-1/2 -translate-y-1/2 p-2 text-white/50 hover:text-white transition-colors">
+118:             <ChevronRight size={32} />
+119:           </button>
+120:         </div>
+121: 
+122:         {/* Controls */}
+123:         <div className="flex flex-col flex-1 space-y-8">
+124:           <div>
+125:             <h3 className="text-white font-display text-3xl italic mb-2">{TEMPLATES[currentIndex].name}</h3>
+126:             <p className="text-white/50 text-sm">Swipe to choose a template. These are perfectly sized (9:16) for Instagram or TikTok stories.</p>
+127:           </div>
+128: 
+129:           <div className="flex flex-col gap-4">
+130:             <Button onClick={handleNativeShare} disabled={isGenerating} className="w-full py-6 rounded-full bg-gradient-to-r from-[#f09433] via-[#e6683c] to-[#bc1888] text-white font-bold uppercase tracking-widest text-[10px] hover:scale-[1.02] transition-transform">
+131:               <Instagram className="w-5 h-5 mr-3" />
+132:               Share to Story
+133:             </Button>
+134:             
+135:             <Button onClick={handleDownload} disabled={isGenerating} variant="outline" className="w-full py-6 rounded-full border-white/20 text-white hover:bg-white/10 font-bold uppercase tracking-widest text-[10px]">
+136:               <Download className="w-5 h-5 mr-3" />
+137:               Save Image
+138:             </Button>
+139:           </div>
+140:           
+141:           <div className="flex justify-center gap-2 mt-auto">
+142:             {TEMPLATES.map((t, i) => (
+143:               <button 
+144:                 key={t.id} 
+145:                 onClick={() => setCurrentIndex(i)}
+146:                 className={`w-2 h-2 rounded-full transition-all ${i === currentIndex ? 'bg-[#E92B54] w-6' : 'bg-white/20'}`}
+147:               />
+148:             ))}
+149:           </div>
+150:         </div>
+151: 
+152:       </div>
+153:     </Modal>
+154:   );
+155: }
+156: 
+The above content shows the entire, complete file contents of the requested file.

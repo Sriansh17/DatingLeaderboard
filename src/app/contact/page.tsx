@@ -42,13 +42,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background pb-20">
-      {/* Immersive Glowing Background */}
-      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-primary opacity-20 mix-blend-screen blur-[120px] animate-pulse-glow" />
-        <div className="absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full bg-gold opacity-10 mix-blend-screen blur-[120px]" />
-        <div className="absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] rounded-full bg-primary opacity-10 mix-blend-screen blur-[140px]" />
-      </div>
+    <div className="relative min-h-screen w-full flex flex-col pb-20">
 
       {/* Nav */}
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">

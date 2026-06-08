@@ -35,7 +35,7 @@ export default function RootLayout({
                 <ToastProvider>
                   <ShareProvider>
                     <div className="min-h-screen flex flex-col relative">
-                      <div className="flex-1 w-full mx-auto pb-28 md:pb-32 animate-in fade-in duration-700">
+                      <div className="flex-1 w-full mx-auto pb-28 md:pb-32">
                         {children}
                       </div>
                       <AppDock />
