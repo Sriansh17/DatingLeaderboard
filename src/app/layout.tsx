@@ -34,8 +34,8 @@ export default function RootLayout({
               <AuthProvider>
                 <ToastProvider>
                   <ShareProvider>
-                    <div className="min-h-screen flex flex-col relative overflow-hidden">
-                      <div className="flex-1 w-full mx-auto pb-24 md:pb-28 animate-in fade-in duration-700">
+                    <div className="min-h-screen flex flex-col relative">
+                      <div className="flex-1 w-full mx-auto pb-28 md:pb-32 animate-in fade-in duration-700">
                         {children}
                       </div>
                       <AppDock />
