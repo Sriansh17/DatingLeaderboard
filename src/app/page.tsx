@@ -43,7 +43,7 @@ export default function LandingPage() {
             Your relationship has a{" "}
             <span className="text-gradient-crimson italic">score.</span>{" "}
             <br />
-            What's <span className="text-gradient-gold italic">yours?</span>
+            What's <span className="text-gradient-gold italic pr-3">yours?</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
             Post one story. AI judges it. The world sees it. Compete with couples in your city — and on the
