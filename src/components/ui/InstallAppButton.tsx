@@ -40,13 +40,16 @@ export function InstallAppButton() {
       }
       setDeferredPrompt(null);
     } else {
-      // Fallback: copy the URL to clipboard so users can manually add to home screen
-      try {
-        await navigator.clipboard.writeText(window.location.origin);
-        alert('Link copied! Open your browser menu and select "Add to Home Screen".');
-      } catch {
-        // Clipboard not available, just show instructions
-        alert('To install: open your browser menu and select "Add to Home Screen".');
+      // Detect platform and give specific instructions
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isAndroid = /Android/.test(navigator.userAgent);
+      
+      if (isIOS) {
+        alert('Tap the Share button (↑) at the bottom of Safari, then tap "Add to Home Screen".');
+      } else if (isAndroid) {
+        alert('Tap the ⋮ menu at the top right of Chrome, then tap "Add to Home Screen" or "Install App".');
+      } else {
+        alert('Click the install icon (⊕) in your browser\'s address bar, or use the browser menu → "Install LoveBoard".');
       }
     }
   };

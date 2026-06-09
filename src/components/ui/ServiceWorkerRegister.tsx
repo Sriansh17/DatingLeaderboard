@@ -8,14 +8,11 @@ export function ServiceWorkerRegister() {
     if (process.env.NODE_ENV === 'development') return;
 
     if ('serviceWorker' in navigator) {
-      // Unregister any previous service workers first to clear stale caches
-      navigator.serviceWorker.getRegistrations().then((registrations) => {
-        registrations.forEach((reg) => reg.unregister());
-      });
-
       navigator.serviceWorker.register('/sw.js').then(
         function (registration) {
           console.log('SW registered: ', registration.scope);
+          // Check for updates periodically
+          registration.update();
         },
         function (err) {
           console.log('SW registration failed: ', err);
