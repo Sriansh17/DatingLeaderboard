@@ -1,24 +1,45 @@
 {
-  "name": "LoveBoard",
-  "short_name": "LoveBoard",
-  "description": "Share what your partner did for you today, get an AI score, and compete on leaderboards!",
+  "name": "Fond — Love Leaderboard",
+  "short_name": "Fond",
+  "description": "Post one story. AI judges it. Compete with couples worldwide on the world's first relationship leaderboard.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#fefcfb",
-  "theme_color": "#f43f5e",
+  "theme_color": "#E8456B",
   "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Fond - Love Leaderboard"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "label": "Fond - Love Leaderboard"
     }
   ],
   "categories": ["social", "lifestyle"],
