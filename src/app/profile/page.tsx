@@ -12,6 +12,8 @@ import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
 import { Share2 } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
+import { motion } from 'framer-motion';
+import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 
 export default function ProfilePage() {
   const { user, profile, loading: authLoading } = useUser();
@@ -176,11 +178,11 @@ export default function ProfilePage() {
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Avg Score</div>
-                <div className="font-score text-2xl text-[#f4cdda]">{avgScore}</div>
+                <div className="font-score text-2xl text-[#f4cdda]"><AnimatedNumber value={avgScore} delay={0.2} /></div>
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Best Score</div>
-                <div className="font-score text-2xl text-[#e8c39e]">{bestScore.toFixed(1)}</div>
+                <div className="font-score text-2xl text-[#e8c39e]"><AnimatedNumber value={bestScore} delay={0.4} /></div>
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Partners</div>
@@ -191,24 +193,28 @@ export default function ProfilePage() {
         </div>
 
         {/* Middle Row: Social Media / Actions */}
-        <div className="rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div>
+        <div className="rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
+          <div className="w-full min-w-0 flex-1">
             <h3 className="font-display text-2xl italic text-foreground mb-6">Quick Actions</h3>
-            <div className="flex gap-4">
-              <Link href="/partners/new" className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/5 border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-colors group">
-                <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center group-hover:scale-105 transition-transform">
-                  <Heart className="h-4 w-4 text-primary dark:text-blush" />
+            <div className="flex overflow-x-auto snap-x snap-mandatory pb-4 gap-4 [&::-webkit-scrollbar]:hidden">
+              <Link href="/partners/new" className="block snap-start min-w-max">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                  <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
+                    <Heart className="h-4 w-4 text-primary dark:text-blush" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">Add Partner</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">Add Partner</span>
               </Link>
-              <Link href="/posts/new" className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/5 border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-colors group">
-                <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center group-hover:scale-105 transition-transform">
-                  <PlusCircle className="h-4 w-4 text-foreground" />
+              <Link href="/posts/new" className="block snap-start min-w-max">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                  <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
+                    <PlusCircle className="h-4 w-4 text-foreground" />
+                  </div>
+                  <span className="text-sm font-medium text-foreground">Share Post</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">Share Post</span>
               </Link>
               <button 
-                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/5 border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-colors group"
+                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group snap-start min-w-max"
                 onClick={() => {
                   openShare('profile', {
                     username: profile.username,
@@ -218,7 +224,7 @@ export default function ProfilePage() {
                   });
                 }}
               >
-                <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center group-hover:scale-105 transition-transform">
+                <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
                   <Share2 className="h-4 w-4 text-foreground" />
                 </div>
                 <span className="text-sm font-medium text-foreground">Share Scorecard</span>
@@ -226,17 +232,22 @@ export default function ProfilePage() {
             </div>
           </div>
           {streak && (
-            <div className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-orange-900/10 border border-orange-500/20">
-              <Flame className="h-8 w-8 text-orange-500 fill-orange-500" />
+            <motion.div 
+              initial={{ scale: 0.97, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
+              className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-500/20"
+            >
+              <Flame className="h-8 w-8 text-orange-500 dark:text-orange-500 fill-orange-500" />
               <div>
-                <p className="text-lg font-display italic text-orange-400">
+                <p className="text-lg font-display italic text-orange-600 dark:text-orange-400">
                   {streak.message}
                 </p>
-                <p className="text-xs text-orange-500/70 uppercase tracking-widest">
+                <p className="text-xs text-orange-500/80 dark:text-orange-500/70 uppercase tracking-widest font-medium">
                   Longest Streak: {streak.longestStreak} days
                 </p>
               </div>
-            </div>
+            </motion.div>
           )}
         </div>
 
@@ -267,7 +278,7 @@ export default function ProfilePage() {
                 };
                 return (
                   <div key={post.id} className="break-inside-avoid">
-                    <StoryCard story={story} />
+                    <StoryCard story={story} compact={true} />
                   </div>
                 );
               })}

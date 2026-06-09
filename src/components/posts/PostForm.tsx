@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/Toast';
 import { Modal } from '@/components/ui/Modal';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
@@ -33,6 +34,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
   const [aiResult, setAiResult] = useState<AIScoreResult | null>(null);
   const [showFlaggedModal, setShowFlaggedModal] = useState(false);
   const [flaggedReason, setFlaggedReason] = useState('');
+  const [thinkingPhase, setThinkingPhase] = useState(0);
   
   const router = useRouter();
   const { addToast } = useToast();
@@ -44,6 +46,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
   const submit = async () => {
     if (description.length < 30) return;
     
+    setThinkingPhase(0);
     setStep("loading");
     
     try {
@@ -67,34 +70,110 @@ export function PostForm({ partners, userId }: PostFormProps) {
     }
   };
 
+  useEffect(() => {
+    if (step === 'loading') {
+      const t1 = setTimeout(() => setThinkingPhase(1), 1200);
+      const t2 = setTimeout(() => setThinkingPhase(2), 2400);
+      const t3 = setTimeout(() => setThinkingPhase(3), 3600);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
+    }
+  }, [step]);
+
   if (step === "loading") {
     return (
-      <div className="grid min-h-[60vh] place-items-center px-6 animate-in fade-in duration-500">
-        <div className="text-center relative">
+      <motion.div 
+        initial={{ opacity: 0 }} 
+        animate={{ opacity: 1 }} 
+        className="grid min-h-[60vh] place-items-center px-6"
+      >
+        <div className="text-center relative space-y-8 w-full max-w-sm mx-auto">
+          {/* Restored Sparkle Spinner */}
           <div className="relative mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gold/10 shadow-[0_0_40px_-10px_var(--gold)]">
-            {/* Animated concentric rings centered correctly */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '3s' }} />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/40 rounded-full animate-ping" style={{ animationDuration: '2s' }} />
-            
             <Sparkles className="h-8 w-8 text-gold animate-pulse relative z-10" />
           </div>
-          
-          <div className="mt-8 space-y-2">
-            <p className="font-display text-2xl italic text-foreground animate-pulse">
-              Consulting the archives...
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Cross-referencing relationship standards.
-            </p>
+
+          <div className="flex flex-col items-center space-y-4 mt-12">
+            <AnimatePresence mode="popLayout">
+            {thinkingPhase >= 0 && (
+              <motion.div 
+                key="phase-0"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-center gap-3 text-xs font-mono uppercase tracking-[0.1em]"
+              >
+                {thinkingPhase > 0 ? (
+                  <span className="text-gold">✓</span>
+                ) : (
+                  <span className="text-muted-foreground animate-pulse">•</span>
+                )}
+                <span className={thinkingPhase > 0 ? "text-foreground font-medium" : "text-muted-foreground"}>Analyzing emotional consistency...</span>
+              </motion.div>
+            )}
+
+            {thinkingPhase >= 1 && (
+              <motion.div 
+                key="phase-1"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-center gap-3 text-xs font-mono uppercase tracking-[0.1em]"
+              >
+                {thinkingPhase > 1 ? (
+                  <span className="text-gold">✓</span>
+                ) : (
+                  <span className="text-muted-foreground animate-pulse">•</span>
+                )}
+                <span className={thinkingPhase > 1 ? "text-foreground font-medium" : "text-muted-foreground"}>Analyzing effort patterns...</span>
+              </motion.div>
+            )}
+
+            {thinkingPhase >= 2 && (
+              <motion.div 
+                key="phase-2"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-center gap-3 text-xs font-mono uppercase tracking-[0.1em]"
+              >
+                {thinkingPhase > 2 ? (
+                  <span className="text-gold">✓</span>
+                ) : (
+                  <span className="text-muted-foreground animate-pulse">•</span>
+                )}
+                <span className={thinkingPhase > 2 ? "text-foreground font-medium" : "text-muted-foreground"}>Cross-referencing romance standards...</span>
+              </motion.div>
+            )}
+
+            {thinkingPhase >= 3 && (
+              <motion.div 
+                key="phase-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                className="flex items-center justify-center gap-3"
+              >
+                <span className="text-blush animate-pulse">•</span>
+                <span className="text-blush font-medium font-display italic text-lg">Generating verdict...</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   if (step === "verdict" && aiResult) {
     return (
-      <div className="py-2">
+      <motion.div 
+        initial={{ opacity: 0, y: 20, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+        className="py-2"
+      >
         <div className="mb-4 text-center">
           <p className="text-xs uppercase tracking-[0.25em] text-gold">The Algorithm Speaks</p>
           <h1 className="font-display text-2xl italic text-foreground">Your Verdict</h1>
@@ -122,7 +201,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
             Back to feed
           </button>
         </div>
-      </div>
+      </motion.div>
     );
   }
 

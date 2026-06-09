@@ -1,4 +1,5 @@
 import { scoreColor } from "@/lib/mock-data";
+import { AnimatedNumber } from "./AnimatedNumber";
 
 export function ScoreRing({ score, size = 64 }: { score: number; size?: number }) {
   const strokeWidth = 4;
@@ -38,7 +39,7 @@ export function ScoreRing({ score, size = 64 }: { score: number; size?: number }
         />
       </svg>
       <div className="font-score drop-shadow-sm transition-colors duration-1000" style={{ fontSize: size * 0.4, color: color }}>
-        {score.toFixed(0)}
+        <AnimatedNumber value={score} delay={0.2} />
       </div>
     </div>
   );

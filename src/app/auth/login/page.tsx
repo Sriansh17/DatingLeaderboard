@@ -38,7 +38,7 @@ export default function LoginPage() {
             <div className="text-center">
               <p className="text-xs text-muted-foreground">
                 Don't have an account?{' '}
-                <Link href="/auth/signup" className="text-white hover:text-primary font-bold transition-colors">
+                <Link href="/auth/signup" className="text-foreground dark:text-white hover:text-primary font-bold transition-colors">
                   Create one
                 </Link>
               </p>

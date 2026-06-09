@@ -14,6 +14,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
 import { useMemo } from 'react';
+import { motion } from 'framer-motion';
 
 export default function PostDetailPage() {
   const params = useParams();
@@ -129,9 +130,11 @@ export default function PostDetailPage() {
                     </span>
                   </div>
                   <div className="h-2 w-full bg-elevated rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-blush to-primary rounded-full transition-all duration-1000 ease-out"
-                      style={{ width: `${percentage}%` }}
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${percentage}%` }}
+                      transition={{ duration: 1.5, ease: "easeOut" }}
+                      className="h-full bg-primary rounded-full"
                     />
                   </div>
                 </div>

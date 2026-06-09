@@ -1,16 +1,22 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
-import { X, Share2, Download, Copy, Loader2, Check } from 'lucide-react';
+import { X, Share2, Download, Link as LinkIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useShare } from '../providers/ShareProvider';
 import { ShareTemplates, ShareFormat, ShareTemplateTheme } from './ShareTemplates';
 import * as htmlToImage from 'html-to-image';
 import { useToast } from '../ui/Toast';
 
-const THEMES: { id: ShareTemplateTheme; label: string }[] = [
-  { id: 'frosted', label: 'Frosted Glass' },
-  { id: 'luxury', label: 'Hall of Fame' },
-  { id: 'hybrid', label: 'Hybrid' },
+const THEMES: { id: ShareTemplateTheme; label: string; description: string }[] = [
+  { id: 'luxury', label: 'Hall of Fame', description: 'Show off your global rank and premium status.' },
+  { id: 'frosted', label: 'The Brutal Truth', description: 'Share the raw, unfiltered AI verdict about your relationship.' },
+  { id: 'romantic', label: 'The Romantic', description: 'A soft, pastel aesthetic with glowing hearts.' },
+  { id: 'receipt', label: 'The Receipt', description: 'A quirky, viral itemized receipt of your romance stats.' },
+  { id: 'warning', label: 'Warning Label', description: 'A bold hazard warning or green flag certification.' },
+  { id: 'imessage', label: 'Text Leak', description: 'Looks just like an iMessage conversation.' },
+  { id: 'wrapped', label: 'Wrapped', description: 'The famous end-of-year music aesthetic, but for your love life.' },
+  { id: 'trading_card', label: 'Player Card', description: 'A holographic sports trading card to flex your profile stats.' },
+  { id: 'aura', label: 'Aura', description: 'Immersive glowing mesh gradient to flex your immaculate vibe.' },
 ];
 
 export function ShareStudio() {
@@ -18,8 +24,10 @@ export function ShareStudio() {
   const { addToast } = useToast();
   const captureRef = useRef<HTMLDivElement>(null);
   
+  const [themeIndex, setThemeIndex] = useState(0);
+  const currentTheme = THEMES[themeIndex];
+  
   const [format, setFormat] = useState<ShareFormat>('story');
-  const [theme, setTheme] = useState<ShareTemplateTheme>('frosted');
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -83,140 +91,127 @@ export function ShareStudio() {
   };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText('https://loveleaderboard.com'); // TODO: deep linking
+    navigator.clipboard.writeText('https://fond.app'); // TODO: deep linking
     setCopied(true);
     addToast('Link copied to clipboard', 'success');
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleNextTheme = () => {
+    setThemeIndex((prev) => (prev + 1) % THEMES.length);
+  };
+
+  const handlePrevTheme = () => {
+    setThemeIndex((prev) => (prev - 1 + THEMES.length) % THEMES.length);
+  };
+
   return (
     <div 
-      className={`fixed inset-0 z-[100] flex flex-col lg:flex-row bg-background transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+      className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
     >
-      {/* Background glow effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-50">
-        <div className="absolute top-[20%] left-[10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[10%] right-[10%] w-[30%] h-[30%] bg-gold/10 rounded-full blur-[80px]" />
-      </div>
+      <div className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-white dark:bg-[#120E15] rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col lg:flex-row border border-black/5 dark:border-white/5">
 
-      <button 
-        onClick={closeShare}
-        className="absolute top-6 right-6 z-50 p-3 rounded-full bg-white/5 hover:bg-white/10 text-white/70 hover:text-white backdrop-blur-md transition-colors"
-      >
-        <X className="w-5 h-5" />
-      </button>
+        {/* Close Button (Top Right) */}
+        <button 
+          onClick={closeShare}
+          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full bg-black/5 border border-black/10 text-black/70 hover:text-black hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/10 backdrop-blur-md transition-colors"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
-      {/* Header (Mobile) */}
-      <div className="lg:hidden absolute top-6 left-6 z-50">
-        <h2 className="font-display italic text-2xl text-white">Share to Story</h2>
-      </div>
+        {/* LEFT PANEL: Live Preview Canvas */}
+        <div className="flex-1 relative flex flex-col items-center justify-center p-6 lg:p-8 bg-black/5 dark:bg-black/20 overflow-hidden">
+           <div className="w-full text-center lg:text-left mb-6 lg:mb-8 z-50 shrink-0">
+             <h2 className="font-display italic text-[2rem] text-black dark:text-white">Share to Story</h2>
+           </div>
 
-      {/* LEFT PANEL: Live Preview Canvas */}
-      <div className="flex-1 relative flex items-center justify-center p-6 sm:p-12 lg:p-24 h-[60vh] lg:h-full">
-         {/* 
-            This container forces a specific aspect ratio space for the preview to scale inside of.
-            It visually matches a phone screen (9:16) or square (1:1).
-         */}
-         <div 
-           className="relative w-full h-full max-h-[800px] flex items-center justify-center transition-all duration-500 ease-out"
-           style={{ aspectRatio: format === 'story' ? '9/16' : '1/1' }}
-         >
-           <ShareTemplates 
-             captureRef={captureRef}
-             theme={theme} 
-             content={shareData.content} 
-             format={format} 
-           />
-         </div>
-      </div>
+           <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
+             {/* Navigation Chevrons */}
+             <button onClick={handlePrevTheme} className="absolute left-0 lg:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6] dark:text-white hover:bg-[#3b82f6]/20 transition-colors">
+               <ChevronLeft className="w-5 h-5" />
+             </button>
+             
+             <button onClick={handleNextTheme} className="absolute right-0 lg:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-black/10 bg-black/5 text-black hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 transition-colors">
+               <ChevronRight className="w-5 h-5" />
+             </button>
 
-      {/* RIGHT PANEL: Controls */}
-      <div className="w-full lg:w-[480px] flex flex-col justify-end lg:justify-center p-6 sm:p-12 z-10 border-t lg:border-t-0 lg:border-l border-border bg-popover/80 backdrop-blur-3xl h-[40vh] lg:h-full">
-        <div className="max-w-md w-full mx-auto space-y-10">
-          
-          <div className="hidden lg:block space-y-2">
-            <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-primary/80">
-              Flex Your {shareData.type === 'post' ? 'Story' : shareData.type === 'score' ? 'Score' : 'Rank'}
-            </div>
-            <h1 className="font-display italic text-[3rem] leading-none text-white">Share</h1>
-            <p className="text-sm text-white/50 pt-2 leading-relaxed">
-              Swipe to choose a template. These are perfectly sized and rendered in 4K resolution.
-            </p>
-          </div>
+             <div 
+               className="relative h-full shadow-[0_20px_50px_-10px_rgba(0,0,0,0.7)] flex items-center justify-center transition-all duration-500 ease-out overflow-hidden rounded-[2rem]"
+               style={{ aspectRatio: '9/16', maxHeight: '600px' }}
+             >
+               <ShareTemplates 
+                 captureRef={captureRef}
+                 theme={currentTheme.id} 
+                 content={shareData.content} 
+                 format={format} 
+               />
+             </div>
+           </div>
+        </div>
 
-          <div className="space-y-6">
-            {/* Format Toggle */}
-            <div className="bg-white/5 p-1 rounded-full flex relative overflow-hidden">
-              <div 
-                className="absolute inset-y-1 bg-white/10 rounded-full transition-all duration-300 ease-out shadow-lg"
-                style={{ 
-                  width: 'calc(50% - 4px)',
-                  left: format === 'story' ? '4px' : 'calc(50%)'
-                }}
-              />
-              <button 
-                onClick={() => setFormat('story')}
-                className={`flex-1 py-3 text-xs font-bold tracking-widest uppercase relative z-10 transition-colors ${format === 'story' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
-              >
-                Story (9:16)
-              </button>
-              <button 
-                onClick={() => setFormat('square')}
-                className={`flex-1 py-3 text-xs font-bold tracking-widest uppercase relative z-10 transition-colors ${format === 'square' ? 'text-white' : 'text-white/40 hover:text-white/70'}`}
-              >
-                Square (1:1)
-              </button>
+        {/* RIGHT PANEL: Controls */}
+        <div className="w-full lg:w-[480px] flex flex-col justify-center p-8 lg:p-16 z-10 relative">
+          <div className="max-w-md w-full space-y-8">
+            
+            <div className="space-y-3">
+              <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#c2935b]">
+                FLEX YOUR SCORE
+              </div>
+              <h1 className="font-display italic text-[2.5rem] leading-none text-black dark:text-white">
+                {currentTheme.label}
+              </h1>
+              <p className="text-sm text-black/50 dark:text-white/50 leading-relaxed max-w-[280px]">
+                Swipe to choose a template. These are perfectly sized (9:16) for Instagram or TikTok stories.
+              </p>
             </div>
 
-            {/* Template Scroller */}
-            <div className="flex overflow-x-auto hide-scrollbar gap-3 pb-4 -mx-6 px-6 lg:mx-0 lg:px-0">
-              {THEMES.map((t) => (
-                <button
-                  key={t.id}
-                  onClick={() => setTheme(t.id)}
-                  className={`shrink-0 px-6 py-4 rounded-2xl border transition-all duration-300 ${
-                    theme === t.id 
-                      ? 'bg-white/10 border-white/30 text-white shadow-xl scale-105' 
-                      : 'bg-white/5 border-white/5 text-white/50 hover:bg-white/10 hover:text-white/80'
-                  }`}
+            <div className="space-y-4 pt-4">
+              <button 
+                onClick={() => handleExport('share')}
+                disabled={isExporting}
+                className="w-full relative group overflow-hidden rounded-[2rem] bg-[#E8456B] px-6 py-5 flex items-center justify-center gap-3 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+              >
+                <Share2 className="w-5 h-5 text-white relative z-10" />
+                <span className="text-[11px] uppercase tracking-widest font-bold text-white relative z-10">
+                  {isExporting ? 'Generating...' : 'Share to Story'}
+                </span>
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+              </button>
+
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => handleExport('save')}
+                  disabled={isExporting}
+                  className="w-full rounded-[2rem] border border-black/10 bg-black/5 hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 px-6 py-5 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:pointer-events-none text-black dark:text-white"
                 >
-                  <span className="text-sm font-bold tracking-wide">{t.label}</span>
+                  <Download className="w-4 h-4" />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">Save Image</span>
                 </button>
+
+                <button 
+                  onClick={handleCopyLink}
+                  className="w-full rounded-[2rem] border border-black/10 bg-black/5 hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 px-6 py-5 flex items-center justify-center gap-3 transition-colors text-black dark:text-white"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">
+                    {copied ? 'Copied!' : 'Copy Link'}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Carousel Dots */}
+            <div className="flex justify-center gap-2 pt-8 flex-wrap max-w-[200px] mx-auto">
+              {THEMES.map((t, i) => (
+                <button 
+                  key={t.id} 
+                  onClick={() => setThemeIndex(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${i === themeIndex ? 'w-6 bg-[#E8456B]' : 'w-2 bg-black/20 dark:bg-white/20'}`} 
+                />
               ))}
             </div>
+
           </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-4 pt-4 border-t border-white/10">
-            <button
-              disabled={isExporting}
-              onClick={() => handleExport('share')}
-              className="w-full bg-primary hover:bg-primary/90 text-white font-bold tracking-widest uppercase text-xs py-5 rounded-2xl transition-all shadow-[0_0_40px_rgba(232,69,107,0.3)] hover:shadow-[0_0_60px_rgba(232,69,107,0.5)] flex items-center justify-center gap-3 disabled:opacity-70"
-            >
-              {isExporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Share2 className="w-5 h-5" />}
-              {isExporting ? 'Generating...' : 'Share Directly'}
-            </button>
-
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                disabled={isExporting}
-                onClick={() => handleExport('save')}
-                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold tracking-widest uppercase text-[10px] py-4 rounded-2xl transition-all flex items-center justify-center gap-2 disabled:opacity-50"
-              >
-                <Download className="w-4 h-4 text-white/70" />
-                Save Image
-              </button>
-              
-              <button
-                onClick={handleCopyLink}
-                className="w-full bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold tracking-widest uppercase text-[10px] py-4 rounded-2xl transition-all flex items-center justify-center gap-2"
-              >
-                {copied ? <Check className="w-4 h-4 text-success" /> : <Copy className="w-4 h-4 text-white/70" />}
-                {copied ? 'Copied' : 'Copy Link'}
-              </button>
-            </div>
-          </div>
-
         </div>
       </div>
     </div>

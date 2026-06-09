@@ -52,7 +52,7 @@ export function SignupForm() {
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-3">
         <div className="relative">
-          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <input
             id="username"
             type="text"
@@ -60,11 +60,11 @@ export function SignupForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
           />
         </div>
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <input
             id="email"
             type="email"
@@ -72,11 +72,11 @@ export function SignupForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
           />
         </div>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <input
             id="password"
             type="password"
@@ -85,7 +85,7 @@ export function SignupForm() {
             onChange={(e) => setPassword(e.target.value)}
             minLength={6}
             required
-            className="w-full rounded-2xl border border-white/10 bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="w-full rounded-2xl border border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
           />
         </div>
       </div>
