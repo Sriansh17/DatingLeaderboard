@@ -116,11 +116,15 @@ export function PostDetail({ post }: PostDetailProps) {
 
 function getMax(key: string): number {
   const maxes: Record<string, number> = {
-    thoughtfulness: 30,
-    romance: 20,
-    effort: 25,
-    uniqueness: 15,
+    thoughtfulness: 20,
+    romance: 15,
+    effort: 15,
+    uniqueness: 10,
     emotional_impact: 10,
+    ethical_boundaries: 15,
+    genuineness: 10,
+    equality: 10,
+    safety: 5,
   };
-  return maxes[key] || 30;
+  return maxes[key] || 15;
 }

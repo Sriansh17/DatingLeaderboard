@@ -52,6 +52,18 @@ export default function ProfilePage() {
   );
 
   if (!profile) {
+    // Not logged in at all
+    if (!user) {
+      return (
+        <div className="text-center py-20 text-muted-foreground">
+          <p className="mb-4 text-lg font-display italic">Sign in to view your profile.</p>
+          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
+            Sign In
+          </Link>
+        </div>
+      );
+    }
+    // Logged in but profile query returned nothing (edge case)
     return (
       <div className="text-center py-20 text-muted-foreground">
         <p className="mb-4">Profile not found.</p>

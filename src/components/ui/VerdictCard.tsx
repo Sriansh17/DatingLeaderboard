@@ -143,7 +143,7 @@ export function VerdictCard({
               AI Score Breakdown
             </h4>
             {Object.entries(breakdown).map(([key, value]) => {
-              const maxValues: Record<string, number> = { thoughtfulness: 30, romance: 25, effort: 20, uniqueness: 15, emotional_impact: 10 };
+              const maxValues: Record<string, number> = { thoughtfulness: 20, romance: 15, effort: 15, uniqueness: 10, emotional_impact: 10, ethical_boundaries: 15, genuineness: 10, equality: 10, safety: 5 };
               const max = maxValues[key.toLowerCase()] || 25;
               const percentage = Math.min(100, Math.max(0, (Number(value) / max) * 100));
               const formattedKey = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');

@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, Playfair_Display, Bebas_Neue } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
@@ -8,6 +8,7 @@ import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ShareProvider } from '@/components/providers/ShareProvider';
 import { AppDock } from '@/components/ui/AppDock';
+import { ServiceWorkerRegister } from '@/components/ui/ServiceWorkerRegister';
 
 
 const dmSans = DM_Sans({ subsets: ['latin'], variable: '--font-sans' });
@@ -17,6 +18,10 @@ const bebas = Bebas_Neue({ subsets: ['latin'], weight: '400', variable: '--font-
 export const metadata: Metadata = {
   title: 'Fond — Your Relationship Has a Score',
   description: 'Post one story. AI judges it. Compete with couples worldwide on the world\'s first relationship leaderboard.',
+  manifest: '/manifest.json',
+};
+
+export const viewport: Viewport = {
   themeColor: '#FFF5F5',
 };
 
@@ -46,6 +51,7 @@ export default function RootLayout({
             </AtmosphereProvider>
           </ThemeProvider>
         </QueryProvider>
+        <ServiceWorkerRegister />
       </body>
     </html>
   );

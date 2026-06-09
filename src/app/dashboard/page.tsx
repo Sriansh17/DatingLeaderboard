@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { motion } from 'framer-motion';
 
 import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
+import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState } from 'react';
 import Link from 'next/link';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
@@ -88,9 +89,12 @@ export default function DashboardPage() {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 md:py-12 pb-32">
         
         <header className="mb-12">
-          <p className="text-sm uppercase tracking-[0.25em] text-gold mb-2 flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> Global Feed
-          </p>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-2">
+              <Sparkles className="h-4 w-4" /> Global Feed
+            </p>
+            <InstallAppButton />
+          </div>
           <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
             The Timeline
           </h1>
