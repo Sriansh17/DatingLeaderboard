@@ -21,6 +21,7 @@ interface PartnerFormProps {
   userId: string;
   partner?: Partner;
   onSuccess?: (partner: Partner) => void;
+  compact?: boolean;
 }
 
 const MAX_AVATAR_SIZE = 200;
@@ -60,7 +61,7 @@ function resizeImage(file: File): Promise<string> {
   });
 }
 
-export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
+export function PartnerForm({ userId, partner, onSuccess, compact = false }: PartnerFormProps) {
   const [name, setName] = useState(partner?.name || '');
   const [relationship, setRelationship] = useState<string>(partner?.relationship || 'partner');
   const [gender, setGender] = useState<Gender>('');
@@ -159,50 +160,45 @@ export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
             <Camera className="h-4 w-4" />
           </button>
         </div>
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileSelect}
-          className="hidden"
-        />
-
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
       </div>
 
-      {/* Gender Selection */}
+      {!compact && (
+        <>
+          {/* Gender Selection */}
+          <div className="space-y-3">
+            <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
+              Partner's Gender (To suggest characters)
+            </label>
+            <div className="flex flex-wrap gap-3">
+              {(['male', 'female', 'other'] as const).map((g) => (
+                <button
+                  key={g}
+                  type="button"
+                  onClick={() => setGender(g)}
+                  className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all capitalize ${
+                    gender === g
+                      ? 'border-primary/50 bg-primary/10 text-primary shadow-glow'
+                      : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
+                  }`}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Avatar Selection Grid */}
+          <AvatarPicker
+            selectedGender={gender}
+            currentAvatar={avatarPreview}
+            onSelect={(url) => { setAvatarBase64(url); setAvatarPreview(url); }}
+          />
+        </>
+      )}
+
+      {/* Name */}
       <div className="space-y-3">
-        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
-          Partner's Gender (To suggest characters)
-        </label>
-        <div className="flex flex-wrap gap-3">
-          {(['male', 'female', 'other'] as const).map((g) => (
-            <button
-              key={g}
-              type="button"
-              onClick={() => setGender(g)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all capitalize ${
-                gender === g
-                  ? 'border-primary/50 bg-primary/10 text-primary shadow-glow'
-                  : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
-              }`}
-            >
-              {g}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Avatar Selection Grid */}
-      <AvatarPicker 
-        selectedGender={gender} 
-        currentAvatar={avatarPreview} 
-        onSelect={(url) => {
-          setAvatarBase64(url);
-          setAvatarPreview(url);
-        }} 
-      />
-
-      <div className="space-y-3 pt-4 border-t border-white/5">
         <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Partner's Name</label>
         <input
           id="partnerName"
@@ -214,28 +210,28 @@ export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
         />
       </div>
 
-      {/* Relationship Type */}
-      <div className="space-y-3">
-        <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">
-          Relationship
-        </label>
-        <div className="flex flex-wrap gap-3">
-          {RELATIONSHIPS.map((rel) => (
-            <button
-              key={rel.value}
-              type="button"
-              onClick={() => setRelationship(rel.value)}
-              className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
-                relationship === rel.value
-                  ? 'border-blush/30 bg-blush/10 text-blush shadow-glow'
-                  : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
-              }`}
-            >
-              {rel.label}
-            </button>
-          ))}
+      {/* Relationship Type — hidden in compact */}
+      {!compact && (
+        <div className="space-y-3">
+          <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Relationship</label>
+          <div className="flex flex-wrap gap-3">
+            {RELATIONSHIPS.map((rel) => (
+              <button
+                key={rel.value}
+                type="button"
+                onClick={() => setRelationship(rel.value)}
+                className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
+                  relationship === rel.value
+                    ? 'border-blush/30 bg-blush/10 text-blush shadow-glow'
+                    : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
+                }`}
+              >
+                {rel.label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Emoji Selector */}
       <div className="space-y-3">
@@ -248,7 +244,7 @@ export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
               key={e}
               type="button"
               onClick={() => setEmoji(e)}
-              className={`text-2xl h-12 w-12 rounded-full border flex items-center justify-center transition-all ${
+              className={`text-2xl h-10 w-10 rounded-full border flex items-center justify-center transition-all ${
                 emoji === e
                   ? 'border-blush/30 bg-blush/10 scale-110 shadow-glow'
                   : 'border-border bg-elevated/40 hover:bg-elevated'
@@ -260,14 +256,14 @@ export function PartnerForm({ userId, partner, onSuccess }: PartnerFormProps) {
         </div>
       </div>
 
-      <div className="pt-6 border-t border-white/5 mt-8">
+      <div className={`${compact ? 'pt-2' : 'pt-6 border-t border-white/5 mt-8'}`}>
         <button
-        type="submit"
-        disabled={loading || !name.trim()}
-        className="w-full flex items-center justify-center rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
-      >
-        Add Partner 💖
-      </button>
+          type="submit"
+          disabled={loading || !name.trim()}
+          className="w-full flex items-center justify-center rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40"
+        >
+          {partner ? 'Save Changes' : 'Add Partner 💖'}
+        </button>
       </div>
     </form>
   );

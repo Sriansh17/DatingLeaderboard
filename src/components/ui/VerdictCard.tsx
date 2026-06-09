@@ -58,14 +58,20 @@ export function VerdictCard({
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="relative overflow-hidden rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_40px_-15px_rgba(0,0,0,0.4)]"
+      className={`relative overflow-hidden rounded-3xl border bg-card p-6 sm:p-8 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_20px_40px_-15px_rgba(0,0,0,0.4)] transition-all duration-700 ${
+        score >= 97
+          ? 'border-gold/50 shadow-[0_20px_40px_-10px_rgba(199,169,107,0.25)]'
+          : score >= 90
+          ? 'border-gold/20 shadow-[0_20px_40px_-15px_rgba(199,169,107,0.12)]'
+          : 'border-border'
+      }`}
       style={{ '--gold': color } as React.CSSProperties}
     >
       {/* Halo Pulse after score counts up */}
       <motion.div
         initial={{ boxShadow: `0 0 0 0 rgba(0,0,0,0)` }}
         animate={{ boxShadow: [`0 0 0 0 ${color}40`, `0 0 0 40px ${color}00`] }}
-        transition={{ delay: 0.6, duration: 1.5, ease: "easeOut" }}
+        transition={{ delay: 1.8, duration: 1.5, ease: "easeOut" }}
         className="absolute inset-0 rounded-3xl pointer-events-none"
       />
 
@@ -87,15 +93,16 @@ export function VerdictCard({
         <div className="relative">
           {/* Layer 2: Romance Particles Anchored to Score */}
           <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
-            {[...Array(8)].map((_, i) => {
-              const angle = (i / 8) * Math.PI * 2;
-              const distance = 60 + Math.random() * 40;
+            {[...Array(score >= 90 ? 14 : 8)].map((_, i) => {
+              const total = score >= 90 ? 14 : 8;
+              const angle = (i / total) * Math.PI * 2;
+              const distance = score >= 90 ? 80 + Math.random() * 50 : 60 + Math.random() * 40;
               return (
                 <motion.div
                   key={i}
                   initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-                  animate={{ opacity: 0, scale: 1.5, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance }}
-                  transition={{ duration: 1.2, delay: 0.5, ease: "easeOut" }}
+                  animate={{ opacity: 0, scale: score >= 90 ? 2 : 1.5, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance }}
+                  transition={{ duration: score >= 90 ? 1.6 : 1.2, delay: score >= 90 ? 1.5 : 1.2, ease: "easeOut" }}
                   className="absolute w-2 h-2 rounded-full mix-blend-screen"
                   style={{ backgroundColor: color, filter: "blur(1px)" }}
                 />
@@ -103,29 +110,41 @@ export function VerdictCard({
             })}
           </div>
 
+          {/* Legendary extra outer glow ring */}
+          {score >= 90 && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: [0, 0.6, 0], scale: [0.8, 1.4, 1.8] }}
+              transition={{ delay: 0.8, duration: 2, ease: "easeOut" }}
+              className="absolute inset-[-30px] rounded-full pointer-events-none"
+              style={{ background: `radial-gradient(circle, ${color}30 0%, transparent 70%)` }}
+            />
+          )}
+
           <div
             className="font-score leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:drop-shadow-none [text-shadow:none] dark:[text-shadow:0_0_15px_var(--glow-color)] relative z-10"
             style={{
               fontSize: compact ? 80 : 112,
               color,
-              "--glow-color": `color-mix(in oklab, ${color} 20%, transparent)`
+              "--glow-color": `color-mix(in oklab, ${color} ${score >= 90 ? '35%' : '20%'}, transparent)`
             } as React.CSSProperties}
           >
-            <AnimatedNumber value={score} delay={0.4} instant={false} />
+            {/* Held-breath: show 0 briefly, then count up after 400ms pause */}
+            <AnimatedNumber value={score} delay={1.1} instant={false} />
           </div>
         </div>
         <div className="pb-2">
-          <motion.div variants={itemVariants} className="font-display text-xl text-foreground relative overflow-hidden">
-            {/* Soft shimmer across title once */}
+          <motion.div variants={itemVariants} className="font-display text-2xl font-bold text-foreground relative overflow-hidden">
+            {/* Soft shimmer across title once — delayed so user reads the tier name first */}
             <motion.div 
               initial={{ x: "-100%" }}
               animate={{ x: "200%" }}
-              transition={{ delay: 0.8, duration: 1.5, ease: "easeOut" }}
+              transition={{ delay: 1.4, duration: 1.8, ease: "easeOut" }}
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent mix-blend-overlay" 
             />
             {tier}
           </motion.div>
-          <motion.div variants={itemVariants} className="text-xs text-muted-foreground">
+          <motion.div variants={itemVariants} className="text-xs text-muted-foreground mt-0.5">
             out of 100.0
           </motion.div>
         </div>
@@ -139,8 +158,8 @@ export function VerdictCard({
         {/* Detailed Score Breakdown */}
         {breakdown && !compact && (
           <div className="mt-8 space-y-4 rounded-2xl bg-elevated/40 p-6 border border-border">
-            <h4 className="font-display text-xs font-bold uppercase tracking-[0.2em] text-muted-foreground mb-4">
-              AI Score Breakdown
+            <h4 className="font-display text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">
+              Score Breakdown
             </h4>
             {Object.entries(breakdown).map(([key, value]) => {
               const maxValues: Record<string, number> = { thoughtfulness: 20, romance: 15, effort: 15, uniqueness: 10, emotional_impact: 10, ethical_boundaries: 15, genuineness: 10, equality: 10, safety: 5 };
@@ -190,12 +209,24 @@ export function VerdictCard({
       </motion.div>
 
       {suspectedFabrication && (
-        <div
-          className="absolute right-4 top-20 rotate-12 rounded-md border-2 px-3 py-1 text-xs font-bold uppercase tracking-wider"
-          style={{ borderColor: "var(--warning)", color: "var(--warning)" }}
+        <motion.div
+          initial={{ opacity: 0, rotate: -6, scale: 0.85 }}
+          animate={{ opacity: 1, rotate: -6, scale: 1 }}
+          transition={{ delay: 0.3, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute top-4 right-4 z-20 pointer-events-none"
         >
-          Suspected Fabrication
-        </div>
+          <div
+            className="px-3 py-1.5 text-[10px] font-black uppercase tracking-[0.2em] rounded border-2 shadow-[0_0_20px_rgba(240,169,74,0.3)]"
+            style={{
+              borderColor: "rgb(var(--warning))",
+              color: "rgb(var(--warning))",
+              background: "rgb(var(--warning) / 0.08)",
+              textShadow: "0 0 12px rgb(var(--warning) / 0.5)",
+            }}
+          >
+            ⚠ Suspected Fabrication
+          </div>
+        </motion.div>
       )}
     </motion.div>
   );

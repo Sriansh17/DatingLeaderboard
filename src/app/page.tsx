@@ -5,9 +5,21 @@ import { VerdictCard } from "@/components/ui/VerdictCard";
 import { stories, tickerItems, leaderboard, scoreColor } from "@/lib/mock-data";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
+import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function LandingPage() {
-  const hero = stories[0];
+  const [heroIndex, setHeroIndex] = useState(0);
+
+  // Auto-cycle through the top 3 sample verdicts every 4 seconds
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIndex(prev => (prev + 1) % 3);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const hero = stories[heroIndex];
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -36,19 +48,36 @@ export default function LandingPage() {
       {/* Hero */}
       <section className="mx-auto grid max-w-[1400px] gap-10 px-6 pb-20 pt-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
         <div className="animate-float-up">
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold">
-            <Sparkles className="h-3.5 w-3.5" /> The world's first relationship leaderboard
+          {/* Tagline badge — moved up from footer */}
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs text-primary font-medium mb-4">
+            Romance meets reality TV
           </span>
-          <h1 className="mt-5 font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
-            Your relationship has a{" "}
-            <span className="text-gradient-crimson italic">score.</span>{" "}
+          <span className="block text-[10px] uppercase tracking-[0.3em] text-gold font-bold mb-3">
+            The world&apos;s first relationship leaderboard
+          </span>
+          <h1 className="font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
+            Your relationship<br />
+            has a{" "}
+            <span className="text-gradient-crimson italic">score.</span>
             <br />
-            What's <span className="text-gradient-gold italic pr-3">yours?</span>
+            <span className="text-gradient-gold italic">What&apos;s yours?</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-            Post one story. AI judges it. The world sees it. Compete with couples in your city — and on the
-            planet.
+            Post one story. AI judges it. The world sees it. Compete with couples in your city — and on the planet.
           </p>
+
+          {/* Social proof — near CTAs not buried in footer */}
+          <div className="mt-4 flex items-center gap-2">
+            <div className="flex -space-x-1.5">
+              {['🇮🇳', '🇺🇸', '🇫🇷', '🇯🇵'].map((flag, i) => (
+                <div key={i} className="h-6 w-6 rounded-full bg-elevated border border-border text-[11px] flex items-center justify-center">{flag}</div>
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              <span className="font-bold text-foreground">12,402</span> couples ranked globally
+            </span>
+          </div>
+
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/auth/signup"
@@ -65,15 +94,38 @@ export default function LandingPage() {
           </div>
         </div>
 
-        <div className="lg:pl-6">
-          <VerdictCard
-            score={hero.score}
-            verdict={hero.verdict}
-            username={hero.username}
-            partnerNickname={hero.partnerNickname}
-            city={hero.city}
-            globalRank={4}
-          />
+        {/* Auto-cycling VerdictCard */}
+        <div className="lg:pl-6 relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={heroIndex}
+              initial={{ opacity: 0, y: 16, filter: "blur(12px)" }}
+              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+              exit={{ opacity: 0, y: -12, filter: "blur(8px)" }}
+              transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <VerdictCard
+                score={hero.score}
+                verdict={hero.verdict}
+                username={hero.username}
+                partnerNickname={hero.partnerNickname}
+                city={hero.city}
+                globalRank={heroIndex + 1}
+                suspectedFabrication={hero.suspectedFabrication}
+              />
+            </motion.div>
+          </AnimatePresence>
+          {/* Cycle indicator dots */}
+          <div className="flex justify-center gap-1.5 mt-4">
+            {[0, 1, 2].map(i => (
+              <button
+                key={i}
+                onClick={() => setHeroIndex(i)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${heroIndex === i ? 'w-5 bg-primary' : 'w-1.5 bg-border hover:bg-muted-foreground'}`}
+                aria-label={`View verdict ${i + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </section>
 
@@ -82,7 +134,7 @@ export default function LandingPage() {
         <div className="flex w-max gap-10 whitespace-nowrap animate-marquee text-sm text-muted-foreground">
           {[...tickerItems, ...tickerItems].map((t, i) => (
             <span key={i} className="flex items-center gap-3">
-              <span className="h-1.5 w-1.5 rounded-full bg-blush" /> {t}
+              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {t}
             </span>
           ))}
         </div>
@@ -90,7 +142,7 @@ export default function LandingPage() {
 
       {/* How it works */}
       <section className="mx-auto max-w-[1400px] px-6 py-20">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold">How it works</p>
+        <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">How it works</p>
         <h2 className="mt-2 font-display text-4xl italic text-foreground">Three steps to a verdict.</h2>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -99,8 +151,8 @@ export default function LandingPage() {
             { n: "02", t: "AI scores and roasts", d: "Out of 100. The verdict is one line. It will sting or sing." },
             { n: "03", t: "Share. Climb. Repeat.", d: "Share the card. Watch your rank move. Try to dethrone someone." },
           ].map((s) => (
-            <div key={s.n} className="rounded-2xl border border-border bg-card p-6">
-              <div className="font-score text-5xl text-blush">{s.n}</div>
+            <div key={s.n} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/20 transition-colors">
+              <div className="font-score text-5xl text-primary">{s.n}</div>
               <h3 className="mt-3 font-display text-xl text-foreground">{s.t}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
             </div>
@@ -110,8 +162,8 @@ export default function LandingPage() {
 
       {/* AI humor showcase */}
       <section className="mx-auto max-w-[1400px] px-6 pb-20">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold">Receipts</p>
-        <h2 className="mt-2 font-display text-4xl italic text-foreground">The verdicts heard 'round the world.</h2>
+        <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">Receipts</p>
+        <h2 className="mt-2 font-display text-4xl italic text-foreground">The verdicts heard &apos;round the world.</h2>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
           {stories.slice(0, 3).map((s) => (
@@ -133,35 +185,44 @@ export default function LandingPage() {
       <section className="mx-auto max-w-[1400px] px-6 pb-20">
         <div className="flex items-end justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-gold">This week</p>
+            <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">This week</p>
             <h2 className="mt-2 font-display text-4xl italic text-foreground">Top of the world.</h2>
           </div>
-          <Link href="/leaderboards" className="text-sm text-blush hover:underline">
+          <Link href="/leaderboards" className="text-sm text-primary hover:underline">
             View all →
           </Link>
         </div>
 
         <ol className="mt-6 overflow-hidden rounded-2xl border border-border bg-card">
           {leaderboard.slice(0, 5).map((e, i) => (
-            <li
+            <motion.li
               key={e.rank}
-              className={`flex items-center gap-4 px-5 py-4 ${
-                i !== 0 ? "border-t border-border" : ""
-              }`}
+              initial={{ opacity: 0, x: -12 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+              className={`flex items-center gap-4 px-5 py-4 ${i !== 0 ? "border-t border-border" : ""} hover:bg-elevated/40 transition-colors`}
             >
-              <div className="font-score text-3xl" style={{ color: e.rank <= 3 ? "var(--gold)" : "var(--muted-foreground)", width: 44 }}>
+              <div className="font-score text-3xl shrink-0" style={{ color: e.rank <= 3 ? "rgb(var(--gold))" : "rgb(var(--muted-foreground))", width: 44 }}>
                 {e.rank}
               </div>
-              <div className="flex-1">
-                <div className="font-medium text-foreground">{e.username}</div>
-                <div className="text-xs text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-foreground truncate">{e.username}</div>
+                <div className="text-xs text-muted-foreground truncate">
                   with {e.partnerNickname} · {e.city}, {e.country}
                 </div>
               </div>
-              <div className="font-score text-2xl" style={{ color: scoreColor(e.score) }}>
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: i * 0.07 + 0.3 }}
+                className="font-score text-2xl shrink-0"
+                style={{ color: scoreColor(e.score) }}
+              >
                 {e.score.toFixed(1)}
-              </div>
-            </li>
+              </motion.div>
+            </motion.li>
           ))}
         </ol>
       </section>
@@ -179,7 +240,7 @@ export default function LandingPage() {
           Start For Free <ArrowRight className="h-5 w-5" />
         </Link>
         <p className="mt-4 text-xs text-muted-foreground">
-          12,402 couples ranked. No credit card. Just feelings.
+          No credit card. Just feelings.
         </p>
       </section>
 
@@ -187,8 +248,7 @@ export default function LandingPage() {
         <div className="flex items-center justify-center gap-2">
           <span className="font-display italic text-gold flex items-center gap-1.5">
             <Sparkles className="h-3.5 w-3.5" /> Fond
-          </span> 
-          <span>· Romance meets reality TV</span>
+          </span>
         </div>
         <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-border">
           Meet the Creators

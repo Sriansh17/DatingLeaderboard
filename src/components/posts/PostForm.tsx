@@ -8,8 +8,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
-import { ShieldAlert, Sparkles } from 'lucide-react';
+import { Sparkles, Share2 } from 'lucide-react';
 import { VerdictCard } from '@/components/ui/VerdictCard';
+import { useShare } from '@/components/providers/ShareProvider';
 
 type Step = "write" | "loading" | "verdict";
 
@@ -21,8 +22,8 @@ interface PostFormProps {
 function lenFeedback(n: number) {
   if (n < 30) return "Give the AI something to work with.";
   if (n < 80) return "Keep going. Details = better verdict.";
-  if (n < 240) return "Perfect length. Chef's kiss.";
-  return "Okay Shakespeare, wrap it up.";
+  if (n < 240) return "Perfect length.";
+  return "Good detail. The AI rewards specifics.";
 }
 
 export function PostForm({ partners, userId }: PostFormProps) {
@@ -39,6 +40,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
   const router = useRouter();
   const { addToast } = useToast();
   const createPost = useCreatePost();
+  const { openShare } = useShare();
 
   const selectedPartner = partners.find(p => p.id === partnerId);
   const partnerNickname = selectedPartner?.name || "your partner";
@@ -183,14 +185,30 @@ export function PostForm({ partners, userId }: PostFormProps) {
           score={aiResult.score}
           verdict={aiResult.feedback}
           explanationStr={aiResult.breakdown ? JSON.stringify(aiResult.breakdown) : undefined}
-          username="@you" // We don't have the current user's profile object here, using placeholder
+          username="@you"
           partnerNickname={partnerNickname}
         />
         
-        <div className="mt-6 space-y-2">
+        <div className="mt-6 space-y-3">
+          {/* Share CTA — highest-emotion moment, must be prominent */}
+          <button
+            onClick={() => openShare('post', {
+              username: '@you',
+              partnerName: partnerNickname,
+              headline: description,
+              verdict: aiResult.feedback,
+              score: aiResult.score,
+              city: '',
+              date: new Date().toLocaleDateString(),
+            })}
+            className="w-full flex items-center justify-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 py-4 font-bold text-gold shadow-[0_0_20px_rgba(199,169,107,0.15)] transition-all hover:scale-[1.02] hover:bg-gold/20"
+          >
+            <Share2 className="h-4 w-4" />
+            Share This Verdict
+          </button>
           <button 
             onClick={() => router.push('/leaderboards')}
-            className="w-full rounded-xl bg-primary py-3.5 font-medium text-primary-foreground transition-transform hover:scale-[1.01]"
+            className="w-full rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.01]"
           >
             See My New Rank ↑
           </button>
@@ -237,7 +255,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
         onChange={(e) => setDescription(e.target.value)}
         rows={8}
         className="mt-6 w-full resize-none rounded-3xl border border-border bg-card p-8 font-display text-2xl italic leading-relaxed text-foreground outline-none focus:border-primary/30 focus:ring-2 focus:ring-primary/15 placeholder:text-muted-foreground/40 shadow-sm transition-colors"
-        placeholder="They did something. Tell us about it."
+        placeholder={`What did ${partnerNickname} do? Be specific — the AI rewards details.`}
       />
 
       <div className="mt-2 flex items-center justify-between text-xs">
@@ -260,52 +278,82 @@ export function PostForm({ partners, userId }: PostFormProps) {
       <button
         onClick={submit}
         disabled={description.length < 30 || createPost.isPending}
-        className="mt-8 w-full flex items-center justify-center rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+        className="mt-8 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40"
       >
-        Submit for Judgement
+        {createPost.isPending ? 'Submitting...' : 'Submit for Judgement'}
       </button>
 
-      {/* Flagged Modal styled for Fond theme */}
+      {/* Flagged Modal — Red Card */}
       <Modal
         isOpen={showFlaggedModal}
         onClose={() => setShowFlaggedModal(false)}
-        title="Love Referee"
+        title=""
         className="max-w-md bg-background/95 border-border backdrop-blur-2xl shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]"
       >
-        <div className="text-center py-6 space-y-8">
-          <div className="relative mx-auto w-20 h-20">
-            <div className="absolute inset-0 rounded-full bg-destructive/10 animate-pulse" />
-            <div className="relative w-full h-full rounded-full border border-destructive/20 bg-background flex items-center justify-center text-destructive backdrop-blur-md shadow-[0_0_40px_rgba(230,90,90,0.15)]">
-              <ShieldAlert className="h-8 w-8" />
-            </div>
-          </div>
-          
-          <div className="space-y-3">
+        <div className="text-center py-4 space-y-7">
+
+          {/* Red card visual — animated slap-down */}
+          <motion.div
+            initial={{ rotate: -18, y: -40, opacity: 0, scale: 0.7 }}
+            animate={{ rotate: 5, y: 0, opacity: 1, scale: 1 }}
+            transition={{ delay: 0.05, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+            className="mx-auto w-16 h-24 rounded-xl flex items-center justify-center shadow-[0_8px_30px_-4px_rgba(230,90,90,0.5)]"
+            style={{ background: 'linear-gradient(145deg, #E65A5A, #c73d3d)' }}
+          >
+            <span className="text-white font-black text-3xl font-sans select-none">!</span>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="space-y-2"
+          >
             <h3 className="font-display text-4xl italic text-foreground tracking-tight">
               Red Card.
             </h3>
-            <p className="text-sm tracking-wide text-muted-foreground/80">
-              Our AI caught some creative writing.
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-[260px] mx-auto">
+              Nice try. The AI has read every hallmark movie ever written.
             </p>
-          </div>
+          </motion.div>
 
-          <div className="relative p-6 rounded-2xl bg-destructive/5 border border-destructive/10 text-left">
-            <span className="absolute -top-3 left-6 px-3 py-1 text-[9px] font-bold uppercase tracking-[0.2em] bg-destructive text-destructive-foreground rounded-full">
-              AI Detector
-            </span>
-            <p className="font-display text-xl italic text-foreground/90 leading-relaxed pt-2">
-              "{flaggedReason}"
-            </p>
-          </div>
+          {/* Evidence exhibit */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45, duration: 0.5 }}
+            className="relative rounded-2xl overflow-hidden text-left"
+            style={{ background: 'rgb(var(--foreground) / 0.06)', border: '1px solid rgb(var(--destructive) / 0.2)' }}
+          >
+            {/* Stamped label */}
+            <div className="flex items-center gap-2 px-4 pt-4 pb-2 border-b border-destructive/15">
+              <div className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+              <span className="text-[9px] font-black uppercase tracking-[0.25em] text-destructive">
+                Exhibit A — AI Detector
+              </span>
+            </div>
+            <div className="px-4 py-4">
+              <p className="font-display text-base italic text-foreground/85 leading-relaxed">
+                &ldquo;{flaggedReason}&rdquo;
+              </p>
+            </div>
+          </motion.div>
 
-          <div className="pt-4 flex justify-center">
+          {/* CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.45 }}
+          >
             <button
               onClick={() => setShowFlaggedModal(false)}
-              className="w-full py-4 rounded-full bg-foreground text-background font-bold uppercase tracking-[0.2em] text-[10px] hover:scale-[1.02] transition-transform shadow-lg"
+              className="w-full py-4 rounded-full bg-foreground text-background text-sm font-bold hover:scale-[1.02] transition-transform shadow-lg"
             >
               My bad, let me tell the truth
             </button>
-          </div>
+          </motion.div>
+
         </div>
       </Modal>
     </>

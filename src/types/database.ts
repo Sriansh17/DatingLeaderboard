@@ -7,6 +7,11 @@ export interface Profile {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  // Onboarding fields
+  has_onboarded: boolean | null;
+  relationship_status: string | null;
+  onboarding_goals: string[] | null;
+  love_languages: string[] | null;
   created_at: string;
   updated_at: string;
 }

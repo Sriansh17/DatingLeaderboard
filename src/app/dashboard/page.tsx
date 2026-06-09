@@ -7,9 +7,11 @@ import { motion } from 'framer-motion';
 
 import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
 import { InstallAppButton } from '@/components/ui/InstallAppButton';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
+import { useUser } from '@/components/providers/AuthProvider';
+import { useRouter } from 'next/navigation';
 
 import type { Post } from '@/types/database';
 
@@ -28,6 +30,16 @@ export default function DashboardPage() {
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
+
+  const { profile, loading: authLoading } = useUser();
+  const router = useRouter();
+
+  // Redirect to onboarding if not completed
+  useEffect(() => {
+    if (!authLoading && profile && profile.has_onboarded === false) {
+      router.replace('/onboarding');
+    }
+  }, [authLoading, profile, router]);
 
   const [activeInsight, setActiveInsight] = useState(0);
   
@@ -108,16 +120,16 @@ export default function DashboardPage() {
           <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
             <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
             <h3 className="text-3xl font-display italic text-foreground mb-4">
-              The feed is empty
+              The board is bare.
             </h3>
             <p className="text-muted-foreground text-lg mb-8 max-w-sm mx-auto">
-              Be the first to share an appreciation post and set the global standard!
+              Someone has to set the standard. Make it you.
             </p>
             <Link
               href="/posts/new"
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
             >
-              Share Your First Post
+              Claim your first verdict
             </Link>
           </div>
         ) : (
@@ -306,7 +318,7 @@ export default function DashboardPage() {
                 username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
                 partnerNickname: post.partner?.name || 'partner',
                 city: post.profile?.city || '',
-                country: (post.profile as any)?.country || (post.profile as any)?.user_metadata?.country || '',
+                country: (post.profile as any)?.country || '',
                 headline: post.description || '',
                 score: post.ai_score || 0,
                 verdict: post.ai_feedback || 'No feedback provided.',
@@ -315,6 +327,8 @@ export default function DashboardPage() {
                 believable: 0,
                 sus: 0,
                 postedAt: new Date(post.created_at).toLocaleDateString(),
+                userAvatarUrl: post.profile?.avatar_url || null,
+                partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
               };
 
               return (

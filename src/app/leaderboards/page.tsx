@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
-import { ArrowDown, ArrowUp, Minus, Share2 } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Share2, TrendingUp, TrendingDown } from "lucide-react";
 import { useShare } from "@/components/providers/ShareProvider";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useLeaderboard } from "@/lib/hooks/useLeaderboard";
@@ -25,41 +25,120 @@ interface LeaderboardEntry {
   top_partner_name: string;
   top_partner_avatar?: string | null;
   top_partner_emoji: string;
+  rank_change?: number | null;
+}
+
+function PodiumAvatar({
+  avatarUrl,
+  name,
+  size,
+  colorClass,
+  borderClass,
+  crown,
+}: {
+  avatarUrl?: string | null;
+  name: string;
+  size: string;
+  colorClass: string;
+  borderClass: string;
+  crown?: boolean;
+}) {
+  const initial = (name?.[0] || '?').toUpperCase();
+  return (
+    <div className="relative">
+      <div
+        className={`${size} rounded-full border-2 overflow-hidden flex items-center justify-center font-display text-xl shadow-[0_0_20px_-5px_currentColor] z-10 relative ${colorClass} ${borderClass} bg-elevated`}
+      >
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+        ) : (
+          <span className="select-none">{initial}</span>
+        )}
+      </div>
+      {crown && (
+        <div className="absolute -top-5 -right-2 text-2xl drop-shadow-[0_0_12px_rgba(255,215,0,0.6)] z-20 pointer-events-none">
+          👑
+        </div>
+      )}
+    </div>
+  );
 }
 
 function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) {
   const isFirst = rank === 1;
-  const height = isFirst ? 'h-40 sm:h-48' : rank === 2 ? 'h-32 sm:h-36' : 'h-28 sm:h-28';
-  
-  const colorClass = isFirst ? 'text-gold' : rank === 2 ? 'text-slate-500 dark:text-slate-300' : 'text-amber-700 dark:text-amber-600';
-  const borderClass = isFirst ? 'border-gold' : rank === 2 ? 'border-slate-500 dark:border-slate-400' : 'border-amber-700 dark:border-amber-600';
-  const bgColor = isFirst ? 'from-gold/20 to-gold/5 border-gold/30' : rank === 2 ? 'from-slate-500/20 to-slate-500/5 border-slate-500/30 dark:from-slate-400/20 dark:to-slate-400/5 dark:border-slate-400/30' : 'from-amber-700/20 to-amber-700/5 border-amber-700/30 dark:from-amber-600/20 dark:to-amber-600/5 dark:border-amber-600/30';
-  
-  const initial = (entry.top_partner_name?.[0] || entry.username?.[0] || 'A').toUpperCase();
+  const height = isFirst ? 'h-40 sm:h-48' : rank === 2 ? 'h-32 sm:h-36' : 'h-24 sm:h-28';
 
-  const delay = isFirst ? 0.3 : rank === 2 ? 0 : 0.15;
+  const colorClass =
+    isFirst
+      ? 'text-gold'
+      : rank === 2
+      ? 'text-slate-400 dark:text-slate-300'
+      : 'text-amber-700 dark:text-amber-500';
+  const borderClass =
+    isFirst
+      ? 'border-gold'
+      : rank === 2
+      ? 'border-slate-400 dark:border-slate-300'
+      : 'border-amber-700 dark:border-amber-500';
+  const bgGradient =
+    isFirst
+      ? 'from-gold/20 to-gold/5 border-gold/30'
+      : rank === 2
+      ? 'from-slate-400/20 to-slate-400/5 border-slate-400/30 dark:from-slate-300/15 dark:to-slate-300/5 dark:border-slate-300/25'
+      : 'from-amber-700/20 to-amber-700/5 border-amber-700/30 dark:from-amber-500/15 dark:to-amber-500/5 dark:border-amber-500/25';
+
+  // Stagger: 3rd rises first (delay 0), 2nd (delay 0.08), 1st last (delay 0.18)
+  const delay = isFirst ? 0.18 : rank === 2 ? 0.08 : 0;
+  const riseY = isFirst ? 32 : rank === 2 ? 20 : 14;
+  const avatarSize = isFirst ? 'h-16 w-16 sm:h-[72px] sm:w-[72px]' : 'h-13 w-13 sm:h-14 sm:w-14';
 
   return (
-    <motion.div 
-      initial={{ y: 30, opacity: 0, scale: 0.98 }}
-      animate={{ y: 0, opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay }}
-      className={`flex flex-col items-center w-24 sm:w-32 transition-transform duration-700 hover:-translate-y-1`}
+    <motion.div
+      initial={{ y: riseY, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay }}
+      className="flex flex-col items-center w-24 sm:w-32 hover:-translate-y-1 transition-transform duration-300"
     >
-      <div className="relative mb-3">
-        <div className={`h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-elevated border-2 grid place-items-center font-display text-xl sm:text-2xl shadow-[0_0_20px_-5px_currentColor] z-10 relative ${colorClass} ${borderClass}`}>
-          {initial}
+      {/* Dual avatar lockup */}
+      <div className="relative mb-3 flex items-end justify-center">
+        {/* Partner avatar (small, offset back-right) */}
+        <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center z-0">
+          {entry.top_partner_avatar ? (
+            <img src={entry.top_partner_avatar} alt={entry.top_partner_name} className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-white text-[9px] font-bold">
+              {(entry.top_partner_name?.[0] || '?').toUpperCase()}
+            </span>
+          )}
         </div>
-        {isFirst && <div className="absolute -top-5 -right-3 text-3xl animate-pulse drop-shadow-[0_0_15px_rgba(255,215,0,0.5)] z-20">👑</div>}
+        {/* Main user avatar (front) */}
+        <PodiumAvatar
+          avatarUrl={entry.avatar_url}
+          name={entry.username}
+          size={avatarSize}
+          colorClass={colorClass}
+          borderClass={borderClass}
+          crown={isFirst}
+        />
       </div>
+
+      {/* Label */}
       <div className="text-center mb-3 w-full px-1">
-        <div className="text-xs sm:text-sm font-medium text-foreground truncate">{entry.top_partner_name || entry.username}</div>
-        <div className="text-[10px] text-muted-foreground truncate">by @{entry.username}</div>
-        <div className={`text-xl font-score mt-1 drop-shadow-sm ${colorClass}`}>{entry.average_score}</div>
+        <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
+          {entry.top_partner_name || entry.username}
+        </div>
+        <div className="text-[9px] text-muted-foreground truncate">@{entry.username}</div>
+        <div className={`text-xl font-score mt-0.5 ${colorClass}`}>{entry.average_score}</div>
       </div>
-      <div className={`w-full ${height} rounded-t-2xl bg-gradient-to-b ${bgColor} border-t border-x flex flex-col items-center justify-start pt-3 sm:pt-4 shadow-inner relative overflow-hidden backdrop-blur-md`}>
-        <div className="absolute inset-0 bg-white/5 opacity-50" />
-        <span className={`font-score text-4xl sm:text-5xl leading-none relative z-10 ${colorClass}`}>{rank}</span>
+
+      {/* Podium block */}
+      <div
+        className={`w-full ${height} rounded-t-2xl bg-gradient-to-b ${bgGradient} border-t border-x flex flex-col items-center justify-start pt-3 sm:pt-4 shadow-inner relative overflow-hidden backdrop-blur-md`}
+      >
+        <div className="absolute inset-0 bg-white/5 opacity-40" />
+        <span className={`font-score text-4xl sm:text-5xl leading-none relative z-10 ${colorClass}`}>
+          {rank}
+        </span>
       </div>
     </motion.div>
   );
@@ -94,9 +173,14 @@ export default function RanksPage() {
 
   return (
     <main className="pb-48 w-full min-h-screen bg-transparent relative">
-      <header className="px-5 pb-3 pt-6 max-w-7xl mx-auto">
-        <p className="text-xs uppercase tracking-[0.25em] text-gold">The Standings</p>
-        <h1 className="font-display text-3xl italic text-foreground">Leaderboard</h1>
+      {/* Header — eyebrow + headline + stat block */}
+      <header className="px-5 pb-2 pt-8 max-w-7xl mx-auto">
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-2">The Standings</p>
+        <h1 className="font-display text-5xl sm:text-6xl italic text-foreground leading-none mb-5">Leaderboard</h1>
+        <div className="flex items-end gap-3 mb-1">
+          <span className="font-score text-5xl leading-none text-foreground">12,402</span>
+          <span className="text-muted-foreground text-sm mb-1">couples ranked globally</span>
+        </div>
       </header>
 
       <div className="relative z-10 px-5 py-3">
@@ -142,7 +226,7 @@ export default function RanksPage() {
             <h3 className="font-display italic text-2xl text-foreground mb-2">No couples found here</h3>
             <p className="text-muted-foreground max-w-sm mb-8 mx-auto text-sm leading-relaxed">
               {scope === 'Local' 
-                ? "Be the first couple to claim the throne in your area. Share your story to get started."
+                ? "No one near you has scored yet. The local throne is unclaimed. Fix that."
                 : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
             </p>
             <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
@@ -178,33 +262,70 @@ export default function RanksPage() {
                     className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
                     whileHover={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
                   >
-                    <div
-                      className="font-score text-3xl leading-none text-muted-foreground"
-                      style={{ width: 44 }}
-                    >
+                    {/* Rank number */}
+                    <div className="font-score text-2xl leading-none text-muted-foreground/50 shrink-0 w-9 text-center">
                       {e.rank}
                     </div>
+
+                    {/* Dual mini avatar */}
+                    <div className="relative h-9 w-11 shrink-0">
+                      {/* Partner avatar (back) */}
+                      <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                        {e.top_partner_avatar ? (
+                          <img src={e.top_partner_avatar} alt={e.top_partner_name} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-white text-[8px] font-bold">
+                            {(e.top_partner_name?.[0] || '?').toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      {/* User avatar (front) */}
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
+                        {e.avatar_url ? (
+                          <img src={e.avatar_url} alt={e.username} className="h-full w-full object-cover" />
+                        ) : (
+                          <span className="text-white text-[9px] font-bold">
+                            {(e.username?.[0] || '?').toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Names */}
                     <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium text-foreground">{e.top_partner_name || e.username}</div>
-                      <div className="truncate text-xs text-muted-foreground">
-                        by @{e.username} · {e.total_posts} posts
+                      <div className="truncate text-sm font-semibold text-foreground">
+                        {e.top_partner_name || e.username}
+                      </div>
+                      <div className="truncate text-[10px] text-muted-foreground">
+                        @{e.username} · {e.total_posts} posts
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-score text-2xl leading-none relative overflow-hidden h-[24px]" style={{ color: scoreColor(e.average_score) }}>
-                        <AnimatePresence mode="popLayout">
-                          <motion.div
-                            key={e.average_score}
-                            initial={{ opacity: 0, y: 15 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -15 }}
-                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                          >
-                            <AnimatedNumber value={e.average_score} instant={true} />
-                          </motion.div>
-                        </AnimatePresence>
-                      </div>
+
+                    {/* Score */}
+                    <div className="font-score text-2xl leading-none relative overflow-hidden h-[24px] shrink-0" style={{ color: scoreColor(e.average_score) }}>
+                      <AnimatePresence mode="popLayout">
+                        <motion.div
+                          key={e.average_score}
+                          initial={{ opacity: 0, y: 14 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -14 }}
+                          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
+                        >
+                          <AnimatedNumber value={e.average_score} instant={true} />
+                        </motion.div>
+                      </AnimatePresence>
                     </div>
+
+                    {/* Rank change indicator */}
+                    {typeof (e as any).rank_change === 'number' && (e as any).rank_change !== 0 && (
+                      <div className={`flex items-center gap-0.5 text-[10px] font-bold shrink-0 ${(e as any).rank_change > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                        {(e as any).rank_change > 0
+                          ? <TrendingUp className="h-3 w-3" />
+                          : <TrendingDown className="h-3 w-3" />
+                        }
+                        {Math.abs((e as any).rank_change)}
+                      </div>
+                    )}
                   </motion.li>
                 ))}
               </motion.ol>

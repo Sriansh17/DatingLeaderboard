@@ -41,6 +41,9 @@ export interface Story {
   sus: number;
   suspectedFabrication?: boolean;
   postedAt: string;
+  // Avatar URLs for the dual lockup
+  userAvatarUrl?: string | null;
+  partnerAvatarUrl?: string | null;
 }
 
 export const stories: Story[] = [

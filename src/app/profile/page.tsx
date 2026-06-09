@@ -4,6 +4,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { StoryCard } from '@/components/ui/StoryCard';
 import { usePosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
+import { tierForScore } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo } from 'react';
 import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings } from 'lucide-react';
@@ -89,11 +90,25 @@ export default function ProfilePage() {
     <main className="w-full mx-auto min-h-screen bg-transparent relative pb-32 px-4 sm:px-8">
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-3">The Archives</p>
-          <h1 className="font-display text-5xl sm:text-6xl italic text-foreground leading-none">My Profile</h1>
+          <motion.p
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-2"
+          >
+            The Archives
+          </motion.p>
+          <motion.h1
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.06, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="font-display text-5xl sm:text-6xl italic text-foreground leading-none"
+          >
+            My Profile
+          </motion.h1>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-[10px] font-bold uppercase tracking-widest text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             Edit Profile
           </button>
           <button onClick={async () => {
@@ -110,11 +125,11 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           
           {/* Left Panel: Identity */}
-          <div className="md:col-span-1 rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl">
-            <h2 className="font-display text-3xl text-foreground mb-1">@{profile.username}</h2>
-            <p className="text-xs font-medium text-success mb-8">Premium User</p>
-            <div className="relative group cursor-pointer mb-4" onClick={() => setIsAvatarModalOpen(true)}>
-              <div className="h-48 w-48 rounded-full border-4 border-elevated shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] bg-transparent flex items-center justify-center font-display text-6xl text-muted-foreground overflow-hidden">
+          <div className="md:col-span-1 rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl gap-5">
+            
+            {/* Avatar */}
+            <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
+              <div className="h-44 w-44 rounded-full border-4 border-elevated shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] bg-transparent flex items-center justify-center font-display text-6xl text-muted-foreground overflow-hidden">
                 {profile.avatar_url ? (
                   <img src={profile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
                 ) : (
@@ -125,6 +140,29 @@ export default function ProfilePage() {
                 <span className="text-xs font-bold uppercase tracking-widest text-white">Edit Photo</span>
               </div>
             </div>
+
+            {/* Username + tier */}
+            <div>
+              <h2 className="font-display text-2xl italic text-foreground leading-tight">@{profile.username}</h2>
+              <span className="inline-flex items-center mt-2 px-3 py-1 rounded-full border border-gold/30 bg-gold/10 text-gold text-xs font-semibold">
+                {tierForScore(avgScore)}
+              </span>
+            </div>
+
+            {/* City + streak row */}
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              {(profile.city || meta.city) && (
+                <span className="text-xs text-muted-foreground font-medium">
+                  📍 {meta.city || profile.city}
+                </span>
+              )}
+              {streak && (
+                <span className="inline-flex items-center gap-1 text-xs text-orange-500 font-semibold">
+                  <Flame className="h-3.5 w-3.5 fill-orange-500" /> {streak.currentStreak}d streak
+                </span>
+              )}
+            </div>
+
           </div>
 
           {/* Right Panel: Bio & Details */}
@@ -198,15 +236,15 @@ export default function ProfilePage() {
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Avg Score</div>
-                <div className="font-score text-2xl text-[#f4cdda]"><AnimatedNumber value={avgScore} delay={0.2} /></div>
+                <div className="font-score text-2xl text-primary"><AnimatedNumber value={avgScore} delay={0.2} /></div>
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Best Score</div>
-                <div className="font-score text-2xl text-[#e8c39e]"><AnimatedNumber value={bestScore} delay={0.4} /></div>
+                <div className="font-score text-2xl text-gold"><AnimatedNumber value={bestScore} delay={0.4} /></div>
               </div>
               <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Partners</div>
-                <div className="font-score text-2xl text-[#f4cdda]">{partners.length}</div>
+                <div className="font-score text-2xl text-primary">{partners.length}</div>
               </div>
             </div>
           </div>
@@ -306,10 +344,10 @@ export default function ProfilePage() {
           ) : (
             <div className="text-center py-16">
               <h3 className="text-lg font-display italic text-foreground mb-2">The archives are empty</h3>
-              <p className="text-muted-foreground text-sm mb-6">Share your first appreciation post to get scored!</p>
+              <p className="text-muted-foreground text-sm mb-6">No verdicts yet. The board is waiting to judge.</p>
               <Link href="/posts/new">
                 <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-white/10 bg-black/5 dark:bg-white/5 px-6 py-2.5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
-                  Share Your First Post
+                  Claim your first verdict
                 </button>
               </Link>
             </div>

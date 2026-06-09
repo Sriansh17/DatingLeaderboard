@@ -93,10 +93,10 @@ export function SignupForm() {
       <button 
         type="submit" 
         disabled={loading} 
-        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50"
       >
-        <span>Create Account</span>
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        <span>{loading ? 'Creating account...' : 'Create Account'}</span>
+        {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
       </button>
     </form>
   );

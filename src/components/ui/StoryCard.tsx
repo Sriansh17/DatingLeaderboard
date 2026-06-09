@@ -142,19 +142,61 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
               style={{ background: `conic-gradient(from 0deg, transparent 0deg, transparent 270deg, rgb(var(--primary)) 360deg)`, transform: 'translateZ(0)' }}
             />
           </div>
+
+          {/* Legendary ambient gold glow */}
+          {story.score >= 90 && (
+            <div
+              className="absolute inset-0 pointer-events-none rounded-[2rem] z-0 opacity-[0.04] dark:opacity-[0.08]"
+              style={{ background: `radial-gradient(ellipse at 50% 0%, rgb(var(--gold)) 0%, transparent 70%)` }}
+            />
+          )}
           
           {/* The solid background that covers the middle, leaving only a 1px border stroke visible */}
-          <div className="absolute inset-[1px] bg-card rounded-[2rem] z-0 border border-border transition-colors duration-500" />
+          <div className={`absolute inset-[1px] bg-card rounded-[2rem] z-0 border transition-colors duration-500 ${
+            story.score >= 97
+              ? 'border-gold/40'
+              : story.score >= 90
+              ? 'border-gold/20'
+              : 'border-border'
+          }`} />
           
           <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-8 sm:mb-10 mt-2">
-            <div className="flex flex-col gap-1 min-w-0 flex-1 pr-4">
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 w-full">
-                <span className="text-foreground dark:text-white font-bold tracking-tight text-lg sm:text-xl break-words">{story.username}</span>
-                <span className="text-muted-foreground dark:text-white/30 text-sm">×</span>
-                <span className="text-foreground/80 dark:text-white/80 font-medium text-base sm:text-lg break-words">{story.partnerNickname}</span>
+            {/* Dual avatar lockup + names */}
+            <div className="flex items-center gap-3 min-w-0 flex-1 pr-4">
+              {/* Overlapping avatar pair */}
+              <div className="relative flex-shrink-0 h-10 w-[52px]">
+                {/* Partner avatar (back) */}
+                <div className="absolute right-0 top-0 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                  {story.partnerAvatarUrl ? (
+                    <img src={story.partnerAvatarUrl} alt={story.partnerNickname} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-white text-[11px] font-bold leading-none">
+                      {story.partnerNickname.charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                {/* User avatar (front) */}
+                <div className="absolute left-0 top-0 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
+                  {story.userAvatarUrl ? (
+                    <img src={story.userAvatarUrl} alt={story.username} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-white text-[11px] font-bold leading-none">
+                      {story.username.replace('@', '').charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
               </div>
-              <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground dark:text-white/40 mt-1">
-                {story.city} • {story.postedAt}
+
+              {/* Names */}
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                  <span className="text-foreground dark:text-white font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>
+                  <span className="text-muted-foreground dark:text-white/30 text-xs">×</span>
+                  <span className="text-foreground/80 dark:text-white/70 font-medium text-sm sm:text-base truncate max-w-[100px]">{story.partnerNickname}</span>
+                </div>
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground dark:text-white/35">
+                  {story.city}{story.city ? ' · ' : ''}{story.postedAt}
+                </div>
               </div>
             </div>
             

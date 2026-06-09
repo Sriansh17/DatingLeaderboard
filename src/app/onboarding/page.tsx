@@ -1,43 +1,393 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
-import { Heart, Sparkles, ArrowRight, User, Compass, Star, Settings, ArrowLeft, Palette } from 'lucide-react';
+import { Sparkles, ArrowRight, Compass, Star, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAtmosphere } from '@/components/providers/AtmosphereProvider';
 import { PartnerForm } from '@/components/partners/PartnerForm';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useTransform, useAnimate, stagger } from 'framer-motion';
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const TOTAL_STEPS = 7;
 
 const GOALS = [
-  "Be more thoughtful",
-  "Plan better dates",
-  "Remember important moments",
-  "Improve communication",
-  "Create lasting memories"
+  'Be more thoughtful',
+  'Plan better dates',
+  'Remember important moments',
+  'Improve communication',
+  'Create lasting memories',
 ];
 
-const PREFERENCES = [
-  "Words of Affirmation",
-  "Acts of Service",
-  "Receiving Gifts",
-  "Quality Time",
-  "Physical Touch"
+const LOVE_LANGUAGES = [
+  'Words of Affirmation',
+  'Acts of Service',
+  'Receiving Gifts',
+  'Quality Time',
+  'Physical Touch',
 ];
+
+const RELATIONSHIP_STATUSES = [
+  'Dating',
+  'Engaged',
+  'Married',
+  'Long Distance',
+  "It's Complicated",
+];
+
+// ─── Progress Bar — thin bar with heartbeat pulse ────────────────────────────
+
+function ProgressBar({ step, total }: { step: number; total: number }) {
+  const segments = total - 1;
+  const filled = step - 1;
+  const pct = (filled / segments) * 100;
+
+  return (
+    <div className="flex-1 flex items-center gap-2.5">
+      {/* Track */}
+      <div className="relative flex-1 h-[2px] rounded-full bg-black/10 dark:bg-white/10">
+        {/* Filled portion */}
+        <motion.div
+          className="absolute left-0 top-0 h-full rounded-full"
+          style={{
+            background: 'linear-gradient(90deg, rgb(var(--primary)) 0%, rgb(var(--gold)) 100%)',
+          }}
+          animate={{ width: `${pct}%` }}
+          transition={{ type: 'spring', stiffness: 60, damping: 20 }}
+        />
+
+        {/* Heartbeat dot at the leading edge */}
+        {pct > 0 && pct < 100 && (
+          <motion.div
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+            animate={{ left: `${pct}%` }}
+            transition={{ type: 'spring', stiffness: 60, damping: 20 }}
+          >
+            {/* Pulse ring */}
+            <motion.div
+              className="absolute rounded-full bg-primary/30"
+              animate={{ scale: [1, 2.8], opacity: [0.6, 0] }}
+              transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
+              style={{ width: 10, height: 10, top: 0, left: 0 }}
+            />
+            {/* Core dot */}
+            <div className="relative w-2.5 h-2.5 rounded-full bg-primary shadow-[0_0_6px_2px_rgba(var(--primary),0.6)]" />
+          </motion.div>
+        )}
+      </div>
+
+      {/* Step counter */}
+      <span className="text-[10px] font-bold tabular-nums text-muted-foreground/40 shrink-0">
+        {filled}/{segments}
+      </span>
+    </div>
+  );
+}
+
+// ─── Magnetic Spotlight Card ──────────────────────────────────────────────────
+
+function SpotlightCard({
+  label,
+  selected,
+  onClick,
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  const ref = useRef<HTMLButtonElement>(null);
+  const mx = useMotionValue(0.5);
+  const my = useMotionValue(0.5);
+  const rotateX = useTransform(my, [0, 1], [3, -3]);
+  const rotateY = useTransform(mx, [0, 1], [-3, 3]);
+
+  const onMove = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      if (!ref.current) return;
+      const r = ref.current.getBoundingClientRect();
+      mx.set((e.clientX - r.left) / r.width);
+      my.set((e.clientY - r.top) / r.height);
+    },
+    [mx, my],
+  );
+  const onLeave = useCallback(() => {
+    mx.set(0.5);
+    my.set(0.5);
+  }, [mx, my]);
+
+  // spotlight position as % string — recompute on render; framer handles the rest
+  const spotX = `${mx.get() * 100}%`;
+  const spotY = `${my.get() * 100}%`;
+
+  return (
+    <motion.button
+      ref={ref}
+      onClick={onClick}
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      style={{ rotateX, rotateY, transformPerspective: 800 }}
+      whileTap={{ scale: 0.975 }}
+      aria-pressed={selected}
+      className={`relative w-full text-left px-6 py-5 rounded-2xl overflow-hidden transition-colors duration-300 ${
+        selected ? 'border border-primary/50' : 'border border-black/8 dark:border-white/8'
+      }`}
+    >
+      {/* Frosted glass base */}
+      <div className="absolute inset-0 bg-white/40 dark:bg-white/[0.04] backdrop-blur-sm" />
+
+      {/* Moving spotlight */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: `radial-gradient(circle at ${spotX} ${spotY}, rgba(var(--primary), 0.12) 0%, transparent 65%)`,
+          opacity: selected ? 1 : 0,
+        }}
+        whileHover={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      />
+
+      {/* Selection ring + blush aura */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            key="ring"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 rounded-2xl pointer-events-none"
+            style={{
+              boxShadow:
+                '0 0 0 1.5px rgb(var(--primary) / 0.45), 0 0 28px -4px rgb(var(--primary) / 0.18)',
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <span className="relative z-10 font-medium text-lg text-foreground">{label}</span>
+    </motion.button>
+  );
+}
+
+// ─── Select Pill ──────────────────────────────────────────────────────────────
+
+function SelectPill({
+  label,
+  selected,
+  onClick,
+  color = 'primary',
+}: {
+  label: string;
+  selected: boolean;
+  onClick: () => void;
+  color?: 'primary' | 'blush';
+}) {
+  const active =
+    color === 'blush'
+      ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_18px_-2px_rgb(var(--primary)/0.25)]'
+      : 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_18px_-2px_rgb(var(--primary)/0.25)]';
+
+  return (
+    <motion.button
+      whileTap={{ scale: 0.94 }}
+      onClick={onClick}
+      aria-pressed={selected}
+      className={`flex items-center gap-2 px-5 py-3 rounded-full border text-sm font-medium transition-all duration-300 ${
+        selected
+          ? active
+          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+      }`}
+    >
+      <AnimatePresence>
+        {selected && (
+          <motion.span
+            key="dot"
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 6, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="block h-1.5 w-1.5 rounded-full bg-primary shrink-0"
+          />
+        )}
+      </AnimatePresence>
+      {label}
+    </motion.button>
+  );
+}
+
+// ─── Step transition variants ─────────────────────────────────────────────────
+
+const variants = {
+  enter: { opacity: 0, filter: 'blur(10px)', scale: 0.975, y: 16 },
+  center: { opacity: 1, filter: 'blur(0px)', scale: 1, y: 0 },
+  exit: { opacity: 0, filter: 'blur(6px)', scale: 0.985, y: -10 },
+};
+
+// ─── Cinematic Intro ──────────────────────────────────────────────────────────
+
+function CinematicIntro({ onStart }: { onStart: () => void }) {
+  const [scope, animate] = useAnimate();
+
+  useEffect(() => {
+    const seq = async () => {
+      // Phase 0 — hold darkness
+      await animate(scope.current, { opacity: 1 }, { duration: 0 });
+
+      // Phase 1 — glow bloom behind wordmark
+      await animate('#intro-glow', { opacity: [0, 0.6], scale: [0.4, 1.2] }, { duration: 1.4, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 2 — sparkle drops in
+      await animate('#intro-sparkle', { opacity: [0, 1], y: [-20, 0], scale: [0.6, 1], rotate: [-15, 0] }, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 3 — "Fond." rises from blur
+      await animate('#intro-wordmark', { opacity: [0, 1], y: [40, 0], filter: ['blur(24px)', 'blur(0px)'] }, { duration: 1.0, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 4 — tagline fades up
+      await animate('#intro-tagline', { opacity: [0, 1], y: [12, 0] }, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 5 — hold 0.6s, then brand block floats up
+      await new Promise(r => setTimeout(r, 600));
+      animate('#intro-brand', { y: [0, -48] }, { duration: 1.0, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 6 — "How Fond works" rises from below
+      await animate('#intro-how', { opacity: [0, 1], y: [60, 0] }, { duration: 0.75, ease: [0.16, 1, 0.3, 1] });
+
+      // Phase 7 — rows slide in one by one
+      await animate('.intro-row', { opacity: [0, 1], x: [-20, 0], filter: ['blur(8px)', 'blur(0px)'] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: stagger(0.18) });
+
+      // Phase 8 — CTA appears
+      await animate('#intro-cta', { opacity: [0, 1], y: [20, 0], scale: [0.95, 1] }, { duration: 0.6, ease: [0.16, 1, 0.3, 1] });
+    };
+    seq();
+  }, []);
+
+  return (
+    <div ref={scope} className="flex-1 flex flex-col justify-center items-center text-center opacity-0">
+
+      {/* Ambient glow bloom */}
+      <div
+        id="intro-glow"
+        className="pointer-events-none fixed inset-0 flex items-center justify-center opacity-0"
+        aria-hidden
+      >
+        <div className="w-[60vw] h-[60vw] max-w-[500px] max-h-[500px] rounded-full bg-primary/20 blur-[80px]" />
+      </div>
+
+      {/* Brand block */}
+      <div id="intro-brand" className="flex flex-col items-center mb-2">
+        <div id="intro-sparkle" className="opacity-0 mb-5">
+          <Sparkles className="h-8 w-8 text-gold" style={{ filter: 'drop-shadow(0 0 12px rgba(199,169,107,0.8))' }} />
+        </div>
+
+        <h1
+          id="intro-wordmark"
+          className="opacity-0 font-display text-[76px] sm:text-[92px] italic font-bold tracking-tight leading-none bg-gradient-to-br from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent"
+        >
+          Fond.
+        </h1>
+
+        <p
+          id="intro-tagline"
+          className="opacity-0 text-muted-foreground text-base leading-relaxed mt-3 max-w-[260px]"
+        >
+          The AI doesn&apos;t care about your feelings.
+        </p>
+      </div>
+
+      {/* How Fond works */}
+      <div id="intro-how" className="opacity-0 w-full max-w-xs mt-6">
+        <p className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold mb-5 text-center">
+          How Fond works
+        </p>
+        <div className="space-y-4">
+          {[
+            { n: '01', headline: 'Your partner did something.', sub: 'You describe it. In one sentence or twenty.', color: 'text-primary' },
+            { n: '02', headline: 'The AI judges it. Brutally.', sub: 'Scored out of 100. No mercy. No favourites.', color: 'text-gold' },
+            { n: '03', headline: 'The whole world sees it.', sub: 'Compete with couples in your city — and on the planet.', color: 'text-primary' },
+          ].map((row) => (
+            <div key={row.n} className="intro-row opacity-0 flex items-start gap-4 text-left">
+              <span className={`font-score text-3xl leading-none shrink-0 mt-0.5 ${row.color}`}>
+                {row.n}
+              </span>
+              <div>
+                <p className="font-display italic text-base text-foreground leading-snug">{row.headline}</p>
+                <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{row.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Glass CTA */}
+      <div id="intro-cta" className="opacity-0 w-full max-w-xs mt-8">
+        <button
+          onClick={onStart}
+          className="relative w-full overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/15 hover:shadow-[0_0_50px_-4px_rgba(199,169,107,0.4)] active:scale-[0.98]"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
+          <span className="relative z-10 flex items-center gap-2.5">
+            Start my archive <ArrowRight className="h-4 w-4" />
+          </span>
+        </button>
+      </div>
+
+    </div>
+  );
+}
+
+// ─── Main ─────────────────────────────────────────────────────────────────────
 
 export default function OnboardingFlow() {
   const [step, setStep] = useState(1);
-  const { user, loading: authLoading } = useUser();
+  const { user, profile, loading: authLoading, refreshProfile } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isPreview = searchParams.get('preview') === '1';
   const { addToast } = useToast();
 
-  const [status, setStatus] = useState<string>('');
+  const [status, setStatus] = useState('');
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
   const { theme, setTheme } = useTheme();
-  const { particlesEnabled: showBubbles, setParticlesEnabled: setShowBubbles, atmosphere, setAtmosphere } = useAtmosphere();
+  const { particlesEnabled, setParticlesEnabled, atmosphere, setAtmosphere } = useAtmosphere();
+
+  const [rippleKey, setRippleKey] = useState(0);
+  const [ripplePos, setRipplePos] = useState<{ x: number; y: number } | null>(null);
+  const [muted, setMuted] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Autoplay intro music — play on first user interaction (browser requirement)
+  useEffect(() => {
+    const audio = new Audio('/audio/intro.mp3');
+    audio.loop = true;
+    audio.volume = 0.35;
+    audioRef.current = audio;
+
+    const tryPlay = () => {
+      audio.play().catch(() => {});
+      window.removeEventListener('pointerdown', tryPlay);
+    };
+
+    // Try immediately (works if coming from a click like signup/login)
+    audio.play().catch(() => {
+      // Blocked — wait for next tap
+      window.addEventListener('pointerdown', tryPlay, { once: true });
+    });
+
+    return () => {
+      audio.pause();
+      audio.src = '';
+      window.removeEventListener('pointerdown', tryPlay);
+    };
+  }, []);
+
+  // Sync mute state
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.muted = muted;
+  }, [muted]);
 
   if (authLoading) return null;
   if (!user) {
@@ -45,376 +395,512 @@ export default function OnboardingFlow() {
     return null;
   }
 
-  const handlePartnerCreated = () => {
-    setStep(4);
+  // Guard — already onboarded users go straight to dashboard (bypass with ?preview=1)
+  if (profile && profile.has_onboarded && !isPreview) {
+    router.replace('/dashboard');
+    return null;
+  }
+
+  const goTo = (n: number) => {
+    // Fade out music when leaving the intro
+    if (n > 1 && audioRef.current) {
+      const audio = audioRef.current;
+      const fadeOut = setInterval(() => {
+        if (audio.volume > 0.03) {
+          audio.volume = Math.max(0, audio.volume - 0.04);
+        } else {
+          audio.pause();
+          clearInterval(fadeOut);
+        }
+      }, 80);
+    }
+    setStep(n);
+    if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' });
+  };
+
+  const handleAtmosphereClick = (
+    id: typeof atmosphere,
+    e: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setRipplePos({ x: r.left + r.width / 2, y: r.top + r.height / 2 });
+    setRippleKey((k) => k + 1);
+    setTimeout(() => setAtmosphere(id), 100);
   };
 
   const completeOnboarding = async () => {
-    // Only set basic preferences locally if needed, do not overwrite bio
-    addToast("Welcome to Fond! Your journey begins now.", "success");
+    const supabase = createClient();
+    await supabase
+      .from('profiles')
+      .update({
+        has_onboarded: true,
+        relationship_status: status || null,
+        onboarding_goals: selectedGoals.length ? selectedGoals : null,
+        love_languages: selectedLanguages.length ? selectedLanguages : null,
+      })
+      .eq('id', user.id);
+    await refreshProfile();
+    addToast('Welcome to Fond. Your archive begins now.', 'success');
     router.push('/dashboard');
   };
 
-  const toggleSelection = (item: string, list: string[], setList: (l: string[]) => void) => {
-    if (list.includes(item)) setList(list.filter(i => i !== item));
-    else setList([...list, item]);
-  };
+  const toggle = (
+    item: string,
+    list: string[],
+    setList: (l: string[]) => void,
+  ) => setList(list.includes(item) ? list.filter((i) => i !== item) : [...list, item]);
 
   return (
     <div className="relative min-h-[100dvh] w-full flex flex-col bg-transparent text-foreground overflow-x-hidden">
-      {/* We rely entirely on AtmosphereProvider for the background now! */}
 
-      <div className="relative z-10 flex-1 flex flex-col max-w-2xl mx-auto w-full px-6 py-6 sm:py-12">
-        {/* Navigation / Progress bar */}
-        <div className="flex items-center gap-4 mb-8 sm:mb-12">
-          {step > 1 && (
-            <button onClick={() => setStep(step - 1)} className="p-2 rounded-full hover:bg-white/10 transition-colors shrink-0">
-              <ArrowLeft className="h-5 w-5" />
+      {/* Mute toggle — top right */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 0.4 }}
+        onClick={() => setMuted(m => !m)}
+        className="fixed top-5 right-5 z-50 p-2.5 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-white/60 hover:text-white hover:bg-black/40 transition-all"
+        aria-label={muted ? 'Unmute' : 'Mute'}
+      >
+        {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+      </motion.button>
+
+      {/* ── Ripple overlay ── */}
+      <AnimatePresence>
+        {ripplePos && (
+          <motion.div
+            key={rippleKey}
+            initial={{ scale: 0, opacity: 0.35 }}
+            animate={{ scale: 20, opacity: 0 }}
+            transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
+            onAnimationComplete={() => setRipplePos(null)}
+            className="fixed pointer-events-none z-50 rounded-full"
+            style={{
+              left: ripplePos.x - 56,
+              top: ripplePos.y - 56,
+              width: 112,
+              height: 112,
+              background:
+                'radial-gradient(circle, rgba(var(--primary), 0.22) 0%, transparent 70%)',
+            }}
+          />
+        )}
+      </AnimatePresence>
+
+      <div className="relative z-10 flex-1 flex flex-col max-w-2xl mx-auto w-full px-6 py-6 sm:py-10">
+
+        {/* ── Top bar ── */}
+        <div className="flex items-center gap-5 mb-10 sm:mb-14">
+          {step > 1 ? (
+            <button
+              onClick={() => goTo(step - 1)}
+              className="p-2 -ml-2 rounded-full hover:bg-black/6 dark:hover:bg-white/8 transition-colors shrink-0"
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-[18px] w-[18px]" />
             </button>
+          ) : (
+            <div className="w-8 shrink-0" />
           )}
-          <div className="flex-1 mt-2">
-            <div className="flex gap-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8].map(i => (
-                <div key={i} className={`h-1 flex-1 rounded-full transition-colors duration-500 ${step >= i ? 'bg-primary' : 'bg-black/10 dark:bg-white/10'}`} />
-              ))}
-            </div>
-          </div>
+          {/* Hide bar on step 1 — cinematic intro doesn't need progress */}
+          {step > 1 && <ProgressBar step={step} total={TOTAL_STEPS} />}
         </div>
 
-        <div className="flex-1 flex flex-col animate-in slide-in-from-right-8 fade-in duration-500" key={step}>
-          
-          {step === 1 && (
-            <div className="flex-1 flex flex-col justify-center text-center">
-              <div className="mx-auto flex items-center justify-center mb-8">
-                <Sparkles className="h-16 w-16 text-gold animate-pulse-glow" />
-              </div>
-              <h1 className="font-display text-7xl italic font-bold tracking-tight mb-6 bg-gradient-to-br from-foreground to-foreground/60 bg-clip-text text-transparent">
-                Fond.
-              </h1>
-              <p className="text-muted-foreground text-xl mb-12 max-w-md mx-auto leading-relaxed font-medium">
-                The most elegant way to document your romance, score your thoughtful moments, and cherish your love story.
-              </p>
-              <button 
-                onClick={() => setStep(2)}
-                className="mx-auto w-full max-w-xs flex items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] uppercase tracking-[0.2em] text-[10px]"
-              >
-                Begin Journey <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
+        {/* ── Animated step content ── */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={step}
+            variants={variants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            className="flex-1 flex flex-col"
+          >
 
-          {step === 2 && (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-3">Step 2 of 8</div>
-              <h1 className="font-display text-4xl italic font-bold mb-2">What is your relationship status?</h1>
-              <p className="text-muted-foreground mb-8">This helps us tailor your insights and reminders.</p>
-              
-              <div className="space-y-3">
-                {['Dating', 'Engaged', 'Married', 'Long Distance', 'It\'s Complicated'].map(s => (
+            {/* ══════════ STEP 1 — Welcome ══════════ */}
+            {step === 1 && (
+              <CinematicIntro onStart={() => goTo(2)} />
+            )}
+
+            {/* ══════════ STEP 2 — Relationship Status ══════════ */}
+            {step === 2 && (
+              <div className="flex-1 flex flex-col justify-center">
+                <Eyebrow step={step} />
+                <h1 className="font-display text-4xl italic font-bold mb-2 mt-1">
+                  What&apos;s your status?
+                </h1>
+                <p className="text-muted-foreground text-sm mb-8 leading-relaxed">
+                  Helps us tailor your insights and frame your leaderboard story.
+                </p>
+                <div className="space-y-3">
+                  {RELATIONSHIP_STATUSES.map((s) => (
+                    <SpotlightCard
+                      key={s}
+                      label={s}
+                      selected={status === s}
+                      onClick={() => {
+                        setStatus(s);
+                        setTimeout(() => goTo(3), 260);
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* ══════════ STEP 3 — Partner ══════════ */}
+            {step === 3 && (
+              <div className="flex-1 flex flex-col">
+                <Eyebrow step={step} />
+                <h1 className="font-display text-4xl italic font-bold mb-1 mt-1">
+                  Introduce your partner
+                </h1>
+                <p className="text-muted-foreground text-sm mb-5">
+                  Who are we celebrating? You can always add more later.
+                </p>
+                <div className="rounded-2xl border border-black/8 dark:border-white/8 bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
+                  <PartnerForm userId={user.id} onSuccess={() => goTo(4)} />
+                </div>
+                <button
+                  onClick={() => goTo(4)}
+                  className="mt-4 text-center text-muted-foreground text-sm font-medium hover:text-foreground transition-colors py-2"
+                >
+                  Skip for now
+                </button>
+              </div>
+            )}
+
+            {/* ══════════ STEP 4 — Goals ══════════ */}
+            {step === 4 && (
+              <div className="flex-1 flex flex-col justify-center">
+                <Eyebrow step={step} />
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] uppercase tracking-widest font-semibold mb-4 w-fit">
+                  <Compass className="h-3 w-3" /> Goals
+                </div>
+                <h1 className="font-display text-4xl italic font-bold mb-2">
+                  What do you want here?
+                </h1>
+                <p className="text-muted-foreground text-sm mb-8">
+                  Select all that apply — this shapes your AI coaching.
+                </p>
+                <div className="flex flex-wrap gap-3 mb-10">
+                  {GOALS.map((g) => (
+                    <SelectPill
+                      key={g}
+                      label={g}
+                      selected={selectedGoals.includes(g)}
+                      onClick={() => toggle(g, selectedGoals, setSelectedGoals)}
+                    />
+                  ))}
+                </div>
+                <div className="mt-auto flex flex-col gap-3">
                   <button
-                    key={s}
-                    onClick={() => { setStatus(s); setTimeout(() => setStep(3), 300); }}
-                    className={`w-full text-left px-6 py-5 rounded-2xl border transition-all ${status === s ? 'border-blush bg-blush/10 text-blush shadow-[0_0_20px_rgba(255,107,152,0.1)]' : 'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground'}`}
+                    onClick={() => goTo(5)}
+                    disabled={selectedGoals.length === 0}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-35"
                   >
-                    <span className="font-medium text-lg">{s}</span>
+                    Continue <ArrowRight className="h-4 w-4" />
                   </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {step === 3 && (
-            <div className="flex-1 flex flex-col">
-              <div className="mt-8 text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-3">Step 3 of 8</div>
-              <h1 className="font-display text-4xl italic font-bold mb-2">Introduce your partner</h1>
-              <p className="text-muted-foreground mb-8">Who are we celebrating today?</p>
-              
-              <div className="bg-card/50 rounded-3xl border border-border dark:border-white/10 p-6 backdrop-blur-xl shadow-sm">
-                <PartnerForm userId={user.id} onSuccess={handlePartnerCreated} />
-              </div>
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="mb-8">
-                <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-3">Step 4 of 8</div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-xs uppercase tracking-widest font-semibold">
-                  <Compass className="h-3.5 w-3.5" /> Goals
+                  <button
+                    onClick={() => goTo(5)}
+                    className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
+                  >
+                    Skip for now
+                  </button>
                 </div>
               </div>
-              <h1 className="font-display text-4xl italic font-bold mb-2">What do you want to achieve?</h1>
-              <p className="text-muted-foreground mb-8">Select all that apply.</p>
-              
-              <div className="flex flex-wrap gap-3 mb-12">
-                {GOALS.map(goal => {
-                  const isSelected = selectedGoals.includes(goal);
-                  return (
+            )}
+
+            {/* ══════════ STEP 5 — Love Languages ══════════ */}
+            {step === 5 && (
+              <div className="flex-1 flex flex-col justify-center">
+                <Eyebrow step={step} />
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-widest font-semibold mb-4 w-fit">
+                  <Star className="h-3 w-3" /> Love Language
+                </div>
+                <h1 className="font-display text-4xl italic font-bold mb-2">
+                  How do they receive love?
+                </h1>
+                <p className="text-muted-foreground text-sm mb-8">
+                  This makes the AI&apos;s scoring personal — the more accurate, the sharper the
+                  insight.
+                </p>
+                <div className="flex flex-wrap gap-3 mb-10">
+                  {LOVE_LANGUAGES.map((l) => (
+                    <SelectPill
+                      key={l}
+                      label={l}
+                      selected={selectedLanguages.includes(l)}
+                      onClick={() => toggle(l, selectedLanguages, setSelectedLanguages)}
+                      color="blush"
+                    />
+                  ))}
+                </div>
+                <div className="mt-auto flex flex-col gap-3">
+                  <button
+                    onClick={() => goTo(6)}
+                    disabled={selectedLanguages.length === 0}
+                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-35"
+                  >
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </button>
+                  <button
+                    onClick={() => goTo(6)}
+                    className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
+                  >
+                    Skip for now
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* ══════════ STEP 6 — Aesthetics ══════════ */}
+            {step === 6 && (
+              <div className="flex-1 flex flex-col">
+                <Eyebrow step={step} />
+                <h1 className="font-display text-4xl italic font-bold mb-1 mt-1">Choose your world.</h1>
+                <p className="text-muted-foreground text-sm mb-5">You'll live in it.</p>
+
+                {/* Theme toggle — always visible, above the grid */}
+                <div className="flex items-center gap-2 mb-5">
+                  {[
+                    { id: 'dark' as const, label: '🌙 Dark' },
+                    { id: 'light' as const, label: '☀️ Light' },
+                  ].map((t) => (
                     <button
-                      key={goal}
-                      onClick={() => toggleSelection(goal, selectedGoals, setSelectedGoals)}
-                      className={`px-5 py-3 rounded-full border transition-all ${isSelected ? 'border-primary bg-primary/20 text-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.2)]' : 'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground'}`}
+                      key={t.id}
+                      onClick={() => setTheme(t.id)}
+                      className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
+                        theme === t.id
+                          ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
+                          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+                      }`}
                     >
-                      {goal}
+                      {t.label}
                     </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-auto flex flex-col gap-3">
-                <button 
-                  onClick={() => setStep(5)}
-                  disabled={selectedGoals.length === 0}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-50"
-                >
-                  Continue <ArrowRight className="h-4 w-4" />
-                </button>
-                <button onClick={() => setStep(5)} className="text-muted-foreground font-medium text-sm py-2 hover:text-foreground transition-colors">
-                  Skip for now
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 5 && (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="mb-8">
-                <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-3">Step 5 of 8</div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blush/10 border border-blush/20 text-blush text-xs uppercase tracking-widest font-semibold">
-                  <Star className="h-3.5 w-3.5" /> Personalization
-                </div>
-              </div>
-              <h1 className="font-display text-4xl italic font-bold mb-2">What is their Love Language?</h1>
-              <p className="text-muted-foreground mb-8">This helps our AI score your efforts more accurately.</p>
-              
-              <div className="flex flex-wrap gap-3 mb-12">
-                {PREFERENCES.map(pref => {
-                  const isSelected = selectedLanguages.includes(pref);
-                  return (
-                    <button
-                      key={pref}
-                      onClick={() => toggleSelection(pref, selectedLanguages, setSelectedLanguages)}
-                      className={`px-5 py-3 rounded-full border transition-all ${isSelected ? 'border-blush bg-blush/20 text-blush shadow-[0_0_15px_rgba(255,107,152,0.2)]' : 'border-black/10 dark:border-white/10 bg-black/5 dark:bg-white/5 hover:bg-black/10 dark:hover:bg-white/10 text-foreground'}`}
-                    >
-                      {pref}
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="mt-auto flex flex-col gap-3">
-                <button 
-                  onClick={() => setStep(6)}
-                  disabled={selectedLanguages.length === 0}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-50"
-                >
-                  Continue <ArrowRight className="h-4 w-4" />
-                </button>
-                <button onClick={() => setStep(6)} className="text-muted-foreground font-medium text-sm py-2 hover:text-foreground transition-colors">
-                  Skip for now
-                </button>
-              </div>
-            </div>
-          )}
-
-          {step === 6 && (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="mb-8">
-                <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-3">Step 6 of 8</div>
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-xs uppercase tracking-widest font-semibold">
-                  <Palette className="h-3.5 w-3.5" /> Aesthetics
-                </div>
-              </div>
-              <h1 className="font-display text-4xl italic font-bold mb-2">Customize your vibe</h1>
-              <p className="text-muted-foreground mb-8">Make Fond feel like your own.</p>
-              
-              <div className="space-y-8 mb-12">
-                <div className="space-y-4">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Theme Preferences</h3>
-                  <div className="flex flex-wrap gap-3">
-                    <button 
-                      onClick={() => setTheme('dark')}
-                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all ${theme === 'dark' ? 'border-primary bg-primary/10 text-primary shadow-glow' : 'border-border bg-card hover:bg-elevated text-foreground'}`}
-                    >
-                      <span className="text-base">🌙</span>
-                      <span className="font-semibold text-sm">Dark</span>
-                    </button>
-                    <button 
-                      onClick={() => setTheme('light')}
-                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all ${theme === 'light' ? 'border-primary bg-primary/10 text-primary shadow-glow' : 'border-border bg-card hover:bg-elevated text-foreground'}`}
-                    >
-                      <span className="text-base">☀️</span>
-                      <span className="font-semibold text-sm">Light</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Atmosphere Gradients</h3>
-                  <div className="flex flex-wrap gap-3">
-                    {([
-                      { id: 'soft-blush', name: 'Soft Blush', color: 'bg-rose-300' },
-                      { id: 'mesh-rose', name: 'Mesh Rose', color: 'bg-pink-500' },
-                      { id: 'vignette-rose', name: 'Vignette', color: 'bg-rose-900' },
-                      { id: 'prismatic-rose', name: 'Prismatic', color: 'bg-gradient-to-r from-pink-400 to-gold' },
-                      { id: 'aura', name: 'Aura Glow', color: 'bg-purple-400' }
-                    ] as const).map(atm => (
-                      <button 
-                        key={atm.id}
-                        onClick={() => setAtmosphere(atm.id)}
-                        className={`flex items-center gap-3 px-4 py-2.5 rounded-full border transition-all ${atmosphere === atm.id ? 'border-primary bg-primary/10 text-primary shadow-glow' : 'border-border bg-card hover:bg-elevated text-foreground'}`}
-                      >
-                        <div className={`w-3.5 h-3.5 rounded-full shadow-inner ${atm.color}`} />
-                        <span className="font-semibold text-sm">{atm.name}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80">Magic Particles</h3>
-                  <div className="flex flex-wrap gap-3">
-                    <button 
-                      onClick={() => setShowBubbles(true)}
-                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all ${showBubbles ? 'border-gold/50 bg-gold/10 text-gold shadow-[0_0_15px_rgba(255,215,0,0.2)]' : 'border-border bg-card hover:bg-elevated text-foreground'}`}
-                    >
-                      <span className="text-base">✨</span>
-                      <span className="font-semibold text-sm">Bubbles On</span>
-                    </button>
-                    <button 
-                      onClick={() => setShowBubbles(false)}
-                      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border transition-all ${!showBubbles ? 'border-primary bg-primary/10 text-primary shadow-glow' : 'border-border bg-card hover:bg-elevated text-foreground'}`}
-                    >
-                      <span className="text-base">☁️</span>
-                      <span className="font-semibold text-sm">Minimal</span>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <button 
-                onClick={() => setStep(7)}
-                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] mt-auto"
-              >
-                Continue <ArrowRight className="h-4 w-4" />
-              </button>
-            </div>
-          )}
-
-          {step === 7 && (
-            <div className="flex-1 flex flex-col justify-center">
-              <div className="mb-8 flex flex-col items-center">
-                <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground mb-6">Step 7 of 8</div>
-                <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-2xl flex items-center justify-center border border-black/10 dark:border-white/10 shadow-sm">
-                  <Settings className="h-8 w-8 text-foreground" />
-                </div>
-              </div>
-              <h1 className="font-display text-4xl italic font-bold mb-6 text-center">How Fond Works</h1>
-              
-              <div className="space-y-10 relative before:absolute before:inset-y-0 before:left-[35px] before:w-[2px] before:bg-gradient-to-b before:from-primary/20 before:via-blush/20 before:to-gold/20 py-4">
-                <motion.div 
-                  initial={{ opacity: 0, x: -30, scale: 0.95 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ delay: 0.2, type: "spring", stiffness: 100 }}
-                  className="relative flex gap-8 items-start"
-                >
-                  <div className="shrink-0 h-[72px] w-[72px] rounded-full bg-background border-4 border-card flex items-center justify-center text-primary font-bold shadow-lg shadow-primary/20 z-10 text-2xl font-display italic">1</div>
-                  <div className="pt-3">
-                    <h3 className="font-display italic text-3xl text-foreground">Document the Magic</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mt-2">Chronicle the small gestures and grand dates. The more detail, the richer the memory.</p>
-                  </div>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, x: -30, scale: 0.95 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ delay: 0.4, type: "spring", stiffness: 100 }}
-                  className="relative flex gap-8 items-start"
-                >
-                  <div className="shrink-0 h-[72px] w-[72px] rounded-full bg-background border-4 border-card flex items-center justify-center text-blush font-bold shadow-lg shadow-blush/20 z-10 text-2xl font-display italic">2</div>
-                  <div className="pt-3">
-                    <h3 className="font-display italic text-3xl text-foreground">AI Scoring & Insights</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mt-2">Our AI delicately analyzes your posts based on Romance, Thoughtfulness, and Effort.</p>
-                  </div>
-                </motion.div>
-                <motion.div 
-                  initial={{ opacity: 0, x: -30, scale: 0.95 }}
-                  animate={{ opacity: 1, x: 0, scale: 1 }}
-                  transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
-                  className="relative flex gap-8 items-start"
-                >
-                  <div className="shrink-0 h-[72px] w-[72px] rounded-full bg-background border-4 border-card flex items-center justify-center text-gold font-bold shadow-lg shadow-gold/20 z-10 text-2xl font-display italic">3</div>
-                  <div className="pt-3">
-                    <h3 className="font-display italic text-3xl text-foreground">Climb the Leaderboard</h3>
-                    <p className="text-muted-foreground text-sm leading-relaxed mt-2">Make it public to compete with couples worldwide on the relationship leaderboard.</p>
-                  </div>
-                </motion.div>
-              </div>
-
-              <button 
-                onClick={() => setStep(8)}
-                className="mt-8 w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02]"
-              >
-                I understand
-              </button>
-            </div>
-          )}
-
-          {step === 8 && (
-            <div className="flex-1 flex flex-col justify-center text-center relative">
-              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <motion.div 
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-                  className="w-[60vw] h-[60vw] md:w-96 md:h-96 rounded-full bg-primary/30 blur-[100px]"
-                />
-              </div>
-
-              <div className="relative z-10">
-                <div className="mb-12 h-20 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-                  {"The canvas is blank. The story is yours.".split(" ").map((word, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.2 + i * 0.15, duration: 0.8, ease: "easeOut" }}
-                      className="font-display italic text-3xl md:text-4xl text-muted-foreground/80"
-                    >
-                      {word}
-                    </motion.span>
                   ))}
                 </div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 2, duration: 0.8 }}
-                >
-                  <h1 className="font-display text-6xl italic font-bold tracking-tight mb-12 text-foreground drop-shadow-lg">
-                    You're all set.
-                  </h1>
-                </motion.div>
+                {/* Large atmosphere preview tiles */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+                  {(
+                    [
+                      {
+                        id: 'soft-blush' as const,
+                        name: 'Soft Blush',
+                        bg: 'bg-gradient-to-br from-rose-200 to-rose-100 dark:from-rose-900/60 dark:to-rose-800/30',
+                        accent: 'text-rose-600 dark:text-rose-300',
+                      },
+                      {
+                        id: 'mesh-rose' as const,
+                        name: 'Mesh Rose',
+                        bg: 'bg-gradient-to-br from-pink-400 via-rose-300 to-amber-200 dark:from-pink-800/60 dark:via-rose-700/40 dark:to-amber-800/30',
+                        accent: 'text-pink-700 dark:text-pink-300',
+                      },
+                      {
+                        id: 'vignette-rose' as const,
+                        name: 'Vignette',
+                        bg: 'bg-[radial-gradient(circle_at_center,rgba(209,47,88,0.5)_0%,rgba(10,5,8,0.9)_100%)]',
+                        accent: 'text-rose-400',
+                      },
+                      {
+                        id: 'prismatic-rose' as const,
+                        name: 'Prismatic',
+                        bg: 'bg-[conic-gradient(from_180deg_at_50%_50%,rgba(244,63,94,0.7),rgba(251,191,36,0.7),rgba(244,63,94,0.7))]',
+                        accent: 'text-white',
+                      },
+                      {
+                        id: 'aura' as const,
+                        name: 'Aura',
+                        bg: 'bg-[radial-gradient(circle_at_top_left,rgba(232,69,107,0.9)_0%,transparent_60%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.8)_0%,transparent_60%)] bg-[#120E15]',
+                        accent: 'text-rose-300',
+                      },
+                      {
+                        id: 'minimal' as const,
+                        name: 'Minimal',
+                        bg: 'bg-card border border-black/10 dark:border-white/10',
+                        accent: 'text-foreground',
+                      },
+                    ] as const
+                  ).map((atm) => {
+                    const isActive = atmosphere === atm.id;
+                    return (
+                      <button
+                        key={atm.id}
+                        onClick={(e) => handleAtmosphereClick(atm.id, e)}
+                        className={`relative h-24 rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
+                          isActive
+                            ? 'border-white/80 shadow-[0_0_20px_rgba(255,255,255,0.2)] scale-[1.03]'
+                            : 'border-transparent hover:border-white/30 hover:scale-[1.01]'
+                        } ${atm.bg}`}
+                        aria-pressed={isActive}
+                        title={atm.name}
+                      >
+                        {/* Name label */}
+                        <div className="absolute inset-0 flex flex-col items-center justify-end pb-2.5 bg-gradient-to-t from-black/20 to-transparent">
+                          <span className={`text-[10px] font-bold uppercase tracking-widest drop-shadow-lg ${atm.accent}`}>
+                            {atm.name}
+                          </span>
+                        </div>
+                        {/* Selected checkmark */}
+                        {isActive && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            transition={{ type: 'spring', stiffness: 400, damping: 20 }}
+                            className="absolute top-2 right-2 h-5 w-5 rounded-full bg-white/90 flex items-center justify-center shadow-lg"
+                          >
+                            <svg className="h-3 w-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                            </svg>
+                          </motion.div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
 
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 2.5, duration: 0.6 }}
+                {/* Particles toggle */}
+                <label className="flex items-center gap-3 cursor-pointer mb-6 group w-fit">
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={particlesEnabled}
+                      onChange={(e) => setParticlesEnabled(e.target.checked)}
+                      className="sr-only"
+                    />
+                    <div className={`h-5 w-9 rounded-full transition-colors duration-300 ${particlesEnabled ? 'bg-gold' : 'bg-black/15 dark:bg-white/15'}`} />
+                    <motion.div
+                      animate={{ x: particlesEnabled ? 16 : 2 }}
+                      transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                      className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"
+                    />
+                  </div>
+                  <span className="text-sm text-foreground font-medium group-hover:text-foreground/80 transition-colors">
+                    ✨ Enable magic particles
+                  </span>
+                </label>
+
+                <button
+                  onClick={() => goTo(7)}
+                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] mt-auto"
                 >
-                  <button 
-                    onClick={completeOnboarding}
-                    className="mx-auto w-full max-w-sm relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 font-bold text-gold shadow-[0_0_30px_rgba(255,215,0,0.15)] transition-all hover:scale-[1.02] hover:bg-gold/20 hover:shadow-[0_0_40px_rgba(255,215,0,0.3)] group uppercase tracking-[0.2em] text-[10px]"
-                  >
-                    <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-gold/20 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
-                    <span className="relative z-10 flex items-center gap-3">
-                      Step Into Your Archive <ArrowRight className="h-4 w-4" />
-                    </span>
-                  </button>
-                </motion.div>
+                  Continue <ArrowRight className="h-4 w-4" />
+                </button>
               </div>
-            </div>
-          )}
+            )}
 
-        </div>
+            {/* ══════════ STEP 7 — Finale ══════════ */}
+            {step === 7 && (
+              <div className="flex-1 flex flex-col justify-center text-center relative">
+                {/* Heartbeat aura — 60 BPM */}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
+                  <motion.div
+                    animate={{ scale: [1, 1.14, 1], opacity: [0.2, 0.45, 0.2] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: [0.4, 0, 0.6, 1] }}
+                    className="w-[72vw] h-[72vw] md:w-[480px] md:h-[480px] rounded-full bg-primary/20 blur-[110px]"
+                  />
+                  <motion.div
+                    animate={{ scale: [1, 1.08, 1], opacity: [0.08, 0.18, 0.08] }}
+                    transition={{ duration: 1, repeat: Infinity, ease: [0.4, 0, 0.6, 1], delay: 0.4 }}
+                    className="absolute w-[48vw] h-[48vw] md:w-[300px] md:h-[300px] rounded-full bg-gold/15 blur-[80px]"
+                  />
+                </div>
+
+                <div className="relative z-10">
+                  {/* Word-by-word tagline */}
+                  <div className="mb-12 flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1">
+                    {'The canvas is blank. The story is yours.'.split(' ').map((word, i) => (
+                      <motion.span
+                        key={i}
+                        initial={{ opacity: 0, y: 10, filter: 'blur(6px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        transition={{ delay: 0.15 + i * 0.11, duration: 0.65, ease: 'easeOut' }}
+                        className="font-display italic text-2xl md:text-[2rem] text-muted-foreground/75"
+                      >
+                        {word}
+                      </motion.span>
+                    ))}
+                  </div>
+
+                  <motion.h1
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.7, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+                    className="font-display text-6xl md:text-7xl italic font-bold tracking-tight mb-12 text-foreground"
+                  >
+                    You&apos;re all set.
+                  </motion.h1>
+
+                  {/* Gold sweep CTA */}
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.94 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 2.3, duration: 0.6 }}
+                  >
+                    <button
+                      onClick={completeOnboarding}
+                      className="mx-auto w-full max-w-sm relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/18 hover:shadow-[0_0_40px_-4px_rgba(199,169,107,0.35)]"
+                    >
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
+                      <span className="relative z-10 flex items-center gap-3">
+                        Enter Your Archive <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </button>
+                  </motion.div>
+                </div>
+              </div>
+            )}
+
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
+  );
+}
+
+// ─── Tiny helpers ─────────────────────────────────────────────────────────────
+
+function Eyebrow({ step }: { step: number }) {
+  return (
+    <p className="text-xs uppercase tracking-[0.25em] font-bold text-muted-foreground/60 mb-3">
+      Step {step - 1} of {TOTAL_STEPS - 1}
+    </p>
+  );
+}
+
+function Label({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/70">
+      {children}
+    </p>
+  );
+}
+
+function ToggleChip({
+  label,
+  active,
+  onClick,
+  gold,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  gold?: boolean;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-medium transition-all ${
+        active
+          ? gold
+            ? 'border-gold/50 bg-gold/10 text-gold shadow-[0_0_14px_-2px_rgba(199,169,107,0.25)]'
+            : 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
+          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+      }`}
+    >
+      {label}
+    </button>
   );
 }

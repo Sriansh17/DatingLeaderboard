@@ -61,14 +61,32 @@ export function LoginForm() {
           />
         </div>
       </div>
+
+      <div className="flex justify-end mt-1">
+        <button
+          type="button"
+          onClick={async () => {
+            if (!email) {
+              addToast('Enter your email address first.', 'error');
+              return;
+            }
+            const supabase = createClient();
+            await supabase.auth.resetPasswordForEmail(email);
+            addToast('Password reset link sent — check your inbox.', 'success');
+          }}
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+        >
+          Forgot password?
+        </button>
+      </div>
       
       <button 
         type="submit" 
         disabled={loading} 
-        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50"
       >
-        <span>Sign In</span>
-        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        <span>{loading ? 'Signing in...' : 'Sign In'}</span>
+        {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
       </button>
     </form>
   );
