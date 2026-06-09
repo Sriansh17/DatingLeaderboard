@@ -64,7 +64,7 @@ function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) =
   return (
     <div
       className={cn(
-        'pointer-events-auto flex items-start gap-3 rounded-2xl border px-4 py-3 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300',
+        'pointer-events-auto flex items-center gap-3 rounded-2xl border px-4 py-3 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300',
         style.border,
         isLeaving ? 'animate-out fade-out slide-out-to-top-4' : 'animate-in fade-in slide-in-from-top-4'
       )}

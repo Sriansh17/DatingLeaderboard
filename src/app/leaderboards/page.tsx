@@ -10,6 +10,7 @@ import { useLeaderboard } from "@/lib/hooks/useLeaderboard";
 import { useUser } from "@/components/providers/AuthProvider";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Spinner } from "@/components/ui/Spinner";
+import Link from 'next/link';
 
 const scopes = ["Global", "Country", "Local"] as const;
 
@@ -124,7 +125,7 @@ export default function RanksPage() {
             ? "Top couples worldwide"
             : scope === "Country"
             ? (profile as any)?.country ? `Top in ${(profile as any).country}` : "Set your country in profile"
-            : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"}
+            : latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"}
         </p>
       </div>
 
@@ -134,8 +135,19 @@ export default function RanksPage() {
             <Spinner size="lg" text={["TALLYING STANDINGS...", "INITIALIZING FOND...", "CALCULATING SCORES..."]} />
           </div>
         ) : !entries || entries.length === 0 ? (
-          <div className="text-center py-20 text-muted-foreground">
-            <p className="text-lg font-medium">No entries yet</p>
+          <div className="flex flex-col items-center justify-center py-32 text-center px-4">
+            <div className="w-16 h-16 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center mb-6 shadow-inner">
+              <span className="text-3xl">🏆</span>
+            </div>
+            <h3 className="font-display italic text-2xl text-foreground mb-2">No couples found here</h3>
+            <p className="text-muted-foreground max-w-sm mb-8 mx-auto text-sm leading-relaxed">
+              {scope === 'Local' 
+                ? "Be the first couple to claim the throne in your area. Share your story to get started."
+                : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
+            </p>
+            <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
+              Submit a Post
+            </Link>
           </div>
         ) : (
           <>
@@ -149,48 +161,54 @@ export default function RanksPage() {
             )}
 
             {/* List */}
-            <motion.ol className="space-y-2 px-4 pb-4 pt-2">
-              {(top3.length < 3 ? entries : rest).map((e, index) => (
-                <motion.li
-                  layout
-                  initial={{ opacity: 0, y: 20, scale: 0.98 }}
-                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-10px" }}
-                  transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                  key={e.user_id}
-                  className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
-                  whileHover={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
-                >
-                  <div
-                    className="font-score text-3xl leading-none text-muted-foreground"
-                    style={{ width: 44 }}
+            {entries.length <= 3 ? (
+              <div className="text-center py-12 px-4">
+                <p className="text-muted-foreground italic font-display text-lg">These are all the couples on the leaderboard so far! Share a post to join them.</p>
+              </div>
+            ) : (
+              <motion.ol className="space-y-2 px-4 pb-4 pt-2">
+                {entries.slice(3).map((e, index) => (
+                  <motion.li
+                    layout
+                    initial={{ opacity: 0, y: 20, scale: 0.98 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, margin: "-10px" }}
+                    transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                    key={e.user_id}
+                    className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
+                    whileHover={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
                   >
-                    {e.rank}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate text-sm font-medium text-foreground">{e.top_partner_name || e.username}</div>
-                    <div className="truncate text-xs text-muted-foreground">
-                      by @{e.username} · {e.total_posts} posts
+                    <div
+                      className="font-score text-3xl leading-none text-muted-foreground"
+                      style={{ width: 44 }}
+                    >
+                      {e.rank}
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-score text-2xl leading-none relative overflow-hidden h-[24px]" style={{ color: scoreColor(e.average_score) }}>
-                      <AnimatePresence mode="popLayout">
-                        <motion.div
-                          key={e.average_score}
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -15 }}
-                          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-                        >
-                          <AnimatedNumber value={e.average_score} instant={true} />
-                        </motion.div>
-                      </AnimatePresence>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">{e.top_partner_name || e.username}</div>
+                      <div className="truncate text-xs text-muted-foreground">
+                        by @{e.username} · {e.total_posts} posts
+                      </div>
                     </div>
-                  </div>
-                </motion.li>
-              ))}
-            </motion.ol>
+                    <div className="text-right">
+                      <div className="font-score text-2xl leading-none relative overflow-hidden h-[24px]" style={{ color: scoreColor(e.average_score) }}>
+                        <AnimatePresence mode="popLayout">
+                          <motion.div
+                            key={e.average_score}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                          >
+                            <AnimatedNumber value={e.average_score} instant={true} />
+                          </motion.div>
+                        </AnimatePresence>
+                      </div>
+                    </div>
+                  </motion.li>
+                ))}
+              </motion.ol>
+            )}
           </>
         )}
       </div>

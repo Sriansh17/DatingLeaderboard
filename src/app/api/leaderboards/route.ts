@@ -93,7 +93,8 @@ export async function GET(request: Request) {
 
         // Filter by location
         if (type === 'local') {
-          // Only filter if we have valid coordinates
+          let matchedLoc = false;
+          // Only filter by distance if we have valid coordinates
           if (latitude && longitude && parseFloat(latitude) !== 0 && parseFloat(longitude) !== 0) {
             const dist = calculateDistance(
               parseFloat(latitude),
@@ -101,10 +102,17 @@ export async function GET(request: Request) {
               p.latitude || 0,
               p.longitude || 0
             );
-            return dist <= 10; // 10km radius
+            if (dist <= 25) { // 25km radius
+              console.log(`[Leaderboard] User ${p.username} is in local range (${dist.toFixed(1)}km)`);
+              matchedLoc = true;
+            }
           }
-          // No location data — show all (same as global)
-          return true;
+          // Fallback to strict city string match if distance fails or coordinates are missing
+          if (!matchedLoc && city && p.city?.toLowerCase() === city.toLowerCase()) {
+            console.log(`[Leaderboard] User ${p.username} matched by city string fallback (${city})`);
+            matchedLoc = true;
+          }
+          return matchedLoc;
         }
         if (type === 'city' && city) {
           return p.city?.toLowerCase() === city.toLowerCase();

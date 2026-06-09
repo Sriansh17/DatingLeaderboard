@@ -14,14 +14,16 @@ import { Share2 } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
 import { motion } from 'framer-motion';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
+import { Spinner } from '@/components/ui/Spinner';
 
 export default function ProfilePage() {
-  const { user, profile, loading: authLoading } = useUser();
+  const { user, profile, loading: authLoading, signOut } = useUser();
   const { data: posts, isLoading } = usePosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { openShare } = useShare();
 
   const streak = useMemo(() => {
@@ -44,6 +46,12 @@ export default function ProfilePage() {
       }
     }
   }, [posts]);
+
+  if (isLoggingOut) return (
+    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
+      <Spinner size="lg" text={["SIGNING OUT..."]} />
+    </div>
+  );
 
   if (authLoading) return (
     <div className="py-20 text-center animate-pulse">
@@ -88,9 +96,9 @@ export default function ProfilePage() {
           <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-[10px] font-bold uppercase tracking-widest text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             Edit Profile
           </button>
-          <button onClick={() => {
-            const supabase = createClient();
-            supabase.auth.signOut().then(() => window.location.href = '/');
+          <button onClick={async () => {
+            setIsLoggingOut(true);
+            await signOut();
           }} className="p-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             <LogOut className="h-5 w-5" />
           </button>

@@ -131,7 +131,7 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
           initial={{ opacity: 0, filter: "blur(20px)", y: 20 }}
           animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
           transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className={`group/card relative rounded-[2rem] overflow-hidden transition-all duration-500 h-full ${compact ? 'p-5 sm:p-6 min-h-[250px]' : 'p-5 sm:p-8 md:p-10 min-h-[400px]'}`}
+          className={`group/card relative rounded-[2rem] overflow-hidden transition-all duration-500 h-full ${compact ? 'p-4 sm:p-5 min-h-[220px]' : 'p-5 sm:p-8 md:p-10 min-h-[400px]'}`}
         >
           {/* Animated Border Trace on Hover */}
           <div className="absolute inset-[-2px] opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 overflow-hidden rounded-[2rem] z-0">
@@ -144,38 +144,38 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
           </div>
           
           {/* The solid background that covers the middle, leaving only a 1px border stroke visible */}
-          <div className="absolute inset-[1px] bg-card rounded-[2rem] z-0 border border-border group-hover/card:border-transparent transition-colors duration-500" />
+          <div className="absolute inset-[1px] bg-card rounded-[2rem] z-0 border border-border transition-colors duration-500" />
           
-          <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-10 mt-2">
+          <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-8 sm:mb-10 mt-2">
             <div className="flex flex-col gap-1 min-w-0 flex-1 pr-4">
               <div className="flex flex-wrap items-center gap-x-2 gap-y-1 w-full">
-                <span className="text-foreground dark:text-white font-bold tracking-tight text-xl break-words">{story.username}</span>
+                <span className="text-foreground dark:text-white font-bold tracking-tight text-lg sm:text-xl break-words">{story.username}</span>
                 <span className="text-muted-foreground dark:text-white/30 text-sm">×</span>
-                <span className="text-foreground/80 dark:text-white/80 font-medium text-lg break-words">{story.partnerNickname}</span>
+                <span className="text-foreground/80 dark:text-white/80 font-medium text-base sm:text-lg break-words">{story.partnerNickname}</span>
               </div>
-              <div className="text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground dark:text-white/40 mt-1">
+              <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.3em] font-bold text-muted-foreground dark:text-white/40 mt-1">
                 {story.city} • {story.postedAt}
               </div>
             </div>
             
             <div className="flex-shrink-0 relative">
-              <ScoreRing score={story.score} size={compact ? 50 : 80} />
+              <ScoreRing score={story.score} size={compact ? 44 : 80} />
             </div>
           </header>
 
-          <div className="flex-1 flex flex-col justify-center py-4 relative z-10">
-            <h3 className={`font-display italic leading-[1.1] text-foreground dark:text-white line-clamp-4 transition-all ${compact ? 'text-[1.75rem] sm:text-[2rem]' : 'text-[2.75rem]'}`}>
+          <div className="flex-1 flex flex-col justify-center py-2 sm:py-4 relative z-10">
+            <h3 className={`font-display italic leading-[1.1] text-foreground dark:text-white line-clamp-4 transition-all ${compact ? 'text-xl sm:text-2xl md:text-[2rem]' : 'text-[2.75rem]'}`}>
               &quot;{story.headline}&quot;
             </h3>
-            <div className={compact ? "mt-6" : "mt-10"}>
-              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary dark:text-white/50 block mb-3">AI Verdict</span>
-              <p className={`text-foreground/80 dark:text-white/80 leading-relaxed font-sans font-light ${compact ? 'text-sm line-clamp-3' : 'text-base line-clamp-2'}`}>
+            <div className={compact ? "mt-4 sm:mt-6" : "mt-10"}>
+              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary dark:text-white/50 block mb-2 sm:mb-3">AI Verdict</span>
+              <p className={`text-foreground/80 dark:text-white/80 leading-relaxed font-sans font-light ${compact ? 'text-xs sm:text-sm line-clamp-3' : 'text-base line-clamp-2'}`}>
                 {story.verdict}
               </p>
             </div>
           </div>
           
-          <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border dark:border-white/10 ${compact ? 'mt-6 pt-4' : 'mt-10 pt-6'}`}>
+          <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border dark:border-white/10 ${compact ? 'mt-4 sm:mt-6 pt-3 sm:pt-4' : 'mt-10 pt-6'}`}>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button 
                 onClick={(e) => handleReact(e, 'Heart')}

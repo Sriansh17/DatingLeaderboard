@@ -5,18 +5,8 @@ const cn = (...classes: (string | undefined | null | false)[]) => classes.filter
 interface AvatarPickerProps {
   currentAvatar: string | null;
   onSelect: (url: string) => void;
+  selectedGender?: string;
 }
-
-const AVATARS_2D = [
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Felix&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Mia&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Oliver&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Sophia&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Leo&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Ava&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Avery&backgroundColor=transparent",
-  "https://api.dicebear.com/7.x/notionists/svg?seed=Riley&backgroundColor=transparent",
-];
 
 const AVATARS_3D = [
   "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Grinning%20Face%20with%20Big%20Eyes.png",
@@ -29,10 +19,20 @@ const AVATARS_3D = [
   "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Robot.png",
   "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Partying%20Face.png",
   "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Smiling%20Face%20with%20Horns.png",
-  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Nerd%20Face.png"
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Nerd%20Face.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Zany%20Face.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Face%20with%20Monocle.png",
+  "https://raw.githubusercontent.com/Tarikul-Islam-Anik/Animated-Fluent-Emojis/master/Emojis/Smilies/Ghost.png"
 ];
 
-export function AvatarPicker({ currentAvatar, onSelect }: AvatarPickerProps) {
+const SEEDS = {
+  // Swapped male and female seeds based on feedback!
+  female: ["Mia", "Sophia", "Ava", "Avery", "Riley", "Isabella", "Emma", "Olivia", "Charlotte", "Amelia", "Harper", "Evelyn"],
+  male: ["Felix", "Oliver", "Leo", "Jack", "Noah", "Liam", "Mason", "Ethan", "James", "William", "Lucas", "Henry"],
+  other: ["Taylor", "Jordan", "Casey", "Riley", "Alex", "Morgan", "Avery", "Quinn", "Sam", "Jamie", "Drew", "Parker"]
+};
+
+export function AvatarPicker({ currentAvatar, onSelect, selectedGender }: AvatarPickerProps) {
   const renderGrid = (avatars: string[]) => (
     <div className="flex overflow-x-auto snap-x hide-scrollbar gap-3 pb-2">
       {avatars.map((url, idx) => {
@@ -72,13 +72,16 @@ export function AvatarPicker({ currentAvatar, onSelect }: AvatarPickerProps) {
     </div>
   );
 
+  const genderKey = (selectedGender === 'male' || selectedGender === 'female' || selectedGender === 'other') ? selectedGender : 'other';
+  const current2DAvatars = SEEDS[genderKey].map(s => `https://api.dicebear.com/7.x/notionists/svg?seed=${s}&backgroundColor=transparent`);
+
   return (
     <div className="w-full flex flex-col gap-6 pt-2">
       <div>
         <label className="block text-[10px] uppercase tracking-[0.2em] font-bold text-muted-foreground/80 mb-3">
           2D Avatars
         </label>
-        {renderGrid(AVATARS_2D)}
+        {renderGrid(current2DAvatars)}
       </div>
 
       <div>

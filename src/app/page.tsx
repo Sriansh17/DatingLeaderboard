@@ -12,7 +12,7 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-transparent">
       {/* Nav */}
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
+      <header className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5">
         <span className="font-display text-lg italic text-gold flex items-center gap-2">
           <Sparkles className="h-4 w-4" /> Fond
         </span>
@@ -34,7 +34,7 @@ export default function LandingPage() {
       </header>
 
       {/* Hero */}
-      <section className="mx-auto grid max-w-6xl gap-10 px-6 pb-20 pt-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
+      <section className="mx-auto grid max-w-[1400px] gap-10 px-6 pb-20 pt-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
         <div className="animate-float-up">
           <span className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1 text-xs text-gold">
             <Sparkles className="h-3.5 w-3.5" /> The world's first relationship leaderboard
@@ -89,7 +89,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it works */}
-      <section className="mx-auto max-w-6xl px-6 py-20">
+      <section className="mx-auto max-w-[1400px] px-6 py-20">
         <p className="text-xs uppercase tracking-[0.3em] text-gold">How it works</p>
         <h2 className="mt-2 font-display text-4xl italic text-foreground">Three steps to a verdict.</h2>
 
@@ -109,7 +109,7 @@ export default function LandingPage() {
       </section>
 
       {/* AI humor showcase */}
-      <section className="mx-auto max-w-6xl px-6 pb-20">
+      <section className="mx-auto max-w-[1400px] px-6 pb-20">
         <p className="text-xs uppercase tracking-[0.3em] text-gold">Receipts</p>
         <h2 className="mt-2 font-display text-4xl italic text-foreground">The verdicts heard 'round the world.</h2>
 
@@ -130,7 +130,7 @@ export default function LandingPage() {
       </section>
 
       {/* Leaderboard preview */}
-      <section className="mx-auto max-w-6xl px-6 pb-20">
+      <section className="mx-auto max-w-[1400px] px-6 pb-20">
         <div className="flex items-end justify-between">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-gold">This week</p>

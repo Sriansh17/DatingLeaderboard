@@ -18,9 +18,21 @@ async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEn
   if (params.page) searchParams.set('page', String(params.page));
   if (params.limit) searchParams.set('limit', String(params.limit));
 
+  console.log('[Leaderboard Hook] Fetching:', params);
+  
   const response = await fetch(`/api/leaderboards?${searchParams}`);
-  if (!response.ok) throw new Error('Failed to fetch leaderboard');
+  if (!response.ok) {
+    const text = await response.text();
+    console.error(`[Leaderboard Hook] Error fetching ${params.type}:`, text);
+    throw new Error(`Failed to fetch leaderboard: ${response.status}`);
+  }
   const json = await response.json();
+  
+  if (!json.success) {
+    console.error(`[Leaderboard Hook] API returned success=false:`, json.error);
+    throw new Error(json.error || 'API returned an error');
+  }
+  
   return json.data;
 }
 
