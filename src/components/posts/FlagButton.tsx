@@ -95,8 +95,8 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
             </button>
           ))}
           <div className="flex gap-3 pt-4">
-            <button 
-              className="flex-1 py-3 rounded-xl border border-white/10 bg-transparent text-foreground hover:bg-white/5 transition-colors font-medium text-sm" 
+            <button
+              className="flex-1 py-3 rounded-xl border border-border bg-elevated/40 text-foreground hover:bg-elevated/60 transition-colors font-medium text-sm"
               onClick={() => setOpen(false)}
             >
               Cancel

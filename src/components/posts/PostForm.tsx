@@ -327,7 +327,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
                 </button>
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="w-full py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                  className="rounded-full border border-border bg-elevated/40 px-5 py-2 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
                 >
                   Back to feed
                 </button>

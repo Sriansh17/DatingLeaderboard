@@ -53,7 +53,7 @@ export default function PostDetailPage() {
       <div className="absolute top-8 left-6 sm:left-12">
         <button
           onClick={() => router.back()}
-          className="inline-flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors group tracking-wide"
+          className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors flex items-center gap-2 group"
         >
           <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
           Back to Feed

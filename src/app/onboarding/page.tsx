@@ -238,7 +238,7 @@ function CinematicIntro({ onStart, audioRef }: { onStart: () => void; audioRef: 
 
     // Audio starts here — inside a real tap/click, browser always allows it
     if (audioRef.current) {
-      audioRef.current.currentTime = 8;
+      audioRef.current.currentTime = 12; // skip past the intro build-up
       audioRef.current.play().catch(() => {});
     }
 
@@ -445,24 +445,50 @@ export default function OnboardingFlow() {
       const audio = audioRef.current;
       const fadeOut = setInterval(() => {
         if (audio.volume > 0.03) {
-          audio.volume = Math.max(0, audio.volume - 0.03);
+          audio.volume = Math.max(0, audio.volume - 0.06);
         } else {
           audio.pause();
           clearInterval(fadeOut);
         }
-      }, 80);
+      }, 60);
     }
-    const supabase = createClient();
-    await supabase
-      .from('profiles')
-      .update({
-        has_onboarded: true,
-        relationship_status: status || null,
-        onboarding_goals: selectedGoals.length ? selectedGoals : null,
-        love_languages: selectedLanguages.length ? selectedLanguages : null,
-      })
-      .eq('id', user.id);
-    await refreshProfile();
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          has_onboarded: true,
+          relationship_status: status || null,
+          onboarding_goals: selectedGoals.length ? selectedGoals : null,
+          love_languages: selectedLanguages.length ? selectedLanguages : null,
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('[Onboarding] DB update failed:', error);
+        addToast('Could not save preferences. Please try again.', 'error');
+        return;
+      }
+
+      await refreshProfile();
+
+      // Verify it was saved
+      const { data: verify } = await supabase
+        .from('profiles')
+        .select('has_onboarded')
+        .eq('id', user.id)
+        .single();
+
+      if (!verify?.has_onboarded) {
+        console.warn('[Onboarding] has_onboarded not persisted after update');
+      }
+    } catch (err) {
+      console.error('[Onboarding] Error:', err);
+      addToast('Something went wrong. Please try again.', 'error');
+      return;
+    }
+
     addToast('Welcome to Fond. Your archive begins now.', 'success');
     router.push('/dashboard');
   };
