@@ -53,7 +53,14 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create post
+    // Fetch user's current city from profile to store on post at creation time
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('city')
+      .eq('id', user.id)
+      .single();
+
+    // Create post — store city now so old posts don't change when profile updates
     const { data, error } = await supabase
       .from('posts')
       .insert({
@@ -64,6 +71,7 @@ export async function POST(request: Request) {
         ai_score: aiResult.score,
         ai_feedback: aiResult.feedback,
         ai_explanation: JSON.stringify(aiResult.breakdown),
+        post_city: profile?.city || null,
       })
       .select('*, partner:partners(*)')
       .single();

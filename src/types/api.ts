@@ -18,14 +18,10 @@ export interface AIScoreResult {
   explanation: string;
   breakdown: {
     thoughtfulness: number;
-    romance: number;
     effort: number;
-    uniqueness: number;
-    emotional_impact: number;
-    ethical_boundaries: number;
-    genuineness: number;
-    equality: number;
-    safety: number;
+    creativity: number;
+    emotional_weight: number;
+    authenticity: number;
   };
   flagged?: boolean;
   flag_reason?: string;

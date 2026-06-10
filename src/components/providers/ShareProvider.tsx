@@ -15,6 +15,14 @@ export interface ShareContent {
   rank?: number;
   city?: string;
   date?: string;
+  streak?: number;
+  bestScore?: number;
+  totalPosts?: number;
+  bio?: string | null;
+  age?: string | null;
+  gender?: string | null;
+  occupation?: string | null;
+  country?: string | null;
 }
 
 interface ShareData {

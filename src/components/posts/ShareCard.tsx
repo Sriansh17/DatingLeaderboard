@@ -5,24 +5,12 @@ import { Button } from '@/components/ui/Button';
 import { useToast } from '@/components/ui/Toast';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Share2 } from 'lucide-react';
+import { tierForScore, TIER_MAP, scoreColor } from '@/lib/mock-data';
 import type { Post } from '@/types/database';
 
 interface ShareCardProps {
   post: Post;
   rank?: number;
-}
-
-const TIERS = [
-  { min: 90, label: 'Legendary', emoji: '👑', color: '#f59e0b' },
-  { min: 80, label: 'Amazing', emoji: '💎', color: '#06b6d4' },
-  { min: 70, label: 'Great', emoji: '⭐', color: '#8b5cf6' },
-  { min: 60, label: 'Sweet', emoji: '💕', color: '#ec4899' },
-  { min: 50, label: 'Nice', emoji: '😊', color: '#22c55e' },
-  { min: 0, label: 'Cute', emoji: '🌱', color: '#a855f7' },
-];
-
-function getTier(score: number) {
-  return TIERS.find((t) => score >= t.min) || TIERS[TIERS.length - 1];
 }
 
 function wrapText(
@@ -65,148 +53,163 @@ export function ShareCard({ post, rank }: ShareCardProps) {
 
     const w = canvas.width;  // 540
     const h = canvas.height; // 960
+    const pad = 40;
 
-    // ── Background ──
-    const gradient = ctx.createLinearGradient(0, 0, w * 0.3, h);
-    gradient.addColorStop(0, '#be185d');
-    gradient.addColorStop(0.3, '#e11d48');
-    gradient.addColorStop(0.6, '#f43f5e');
-    gradient.addColorStop(1, '#7c3aed');
-    ctx.fillStyle = gradient;
+    // ── Background: Fond "After Midnight" velvet gradient ──
+    const bg = ctx.createLinearGradient(0, 0, 0, h);
+    bg.addColorStop(0, '#1E1017');
+    bg.addColorStop(0.35, '#160C12');
+    bg.addColorStop(0.65, '#281620');
+    bg.addColorStop(1, '#160C12');
+    ctx.fillStyle = bg;
     ctx.fillRect(0, 0, w, h);
 
-    // Decorative blobs
-    ctx.globalAlpha = 0.08;
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    ctx.arc(w * 0.85, h * 0.12, 160, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w * 0.1, h * 0.75, 120, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w * 0.9, h * 0.85, 100, 0, Math.PI * 2);
-    ctx.fill();
+    // Ambient orbs — rose glow (top left) and gold glow (bottom right)
+    ctx.globalAlpha = 0.1;
+    const orb1 = ctx.createRadialGradient(w * 0.15, h * 0.08, 0, w * 0.15, h * 0.08, w * 0.55);
+    orb1.addColorStop(0, '#EE6A8C');
+    orb1.addColorStop(1, 'transparent');
+    ctx.fillStyle = orb1;
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.globalAlpha = 0.07;
+    const orb2 = ctx.createRadialGradient(w * 0.85, h * 0.72, 0, w * 0.85, h * 0.72, w * 0.5);
+    orb2.addColorStop(0, '#DCBE78');
+    orb2.addColorStop(1, 'transparent');
+    ctx.fillStyle = orb2;
+    ctx.fillRect(0, 0, w, h);
     ctx.globalAlpha = 1;
 
-    // ── Subtle watermark top-right ──
-    ctx.save();
-    ctx.globalAlpha = 0.15;
-    ctx.fillStyle = '#fff';
-    ctx.font = '12px sans-serif';
+    // ── Header: Fond brand mark ──
+    ctx.fillStyle = '#DCBE78';
+    ctx.font = 'bold 13px "Playfair Display", Georgia, serif';
+    ctx.textAlign = 'left';
+    ctx.fillText('✦ Fond', pad, pad + 14);
+
+    ctx.fillStyle = 'rgba(180,160,168,0.5)';
+    ctx.font = '9px "DM Sans", system-ui, sans-serif';
     ctx.textAlign = 'right';
-    ctx.fillText('LoveBoard', w - 20, 30);
-    ctx.restore();
+    ctx.fillText(`Verdict Nº ${Math.floor((post.ai_score || 50) * 137) % 9999}`, w - pad, pad + 14);
 
-    // ── Funny AI Quip (front and centre) ──
-    const quip = post.ai_feedback || 'Love is in the air! 🫶';
-    ctx.fillStyle = 'rgba(255,255,255,0.95)';
-    ctx.font = 'italic 18px sans-serif';
-    ctx.textAlign = 'center';
-    const quipY = wrapText(ctx, `"${quip}"`, w / 2, 80, 380, 28);
-
-    // ── Partner name ──
-    if (post.partner) {
-      ctx.fillStyle = 'rgba(255,255,255,0.7)';
-      ctx.font = '15px sans-serif';
-      ctx.fillText('— for', w / 2, quipY + 10);
-
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 24px sans-serif';
-      ctx.fillText(`${post.partner.emoji} ${post.partner.name}`, w / 2, quipY + 50);
-    }
-
-    // ── Score ──
+    // ── Score circle — centered, dramatic ──
     const score = post.ai_score || 0;
-    const tier = getTier(score);
-    const scoreCY = quipY + 150;
+    const sColorRGB = scoreColor(score);
+    const scoreCY = 300;
 
-    // Glow ring
-    ctx.shadowColor = 'rgba(255,255,255,0.25)';
-    ctx.shadowBlur = 40;
+    // Outer glow
+    ctx.shadowColor = sColorRGB;
+    ctx.shadowBlur = 50;
     ctx.beginPath();
-    ctx.arc(w / 2, scoreCY, 95, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.arc(w / 2, scoreCY, 90, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,0.2)';
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Score circle
+    // Dark score circle bg
     ctx.beginPath();
-    ctx.arc(w / 2, scoreCY, 80, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
+    ctx.arc(w / 2, scoreCY, 74, 0, Math.PI * 2);
+    ctx.fillStyle = '#281620';
     ctx.fill();
+    ctx.strokeStyle = sColorRGB;
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
 
-    // Score number
-    ctx.fillStyle = '#be185d';
-    ctx.font = 'bold 72px sans-serif';
+    // Score number — big, bold
+    ctx.fillStyle = sColorRGB;
+    ctx.font = 'bold 90px "Bebas Neue", sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(String(score), w / 2, scoreCY + 25);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(String(score), w / 2, scoreCY - 6);
 
-    // "/100"
-    ctx.fillStyle = '#a1a1aa';
-    ctx.font = '16px sans-serif';
-    ctx.fillText('/ 100', w / 2, scoreCY + 55);
+    // "/ 100"
+    ctx.fillStyle = 'rgba(180,160,168,0.7)';
+    ctx.font = '14px "DM Sans", system-ui, sans-serif';
+    ctx.textBaseline = 'alphabetic';
+    ctx.fillText('/ 100', w / 2, scoreCY + 52);
 
     // ── Tier badge ──
-    const badgeY = scoreCY + 100;
-    const badgeW = 160;
-    const badgeH = 36;
+    const tierInfo = TIER_MAP[tierForScore(score)];
+    const badgeY = scoreCY + 120;
+    const badgeW = 240;
+    const badgeH = 44;
     const badgeX = (w - badgeW) / 2;
 
-    ctx.shadowColor = 'rgba(0,0,0,0.15)';
-    ctx.shadowBlur = 12;
+    // Badge bg
+    ctx.fillStyle = 'rgba(220,190,120,0.12)';
+    ctx.strokeStyle = 'rgba(220,190,120,0.3)';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 18);
-    ctx.fillStyle = tier.color;
+    ctx.roundRect(badgeX, badgeY, badgeW, badgeH, 22);
     ctx.fill();
-    ctx.shadowBlur = 0;
+    ctx.stroke();
 
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 17px sans-serif';
+    // Tier name — centered in badge
+    ctx.fillStyle = '#FAF5F3';
+    ctx.font = 'bold 16px "Playfair Display", Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText(`${tier.emoji} ${tier.label}`, w / 2, badgeY + 24);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${tierInfo.emoji}  ${tierInfo.name}`, w / 2, badgeY + badgeH / 2);
+    ctx.textBaseline = 'alphabetic';
 
-    // ── Progress bar ──
-    const barY = badgeY + 65;
-    const barW = 320;
-    const barH = 10;
-    const barX = (w - barW) / 2;
+    // ── Verdict quote ──
+    const verdictY = badgeY + 80;
+    ctx.fillStyle = 'rgba(250,245,243,0.9)';
+    ctx.font = 'italic 17px "Playfair Display", Georgia, serif';
+    ctx.textAlign = 'center';
+    const quoteY = wrapText(ctx, `“${post.ai_feedback || 'A gesture worth recording.'}”`, w / 2, verdictY, w - pad * 2 - 20, 30);
 
-    ctx.fillStyle = 'rgba(255,255,255,0.15)';
+    // ── Score progress bar ──
+    const barY = quoteY + 45;
+    const barW = w - pad * 2;
+    const barH = 6;
+    const barX = pad;
+
+    ctx.fillStyle = 'rgba(255,255,255,0.06)';
     ctx.beginPath();
-    ctx.roundRect(barX, barY, barW, barH, 5);
+    ctx.roundRect(barX, barY, barW, barH, 3);
     ctx.fill();
 
-    const fillW = Math.max((score / 100) * barW, 4);
-    const fillGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
-    fillGrad.addColorStop(0, '#fbbf24');
-    fillGrad.addColorStop(0.5, '#f97316');
-    fillGrad.addColorStop(1, '#ec4899');
-    ctx.fillStyle = fillGrad;
+    const fillW = Math.max((score / 100) * barW, 8);
+    const barGrad = ctx.createLinearGradient(barX, 0, barX + barW, 0);
+    barGrad.addColorStop(0, '#EE6A8C');
+    barGrad.addColorStop(0.5, '#DCBE78');
+    barGrad.addColorStop(1, '#EE6A8C');
+    ctx.fillStyle = barGrad;
     ctx.beginPath();
-    ctx.roundRect(barX, barY, fillW, barH, 5);
+    ctx.roundRect(barX, barY, fillW, barH, 3);
     ctx.fill();
 
-    // ── City Rank ──
+    // ── Attribution line ──
+    const attrY = barY + 40;
+    const username = post.profile?.username || 'you';
+    const partnerName = post.partner?.name || 'someone';
+
+    ctx.fillStyle = 'rgba(250,245,243,0.8)';
+    ctx.font = '14px "DM Sans", system-ui, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText(`@${username}  ×  ${post.partner?.emoji || '❤️'} ${partnerName}`, w / 2, attrY);
+
+    // City / rank
     const city = profile?.city;
     if (city || rank) {
-      const rankText = rank
-        ? `Ranked #${rank}${city ? ` in ${city}` : ''} 🏆`
-        : `📍 ${city}`;
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(rankText, w / 2, barY + 55);
+      ctx.fillStyle = 'rgba(180,160,168,0.75)';
+      ctx.font = '11px "DM Sans", system-ui, sans-serif';
+      const rankText = rank ? `Ranked #${rank}${city ? ` in ${city}` : ''}` : city || '';
+      ctx.fillText(rankText, w / 2, attrY + 24);
     }
 
-    // ── Subtle LoveBoard watermark at bottom ──
-    ctx.save();
-    ctx.globalAlpha = 0.3;
-    ctx.fillStyle = '#fff';
-    ctx.font = '13px sans-serif';
+    // ── Bottom brand ──
+    ctx.fillStyle = 'rgba(180,160,168,0.3)';
+    ctx.font = '12px "Playfair Display", Georgia, serif';
     ctx.textAlign = 'center';
-    ctx.fillText('❤️ LoveBoard — Share the love', w / 2, h - 30);
-    ctx.restore();
+    ctx.fillText('✦ Fond — Your Relationship Has a Score', w / 2, h - pad);
+
+    // Subtle gradient overlay at bottom
+    const overlay = ctx.createLinearGradient(0, h - 140, 0, h);
+    overlay.addColorStop(0, 'transparent');
+    overlay.addColorStop(1, 'rgba(22,12,18,0.6)');
+    ctx.fillStyle = overlay;
+    ctx.fillRect(0, h - 140, w, 140);
 
     return new Promise((resolve) => {
       canvas.toBlob((blob) => resolve(blob), 'image/png');
@@ -220,27 +223,25 @@ export function ShareCard({ post, rank }: ShareCardProps) {
       return;
     }
 
-    const file = new File([blob], `loveboard-${post.ai_score || 'score'}.png`, {
+    const file = new File([blob], `fond-${post.ai_score || 'score'}.png`, {
       type: 'image/png',
     });
 
-    // Try native share with file (works on mobile)
     if (navigator.share && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({
-          title: 'LoveBoard Score',
-          text: `My partner scored ${post.ai_score || 0}/100! 🏆`,
+          title: 'My Fond Verdict',
+          text: `My partner scored ${post.ai_score || 0}/100 on Fond! ✨`,
           files: [file],
         });
       } catch {
         // User cancelled
       }
     } else {
-      // Fallback: download
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `loveboard-${post.ai_score || 'score'}.png`;
+      a.download = `fond-${post.ai_score || 'score'}.png`;
       a.click();
       URL.revokeObjectURL(url);
       addToast('Saved! Share it on Instagram Stories 📸', 'success');
@@ -256,10 +257,13 @@ export function ShareCard({ post, rank }: ShareCardProps) {
         style={{ display: 'none' }}
       />
 
-      <Button variant="outline" size="sm" onClick={handleShare}>
+      <button
+        onClick={handleShare}
+        className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 text-primary px-5 py-2.5 text-sm font-semibold hover:bg-primary/10 hover:border-primary/40 transition-all"
+      >
         <Share2 className="h-4 w-4" />
         Share Score Card
-      </Button>
+      </button>
     </>
   );
 }

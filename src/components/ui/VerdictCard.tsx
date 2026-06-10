@@ -1,6 +1,6 @@
 "use client";
 
-import { tierForScore, scoreColor } from "@/lib/mock-data";
+import { tierForScore, tierInfoForScore, scoreColor } from "@/lib/mock-data";
 import { Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AnimatedNumber } from "./AnimatedNumber";
@@ -28,7 +28,7 @@ export function VerdictCard({
   compact,
   explanationStr,
 }: Props) {
-  const tier = tierForScore(score);
+  const tier = tierInfoForScore(score);
   const color = scoreColor(score);
 
   let breakdown: Record<string, number> | null = null;
@@ -136,13 +136,16 @@ export function VerdictCard({
         <div className="pb-2">
           <motion.div variants={itemVariants} className="font-display text-2xl font-bold text-foreground relative overflow-hidden">
             {/* Soft shimmer across title once — delayed so user reads the tier name first */}
-            <motion.div 
+            <motion.div
               initial={{ x: "-100%" }}
               animate={{ x: "200%" }}
               transition={{ delay: 1.4, duration: 1.8, ease: "easeOut" }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent mix-blend-overlay" 
+              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent mix-blend-overlay"
             />
-            {tier}
+            <span className="flex items-center gap-2">
+              <span>{tier.emoji}</span>
+              <span>{tier.name}</span>
+            </span>
           </motion.div>
           <motion.div variants={itemVariants} className="text-xs text-muted-foreground mt-0.5">
             out of 100.0
@@ -157,34 +160,45 @@ export function VerdictCard({
       <motion.div variants={itemVariants} className="relative z-10">
         {/* Detailed Score Breakdown */}
         {breakdown && !compact && (
-          <div className="mt-8 space-y-4 rounded-2xl bg-elevated/40 p-6 border border-border">
-            <h4 className="font-display text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground mb-4">
+          <div className="mt-8 rounded-2xl bg-elevated/40 p-6 border border-border">
+            <h4 className="font-sans text-sm font-bold uppercase tracking-[0.15em] text-muted-foreground mb-5">
               Score Breakdown
             </h4>
-            {Object.entries(breakdown).map(([key, value]) => {
-              const maxValues: Record<string, number> = { thoughtfulness: 20, romance: 15, effort: 15, uniqueness: 10, emotional_impact: 10, ethical_boundaries: 15, genuineness: 10, equality: 10, safety: 5 };
-              const max = maxValues[key.toLowerCase()] || 25;
-              const percentage = Math.min(100, Math.max(0, (Number(value) / max) * 100));
-              const formattedKey = key.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            <div className="space-y-4">
+              {Object.entries(breakdown).map(([key, value]) => {
+                const DIMENSION_META: Record<string, { label: string; desc: string; max: number }> = {
+                  thoughtfulness:   { label: 'Thoughtfulness',   desc: 'How well did they know you?',       max: 30 },
+                  effort:           { label: 'Effort',           desc: 'What did they give of themselves?',  max: 25 },
+                  creativity:       { label: 'Creativity',       desc: 'Was it inventive or unexpected?',    max: 20 },
+                  emotional_weight: { label: 'Emotional Weight', desc: 'Did it land deep or bounce off?',    max: 15 },
+                  authenticity:     { label: 'Authenticity',     desc: 'Selfless love, or for the photo?',  max: 10 },
+                };
+                const meta = DIMENSION_META[key.toLowerCase()] || { label: key, desc: '', max: 25 };
+                const percentage = Math.min(100, Math.max(0, (Number(value) / meta.max) * 100));
+                const barColor = percentage >= 80 ? color : percentage >= 50 ? `${color}99` : `${color}66`;
 
-              return (
-                <div key={key} className="space-y-1.5">
-                  <div className="flex justify-between text-sm">
-                    <span className="font-display text-foreground/90 text-base">{formattedKey}</span>
-                    <span className="text-muted-foreground font-mono text-xs">{Number(value)}/{max}</span>
+                return (
+                  <div key={key} className="space-y-1.5">
+                    <div className="flex justify-between items-baseline">
+                      <div className="flex items-baseline gap-2">
+                        <span className="font-sans font-semibold text-foreground/90 text-sm">{meta.label}</span>
+                        <span className="text-[10px] text-muted-foreground/50 hidden sm:inline">{meta.desc}</span>
+                      </div>
+                      <span className="text-muted-foreground font-score text-sm tracking-wide tabular-nums">{Number(value)}<span className="text-[10px] opacity-40 font-sans">/{meta.max}</span></span>
+                    </div>
+                    <div className="h-1.5 w-full bg-border/50 rounded-full overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${percentage}%` }}
+                        transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1], delay: 0.8 }}
+                        className="h-full rounded-full"
+                        style={{ backgroundColor: color }}
+                      />
+                    </div>
                   </div>
-                  <div className="h-1 w-full bg-border rounded-full overflow-hidden">
-                    <motion.div 
-                      initial={{ width: 0 }}
-                      animate={{ width: `${percentage}%` }}
-                      transition={{ duration: 1.5, ease: "easeOut", delay: 0.8 }}
-                      className="h-full rounded-full"
-                      style={{ backgroundColor: color }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         )}
 

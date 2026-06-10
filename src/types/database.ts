@@ -7,23 +7,15 @@ export interface Profile {
   city: string | null;
   latitude: number | null;
   longitude: number | null;
+  age: string | null;
+  gender: string | null;
+  occupation: string | null;
+  country: string | null;
   // Onboarding fields
   has_onboarded: boolean | null;
   relationship_status: string | null;
   onboarding_goals: string[] | null;
   love_languages: string[] | null;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface Partner {
-  id: string;
-  user_id: string;
-  name: string;
-  relationship: 'spouse' | 'partner' | 'boyfriend' | 'girlfriend' | 'other';
-  emoji: string;
-  avatar_url: string | null;
-  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -37,11 +29,24 @@ export interface Post {
   ai_feedback: string | null;
   ai_explanation: string | null;
   is_public: boolean;
+  post_city: string | null;
   created_at: string;
   updated_at: string;
   // Joined fields
   partner?: Partner;
   profile?: Profile;
+}
+
+export interface Partner {
+  id: string;
+  user_id: string;
+  name: string;
+  relationship: 'spouse' | 'partner' | 'boyfriend' | 'girlfriend' | 'other';
+  emoji: string;
+  avatar_url: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface LeaderboardEntry {

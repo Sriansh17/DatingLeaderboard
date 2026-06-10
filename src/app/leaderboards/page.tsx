@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
-import { ArrowDown, ArrowUp, Minus, Share2, TrendingUp, TrendingDown } from "lucide-react";
+import { ArrowDown, ArrowUp, Minus, Share2, TrendingUp, TrendingDown, Trophy } from "lucide-react";
 import { useShare } from "@/components/providers/ShareProvider";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
 import { useLeaderboard } from "@/lib/hooks/useLeaderboard";
@@ -13,6 +13,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import Link from 'next/link';
 
 const scopes = ["Global", "Country", "Local"] as const;
+const timeframes = ["All Time", "This Week"] as const;
 
 interface LeaderboardEntry {
   rank: number;
@@ -146,6 +147,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
 
 export default function RanksPage() {
   const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
+  const [timeframe, setTimeframe] = useState<(typeof timeframes)[number]>("All Time");
   const { openShare } = useShare();
   const { profile } = useUser();
   const { latitude, longitude, loading: geoLoading } = useGeolocation();
@@ -171,6 +173,10 @@ export default function RanksPage() {
   const myEntry = entries?.find((e) => e.user_id === profile?.id);
   const myRank = myEntry?.rank;
 
+  // Find rival — the person one spot above the user
+  const rivalEntry = myRank && entries ? entries.find(e => e.rank === myRank - 1) : null;
+  const pointsGap = rivalEntry && myEntry ? (rivalEntry.average_score - myEntry.average_score).toFixed(1) : null;
+
   return (
     <main className="pb-48 w-full min-h-screen bg-transparent relative">
       {/* Header — eyebrow + headline + stat block */}
@@ -183,7 +189,29 @@ export default function RanksPage() {
         </div>
       </header>
 
-      <div className="relative z-10 px-5 py-3">
+      <div className="relative z-10 px-5 py-3 space-y-3">
+        {/* Timeframe toggle */}
+        <div className="flex rounded-full border border-border/50 bg-background/50 p-1 max-w-xs mx-auto">
+          {timeframes.map((t) => (
+            <button
+              key={t}
+              onClick={() => setTimeframe(t)}
+              className={`relative flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                timeframe === t ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {timeframe === t && (
+                <motion.div
+                  layoutId="timeframe-pill"
+                  className="absolute inset-0 bg-gold rounded-full z-0"
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                />
+              )}
+              <span className="relative z-10">{t}</span>
+            </button>
+          ))}
+        </div>
+        {/* Scope toggle */}
         <div className="flex rounded-full border border-border/50 bg-background/50 p-1 max-w-7xl mx-auto">
           {scopes.map((s) => (
             <button
@@ -220,7 +248,7 @@ export default function RanksPage() {
           </div>
         ) : !entries || entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center px-4">
-            <div className="w-16 h-16 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-white/10 flex items-center justify-center mb-6 shadow-inner">
+            <div className="w-16 h-16 rounded-full bg-black/5 dark:bg-white/5 border border-black/10 dark:border-border flex items-center justify-center mb-6 shadow-inner">
               <span className="text-3xl">🏆</span>
             </div>
             <h3 className="font-display italic text-2xl text-foreground mb-2">No couples found here</h3>
@@ -268,7 +296,7 @@ export default function RanksPage() {
                     </div>
 
                     {/* Dual mini avatar */}
-                    <div className="relative h-9 w-11 shrink-0">
+                    <div className="relative h-7 w-10 shrink-0">
                       {/* Partner avatar (back) */}
                       <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
                         {e.top_partner_avatar ? (
@@ -334,22 +362,40 @@ export default function RanksPage() {
         )}
       </div>
 
-      {/* Pinned self */}
+      {/* Pinned self + rival */}
       {myEntry && myRank && (
-        <motion.div 
+        <motion.div
           initial={{ y: 30, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-          className="fixed inset-x-0 bottom-[100px] sm:bottom-[120px] z-30 flex justify-center px-4 pointer-events-none"
+          className="fixed inset-x-0 bottom-[100px] sm:bottom-[120px] z-30 flex flex-col items-center gap-2 px-4 pointer-events-none"
         >
-          <div className="pointer-events-auto w-fit min-w-[320px] max-w-full rounded-3xl border border-black/5 dark:border-white/10 bg-white/60 dark:bg-black/60 p-4 backdrop-blur-2xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.15)] dark:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.6)] flex items-center justify-between gap-4">
+          {/* Rival callout — appears just above the self bar */}
+          {rivalEntry && pointsGap && (
+            <motion.div
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2, duration: 0.5 }}
+              className="pointer-events-auto mb-1"
+            >
+              <div className="flex items-center gap-2 rounded-full border border-gold/20 bg-gold/5 backdrop-blur-md px-4 py-1.5 text-[10px] shadow-[0_0_12px_-2px_rgba(199,169,107,0.15)]">
+                <Trophy className="h-3 w-3 text-gold" />
+                <span className="text-muted-foreground">
+                  <span className="text-gold font-bold">@{rivalEntry.username}</span> is <span className="text-gold font-bold">{pointsGap} pts</span> ahead of you
+                </span>
+                <span className="text-[9px] text-muted-foreground">— one post closes the gap</span>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="pointer-events-auto w-fit min-w-[320px] max-w-full rounded-3xl glass-dock p-4 flex items-center justify-between gap-4">
             <div className="font-score text-2xl text-blush shrink-0" style={{ width: 44 }}>
               #{myRank}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-medium text-foreground">You · {myEntry.top_partner_name || profile?.username}</div>
               <div className="text-xs text-muted-foreground truncate">
-                {myEntry.total_posts} posts · keep climbing
+                {myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
               </div>
             </div>
             <div className="flex items-center gap-4 shrink-0">

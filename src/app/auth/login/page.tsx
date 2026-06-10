@@ -17,7 +17,7 @@ export default function LoginPage() {
       <div className="absolute top-6 left-6 z-50">
         <Link
           href="/"
-          className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+          className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back
         </Link>

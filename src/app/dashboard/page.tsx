@@ -13,6 +13,7 @@ import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useRouter } from 'next/navigation';
 
+import { formatRelativeTime } from '@/lib/utils/format';
 import type { Post } from '@/types/database';
 
 async function fetchExplorePosts(): Promise<Post[]> {
@@ -134,8 +135,8 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
-            {/* Editorial Widgets Row */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            {/* Editorial Widgets Row 1 */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
               {/* Daily Prompt */}
               <div className="rounded-2xl border border-border bg-card p-5 flex flex-col justify-between shadow-sm">
                 <div>
@@ -145,19 +146,18 @@ export default function DashboardPage() {
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">{dailyPrompt}</p>
                 </div>
-                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-white/10 bg-primary/5 dark:bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary dark:text-white transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20">
+                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-border bg-primary/5 dark:bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary dark:text-foreground transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20">
                   Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
                 </Link>
               </div>
 
-              {/* AI Insight (Carousel of Options) */}
+              {/* AI Insight Carousel — 6 dynamic cards */}
               <div className="col-span-1 rounded-2xl border border-border bg-card overflow-hidden relative shadow-sm h-full min-h-[160px]">
-                <div 
+                <div
                   className="flex overflow-x-auto snap-x snap-mandatory h-full w-full [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
                   onScroll={handleInsightScroll}
                 >
-                  
-                  {/* Option 1: Original Insight */}
+                  {/* Card 1: Global Insight */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
@@ -166,11 +166,13 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <p className="font-display text-lg md:text-xl italic text-foreground/90 leading-snug font-light">
-                      Couples who post weekly maintain a 30% higher romance score.
+                      {posts && posts.length > 0
+                        ? `Couples who post weekly maintain a ${(parseFloat(globalAverage) > 0 ? ((parseFloat(userScore || '50') / parseFloat(globalAverage || '50')) * 30).toFixed(0) : 30)}% higher romance score on average.`
+                        : "Couples who post weekly maintain a 30% higher romance score. You're one story away from the data set."}
                     </p>
                   </div>
 
-                  {/* Option 2: Brutal AI Warning */}
+                  {/* Card 2: System Warning — dynamic based on user's percentile */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-destructive/5 dark:bg-destructive/10">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
@@ -179,14 +181,31 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div>
-                      <div className="font-score text-4xl text-red-500 mb-1 leading-none drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">Btm 10%</div>
-                      <p className="font-display text-sm text-foreground/80 dark:text-white/80 italic leading-snug">
-                        Your spontaneity rating has flatlined. The AI strongly suggests booking a flight.
+                      <div className="font-score text-4xl text-red-500 mb-1 leading-none drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+                        {posts && posts.length > 0 && globalEntries && globalEntries.length > 0
+                          ? (() => {
+                              const userRank = globalEntries.findIndex(e => e.user_id === (posts[0]?.user_id || ''));
+                              return userRank > globalEntries.length * 0.75 ? 'Btm 25%' : userRank === -1 ? 'Unranked' : 'Mid';
+                            })()
+                          : '--'}
+                      </div>
+                      <p className="font-display text-sm text-foreground/80 dark:text-foreground/80 italic leading-snug">
+                        {posts && posts.length === 0
+                          ? "Zero posts detected. The algorithm has nothing to work with. Submit or remain invisible."
+                          : globalEntries && globalEntries.length > 0
+                            ? (() => {
+                                const yourScore = parseFloat(userScore || '0');
+                                const avg = parseFloat(globalAverage || '0');
+                                return yourScore < avg
+                                  ? "Your romance metrics lag behind the global curve. The algorithm demands effort."
+                                  : "Your recent activity is noted. The algorithm is watching — don't slip now.";
+                              })()
+                            : "Insufficient data to rank you. The algorithm demands a larger sample size."}
                       </p>
                     </div>
                   </div>
 
-                  {/* Option 3: The Mystical Prediction */}
+                  {/* Card 3: AI Oracle — dynamic prediction */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-fuchsia-100/50 via-purple-100/30 to-blue-100/50 dark:from-fuchsia-900/30 dark:via-purple-900/20 dark:to-blue-900/20">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
@@ -196,13 +215,23 @@ export default function DashboardPage() {
                     </div>
                     <div className="relative mt-auto">
                       <div className="absolute -left-2 -top-3 text-5xl text-fuchsia-500/20 font-serif">&quot;</div>
-                      <p className="font-display text-lg text-foreground dark:text-white font-light italic leading-snug pl-4">
-                        Based on sentiment, there is an <span className="text-fuchsia-600 dark:text-fuchsia-400 font-bold not-italic">87% probability</span> of a romantic gesture tonight.
+                      <p className="font-display text-lg text-foreground dark:text-foreground font-light italic leading-snug pl-4">
+                        {(() => {
+                          const recentPostCount = posts?.filter(p => {
+                            const d = new Date(p.created_at);
+                            const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+                            return d > weekAgo;
+                          }).length || 0;
+                          const prob = recentPostCount >= 5 ? 87 : recentPostCount >= 3 ? 62 : recentPostCount >= 1 ? 41 : 12;
+                          return (
+                            <>Based on sentiment, there is an <span className="text-fuchsia-600 dark:text-fuchsia-400 font-bold not-italic">{prob}% probability</span> of a romantic gesture {recentPostCount > 0 ? 'tonight' : 'this week'}.</>
+                          );
+                        })()}
                       </p>
                     </div>
                   </div>
 
-                  {/* Option 4: Sports Analytics */}
+                  {/* Card 4: Head-to-Head — real data comparison */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-center border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
@@ -214,10 +243,10 @@ export default function DashboardPage() {
                       <div>
                         <div className="flex justify-between text-[9px] uppercase tracking-widest text-muted-foreground mb-1.5">
                           <span>Your Average Score</span>
-                          <span className="text-blue-500 dark:text-blue-400 font-bold">{userScore}</span>
+                          <span className="text-blue-500 dark:text-blue-400 font-bold">{userScore !== '0' ? userScore : '--'}</span>
                         </div>
                         <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all" style={{ width: `${(parseFloat(userScore) / 10) * 100}%` }} />
+                          <div className="h-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all" style={{ width: `${Math.min(100, (parseFloat(userScore || '0') / 100) * 100)}%` }} />
                         </div>
                       </div>
                       <div>
@@ -226,13 +255,13 @@ export default function DashboardPage() {
                           <span>{globalAverage}</span>
                         </div>
                         <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-black/20 dark:bg-white/20 transition-all" style={{ width: `${(parseFloat(globalAverage) / 10) * 100}%` }} />
+                          <div className="h-full bg-black/20 dark:bg-white/20 transition-all" style={{ width: `${Math.min(100, (parseFloat(globalAverage || '0') / 100) * 100)}%` }} />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Option 5: Relationship Weather */}
+                  {/* Card 5: Forecast — dynamic based on score trend */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-slate-200 via-slate-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-amber-900/40">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
@@ -241,42 +270,72 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-auto">
-                      <div className="text-5xl drop-shadow-md">🌩️</div>
+                      <div className="text-5xl drop-shadow-md">
+                        {(() => {
+                          const recent = posts?.filter(p => p.ai_score).slice(0, 3) || [];
+                          if (recent.length < 2) return '🌤️';
+                          const trend = (recent[0]?.ai_score || 0) - (recent[recent.length - 1]?.ai_score || 0);
+                          return trend > 5 ? '☀️' : trend > 0 ? '🌤️' : trend > -5 ? '🌩️' : '⛈️';
+                        })()}
+                      </div>
                       <div>
-                        <p className="font-display text-lg text-foreground dark:text-white font-light leading-tight mb-1">High tension this morning...</p>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">Clearing up by dinner</p>
+                        <p className="font-display text-lg text-foreground dark:text-foreground font-light leading-tight mb-1">
+                          {(() => {
+                            const recent = posts?.filter(p => p.ai_score).slice(0, 3) || [];
+                            if (recent.length < 2) return 'Not enough data...';
+                            const trend = (recent[0]?.ai_score || 0) - (recent[recent.length - 1]?.ai_score || 0);
+                            return trend > 5 ? 'Strong upward trend' : trend > 0 ? 'Steady improvement' : trend > -5 ? 'Minor dip detected' : 'Sharp decline — act now';
+                          })()}
+                        </p>
+                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                          {posts?.filter(p => p.ai_score).length || 0} scored posts analyzed
+                        </p>
                       </div>
                     </div>
                   </div>
 
-                  {/* Option 6: Vibe Check Meter */}
+                  {/* Card 6: LIVE Commentary — sports-style narration */}
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-2 w-2 rounded-full bg-pink-500" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-pink-500">Vibe Check</span>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
+                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-red-500">LIVE</span>
                       </div>
                     </div>
-                    
-                    <div className="flex flex-col items-center mt-auto">
-                      {/* Fake half-circle meter */}
-                      <div className="relative w-32 h-16 overflow-hidden mb-3">
-                        <div className="absolute top-0 left-0 w-32 h-32 rounded-full border-[8px] border-black/5 dark:border-white/5 border-t-pink-500/80 border-l-pink-500/80 rotate-45" />
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-2 h-12 bg-foreground dark:bg-white rounded-t-full origin-bottom rotate-[60deg] shadow-[0_0_10px_rgba(0,0,0,0.1)] dark:shadow-[0_0_10px_rgba(255,255,255,0.5)]" />
-                        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-4 h-4 bg-foreground dark:bg-white rounded-full translate-y-1/2" />
+                    <p className="font-display text-base md:text-lg italic text-foreground/90 leading-snug font-light">
+                      {!posts || posts.length === 0
+                        ? "The board sits empty. No scores. No rankings. One post changes everything."
+                        : topScorer
+                          ? `${displayUsername.split('@')[1] || displayUsername} holds #1 at ${topScorer.average_score} pts. ${globalEntries && globalEntries.length > 1 ? `${globalEntries[1]?.username || 'The field'} trails by ${((topScorer.average_score - (globalEntries[1]?.average_score || 0))).toFixed(1)} pts.` : ''}`
+                          : "The global feed is live. Every post shifts the leaderboard. Stay relevant."
+                      }
+                    </p>
+                    <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
+                      <div className="text-center">
+                        <div className="font-score text-lg text-foreground">{posts?.length || 0}</div>
+                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Posts</div>
                       </div>
-                      <p className="font-score text-xl text-pink-500 uppercase tracking-widest drop-shadow-sm dark:drop-shadow-md">Simp Energy</p>
-                      <p className="text-[8px] text-muted-foreground uppercase tracking-[0.2em] mt-1">You liked 14 of their posts</p>
+                      <div className="text-center">
+                        <div className="font-score text-lg text-gold">{globalEntries?.length || 0}</div>
+                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Ranked</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="font-score text-lg text-primary">{globalAverage}</div>
+                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Avg Score</div>
+                      </div>
                     </div>
                   </div>
 
                 </div>
-                
+
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-1.5 z-20 pointer-events-none">
                   {[0, 1, 2, 3, 4, 5].map((idx) => (
-                    <div 
-                      key={idx} 
-                      className={`h-1.5 rounded-full transition-all duration-300 ${activeInsight === idx ? 'w-5 bg-primary' : 'w-1.5 bg-black/20 dark:bg-white/20'}`} 
+                    <div
+                      key={idx}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${activeInsight === idx ? 'w-5 bg-primary' : 'w-1.5 bg-black/20 dark:bg-white/20'}`}
                     />
                   ))}
                 </div>
@@ -285,8 +344,8 @@ export default function DashboardPage() {
               {/* Top Mover (Cinematic Spotlight) */}
               <Link href="/leaderboards" className="col-span-1 rounded-2xl border border-border bg-card overflow-hidden relative shadow-sm h-full min-h-[160px] flex flex-col justify-end p-5 group cursor-pointer">
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center opacity-40 dark:opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
-                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 dark:from-black dark:via-black/80 to-transparent" />
-                
+                <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 dark:from-background dark:via-background/80 to-transparent" />
+
                 <div className="absolute top-4 right-4 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-20">
                   <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1 shadow-xl">
                     View <ArrowRight className="w-3 h-3" />
@@ -300,7 +359,7 @@ export default function DashboardPage() {
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="font-display text-3xl text-black dark:text-white font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
+                      <p className="font-display text-3xl text-black dark:text-foreground font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
                       <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 drop-shadow-sm dark:drop-shadow-md">
                         {topScorer ? `Secured ${topScorer.average_score} Points` : 'Taking the Lead'}
                       </p>
@@ -317,7 +376,7 @@ export default function DashboardPage() {
                 id: post.id,
                 username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
                 partnerNickname: post.partner?.name || 'partner',
-                city: post.profile?.city || '',
+                city: post.post_city || post.profile?.city || '',
                 country: (post.profile as any)?.country || '',
                 headline: post.description || '',
                 score: post.ai_score || 0,
@@ -326,7 +385,7 @@ export default function DashboardPage() {
                 reactions: { heart: 0, fire: 0, laugh: 0, trophy: 0 },
                 believable: 0,
                 sus: 0,
-                postedAt: new Date(post.created_at).toLocaleDateString(),
+                postedAt: formatRelativeTime(post.created_at),
                 userAvatarUrl: post.profile?.avatar_url || null,
                 partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
               };

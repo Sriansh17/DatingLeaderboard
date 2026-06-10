@@ -26,7 +26,7 @@ function getSystemTheme(): 'light' | 'dark' {
 
 function getStoredTheme(): Theme {
   if (typeof window === 'undefined') return 'light';
-  return (localStorage.getItem('loveboard-theme') as Theme) || 'light';
+  return (localStorage.getItem('fond-theme') as Theme) || 'light';
 }
 
 function resolveTheme(theme: Theme): 'light' | 'dark' {
@@ -42,7 +42,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
-    localStorage.setItem('loveboard-theme', newTheme);
+    localStorage.setItem('fond-theme', newTheme);
     setResolvedTheme(resolveTheme(newTheme));
   };
 

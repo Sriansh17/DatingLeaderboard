@@ -160,13 +160,13 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
               : 'border-border'
           }`} />
           
-          <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-8 sm:mb-10 mt-2">
+          <header className="flex items-center justify-between gap-4 relative z-10 w-full mb-8 sm:mb-10 mt-2">
             {/* Dual avatar lockup + names */}
-            <div className="flex items-center gap-3 min-w-0 flex-1 pr-4">
-              {/* Overlapping avatar pair */}
-              <div className="relative flex-shrink-0 h-10 w-[52px]">
+            <div className="flex items-center gap-3 min-w-0 flex-1">
+              {/* Overlapping avatar pair — vertically centered in container */}
+              <div className="relative flex-shrink-0 h-[36px] w-[48px]">
                 {/* Partner avatar (back) */}
-                <div className="absolute right-0 top-0 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
                   {story.partnerAvatarUrl ? (
                     <img src={story.partnerAvatarUrl} alt={story.partnerNickname} className="h-full w-full object-cover" />
                   ) : (
@@ -176,7 +176,7 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
                   )}
                 </div>
                 {/* User avatar (front) */}
-                <div className="absolute left-0 top-0 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
                   {story.userAvatarUrl ? (
                     <img src={story.userAvatarUrl} alt={story.username} className="h-full w-full object-cover" />
                   ) : (
@@ -190,40 +190,40 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
               {/* Names */}
               <div className="flex flex-col gap-0.5 min-w-0">
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <span className="text-foreground dark:text-white font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>
-                  <span className="text-muted-foreground dark:text-white/30 text-xs">×</span>
-                  <span className="text-foreground/80 dark:text-white/70 font-medium text-sm sm:text-base truncate max-w-[100px]">{story.partnerNickname}</span>
+                  <span className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>
+                  <span className="text-muted-foreground/50 text-xs">×</span>
+                  <span className="text-foreground/80 font-medium text-sm sm:text-base truncate max-w-[100px]">{story.partnerNickname}</span>
                 </div>
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground dark:text-white/35">
+                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
                   {story.city}{story.city ? ' · ' : ''}{story.postedAt}
                 </div>
               </div>
             </div>
-            
-            <div className="flex-shrink-0 relative">
+
+            <div className="flex-shrink-0 self-center">
               <ScoreRing score={story.score} size={compact ? 44 : 80} />
             </div>
           </header>
 
           <div className="flex-1 flex flex-col justify-center py-2 sm:py-4 relative z-10">
-            <h3 className={`font-display italic leading-[1.1] text-foreground dark:text-white line-clamp-4 transition-all ${compact ? 'text-xl sm:text-2xl md:text-[2rem]' : 'text-[2.75rem]'}`}>
+            <h3 className={`font-display italic leading-[1.1] text-foreground line-clamp-4 transition-all ${compact ? 'text-xl sm:text-2xl md:text-[2rem]' : 'text-[2.75rem]'}`}>
               &quot;{story.headline}&quot;
             </h3>
             <div className={compact ? "mt-4 sm:mt-6" : "mt-10"}>
-              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary dark:text-white/50 block mb-2 sm:mb-3">AI Verdict</span>
-              <p className={`text-foreground/80 dark:text-white/80 leading-relaxed font-sans font-light ${compact ? 'text-xs sm:text-sm line-clamp-3' : 'text-base line-clamp-2'}`}>
+              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary block mb-2 sm:mb-3">AI Verdict</span>
+              <p className={`text-foreground/80 leading-relaxed font-sans font-light ${compact ? 'text-xs sm:text-sm line-clamp-3' : 'text-base line-clamp-2'}`}>
                 {story.verdict}
               </p>
             </div>
           </div>
           
-          <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border dark:border-white/10 ${compact ? 'mt-4 sm:mt-6 pt-3 sm:pt-4' : 'mt-10 pt-6'}`}>
+          <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border ${compact ? 'mt-4 sm:mt-6 pt-3 sm:pt-4' : 'mt-10 pt-6'}`}>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button 
                 onClick={(e) => handleReact(e, 'Heart')}
-                className={`relative group/heart flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Heart' ? 'bg-primary border-primary text-white' : 'border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 text-foreground/70 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
+                className={`relative group/heart flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Heart' ? 'bg-primary border-primary text-primary-foreground' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
               >
-                <Heart className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Heart' ? 'fill-current text-white' : 'text-foreground/70 dark:text-white/90'}`} />
+                <Heart className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Heart' ? 'fill-current text-primary-foreground' : 'text-foreground/70'}`} />
                 
                 <AnimatePresence>
                   {activeReaction === 'Heart' && (
@@ -249,9 +249,9 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
               {/* The Prestige Trophy Button */}
               <button 
                 onClick={(e) => handleReact(e, 'Trophy')}
-                className={`relative group/trophy flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Trophy' ? 'bg-gold border-gold text-white shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 text-foreground/70 dark:text-white hover:bg-black/10 dark:hover:bg-white/10'}`}
+                className={`relative group/trophy flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Trophy' ? 'bg-gold border-gold text-primary-foreground shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
               >
-                <Trophy className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Trophy' ? 'fill-current text-white' : 'text-foreground/70 dark:text-white/90 group-hover/trophy:text-gold transition-colors duration-500'}`} />
+                <Trophy className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Trophy' ? 'fill-current text-primary-foreground' : 'text-foreground/70 group-hover/trophy:text-gold transition-colors duration-500'}`} />
                 
                 <AnimatePresence>
                   {activeReaction === 'Trophy' && (
@@ -289,10 +289,10 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
                   date: story.postedAt,
                 });
               }}
-              className="relative overflow-hidden group/share flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-black/10 dark:border-white/20 bg-black/5 dark:bg-black/40 hover:bg-black/10 dark:hover:bg-white/10 transition-colors shrink-0"
+              className="relative overflow-hidden group/share flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors shrink-0"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
-              <span className="relative z-10 text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 dark:text-white/90 group-hover/share:text-foreground dark:group-hover/share:text-white transition-colors">SHARE</span>
+              <span className="relative z-10 text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 group-hover/share:text-foreground transition-colors">SHARE</span>
             </button>
           </footer>
         </motion.article>

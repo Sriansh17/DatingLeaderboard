@@ -38,10 +38,10 @@ export default function SettingsPage() {
 
       {/* About */}
       <Card>
-        <h2 className="font-semibold text-foreground mb-2">About LoveBoard</h2>
+        <h2 className="font-semibold text-foreground mb-2">About Fond</h2>
         <p className="text-sm text-gray-500">
-          LoveBoard is a social app where you share what your partner did for you today.
-          Our AI scores each gesture, and partners get ranked on local, city, and global leaderboards.
+          Fond is the world&apos;s first relationship leaderboard. Post one story. AI judges it.
+          Couples compete in your city — and on the planet. Your relationship has a score. What&apos;s yours?
         </p>
         <p className="text-xs text-gray-400 mt-3">Version 1.0.0 • Made with ❤️</p>
       </Card>
