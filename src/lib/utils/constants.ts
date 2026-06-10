@@ -1,5 +1,5 @@
-export const APP_NAME = 'LoveBoard';
-export const APP_DESCRIPTION = 'Share what your partner did for you today and get ranked on leaderboards!';
+export const APP_NAME = 'Fond';
+export const APP_DESCRIPTION = 'Post one story. AI judges it. Compete with couples worldwide.';
 
 export const ROUTES = {
   HOME: '/',

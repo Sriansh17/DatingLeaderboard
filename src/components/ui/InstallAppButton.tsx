@@ -76,7 +76,7 @@ export function InstallAppButton() {
       } else if (isAndroid) {
         alert('Tap the ⋮ menu at the top right of Chrome, then tap "Add to Home Screen" or "Install App".');
       } else {
-        alert('Click the install icon (⊕) in your browser\'s address bar, or use the browser menu → "Install LoveBoard".');
+        alert('Click the install icon (⊕) in your browser\'s address bar, or use the browser menu → "Install Fond".');
       }
     }
   };

@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FFF5F5',
+  themeColor: '#FCFAF8',  // matches --background in globals.css :root
 };
 
 export default function RootLayout({
@@ -32,7 +32,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground`}>
+      <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground min-h-dvh`}>
         <QueryProvider>
           <ThemeProvider>
             <AtmosphereProvider>
@@ -52,6 +52,19 @@ export default function RootLayout({
           </ThemeProvider>
         </QueryProvider>
         <ServiceWorkerRegister />
+        {/* Scroll-reveal observer — powers .reveal-up and .reveal-up-stagger */}
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var obs = new IntersectionObserver(function(entries){
+              entries.forEach(function(e){
+                if(e.isIntersecting){ e.target.classList.add('is-visible'); obs.unobserve(e.target); }
+              });
+            }, { threshold: 0.15, rootMargin: '0px 0px -30px 0px' });
+            document.querySelectorAll('.reveal-up, .reveal-up-stagger > *').forEach(function(el){ obs.observe(el); });
+            var mo = new MutationObserver(function(){ document.querySelectorAll('.reveal-up:not(.is-visible), .reveal-up-stagger > *:not(.is-visible)').forEach(function(el){ obs.observe(el); }); });
+            mo.observe(document.body, { childList: true, subtree: true });
+          })();
+        ` }} />
       </body>
     </html>
   );

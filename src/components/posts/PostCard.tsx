@@ -19,7 +19,7 @@ export function PostCard({ post }: PostCardProps) {
     <Link href={`/posts/${post.id}`} className="block w-full max-w-2xl mx-auto mb-4 sm:mb-6 px-3 sm:px-0">
       <Card hover>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-gradientStart to-gradientEnd overflow-hidden flex items-center justify-center text-base font-bold text-white flex-shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 overflow-hidden flex items-center justify-center text-base font-bold text-primary-foreground flex-shrink-0">
             {post.partner && post.partner.avatar_url ? (
               <img src={post.partner.avatar_url} alt={post.partner.name} className="w-full h-full object-cover" />
             ) : post.partner?.emoji ? (
@@ -71,8 +71,8 @@ export function PostCard({ post }: PostCardProps) {
                 headline: post.description,
                 verdict: post.ai_feedback || undefined,
                 score: post.ai_score || undefined,
-                city: post.profile?.city || undefined,
-                date: new Date(post.created_at).toLocaleDateString(),
+                city: post.post_city || post.profile?.city || undefined,
+                date: formatRelativeTime(post.created_at),
               });
             }}
           >

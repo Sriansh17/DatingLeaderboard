@@ -60,9 +60,9 @@ export default function NewPostPage() {
     <main className="max-w-2xl mx-auto px-5 py-6">
       <button
         onClick={() => router.push("/dashboard")}
-        className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
       >
-        <ArrowLeft className="h-4 w-4" /> Cancel
+        <ArrowLeft className="h-3.5 w-3.5" /> Cancel
       </button>
 
       <PostForm partners={partners} userId={user.id} />

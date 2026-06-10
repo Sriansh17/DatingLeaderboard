@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
-import { Heart, Menu, X, Mail } from 'lucide-react';
+import { Heart, Menu, X, Mail, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 
@@ -18,9 +18,9 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
-            <Heart className="h-7 w-7 text-primary fill-pink-500" />
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              LoveBoard
+            <Sparkles className="h-7 w-7 text-gold" />
+            <span className="text-xl font-display italic text-gold">
+              Fond
             </span>
           </Link>
 

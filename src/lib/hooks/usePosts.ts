@@ -49,7 +49,14 @@ async function createPost(payload: CreatePostPayload & { user_id: string }) {
   }
   const aiResult: AIScoreResult = await scoreResponse.json();
 
-  // Then, create the post with the score
+  // Fetch user's city to freeze on the post at creation time
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('city')
+    .eq('id', payload.user_id)
+    .single();
+
+  // Then, create the post with the score + frozen city
   const { data, error } = await supabase
     .from('posts')
     .insert({
@@ -60,6 +67,7 @@ async function createPost(payload: CreatePostPayload & { user_id: string }) {
       ai_score: aiResult.score,
       ai_feedback: aiResult.feedback,
       ai_explanation: JSON.stringify(aiResult.breakdown),
+      post_city: profile?.city || null,
     })
     .select('*, partner:partners(*)')
     .single();
@@ -91,6 +99,7 @@ export function useCreatePost() {
       createPost(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboards'] });
     },
   });

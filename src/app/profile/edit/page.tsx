@@ -25,9 +25,9 @@ export default function EditProfilePage() {
     <div className="max-w-lg mx-auto">
       <Link
         href="/profile"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-primary transition-colors mb-6"
+        className="mb-6 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ArrowLeft className="h-3.5 w-3.5" />
         Back to Profile
       </Link>
 

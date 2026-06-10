@@ -112,9 +112,9 @@ export default function PartnersPage() {
         {/* Add Form Container */}
         {showAddForm && (
           <div className="w-full max-w-xl mt-8 p-8 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative shadow-2xl">
-            <button 
+            <button
               onClick={() => { setShowAddForm(false); setEditingPartner(null); }}
-              className="absolute top-6 right-6 text-muted-foreground hover:text-foreground transition-colors"
+              className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
             >
               Cancel
             </button>

@@ -4,6 +4,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { StoryCard } from '@/components/ui/StoryCard';
 import { usePosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
+import { formatRelativeTime } from '@/lib/utils/format';
 import { tierForScore } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo } from 'react';
@@ -18,7 +19,7 @@ import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { Spinner } from '@/components/ui/Spinner';
 
 export default function ProfilePage() {
-  const { user, profile, loading: authLoading, signOut } = useUser();
+  const { user, profile, loading: authLoading, signOut, refreshProfile } = useUser();
   const { data: posts, isLoading } = usePosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
   const [avgScore, setAvgScore] = useState(0);
@@ -84,8 +85,6 @@ export default function ProfilePage() {
   const scoredPosts = posts?.filter((p) => p.ai_score) || [];
   const bestScore = scoredPosts.length > 0 ? Math.max(...scoredPosts.map((p) => p.ai_score || 0)) : 0;
 
-  const meta = user?.user_metadata || {};
-
   return (
     <main className="w-full mx-auto min-h-screen bg-transparent relative pb-32 px-4 sm:px-8">
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -108,13 +107,13 @@ export default function ProfilePage() {
           </motion.h1>
         </div>
         <div className="flex items-center gap-3">
-          <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             Edit Profile
           </button>
           <button onClick={async () => {
             setIsLoggingOut(true);
             await signOut();
-          }} className="p-2 rounded-full border border-border dark:border-white/10 bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          }} className="p-2 rounded-full border border-border dark:border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             <LogOut className="h-5 w-5" />
           </button>
         </div>
@@ -125,7 +124,30 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           
           {/* Left Panel: Identity */}
-          <div className="md:col-span-1 rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl gap-5">
+          <div className="md:col-span-1 rounded-3xl border border-border dark:border-border bg-card/60 p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl gap-5 relative">
+
+            {/* Share icon — top right */}
+            <button
+              onClick={() => openShare('profile', {
+                username: profile.username,
+                avatarUrl: profile.avatar_url,
+                score: avgScore,
+                rank: undefined,
+                city: profile.city || undefined,
+                streak: streak?.currentStreak || 0,
+                bestScore,
+                totalPosts: posts?.length || 0,
+                bio: profile.bio,
+                age: (profile as any).age,
+                gender: (profile as any).gender,
+                occupation: (profile as any).occupation,
+                country: (profile as any).country,
+              })}
+              className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground transition-colors"
+              aria-label="Share profile"
+            >
+              <Share2 className="h-4 w-4" />
+            </button>
             
             {/* Avatar */}
             <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
@@ -151,9 +173,9 @@ export default function ProfilePage() {
 
             {/* City + streak row */}
             <div className="flex items-center justify-center gap-3 flex-wrap">
-              {(profile.city || meta.city) && (
+              {profile.city && (
                 <span className="text-xs text-muted-foreground font-medium">
-                  📍 {meta.city || profile.city}
+                  📍 {profile.city}
                 </span>
               )}
               {streak && (
@@ -163,40 +185,41 @@ export default function ProfilePage() {
               )}
             </div>
 
+
           </div>
 
           {/* Right Panel: Bio & Details */}
-          <div className="md:col-span-2 rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 shadow-lg backdrop-blur-xl flex flex-col justify-between">
+          <div className="md:col-span-2 rounded-3xl border border-border dark:border-border bg-card/60 p-8 shadow-lg backdrop-blur-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-2xl italic text-foreground">Bio & other details</h3>
                 <div className="h-2.5 w-2.5 rounded-full bg-success shadow-[0_0_10px_var(--success)]" />
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8 border-y border-border dark:border-white/5 py-6 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8 border-y border-border dark:border-border py-6 mb-6">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Name</p>
                   <p className="text-foreground/90 font-medium">{profile.username}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Age</p>
-                  <p className="text-foreground/90 font-medium">{meta.age || '24'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any).age || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Gender</p>
-                  <p className="text-foreground/90 font-medium">{meta.gender || 'Non-binary'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any).gender || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">City</p>
-                  <p className="text-foreground/90 font-medium">{meta.city || profile?.city || '-'}</p>
+                  <p className="text-foreground/90 font-medium">{profile.city || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Occupation</p>
-                  <p className="text-foreground/90 font-medium">{meta.occupation || '-'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any).occupation || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Country</p>
-                  <p className="text-foreground/90 font-medium">{meta.country || (profile as any)?.country || '-'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any).country || '—'}</p>
                 </div>
               </div>
 
@@ -212,12 +235,12 @@ export default function ProfilePage() {
                 {partners.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {partners.map(p => (
-                      <div key={p.id} className="px-4 py-1.5 rounded-full border border-border dark:border-white/10 bg-secondary/30 dark:bg-transparent/50 text-sm flex items-center gap-2">
+                      <div key={p.id} className="px-4 py-1.5 rounded-full border border-border bg-secondary/30 dark:bg-elevated/50 text-sm flex items-center gap-2">
                         <span>{p.emoji}</span>
                         <span className="font-medium text-foreground">{p.name}</span>
                       </div>
                     ))}
-                    <Link href="/partners/new" className="px-4 py-1.5 rounded-full border border-dashed border-border dark:border-white/20 text-sm flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+                    <Link href="/partners/new" className="px-4 py-1.5 rounded-full border border-dashed border-border dark:border-border text-sm flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
                       <PlusCircle className="h-4 w-4" /> Add
                     </Link>
                   </div>
@@ -230,19 +253,19 @@ export default function ProfilePage() {
             </div>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Posts</div>
                 <div className="font-score text-2xl text-foreground">{posts?.length || 0}</div>
               </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Avg Score</div>
                 <div className="font-score text-2xl text-primary"><AnimatedNumber value={avgScore} delay={0.2} /></div>
               </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Best Score</div>
                 <div className="font-score text-2xl text-gold"><AnimatedNumber value={bestScore} delay={0.4} /></div>
               </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-white/5 bg-secondary/30 dark:bg-transparent/50 backdrop-blur-md">
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Partners</div>
                 <div className="font-score text-2xl text-primary">{partners.length}</div>
               </div>
@@ -251,12 +274,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Middle Row: Social Media / Actions */}
-        <div className="rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
           <div className="w-full min-w-0 flex-1">
             <h3 className="font-display text-2xl italic text-foreground mb-6">Quick Actions</h3>
             <div className="flex overflow-x-auto snap-x snap-mandatory pb-4 gap-4 [&::-webkit-scrollbar]:hidden">
               <Link href="/partners/new" className="block snap-start min-w-max">
-                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
                   <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
                     <Heart className="h-4 w-4 text-primary dark:text-blush" />
                   </div>
@@ -264,7 +287,7 @@ export default function ProfilePage() {
                 </div>
               </Link>
               <Link href="/posts/new" className="block snap-start min-w-max">
-                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
                   <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
                     <PlusCircle className="h-4 w-4 text-foreground" />
                   </div>
@@ -272,13 +295,14 @@ export default function ProfilePage() {
                 </div>
               </Link>
               <button 
-                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 border border-border dark:border-white/10 rounded-full pr-5 pl-2 py-2 transition-all duration-300 group snap-start min-w-max"
+                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group snap-start min-w-max"
                 onClick={() => {
                   openShare('profile', {
                     username: profile.username,
                     avatarUrl: profile.avatar_url,
                     score: avgScore,
                     city: profile.city || undefined,
+                    streak: streak?.currentStreak || 0,
                   });
                 }}
               >
@@ -310,7 +334,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Bottom Panel: My Productions (Verdicts) */}
-        <div className="rounded-3xl border border-border dark:border-white/10 bg-card/60 p-8 shadow-lg backdrop-blur-xl">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-8 shadow-lg backdrop-blur-xl">
           <h3 className="font-display text-2xl italic text-foreground mb-8">My Verdicts</h3>
 
           {isLoading ? (
@@ -324,7 +348,7 @@ export default function ProfilePage() {
                   id: post.id,
                   username: profile?.username ? `@${profile.username}` : '@you',
                   partnerNickname: post.partner?.name || 'partner',
-                  city: profile?.city || 'Unknown',
+                  city: post.post_city || profile?.city || 'Unknown',
                   country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
                   score: post.ai_score || 0,
@@ -332,7 +356,7 @@ export default function ProfilePage() {
                   reactions: { heart: 0, fire: 0, laugh: 0, trophy: 0 },
                   believable: 0,
                   sus: 0,
-                  postedAt: new Date(post.created_at).toLocaleDateString(),
+                  postedAt: formatRelativeTime(post.created_at),
                 };
                 return (
                   <div key={post.id} className="break-inside-avoid">
@@ -346,7 +370,7 @@ export default function ProfilePage() {
               <h3 className="text-lg font-display italic text-foreground mb-2">The archives are empty</h3>
               <p className="text-muted-foreground text-sm mb-6">No verdicts yet. The board is waiting to judge.</p>
               <Link href="/posts/new">
-                <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-white/10 bg-black/5 dark:bg-white/5 px-6 py-2.5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+                <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-border bg-black/5 dark:bg-white/5 px-6 py-2.5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
                   Claim your first verdict
                 </button>
               </Link>
@@ -359,14 +383,20 @@ export default function ProfilePage() {
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
         currentProfile={profile}
-        onSuccess={() => window.location.reload()}
+        onSuccess={() => {
+          refreshProfile();
+          setIsEditing(false);
+        }}
       />
 
       <AvatarSelectionModal
         isOpen={isAvatarModalOpen}
         onClose={() => setIsAvatarModalOpen(false)}
         currentProfile={profile}
-        onSuccess={() => window.location.reload()}
+        onSuccess={() => {
+          refreshProfile();
+          setIsAvatarModalOpen(false);
+        }}
       />
     </main>
   );

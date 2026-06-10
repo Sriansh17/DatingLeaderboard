@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS public.posts (
   ai_feedback     TEXT,
   ai_explanation  TEXT,
   is_public       BOOLEAN DEFAULT TRUE,
+  post_city       TEXT,           -- frozen at creation time; doesn't change when profile updates
   created_at      TIMESTAMPTZ DEFAULT NOW(),
   updated_at      TIMESTAMPTZ DEFAULT NOW()
 );

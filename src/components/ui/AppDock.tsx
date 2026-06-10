@@ -23,6 +23,26 @@ const BubblesIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const SunIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <circle cx="12" cy="12" r="4" />
+    <line x1="12" y1="2" x2="12" y2="4" />
+    <line x1="12" y1="20" x2="12" y2="22" />
+    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+    <line x1="2" y1="12" x2="4" y2="12" />
+    <line x1="20" y1="12" x2="22" y2="12" />
+    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+  </svg>
+);
+
+const MoonIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
+  </svg>
+);
+
 // ─── Atmosphere Panel content (shared between popover and bottom sheet) ───────
 
 function AtmospherePanel({
@@ -38,6 +58,8 @@ function AtmospherePanel({
   setParticlesEnabled: (v: boolean) => void;
   onClose?: () => void;
 }) {
+  const { resolvedTheme, setTheme } = useTheme();
+
   const getAtmColor = (a: string) => {
     switch (a) {
       case 'soft-blush': return 'bg-primary/50 dark:bg-primary/30';
@@ -45,7 +67,7 @@ function AtmospherePanel({
       case 'vignette-rose': return 'bg-[radial-gradient(circle_at_center,rgba(209,47,88,0.7)_0%,transparent_100%)]';
       case 'prismatic-rose': return 'bg-[conic-gradient(from_180deg_at_50%_50%,rgba(209,47,88,0.7),rgba(199,169,107,0.7),rgba(209,47,88,0.7))]';
       case 'aura': return 'bg-[radial-gradient(circle_at_top_left,rgba(232,69,107,0.8)_0%,transparent_70%),radial-gradient(circle_at_bottom_right,rgba(212,175,55,0.6)_0%,transparent_70%)] bg-[#120E15]';
-      case 'minimal': return 'bg-transparent border border-black/20 dark:border-white/20';
+      case 'minimal': return 'bg-transparent border border-black/20 dark:border-border';
     }
   };
 
@@ -61,15 +83,36 @@ function AtmospherePanel({
 
   return (
     <div className="w-full">
+      {/* Header: name + icon controls */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-xs font-bold tracking-[0.15em] text-foreground uppercase">
-          Atmosphere
+        <span className="text-[10px] font-bold tracking-[0.15em] text-foreground uppercase">
+          Atmosphere <span className="text-muted-foreground font-normal">·</span>{' '}
+          <span className="text-muted-foreground font-normal normal-case tracking-normal">{ATM_NAMES[atmosphere] || atmosphere}</span>
         </span>
-        <span className="text-[10px] text-muted-foreground">
-          {ATM_NAMES[atmosphere] || atmosphere}
-        </span>
+        <div className="flex items-center gap-1">
+          {/* Bubbles toggle icon */}
+          <button
+            onClick={() => setParticlesEnabled(!particlesEnabled)}
+            className={`p-2 rounded-full border transition-colors ${particlesEnabled ? 'text-gold border-gold/30 bg-gold/10' : 'text-muted-foreground border-border bg-card hover:text-foreground'}`}
+            title={particlesEnabled ? 'Disable particles' : 'Enable particles'}
+          >
+            <BubblesIcon className="h-3.5 w-3.5" />
+          </button>
+          {/* Sun/Moon theme toggle icon */}
+          <button
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground transition-colors"
+            title={resolvedTheme === 'dark' ? 'Switch to light' : 'Switch to dark'}
+          >
+            {resolvedTheme === 'dark'
+              ? <SunIcon className="h-3.5 w-3.5" />
+              : <MoonIcon className="h-3.5 w-3.5" />
+            }
+          </button>
+        </div>
       </div>
 
+      {/* Gradient circles */}
       <div className="grid grid-cols-6 gap-3 mb-5">
         {ATM_OPTIONS.map((atm) => {
           const isActive = atmosphere === atm;
@@ -91,27 +134,9 @@ function AtmospherePanel({
         })}
       </div>
 
-      {/* Particles toggle */}
-      <div className="flex items-center justify-between py-3 border-t border-border">
-        <div className="flex items-center gap-2">
-          <BubblesIcon className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-sm text-foreground">Magic particles</span>
-        </div>
-        <button
-          onClick={() => setParticlesEnabled(!particlesEnabled)}
-          className={`relative h-5 w-9 rounded-full transition-colors duration-300 ${
-            particlesEnabled ? 'bg-gold' : 'bg-muted-foreground/30'
-          }`}
-        >
-          <motion.div
-            animate={{ x: particlesEnabled ? 16 : 2 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"
-          />
-        </button>
-      </div>
-
-      <div className="pt-3 border-t border-border">
+      {/* Footer */}
+      <div className="flex items-center justify-between pt-3 border-t border-border">
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">More</span>
         <Link
           href="/contact"
           onClick={onClose}
@@ -156,7 +181,7 @@ export function AppDock() {
         {isActive && (
           <motion.div
             layoutId="nav-dock-active-pill"
-            className="absolute inset-0 rounded-full bg-white/40 dark:bg-white/10 border border-black/5 dark:border-white/10 shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.2)] backdrop-blur-xl"
+            className="absolute inset-0 rounded-full bg-white/40 dark:bg-white/10 border border-black/5 dark:border-border shadow-[inset_0_1px_3px_rgba(255,255,255,0.9),0_2px_8px_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_1px_rgba(255,255,255,0.2),0_4px_12px_rgba(0,0,0,0.2)] backdrop-blur-xl"
             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
           />
         )}
@@ -196,21 +221,12 @@ export function AppDock() {
 
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-display italic text-xl text-foreground">Customise</h2>
-                <div className="flex items-center gap-3">
-                  {/* Theme toggle inside sheet */}
-                  <button
-                    onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card text-sm font-medium text-foreground transition-colors hover:bg-elevated"
-                  >
-                    {resolvedTheme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-                  </button>
-                  <button
-                    onClick={() => setSheetOpen(false)}
-                    className="p-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
-                </div>
+                <button
+                  onClick={() => setSheetOpen(false)}
+                  className="p-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
 
               <AtmospherePanel
@@ -227,40 +243,27 @@ export function AppDock() {
 
       {/* ── Dock ── */}
       <div className={`fixed bottom-6 sm:bottom-8 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} w-max max-w-[95vw]`}>
-        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-white/10 bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto">
+        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto">
 
-          {/* Brand Icon — mobile: tap opens sheet | desktop: hover opens popover */}
+          {/* Brand Icon — tap toggles theme | hover opens atmosphere popover */}
           {isMounted ? (
             <div className="relative group/sparkle mr-1 sm:mr-2">
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  // On mobile: open sheet. On desktop: also toggle theme (hover handles popover).
-                  if (window.innerWidth < 768) {
-                    setSheetOpen(true);
-                  } else {
-                    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
-                  }
+                  setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
                 }}
                 className="relative z-[60] flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full text-gold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                title="Customise atmosphere"
-                aria-label="Open atmosphere settings"
+                title="Toggle theme"
+                aria-label="Toggle light/dark mode"
               >
-                <Sparkles className="h-6 w-6 transition-transform group-hover/sparkle:scale-110" />
+                <Sparkles className="h-5 w-5 sm:h-6 sm:w-6 transition-transform group-hover/sparkle:scale-110" />
               </button>
 
               {/* Desktop hover popover — hidden on mobile */}
               <div className="hidden md:block absolute bottom-[calc(100%+24px)] left-0 opacity-0 scale-95 pointer-events-none group-hover/sparkle:opacity-100 group-hover/sparkle:scale-100 group-hover/sparkle:pointer-events-auto transition-all duration-300 origin-bottom-left z-50">
                 <div className="absolute inset-0 -bottom-14" />
                 <div className="bg-popover border border-border rounded-2xl p-5 shadow-2xl relative z-10 w-[300px]">
-                  <div className="flex items-center justify-between mb-4">
-                    <button
-                      onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-                      className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card text-xs font-medium text-foreground transition-colors hover:bg-elevated"
-                    >
-                      {resolvedTheme === 'dark' ? '☀️ Light' : '🌙 Dark'}
-                    </button>
-                  </div>
                   <AtmospherePanel
                     atmosphere={atmosphere}
                     setAtmosphere={setAtmosphere}
@@ -282,10 +285,14 @@ export function AppDock() {
           <div className="px-1 sm:px-2">
             <Link
               href="/posts/new"
-              className="outline-none group relative flex h-11 w-11 sm:h-14 sm:w-14 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-glow transition-transform hover:scale-110 focus-visible:scale-110 animate-pulse-glow"
+              className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 animate-pulse-glow"
               aria-label="New post"
+              style={{
+                background: 'linear-gradient(180deg, rgb(var(--primary)), color-mix(in oklab, rgb(var(--primary)) 85%, black))',
+                boxShadow: '0 6px 20px -6px rgba(var(--primary), 0.5), 0 2px 6px -1px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)',
+              }}
             >
-              <Plus className="h-5 w-5 sm:h-7 sm:w-7 transition-transform group-hover:rotate-90 duration-300" />
+              <Plus className="h-5 w-5 sm:h-7 sm:w-7 text-white transition-transform duration-300 group-hover:rotate-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
             </Link>
           </div>
 

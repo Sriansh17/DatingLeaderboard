@@ -133,7 +133,7 @@ function SpotlightCard({
       whileTap={{ scale: 0.975 }}
       aria-pressed={selected}
       className={`relative w-full text-left px-6 py-5 rounded-2xl overflow-hidden transition-colors duration-300 ${
-        selected ? 'border border-primary/50' : 'border border-black/8 dark:border-white/8'
+        selected ? 'border border-primary/50' : 'border border-black/8 dark:border-border'
       }`}
     >
       {/* Frosted glass base */}
@@ -198,7 +198,7 @@ function SelectPill({
       className={`flex items-center gap-2 px-5 py-3 rounded-full border text-sm font-medium transition-all duration-300 ${
         selected
           ? active
-          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
       }`}
     >
       <AnimatePresence>
@@ -228,113 +228,152 @@ const variants = {
 
 // ─── Cinematic Intro ──────────────────────────────────────────────────────────
 
-function CinematicIntro({ onStart }: { onStart: () => void }) {
+function CinematicIntro({ onStart, audioRef }: { onStart: () => void; audioRef: React.RefObject<HTMLAudioElement | null> }) {
   const [scope, animate] = useAnimate();
+  const [started, setStarted] = useState(false);
 
-  useEffect(() => {
+  const startSequence = useCallback(() => {
+    if (started) return;
+    setStarted(true);
+
+    // Audio starts here — inside a real tap/click, browser always allows it
+    if (audioRef.current) {
+      audioRef.current.currentTime = 12; // skip past the intro build-up
+      audioRef.current.play().catch(() => {});
+    }
+
     const seq = async () => {
-      // Phase 0 — hold darkness
       await animate(scope.current, { opacity: 1 }, { duration: 0 });
-
-      // Phase 1 — glow bloom behind wordmark
-      await animate('#intro-glow', { opacity: [0, 0.6], scale: [0.4, 1.2] }, { duration: 1.4, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 2 — sparkle drops in
-      await animate('#intro-sparkle', { opacity: [0, 1], y: [-20, 0], scale: [0.6, 1], rotate: [-15, 0] }, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 3 — "Fond." rises from blur
-      await animate('#intro-wordmark', { opacity: [0, 1], y: [40, 0], filter: ['blur(24px)', 'blur(0px)'] }, { duration: 1.0, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 4 — tagline fades up
-      await animate('#intro-tagline', { opacity: [0, 1], y: [12, 0] }, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 5 — hold 0.6s, then brand block floats up
-      await new Promise(r => setTimeout(r, 600));
-      animate('#intro-brand', { y: [0, -48] }, { duration: 1.0, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 6 — "How Fond works" rises from below
-      await animate('#intro-how', { opacity: [0, 1], y: [60, 0] }, { duration: 0.75, ease: [0.16, 1, 0.3, 1] });
-
-      // Phase 7 — rows slide in one by one
-      await animate('.intro-row', { opacity: [0, 1], x: [-20, 0], filter: ['blur(8px)', 'blur(0px)'] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1], delay: stagger(0.18) });
-
-      // Phase 8 — CTA appears
-      await animate('#intro-cta', { opacity: [0, 1], y: [20, 0], scale: [0.95, 1] }, { duration: 0.6, ease: [0.16, 1, 0.3, 1] });
+      await animate('#intro-glow', { opacity: [0, 0.6], scale: [0.4, 1.2] }, { duration: 0.8, ease: [0.16, 1, 0.3, 1] });
+      await animate('#intro-sparkle', { opacity: [0, 1], y: [-20, 0], scale: [0.6, 1], rotate: [-15, 0] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1] });
+      await animate('#intro-wordmark', { opacity: [0, 1], y: [40, 0], filter: ['blur(24px)', 'blur(0px)'] }, { duration: 0.7, ease: [0.16, 1, 0.3, 1] });
+      await animate('#intro-tagline', { opacity: [0, 1], y: [12, 0] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1] });
+      await new Promise(r => setTimeout(r, 300));
+      animate('#intro-brand', { y: [0, -48] }, { duration: 0.8, ease: [0.16, 1, 0.3, 1] });
+      await animate('#intro-how', { opacity: [0, 1], y: [60, 0] }, { duration: 0.6, ease: [0.16, 1, 0.3, 1] });
+      await animate('.intro-row', { opacity: [0, 1], x: [-20, 0], filter: ['blur(8px)', 'blur(0px)'] }, { duration: 0.4, ease: [0.16, 1, 0.3, 1], delay: stagger(0.12) });
+      await animate('#intro-cta', { opacity: [0, 1], y: [20, 0], scale: [0.95, 1] }, { duration: 0.5, ease: [0.16, 1, 0.3, 1] });
     };
     seq();
-  }, []);
+  }, [started]);
 
   return (
-    <div ref={scope} className="flex-1 flex flex-col justify-center items-center text-center opacity-0">
+    <>
+      {/* ── Full-screen tap-to-begin overlay ── */}
+      <AnimatePresence>
+        {!started && (
+          <motion.div
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, filter: 'blur(16px)', scale: 1.06 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            onClick={startSequence}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center cursor-pointer"
+          >
+            {/* Breathing glow — sits behind everything */}
+            <motion.div
+              animate={{ scale: [1, 1.15, 1], opacity: [0.2, 0.45, 0.2] }}
+              transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+              className="absolute w-[55vw] h-[55vw] max-w-[420px] max-h-[420px] rounded-full bg-primary blur-[90px] pointer-events-none"
+            />
 
-      {/* Ambient glow bloom */}
-      <div
-        id="intro-glow"
-        className="pointer-events-none fixed inset-0 flex items-center justify-center opacity-0"
-        aria-hidden
-      >
-        <div className="w-[60vw] h-[60vw] max-w-[500px] max-h-[500px] rounded-full bg-primary/20 blur-[80px]" />
-      </div>
+            {/* Fond. wordmark */}
+            <motion.div
+              initial={{ opacity: 0, y: 10, filter: 'blur(12px)' }}
+              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+              transition={{ delay: 0.2, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
+              className="relative flex flex-col items-center gap-4 select-none"
+            >
+              <Sparkles
+                className="h-7 w-7 text-gold"
+                style={{ filter: 'drop-shadow(0 0 16px rgba(199,169,107,0.9))' }}
+              />
+              <h1 className="font-display italic text-[72px] sm:text-[88px] font-bold tracking-tight leading-none bg-gradient-to-br from-foreground via-foreground to-foreground/50 bg-clip-text text-transparent">
+                Fond.
+              </h1>
+              <p className="text-[10px] uppercase tracking-[0.3em] text-muted-foreground/60 font-medium">
+                Affection Intelligence Platform
+              </p>
+            </motion.div>
 
-      {/* Brand block */}
-      <div id="intro-brand" className="flex flex-col items-center mb-2">
-        <div id="intro-sparkle" className="opacity-0 mb-5">
-          <Sparkles className="h-8 w-8 text-gold" style={{ filter: 'drop-shadow(0 0 12px rgba(199,169,107,0.8))' }} />
-        </div>
-
-        <h1
-          id="intro-wordmark"
-          className="opacity-0 font-display text-[76px] sm:text-[92px] italic font-bold tracking-tight leading-none bg-gradient-to-br from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent"
-        >
-          Fond.
-        </h1>
-
-        <p
-          id="intro-tagline"
-          className="opacity-0 text-muted-foreground text-base leading-relaxed mt-3 max-w-[260px]"
-        >
-          The AI doesn&apos;t care about your feelings.
-        </p>
-      </div>
-
-      {/* How Fond works */}
-      <div id="intro-how" className="opacity-0 w-full max-w-xs mt-6">
-        <p className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold mb-5 text-center">
-          How Fond works
-        </p>
-        <div className="space-y-4">
-          {[
-            { n: '01', headline: 'Your partner did something.', sub: 'You describe it. In one sentence or twenty.', color: 'text-primary' },
-            { n: '02', headline: 'The AI judges it. Brutally.', sub: 'Scored out of 100. No mercy. No favourites.', color: 'text-gold' },
-            { n: '03', headline: 'The whole world sees it.', sub: 'Compete with couples in your city — and on the planet.', color: 'text-primary' },
-          ].map((row) => (
-            <div key={row.n} className="intro-row opacity-0 flex items-start gap-4 text-left">
-              <span className={`font-score text-3xl leading-none shrink-0 mt-0.5 ${row.color}`}>
-                {row.n}
+            {/* Tap to begin */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.4, duration: 0.6 }}
+              className="absolute bottom-16 flex flex-col items-center gap-3 select-none pointer-events-none"
+            >
+              <motion.div
+                animate={{ scale: [1, 1.8, 1], opacity: [0.5, 0, 0.5] }}
+                transition={{ duration: 1.6, repeat: Infinity, ease: 'easeOut' }}
+                className="w-1.5 h-1.5 rounded-full bg-white/50"
+              />
+              <span className="text-[10px] uppercase tracking-[0.35em] text-white/35 font-medium">
+                Tap to begin
               </span>
-              <div>
-                <p className="font-display italic text-base text-foreground leading-snug">{row.headline}</p>
-                <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{row.sub}</p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Cinematic content (hidden until started) ── */}
+      <div
+        ref={scope}
+        className="flex-1 flex flex-col justify-center items-center text-center opacity-0"
+      >
+        {/* Ambient glow bloom */}
+        <div id="intro-glow" className="pointer-events-none fixed inset-0 flex items-center justify-center opacity-0" aria-hidden>
+          <div className="w-[60vw] h-[60vw] max-w-[500px] max-h-[500px] rounded-full bg-primary/20 blur-[80px]" />
+        </div>
+
+        {/* Brand block */}
+        <div id="intro-brand" className="flex flex-col items-center mb-2">
+          <div id="intro-sparkle" className="opacity-0 mb-5">
+            <Sparkles className="h-8 w-8 text-gold" style={{ filter: 'drop-shadow(0 0 12px rgba(199,169,107,0.8))' }} />
+          </div>
+          <h1 id="intro-wordmark" className="opacity-0 font-display text-[76px] sm:text-[92px] italic font-bold tracking-tight leading-none bg-gradient-to-br from-foreground via-foreground to-foreground/40 bg-clip-text text-transparent">
+            Fond.
+          </h1>
+          <p id="intro-tagline" className="opacity-0 text-muted-foreground text-base leading-relaxed mt-3 max-w-[260px]">
+            The AI doesn&apos;t care about your feelings.
+          </p>
+        </div>
+
+        {/* How Fond works */}
+        <div id="intro-how" className="opacity-0 w-full max-w-xs mt-6">
+          <p className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold mb-5 text-center">
+            How Fond works
+          </p>
+          <div className="space-y-4">
+            {[
+              { n: '01', headline: 'Your partner did something.', sub: 'You describe it. In one sentence or twenty.', color: 'text-primary' },
+              { n: '02', headline: 'The AI judges it. Brutally.', sub: 'Scored out of 100. No mercy. No favourites.', color: 'text-gold' },
+              { n: '03', headline: 'The whole world sees it.', sub: 'Compete with couples in your city — and on the planet.', color: 'text-primary' },
+            ].map((row) => (
+              <div key={row.n} className="intro-row opacity-0 flex items-start gap-4 text-left">
+                <span className={`font-score text-3xl leading-none shrink-0 mt-0.5 ${row.color}`}>{row.n}</span>
+                <div>
+                  <p className="font-display italic text-base text-foreground leading-snug">{row.headline}</p>
+                  <p className="text-sm text-muted-foreground mt-0.5 leading-snug">{row.sub}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
+        </div>
+
+        {/* Glass CTA */}
+        <div id="intro-cta" className="opacity-0 w-full max-w-xs mt-8">
+          <button
+            onClick={onStart}
+            className="relative w-full overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/15 hover:shadow-[0_0_50px_-4px_rgba(199,169,107,0.4)] active:scale-[0.98]"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
+            <span className="relative z-10 flex items-center gap-2.5">
+              Start my archive <ArrowRight className="h-4 w-4" />
+            </span>
+          </button>
         </div>
       </div>
-
-      {/* Glass CTA */}
-      <div id="intro-cta" className="opacity-0 w-full max-w-xs mt-8">
-        <button
-          onClick={onStart}
-          className="relative w-full overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/15 hover:shadow-[0_0_50px_-4px_rgba(199,169,107,0.4)] active:scale-[0.98]"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
-          <span className="relative z-10 flex items-center gap-2.5">
-            Start my archive <ArrowRight className="h-4 w-4" />
-          </span>
-        </button>
-      </div>
-
-    </div>
+    </>
   );
 }
 
@@ -359,29 +398,13 @@ export default function OnboardingFlow() {
   const [muted, setMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  // Autoplay intro music — play on first user interaction (browser requirement)
+  // Audio is created here, played inside CinematicIntro on user tap
   useEffect(() => {
     const audio = new Audio('/audio/intro.mp3');
     audio.loop = true;
     audio.volume = 0.35;
     audioRef.current = audio;
-
-    const tryPlay = () => {
-      audio.play().catch(() => {});
-      window.removeEventListener('pointerdown', tryPlay);
-    };
-
-    // Try immediately (works if coming from a click like signup/login)
-    audio.play().catch(() => {
-      // Blocked — wait for next tap
-      window.addEventListener('pointerdown', tryPlay, { once: true });
-    });
-
-    return () => {
-      audio.pause();
-      audio.src = '';
-      window.removeEventListener('pointerdown', tryPlay);
-    };
+    return () => { audio.pause(); audio.src = ''; };
   }, []);
 
   // Sync mute state
@@ -402,18 +425,6 @@ export default function OnboardingFlow() {
   }
 
   const goTo = (n: number) => {
-    // Fade out music when leaving the intro
-    if (n > 1 && audioRef.current) {
-      const audio = audioRef.current;
-      const fadeOut = setInterval(() => {
-        if (audio.volume > 0.03) {
-          audio.volume = Math.max(0, audio.volume - 0.04);
-        } else {
-          audio.pause();
-          clearInterval(fadeOut);
-        }
-      }, 80);
-    }
     setStep(n);
     if (typeof window !== 'undefined') window.scrollTo({ top: 0, behavior: 'instant' });
   };
@@ -429,17 +440,55 @@ export default function OnboardingFlow() {
   };
 
   const completeOnboarding = async () => {
-    const supabase = createClient();
-    await supabase
-      .from('profiles')
-      .update({
-        has_onboarded: true,
-        relationship_status: status || null,
-        onboarding_goals: selectedGoals.length ? selectedGoals : null,
-        love_languages: selectedLanguages.length ? selectedLanguages : null,
-      })
-      .eq('id', user.id);
-    await refreshProfile();
+    // Fade out music as they finish
+    if (audioRef.current) {
+      const audio = audioRef.current;
+      const fadeOut = setInterval(() => {
+        if (audio.volume > 0.03) {
+          audio.volume = Math.max(0, audio.volume - 0.06);
+        } else {
+          audio.pause();
+          clearInterval(fadeOut);
+        }
+      }, 60);
+    }
+
+    try {
+      const supabase = createClient();
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          has_onboarded: true,
+          relationship_status: status || null,
+          onboarding_goals: selectedGoals.length ? selectedGoals : null,
+          love_languages: selectedLanguages.length ? selectedLanguages : null,
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        console.error('[Onboarding] DB update failed:', error);
+        addToast('Could not save preferences. Please try again.', 'error');
+        return;
+      }
+
+      await refreshProfile();
+
+      // Verify it was saved
+      const { data: verify } = await supabase
+        .from('profiles')
+        .select('has_onboarded')
+        .eq('id', user.id)
+        .single();
+
+      if (!verify?.has_onboarded) {
+        console.warn('[Onboarding] has_onboarded not persisted after update');
+      }
+    } catch (err) {
+      console.error('[Onboarding] Error:', err);
+      addToast('Something went wrong. Please try again.', 'error');
+      return;
+    }
+
     addToast('Welcome to Fond. Your archive begins now.', 'success');
     router.push('/dashboard');
   };
@@ -520,7 +569,7 @@ export default function OnboardingFlow() {
 
             {/* ══════════ STEP 1 — Welcome ══════════ */}
             {step === 1 && (
-              <CinematicIntro onStart={() => goTo(2)} />
+              <CinematicIntro onStart={() => goTo(2)} audioRef={audioRef} />
             )}
 
             {/* ══════════ STEP 2 — Relationship Status ══════════ */}
@@ -559,7 +608,7 @@ export default function OnboardingFlow() {
                 <p className="text-muted-foreground text-sm mb-5">
                   Who are we celebrating? You can always add more later.
                 </p>
-                <div className="rounded-2xl border border-black/8 dark:border-white/8 bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
+                <div className="rounded-2xl border border-black/8 dark:border-border bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
                   <PartnerForm userId={user.id} onSuccess={() => goTo(4)} />
                 </div>
                 <button
@@ -674,7 +723,7 @@ export default function OnboardingFlow() {
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
                         theme === t.id
                           ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-                          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+                          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
                       }`}
                     >
                       {t.label}
@@ -719,7 +768,7 @@ export default function OnboardingFlow() {
                       {
                         id: 'minimal' as const,
                         name: 'Minimal',
-                        bg: 'bg-card border border-black/10 dark:border-white/10',
+                        bg: 'bg-card border border-black/10 dark:border-border',
                         accent: 'text-foreground',
                       },
                     ] as const
@@ -897,7 +946,7 @@ function ToggleChip({
           ? gold
             ? 'border-gold/50 bg-gold/10 text-gold shadow-[0_0_14px_-2px_rgba(199,169,107,0.25)]'
             : 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
       }`}
     >
       {label}
