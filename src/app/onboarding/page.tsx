@@ -133,7 +133,7 @@ function SpotlightCard({
       whileTap={{ scale: 0.975 }}
       aria-pressed={selected}
       className={`relative w-full text-left px-6 py-5 rounded-2xl overflow-hidden transition-colors duration-300 ${
-        selected ? 'border border-primary/50' : 'border border-black/8 dark:border-white/8'
+        selected ? 'border border-primary/50' : 'border border-black/8 dark:border-border'
       }`}
     >
       {/* Frosted glass base */}
@@ -198,7 +198,7 @@ function SelectPill({
       className={`flex items-center gap-2 px-5 py-3 rounded-full border text-sm font-medium transition-all duration-300 ${
         selected
           ? active
-          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
       }`}
     >
       <AnimatePresence>
@@ -582,7 +582,7 @@ export default function OnboardingFlow() {
                 <p className="text-muted-foreground text-sm mb-5">
                   Who are we celebrating? You can always add more later.
                 </p>
-                <div className="rounded-2xl border border-black/8 dark:border-white/8 bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
+                <div className="rounded-2xl border border-black/8 dark:border-border bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
                   <PartnerForm userId={user.id} onSuccess={() => goTo(4)} />
                 </div>
                 <button
@@ -697,7 +697,7 @@ export default function OnboardingFlow() {
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
                         theme === t.id
                           ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-                          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+                          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
                       }`}
                     >
                       {t.label}
@@ -742,7 +742,7 @@ export default function OnboardingFlow() {
                       {
                         id: 'minimal' as const,
                         name: 'Minimal',
-                        bg: 'bg-card border border-black/10 dark:border-white/10',
+                        bg: 'bg-card border border-black/10 dark:border-border',
                         accent: 'text-foreground',
                       },
                     ] as const
@@ -920,7 +920,7 @@ function ToggleChip({
           ? gold
             ? 'border-gold/50 bg-gold/10 text-gold shadow-[0_0_14px_-2px_rgba(199,169,107,0.25)]'
             : 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-          : 'border-black/10 dark:border-white/10 bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
       }`}
     >
       {label}

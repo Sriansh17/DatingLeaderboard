@@ -12,15 +12,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-br from-gradientStart to-gradientEnd text-[#111] hover:opacity-90 shadow-sm',
+    'bg-primary text-primary-foreground hover:opacity-90 shadow-[var(--shadow-glow)]',
   secondary:
-    'bg-white/60 text-gray-900 hover:bg-white/80 border border-white/40',
+    'bg-secondary text-secondary-foreground hover:opacity-80 border border-border',
   outline:
-    'border border-gray-300 text-gray-700 hover:bg-white/40',
+    'border border-border text-foreground hover:bg-elevated',
   ghost:
-    'text-gray-600 hover:bg-white/40',
+    'text-muted-foreground hover:bg-elevated',
   danger:
-    'bg-red-500 text-white hover:bg-red-600',
+    'bg-destructive text-destructive-foreground hover:opacity-90',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -35,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gradientStart/50 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
+          'inline-flex items-center justify-center gap-2 rounded-full font-semibold transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none',
           variantStyles[variant],
           sizeStyles[size],
           className

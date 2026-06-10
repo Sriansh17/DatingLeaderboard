@@ -1,5 +1,5 @@
 {
-  "name": "Fond — Love Leaderboard",
+  "name": "Fond — Your Relationship Has a Score",
   "short_name": "Fond",
   "description": "Post one story. AI judges it. Compete with couples worldwide on the world's first relationship leaderboard.",
   "start_url": "/",
@@ -33,13 +33,13 @@
       "sizes": "512x512",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Fond - Love Leaderboard"
+      "label": "Fond — Your Relationship Has a Score"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "label": "Fond - Love Leaderboard"
+      "label": "Fond — Your Relationship Has a Score"
     }
   ],
   "categories": ["social", "lifestyle"],

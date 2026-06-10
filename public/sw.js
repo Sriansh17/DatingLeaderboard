@@ -1,6 +1,6 @@
-const CACHE_NAME = 'loveboard-v1';
-const STATIC_CACHE = 'loveboard-static-v1';
-const API_CACHE = 'loveboard-api-v1';
+const CACHE_NAME = 'fond-v1';
+const STATIC_CACHE = 'fond-static-v1';
+const API_CACHE = 'fond-api-v1';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [

@@ -61,13 +61,13 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
       case 'prismatic-rose':
         return (
           <>
-            <div 
+            <div
               className="absolute inset-0 pointer-events-none opacity-100 blur-[100px]"
               style={{
-                backgroundImage: `conic-gradient(from 180deg at 50% 50%, 
-                  ${isDark ? 'rgba(230,76,117,0.2)' : 'rgba(209,47,88,0.3)'} 0deg, 
-                  ${isDark ? 'rgba(199,169,107,0.15)' : 'rgba(199,169,107,0.2)'} 120deg, 
-                  ${isDark ? 'rgba(180,50,90,0.2)' : 'rgba(255,180,200,0.4)'} 240deg, 
+                backgroundImage: `conic-gradient(from 180deg at 50% 50%,
+                  ${isDark ? 'rgba(230,76,117,0.2)' : 'rgba(209,47,88,0.3)'} 0deg,
+                  ${isDark ? 'rgba(199,169,107,0.15)' : 'rgba(199,169,107,0.2)'} 120deg,
+                  ${isDark ? 'rgba(180,50,90,0.2)' : 'rgba(255,180,200,0.4)'} 240deg,
                   ${isDark ? 'rgba(230,76,117,0.2)' : 'rgba(209,47,88,0.3)'} 360deg)`
               }}
             />
@@ -76,20 +76,20 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
       case 'aura':
         return (
           <>
-            <motion.div 
+            <motion.div
               animate={{ x: [0, 40, -20, 0], y: [0, -40, 30, 0] }}
               transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
-              className={`absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-primary/20 mix-blend-screen' : 'bg-primary/30 mix-blend-multiply'}`} 
+              className={`absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-primary/20 mix-blend-screen' : 'bg-primary/30 mix-blend-multiply'}`}
             />
-            <motion.div 
+            <motion.div
               animate={{ x: [0, -30, 40, 0], y: [0, 30, -40, 0] }}
               transition={{ duration: 35, repeat: Infinity, ease: "easeInOut" }}
-              className={`absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-gold/10 mix-blend-screen' : 'bg-gold/20 mix-blend-multiply'}`} 
+              className={`absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-gold/10 mix-blend-screen' : 'bg-gold/20 mix-blend-multiply'}`}
             />
-            <motion.div 
+            <motion.div
               animate={{ x: [0, 20, -40, 0], y: [0, 40, -20, 0] }}
               transition={{ duration: 45, repeat: Infinity, ease: "easeInOut" }}
-              className={`absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] rounded-full blur-[140px] pointer-events-none ${isDark ? 'bg-primary/10 mix-blend-screen' : 'bg-primary/20 mix-blend-multiply'}`} 
+              className={`absolute -bottom-[20%] left-[20%] w-[80vw] h-[80vw] rounded-full blur-[140px] pointer-events-none ${isDark ? 'bg-primary/10 mix-blend-screen' : 'bg-primary/20 mix-blend-multiply'}`}
             />
           </>
         );
@@ -100,28 +100,49 @@ export function AtmosphereProvider({ children }: { children: React.ReactNode }) 
 
   return (
     <AtmosphereContext.Provider value={{ atmosphere, setAtmosphere, particlesEnabled, setParticlesEnabled }}>
-      {/* The background layer container */}
-      <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none bg-background">
+      {/* Background orbs — fixed to viewport, always in view */}
+      <div className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none">
         {getBackgroundStyles()}
         {particlesEnabled && (
           <div className="absolute inset-0 pointer-events-none z-0">
-            {[...Array(30)].map((_, i) => {
-              const size = Math.random() * 3 + 1.5; // 1.5px to 4.5px
+            {[...Array(45)].map((_, i) => {
+              // Sharp vs blurred mix: ~40% sharp, ~35% soft blur, ~25% dreamy blur
+              const blurRoll = Math.random();
+              const blurAmount = blurRoll < 0.4 ? 0 : blurRoll < 0.75 ? 0.5 + Math.random() * 1.0 : 2.0 + Math.random() * 3.0;
+
+              // Sharp particles are slightly larger and brighter
+              const isSharp = blurAmount === 0;
+              const size = isSharp ? Math.random() * 3.5 + 2 : Math.random() * 3 + 1.5;
               const left = Math.random() * 100;
               const duration = Math.random() * 10 + 15;
               const delay = Math.random() * -20;
+              const drift = (Math.random() - 0.5) * 60;
+
               return (
                 <motion.div
                   key={`bubble-${i}`}
                   initial={{ y: "110vh", opacity: 0, x: "-50%" }}
-                  animate={{ 
-                    y: "-10vh", 
-                    opacity: [0, 1, 1, 0],
-                    x: ["-50%", `${(Math.random() - 0.5) * 50}px`, `${(Math.random() - 0.5) * 50}px`, "-50%"]
+                  animate={{
+                    y: "-10vh",
+                    opacity: [0, isSharp ? 1 : 0.85, isSharp ? 0.9 : 0.7, 0],
+                    x: ["-50%", `${drift}px`, `${drift * -0.7}px`, "-50%"]
                   }}
                   transition={{ duration, repeat: Infinity, ease: "linear", delay }}
-                  className={`absolute rounded-full blur-[0.5px] ${resolvedTheme === 'dark' ? 'bg-[#FFD700]/30 shadow-[0_0_8px_rgba(255,215,0,0.4)]' : 'bg-[#B8860B]/60 shadow-[0_0_8px_rgba(184,134,11,0.6)]'}`}
-                  style={{ left: `${left}vw`, width: size, height: size }}
+                  className={`absolute rounded-full ${
+                    resolvedTheme === 'dark'
+                      ? isSharp
+                        ? 'bg-[#FFD700]/50 shadow-[0_0_12px_rgba(255,215,0,0.6)]'
+                        : 'bg-[#FFD700]/30 shadow-[0_0_8px_rgba(255,215,0,0.4)]'
+                      : isSharp
+                        ? 'bg-[#B8860B]/80 shadow-[0_0_10px_rgba(184,134,11,0.7)]'
+                        : 'bg-[#B8860B]/50 shadow-[0_0_6px_rgba(184,134,11,0.5)]'
+                  }`}
+                  style={{
+                    left: `${left}vw`,
+                    width: size,
+                    height: size,
+                    filter: blurAmount > 0 ? `blur(${blurAmount.toFixed(1)}px)` : undefined,
+                  }}
                 />
               );
             })}

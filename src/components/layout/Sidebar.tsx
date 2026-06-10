@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils/cn';
 import {
   Heart,
+  Sparkles,
   Trophy,
   PlusCircle,
   Users,
@@ -75,8 +76,8 @@ export function Sidebar() {
         <div className="flex items-center gap-3">
           <div className="relative flex-shrink-0">
             <div className="absolute inset-0 bg-primary/20 dark:bg-primary/30 blur-xl rounded-full" />
-            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-pink-400 to-accent flex items-center justify-center shadow-lg shadow-pink-500/20">
-              <Heart className="h-5 w-5 text-white fill-white/90" />
+            <div className="relative w-10 h-10 rounded-2xl bg-gradient-to-br from-gold/80 to-gold flex items-center justify-center shadow-lg shadow-gold/20">
+              <Sparkles className="h-5 w-5 text-white" />
             </div>
           </div>
           <div
@@ -85,11 +86,11 @@ export function Sidebar() {
               isCollapsed ? 'opacity-0 w-0' : 'opacity-100 w-auto'
             )}
           >
-            <h1 className="text-lg font-bold bg-gradient-to-r from-primary via-rose-500 to-purple-500 bg-clip-text text-transparent">
-              LoveBoard
+            <h1 className="text-lg font-display italic text-gold">
+              Fond
             </h1>
             <p className="text-[11px] text-muted-foreground tracking-wide uppercase">
-              Share the love
+              Affection Intelligence Platform
             </p>
           </div>
         </div>
@@ -154,9 +155,7 @@ export function Sidebar() {
             <span className="animate-pulse text-lg">❤️</span>
           ) : (
             <p className="text-[11px] text-muted-foreground tracking-wide whitespace-nowrap overflow-hidden">
-              Made with
-              <span className="inline-block mx-1 animate-pulse">❤️</span>
-              for lovers
+              Affection Intelligence
             </p>
           )}
         </div>

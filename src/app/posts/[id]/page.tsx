@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles, Trash2 } from 'lucide-react';
-import { ShareCard } from '@/components/posts/ShareCard';
+import { ArrowLeft, Sparkles, Trash2, Share2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useShare } from '@/components/providers/ShareProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
 import { useMemo } from 'react';
@@ -21,6 +21,7 @@ export default function PostDetailPage() {
   const router = useRouter();
   const { user } = useUser();
   const { addToast } = useToast();
+  const { openShare } = useShare();
   const { data: post, isLoading } = usePost(params.id as string);
 
   const { data: globalLeaderboard } = useLeaderboard({ type: 'global', limit: 100 });
@@ -40,7 +41,7 @@ export default function PostDetailPage() {
   };
 
   if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
-  if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
+  if (!post) return <div className="text-center py-20 text-muted-foreground">Post not found</div>;
 
   let breakdown: Record<string, number> = {};
   try {
@@ -48,7 +49,7 @@ export default function PostDetailPage() {
   } catch {}
 
   return (
-    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-32">
+    <main className="relative px-4 sm:px-6 lg:px-8 pb-32">
       <div className="absolute top-8 left-6 sm:left-12">
         <button
           onClick={() => router.back()}
@@ -63,7 +64,7 @@ export default function PostDetailPage() {
 
       {/* Score Hero */}
       <div className="text-center py-10 relative">
-        <div className="absolute inset-0 bg-gradient-radial from-primary/10 to-transparent blur-3xl -z-10" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgb(var(--primary)/0.1),transparent)] blur-3xl -z-10" />
         <div className="flex justify-center mb-6">
           <ScoreRing score={post.ai_score || 0} size={120} />
         </div>
@@ -83,14 +84,16 @@ export default function PostDetailPage() {
 
       {/* AI Feedback */}
       {post.ai_feedback && (
-        <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-blush/20 to-transparent p-8 shadow-xl backdrop-blur-md relative overflow-hidden">
+        <div className="rounded-3xl border border-gold/20 bg-gold/[0.06] dark:bg-gold/5 p-8 shadow-sm relative overflow-hidden">
+          {/* Subtle rose glow in corner */}
+          <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-primary/[0.07] dark:bg-primary/5 blur-3xl pointer-events-none" />
           <div className="relative z-10">
             <div className="flex items-center gap-2 mb-4">
-              <Sparkles className="h-6 w-6 text-blush" />
-              <span className="font-display tracking-widest uppercase text-xs font-bold text-blush">LoveScore AI Verdict</span>
+              <Sparkles className="h-5 w-5 text-gold" />
+              <span className="font-sans tracking-[0.2em] uppercase text-[10px] font-bold text-gold/80">Fond AI Verdict</span>
             </div>
             <p className="font-display text-2xl italic leading-relaxed text-foreground">
-              “{post.ai_feedback}”
+              "{post.ai_feedback}"
             </p>
           </div>
         </div>
@@ -98,7 +101,7 @@ export default function PostDetailPage() {
 
       {/* Description */}
       <div className="rounded-3xl border border-border bg-card p-8">
-        <h4 className="font-display tracking-widest uppercase text-[10px] font-bold text-muted-foreground mb-4">
+        <h4 className="font-sans tracking-widest uppercase text-[10px] font-bold text-muted-foreground mb-4">
           Original Story
         </h4>
         <p className="text-foreground/90 leading-relaxed text-lg whitespace-pre-wrap">{post.description}</p>
@@ -123,7 +126,7 @@ export default function PostDetailPage() {
                 <div key={key} className="flex flex-col gap-2">
                   <div className="flex justify-between items-end">
                     <span className="text-sm font-medium text-muted-foreground uppercase tracking-wider">
-                      {key.replace('_', ' ')}
+                      {BREAKDOWN_LABELS[key] || key.replace(/_/g, ' ')}
                     </span>
                     <span className="font-score text-lg text-foreground leading-none">
                       {value} <span className="text-muted-foreground text-sm">/ {max}</span>
@@ -146,9 +149,25 @@ export default function PostDetailPage() {
 
       {/* Actions */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-border/50">
-        <ShareCard post={post} rank={authorRank} />
+        <button
+          onClick={() => openShare('post', {
+            username: post.profile?.username || 'you',
+            partnerName: post.partner?.name,
+            headline: post.description,
+            verdict: post.ai_feedback || undefined,
+            score: post.ai_score || 0,
+            rank: authorRank,
+            city: (post as any).post_city || post.profile?.city || undefined,
+            date: formatRelativeTime(post.created_at),
+            avatarUrl: post.profile?.avatar_url,
+          })}
+          className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/5 text-primary px-5 py-2.5 text-sm font-semibold hover:bg-primary/10 hover:border-primary/40 transition-all"
+        >
+          <Share2 className="h-4 w-4" />
+          Share This Verdict
+        </button>
         {user && post.user_id === user.id && (
-          <button 
+          <button
             onClick={handleDelete}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm font-medium"
           >
@@ -162,17 +181,21 @@ export default function PostDetailPage() {
   );
 }
 
+const BREAKDOWN_LABELS: Record<string, string> = {
+  thoughtfulness: 'Thoughtfulness',
+  effort: 'Effort',
+  creativity: 'Creativity',
+  emotional_weight: 'Emotional Weight',
+  authenticity: 'Authenticity',
+};
+
 function getMax(key: string): number {
   const maxes: Record<string, number> = {
-    thoughtfulness: 20,
-    romance: 15,
-    effort: 15,
-    uniqueness: 10,
-    emotional_impact: 10,
-    ethical_boundaries: 15,
-    genuineness: 10,
-    equality: 10,
-    safety: 5,
+    thoughtfulness: 30,
+    effort: 25,
+    creativity: 20,
+    emotional_weight: 15,
+    authenticity: 10,
   };
-  return maxes[key] || 15;
+  return maxes[key] || 25;
 }

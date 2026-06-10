@@ -1,517 +1,534 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ShareContent } from '../providers/ShareProvider';
-import { ScoreRing } from '../ui/ScoreRing';
 import { LoveCode } from './LoveCode';
-import { Trophy, User, Sparkles } from 'lucide-react';
+import { ScoreRing } from '../ui/ScoreRing';
+import { Sparkles, MapPin, Flame, TrendingUp, TrendingDown } from 'lucide-react';
 
 export type ShareFormat = 'story' | 'square';
-export type ShareTemplateTheme = 'frosted' | 'luxury' | 'receipt' | 'warning' | 'imessage' | 'wrapped' | 'trading_card' | 'aura' | 'romantic';
+export type ShareTemplateTheme =
+  | 'brutal-truth'
+  | 'wrapped'
+  | 'daily-fond'
+  | 'constellation'
+  | 'aura'
+  | 'receipt'
+  | 'hall-of-fame'
+  | 'podium'
+  | 'fond-rating'
+  | 'membership'
+  | 'player-stats'
+  | 'profile-card'
+  | 'profile-page'
+  | 'verdict-card'
+  | 'leaderboard-card';
 
-interface TemplateProps {
-  content: ShareContent;
-  format: ShareFormat;
-}
+type C = {
+  username: string;
+  partnerName?: string;
+  avatarUrl?: string | null;
+  headline?: string;
+  verdict?: string;
+  score?: number;
+  rank?: number;
+  city?: string;
+  date?: string;
+  streak?: number;
+  bestScore?: number;
+  totalPosts?: number;
+  bio?: string|null;
+  age?: string|null;
+  gender?: string|null;
+  occupation?: string|null;
+  country?: string|null;
+};
 
-// ============================================================================
-// 1. HALL OF FAME TEMPLATE
-// ============================================================================
-function LuxuryTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#0a0a08] p-10 sm:p-12">
-      {/* Subtle Gold Atmosphere */}
-      <div className="absolute top-0 left-0 w-full h-[60%] bg-gradient-to-b from-gold/10 to-transparent pointer-events-none" />
-      <div className="absolute -top-[20%] -right-[20%] w-[80%] h-[80%] bg-gold/5 rounded-full blur-[100px] pointer-events-none" />
+interface TP { content: C; format: ShareFormat; }
 
-      {/* Top Left Label */}
-      <div className="flex items-center gap-3 relative z-10 mt-4 mb-16">
-        <span className="text-[1.25rem]">🏆</span>
-        <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-gold">Hall of Fame</span>
-      </div>
+// ═══════════════════════════════════════════════════════════════
+// TIERS
+// ═══════════════════════════════════════════════════════════════
+type TK = 'still-dating'|'its-complicated'|'officially-exclusive'|'relationship-goals'|'certified-partner-material'|'gold-standard'|'legendary'|'algorithm-has-no-words';
+const TIERS: Record<TK,{name:string;color:string;desc:string}> = {
+  'still-dating':              {name:'Still Dating',              color:'#EB6E73',desc:'The algorithm sees potential. Somewhere.'},
+  'its-complicated':           {name:"It's Complicated",          color:'#EB6E73',desc:'Mixed signals detected. Proceed with caution.'},
+  'officially-exclusive':      {name:'Officially Exclusive',      color:'#EBA564',desc:'Steady. Reliable. Above average — barely.'},
+  'relationship-goals':        {name:'Relationship Goals',        color:'#EBA564',desc:'Other couples are taking notes. Quietly.'},
+  'certified-partner-material':{name:'Certified Partner Material',color:'#64B491',desc:'The algorithm is impressed. Genuinely.'},
+  'gold-standard':             {name:'Gold Standard',             color:'#DCBE78',desc:'Elite tier. The bar has been relocated.'},
+  'legendary':                 {name:'Legendary',                 color:'#DCBE78',desc:'Your grandchildren will hear this story.'},
+  'algorithm-has-no-words':    {name:'The Algorithm Has No Words',color:'#DCBE78',desc:'The AI has stopped taking notes and started taking lessons.'},
+};
+function tier(s:number){return s>=97?TIERS['algorithm-has-no-words']:s>=92?TIERS['legendary']:s>=85?TIERS['gold-standard']:s>=75?TIERS['certified-partner-material']:s>=65?TIERS['relationship-goals']:s>=55?TIERS['officially-exclusive']:s>=40?TIERS['its-complicated']:TIERS['still-dating'];}
+function sHex(s:number){return s>=92?'#DCBE78':s>=75?'#64B491':s>=55?'#EBA564':'#EB6E73';}
 
-      {/* Center Content */}
-      <div className="flex-1 flex flex-col justify-start relative z-10 w-full">
-        <h3 className="font-display italic text-[2.75rem] sm:text-[3.25rem] leading-[1.15] text-white/95 text-left w-full max-w-[90%]">
-          {content.headline ? (
-            content.headline.replace(/(#\d+)/, '\n$1').split('\n').map((line, i) => {
-              const parts = line.split(/(#\d+)/g);
-              return (
-                <React.Fragment key={i}>
-                  {parts.map((part, j) => 
-                    part.match(/^#\d+$/) ? <span key={j} className="text-gold">{part}</span> : part
-                  )}
-                  <br/>
-                </React.Fragment>
-              );
-            })
-          ) : (
-            <>Officially ranked<br/><span className="text-gold">#{content.rank || content.score || '?'}</span> in {content.city || 'the world'}</>
-          )}
-        </h3>
-      </div>
-
-      {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2 mt-auto">
-        <LoveCode username={content.username} theme="dark" />
-      </div>
-    </div>
-  );
-}
-
-// ============================================================================
-// THE ROMANTIC TEMPLATE
-// ============================================================================
-function RomanticTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#fff0f5] p-10 sm:p-12">
-      {/* Soft Pastel Atmosphere */}
-      <div className="absolute top-0 left-0 w-full h-[60%] bg-gradient-to-b from-pink-300/30 to-transparent pointer-events-none" />
-      <div className="absolute -bottom-[20%] -right-[20%] w-[80%] h-[80%] bg-rose-400/20 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Top Left Label */}
-      <div className="flex items-center gap-2 relative z-10 mt-2">
-        <span className="text-[11px] uppercase tracking-[0.25em] font-bold text-rose-500">The Romantic</span>
-      </div>
-
-      {/* Center Content */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 w-full text-center mt-8">
-        <h3 className="font-display italic text-[3rem] sm:text-[3.5rem] leading-[1.1] text-rose-950">
-          "{content.headline || content.verdict || 'True Romance'}"
-        </h3>
-        {content.partnerName && (
-          <div className="mt-6 text-sm uppercase tracking-[0.2em] font-bold text-rose-800/60">
-            WITH {content.partnerName}
-          </div>
-        )}
-        <div className="mt-8 px-6 py-2 rounded-full bg-white/50 backdrop-blur-md border border-white inline-flex items-baseline">
-          <span className="font-score text-6xl text-rose-500 leading-none tracking-tighter">{content.score || '100'}</span>
-          <span className="text-xl font-bold ml-1 text-rose-400/80">/100</span>
-        </div>
-      </div>
-
-      {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2 mt-auto">
-        <LoveCode username={content.username} theme="light" />
+// ═══════════════════════════════════════════════════════════════
+// 1. THE BRUTAL TRUTH — Red menace, verdict is king
+// ═══════════════════════════════════════════════════════════════
+function BrutalTruthTemplate({content}:TP){const s=content.score||0;const c=sHex(s);const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-[#0a0406] overflow-hidden">
+  <div className="absolute top-0 left-0 w-full h-[50%] bg-[radial-gradient(ellipse_at_50%_0%,#E8456B_0%,transparent_70%)] opacity-[0.12]"/>
+  <div className="absolute bottom-0 left-0 w-full h-[35%] bg-[radial-gradient(ellipse_at_50%_100%,#E8456B_0%,transparent_70%)] opacity-[0.06]"/>
+  <div className="relative z-10 flex items-center justify-between px-12 pt-14">
+    <div className="flex items-center gap-3"><div className="h-2.5 w-2.5 bg-[#E8456B] rounded-full"/><span className="text-[11px] uppercase tracking-[0.3em] font-bold text-[#E8456B]">The Brutal Truth</span></div>
+    <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#E8456B]/25">classified</span>
+  </div>
+  <div className="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-12">
+    {/* Partner × username */}
+    {content.partnerName&&<div className="flex items-center gap-2 text-sm mb-6"><span className="text-white/30">@{content.username.replace('@','')}</span><span className="text-white/15">×</span><span className="text-white/40 font-medium">{content.partnerName}</span></div>}
+    {/* Quote */}
+    <h2 className="font-display italic text-[2.75rem] sm:text-[3.5rem] leading-[1.06] text-white/95 max-w-[85%]">"{content.verdict||content.headline||'The AI has spoken.'}"</h2>
+    {/* Score — in a circle with glow, like ScoreRing */}
+    <div className="mt-12 relative">
+      <div className="w-44 h-44 rounded-full flex flex-col items-center justify-center" style={{border:`3px solid ${c}60`,boxShadow:`0 0 60px -10px ${c}40, inset 0 0 30px -10px ${c}20`}}>
+        <span className="font-score text-[4.5rem] leading-none text-white">{s}</span>
+        <span className="text-xs text-white/30 mt-1 font-bold uppercase tracking-wider">of 100</span>
       </div>
     </div>
-  );
-}
+    {/* Tier badge under score */}
+    {t&&<div className="mt-4 px-4 py-1 rounded-full border border-[#E8456B]/20 bg-[#E8456B]/[0.06] inline-flex items-center gap-1.5"><span className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#E8456B]">{t.name}</span></div>}
+  </div>
+  <div className="relative z-10 flex items-end justify-between px-12 pb-10"><LoveCode username={content.username} theme="dark"/>{content.partnerName&&<span className="text-[10px] uppercase tracking-[0.15em] text-white/15 font-medium">subject: {content.partnerName}</span>}</div>
+</div>)}
 
-// ============================================================================
-// 2. THE BRUTAL TRUTH TEMPLATE
-// ============================================================================
-function FrostedTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#0c0808] p-10 sm:p-12">
-      {/* Deep Red Atmosphere - Top Left and Bottom Left */}
-      <div className="absolute -top-[20%] -left-[10%] w-[100%] aspect-square rounded-full bg-[#E8456B] opacity-[0.18] blur-[120px] pointer-events-none" />
-      <div className="absolute -bottom-[10%] -left-[10%] w-[100%] aspect-square rounded-full bg-[#E8456B] opacity-[0.15] blur-[120px] pointer-events-none" />
+// ═══════════════════════════════════════════════════════════════
+// 2. WRAPPED — Full-page data story, Spotify DNA
+// ═══════════════════════════════════════════════════════════════
+function WrappedTemplate({content}:TP){const s=content.score||0;const t=tier(s);const g=s>=85?{bg:'#0d1a12',mid:'#0f1f18',end:'#0a1510',accent:'#3ab870'}:s>=65?{bg:'#1a120a',mid:'#1f1810',end:'#15100a',accent:'#e8a840'}:{bg:'#140a0a',mid:'#1a1010',end:'#100a0a',accent:'#e87070'};return(
+<div className="relative w-full h-full flex flex-col overflow-hidden" style={{background:`linear-gradient(180deg,${g.bg} 0%,${g.mid} 50%,${g.end} 100%)`}}>
+  <div className="absolute top-[-8%] right-[-8%] w-[50%] aspect-square rounded-full opacity-[0.12] blur-[80px]" style={{backgroundColor:g.accent}}/>
+  <div className="absolute bottom-[8%] left-[-5%] w-[40%] aspect-square rounded-full opacity-[0.06] blur-[100px]" style={{backgroundColor:g.accent}}/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    {/* Year header */}
+    <div className="pt-16"><span className="text-white font-black text-[1.75rem] tracking-tighter block leading-none">2026</span><span className="text-white/70 font-black text-[1.75rem] tracking-tighter block leading-none">Wrapped</span></div>
+    {/* Section 1: gesture */}
+    <div className="mt-16"><p className="text-white/25 text-[10px] uppercase tracking-[0.25em] font-bold mb-3">Your Top Gesture</p><h2 className="font-display italic text-[2.5rem] sm:text-[3.25rem] leading-[1.1] text-white max-w-[85%]">"{content.headline||content.verdict||'The one that defined your year'}"</h2></div>
+    {/* Section 2: score + tier */}
+    <div className="mt-14 flex items-center gap-10"><div className="flex items-baseline gap-1.5"><span className="font-score text-[7rem] leading-none text-white">{s}</span><span className="text-xl text-white/25 font-bold">/100</span></div><div className="flex flex-col"><span className="text-white/15 text-[9px] uppercase tracking-[0.2em] font-bold mb-1.5">Tier Earned</span><span className="text-white/80 font-bold text-xl">{t.name}</span></div></div>
+    {/* Section 3: stats grid */}
+    <div className="mt-14 grid grid-cols-3 gap-4">
+      <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-5"><div className="text-white/20 text-[9px] uppercase tracking-[0.15em] font-bold mb-2">Top Partner</div><div className="text-white/80 font-semibold text-base truncate">{content.partnerName||'Unknown'}</div></div>
+      <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-5"><div className="text-white/20 text-[9px] uppercase tracking-[0.15em] font-bold mb-2">Streak</div><div className="text-white/80 font-semibold text-base flex items-center gap-1.5"><Flame className="h-4 w-4 text-orange-400"/>{content.streak||1}</div></div>
+      <div className="rounded-2xl bg-white/[0.04] border border-white/[0.06] p-5"><div className="text-white/20 text-[9px] uppercase tracking-[0.15em] font-bold mb-2">Genre</div><div className="text-white/80 font-semibold text-base truncate">{t.name}</div></div>
+    </div>
+    {/* Section 4: AI message */}
+    {content.verdict&&<div className="mt-12 pt-8 border-t border-white/[0.05]"><p className="text-white/15 text-[9px] uppercase tracking-[0.25em] font-bold mb-3">A Message From Your AI</p><p className="font-display italic text-xl text-white/45 leading-relaxed max-w-[85%]">"{content.verdict}"</p></div>}
+    <div className="flex-1"/>
+    <div className="pb-12 flex justify-between items-end"><LoveCode username={content.username} theme="gold"/><span className="text-white/[0.08] text-[10px] font-mono uppercase tracking-[0.15em]">wrapped.fond.app</span></div>
+  </div>
+</div>)}
 
-      {/* Top Left Label */}
-      <div className="flex items-center gap-2 relative z-10 mt-4 mb-8">
-        <span className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#E8456B]">The Brutal Truth</span>
-      </div>
-
-      {/* Quote Content */}
-      <div className="flex flex-col justify-start relative z-10 w-full flex-1">
-        <h3 className="font-display italic text-[2.75rem] sm:text-[3.25rem] leading-[1.1] text-white/95 mb-6">
-          "{content.verdict || content.headline || 'No verdict available'}"
-        </h3>
-
-        {content.partnerName && (
-          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-white/50 mb-auto">
-            REGARDING <span className="text-white flex items-center gap-1.5 ml-1"><User className="w-3.5 h-3.5 text-[#3b82f6] fill-[#3b82f6]" /> {content.partnerName}</span>
-          </div>
-        )}
-
-        <div className="flex flex-col items-center gap-6 mt-12 w-full">
-          <div className="flex items-baseline text-[#E8456B] ml-6">
-            <span className="font-score text-[7.5rem] sm:text-[9rem] font-bold leading-[0.8] tracking-tighter">{content.score || '0'}</span>
-            <span className="text-2xl sm:text-3xl font-bold ml-1 opacity-60">/100</span>
-          </div>
-          <div className="px-5 py-2 rounded-full border border-[#E8456B]/50 text-[#E8456B] text-[9.5px] font-bold uppercase tracking-[0.25em]">
-            FINAL VERDICT
-          </div>
-        </div>
-      </div>
-
-      {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2 mt-12">
-        <LoveCode username={content.username} theme="dark" />
+// ═══════════════════════════════════════════════════════════════
+// 3. DAILY FOND — Newspaper front page
+// ═══════════════════════════════════════════════════════════════
+function DailyFondTemplate({content}:TP){const s=content.score||0;const c=sHex(s);const d=content.date||new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});return(
+<div className="relative w-full h-full flex flex-col bg-[#f9f7f2] overflow-hidden">
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(0,0,0,0.03),transparent)]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    {/* Masthead */}
+    <div className="text-center pt-12 pb-4 border-b-[3px] border-black/80">
+      <h1 className="font-display text-[2.5rem] sm:text-[3rem] tracking-[0.05em] font-bold text-black/90 leading-none">THE DAILY FOND</h1>
+      <div className="flex justify-center items-center gap-4 mt-2">
+        <span className="text-[10px] text-black/30 uppercase tracking-[0.2em] font-medium">{d}</span>
+        <span className="text-[10px] text-black/15">·</span>
+        <span className="text-[10px] text-black/30 uppercase tracking-[0.2em] font-medium">Special Edition</span>
       </div>
     </div>
-  );
-}
-
-// ============================================================================
-// 3. THE RECEIPT TEMPLATE
-// ============================================================================
-function ReceiptTemplate({ content, format }: TemplateProps) {
-  const date = new Date().toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-  const time = new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-
-  return (
-    <div className="relative w-full h-full flex flex-col items-center bg-[#f4f4f0] p-8 text-black font-mono overflow-hidden">
-      {/* Receipt Paper Jagged Edge Effect at top/bottom could be added with SVG or CSS, but simple is fine for now */}
-      
-      <div className="w-full flex-1 flex flex-col border border-black/10 p-6 bg-white shadow-sm relative">
-        {/* Header */}
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold tracking-widest uppercase mb-2">FOND OFFICIAL</h2>
-          <p className="text-xs text-black/60">*** CUSTOMER COPY ***</p>
-          <p className="text-xs text-black/60 mt-1">{date} {time}</p>
-          <p className="text-xs text-black/60 mt-1">SERVED BY: AI REFEREE</p>
-        </div>
-
-        <div className="w-full border-t-2 border-dashed border-black/30 my-4" />
-
-        <div className="flex justify-between items-center text-sm font-bold mb-4">
-          <span>ITEM</span>
-          <span>AMOUNT</span>
-        </div>
-
-        {/* Dynamic Items */}
-        <div className="space-y-4 text-sm flex-1">
-          <div className="flex justify-between">
-            <span>ROMANCE</span>
-            <span>{content.score ? Math.min(100, content.score + 15) : '85'}.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span>EFFORT</span>
-            <span>{content.score ? Math.max(0, content.score - 10) : '45'}.00</span>
-          </div>
-          <div className="flex justify-between text-black/60">
-            <span>RED FLAGS (TAX)</span>
-            <span>3</span>
-          </div>
-          
-          <div className="mt-6">
-            <p className="text-xs font-bold mb-1">NOTES:</p>
-            <p className="text-xs leading-relaxed uppercase">"{content.verdict || content.headline}"</p>
-          </div>
-        </div>
-
-        <div className="w-full border-t-2 border-dashed border-black/30 my-4" />
-
-        {/* Total */}
-        <div className="flex justify-between items-end mb-8">
-          <span className="text-lg font-bold">TOTAL SCORE</span>
-          <span className="text-4xl font-bold">{content.score || '0'}/100</span>
-        </div>
-
-        {/* Footer Barcode */}
-        <div className="flex flex-col items-center justify-center opacity-80 mt-auto">
-          {/* Simple CSS Barcode */}
-          <div className="flex h-12 w-full gap-[2px] justify-center mb-2">
-            {[...Array(30)].map((_, i) => (
-              <div key={i} className="bg-black" style={{ width: `${Math.random() * 4 + 1}px` }} />
-            ))}
-          </div>
-          <p className="text-[10px] tracking-widest uppercase font-bold mt-2">@{content.username}</p>
-        </div>
+    {/* Headline — the verdict */}
+    <div className="flex-1 flex flex-col justify-center py-10">
+      <h2 className="font-display text-[3.25rem] sm:text-[4rem] leading-[1.08] text-black/90 font-bold max-w-[90%]">{(content.verdict||'A Gesture Worth Recording').toUpperCase()}</h2>
+      {/* Subhead — the gesture */}
+      <p className="mt-6 font-display italic text-xl text-black/45 leading-relaxed max-w-[80%]">"{content.headline||content.verdict||'The details remain classified.'}"{content.partnerName&&<span className="not-italic text-black/25"> — with {content.partnerName}</span>}</p>
+      {/* Divider */}
+      <div className="w-full h-px bg-black/[0.06] my-8"/>
+      {/* Market Watch box */}
+      <div className="border border-black/[0.08] p-5 max-w-[280px]">
+        <span className="text-[9px] uppercase tracking-[0.25em] font-bold text-black/25 block mb-3">Market Watch</span>
+        <div className="flex items-baseline gap-2 mb-2"><span className="font-score text-[3rem] leading-none text-black/80">{s}</span><span className="text-sm text-black/30">/100</span></div>
+        <span className={`text-[10px] uppercase tracking-[0.15em] font-bold ${s>=75?'text-emerald-700':s>=55?'text-amber-700':'text-red-700'}`}>{s>=75?'▲ Romance Index Rising':s>=55?'■ Romance Index Stable':'▼ Romance Index Declining'}</span>
+        <p className="text-[9px] text-black/25 leading-relaxed mt-2 italic">{tier(s).name} · {tier(s).desc}</p>
       </div>
     </div>
-  );
-}
+    {/* Footer */}
+    <div className="pb-8 flex justify-between items-end"><LoveCode username={content.username} theme="light"/><span className="text-[9px] text-black/15 font-mono uppercase tracking-[0.15em]">fond.app/daily · Vol. I · Page A1</span></div>
+  </div>
+</div>)}
 
-// ============================================================================
-// 4. HAZARD WARNING TEMPLATE
-// ============================================================================
-function WarningTemplate({ content, format }: TemplateProps) {
-  const isGood = (content.score || 0) >= 70;
-  const mainColor = isGood ? '#22c55e' : '#facc15';
-  const bgColor = isGood ? '#052e16' : '#422006';
-  
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden p-6" style={{ backgroundColor: bgColor }}>
-      {/* Hazard Stripes Border */}
-      <div className="absolute inset-0 border-[16px] pointer-events-none z-20" 
-           style={{ 
-             borderImage: `repeating-linear-gradient(45deg, ${mainColor}, ${mainColor} 20px, #000 20px, #000 40px) 16`
-           }} 
-      />
-      
-      <div className="flex-1 border-4 border-black bg-[#111] p-8 flex flex-col justify-center relative z-10">
-        <div className="absolute top-6 left-1/2 -translate-x-1/2">
-          <div className="px-6 py-2 bg-black border-2" style={{ borderColor: mainColor }}>
-            <span className="text-xl font-black tracking-widest uppercase" style={{ color: mainColor }}>
-              {isGood ? 'CERTIFIED' : 'WARNING'}
-            </span>
-          </div>
-        </div>
+// ═══════════════════════════════════════════════════════════════
+// 4. CONSTELLATION — Written in the stars
+// ═══════════════════════════════════════════════════════════════
+function ConstellationTemplate({content}:TP){const s=content.score||0;const c=sHex(s);const count=Math.max(5,Math.min(12,Math.floor(s/10)));const stars=Array.from({length:count},(_,i)=>({x:15+Math.random()*70,y:15+Math.random()*55,size:Math.random()*2+1.5}));return(
+<div className="relative w-full h-full flex flex-col overflow-hidden" style={{background:`radial-gradient(ellipse_at_50%_50%,${c}08,transparent 70%), linear-gradient(180deg,#0a0f1a 0%,#0d1225 50%,#0a0f1a 100%)`}}>
+  {/* The constellation */}
+  <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
+    {stars.map((st,i)=><React.Fragment key={i}><circle cx={st.x} cy={st.y} r={st.size*0.15} fill={i===0?c:'rgba(255,255,255,0.4)'} style={{filter:i===0?`drop-shadow(0 0 8px ${c})`:undefined}}/>{i>0&&<line x1={stars[i-1].x} y1={stars[i-1].y} x2={st.x} y2={st.y} stroke="rgba(255,255,255,0.06)" strokeWidth="0.08"/>}</React.Fragment>)}
+  </svg>
+  {/* Content */}
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-14"><span className="text-[10px] uppercase tracking-[0.35em] font-bold text-white/15">Your Romance, in the Stars</span></div>
+    <div className="flex-1 flex flex-col items-center justify-center text-center">
+      {/* Score as brightest star */}
+      <div className="flex items-baseline gap-3 mb-8"><span className="font-score text-[7rem] sm:text-[8.5rem] leading-none" style={{color:c,textShadow:`0 0 80px ${c}40`}}>{s}</span><span className="text-lg text-white/20 font-medium">/100</span></div>
+      {/* Verdict as fortune */}
+      <p className="font-display italic text-[1.75rem] sm:text-[2.25rem] leading-[1.15] text-white/50 max-w-[75%]">"{content.verdict||content.headline||'The stars have spoken.'}"</p>
+      {/* Partner as constellation name */}
+      {content.partnerName&&<div className="mt-10"><span className="text-[9px] uppercase tracking-[0.3em] text-white/15 font-bold block mb-1">Officially Named</span><span className="text-white/60 text-lg font-medium">{content.partnerName}</span></div>}
+    </div>
+    <div className="pb-10 flex justify-center"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-        <div className="flex-1 flex flex-col items-center justify-center text-center mt-12">
-          <h3 className="font-black text-3xl sm:text-4xl leading-[1.1] uppercase text-white mb-6">
-            "{content.headline}"
-          </h3>
-          <p className="text-lg font-bold text-white/70 uppercase">
-            {content.verdict}
-          </p>
-        </div>
+// ═══════════════════════════════════════════════════════════════
+// 5. AURA — Full-bleed dreamlike gradient, anti-design
+// ═══════════════════════════════════════════════════════════════
+function AuraTemplate({content}:TP){const s=content.score||0;const c=sHex(s);return(
+<div className="relative w-full h-full flex flex-col overflow-hidden" style={{background:`radial-gradient(ellipse at 30% 20%,${c}15 0%,transparent 50%), radial-gradient(ellipse at 70% 80%,rgb(var(--gold)/0.10) 0%,transparent 50%), radial-gradient(ellipse at 50% 50%,rgb(var(--primary)/0.08) 0%,transparent 70%), linear-gradient(180deg,#0e0a14 0%,#120e18 50%,#0e0a14 100%)`}}>
+  <div className="relative z-10 flex flex-col h-full px-10">
+    <div className="pt-12"><span className="text-[9px] uppercase tracking-[0.35em] text-white/12 font-bold block text-center">your aura, scored</span></div>
+    <div className="flex-1 flex flex-col items-center justify-center text-center">
+      {/* Massive translucent score */}
+      <span className="font-score text-[11rem] sm:text-[14rem] leading-[0.82] tracking-tight select-none" style={{color:c,opacity:0.45,textShadow:`0 0 120px ${c}30`}}>{s}</span>
+      {/* Partner */}
+      {content.partnerName&&<p className="mt-6 text-white/30 text-lg font-medium tracking-wide">with {content.partnerName}</p>}
+      {/* Verdict — barely there */}
+      {content.verdict&&<p className="mt-8 font-display italic text-base text-white/18 leading-relaxed max-w-[70%]">"{content.verdict}"</p>}
+    </div>
+    <div className="pb-10 flex justify-center opacity-50"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-        <div className="mt-8 flex flex-col items-center border-t-2 border-dashed pt-6" style={{ borderColor: `${mainColor}40` }}>
-          <span className="text-sm font-bold text-white/50 mb-2 uppercase tracking-widest">Severity Level</span>
-          <span className="font-score text-7xl leading-none" style={{ color: mainColor }}>{content.score || '0'}</span>
-        </div>
-        
-        <div className="mt-8 flex justify-center w-full">
-          <LoveCode username={content.username} theme="dark" className="!bg-black/50" />
-        </div>
+// ═══════════════════════════════════════════════════════════════
+// 6. THE RECEIPT — Post content above, itemized below
+// ═══════════════════════════════════════════════════════════════
+function ReceiptTemplate({content}:TP){const s=content.score||0;const d=content.date||new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});const tm=new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});return(
+<div className="relative w-full h-full flex flex-col bg-[#f7f5f0] overflow-hidden">
+  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_50%,rgba(0,0,0,0.015),transparent)]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    {/* Statement header */}
+    <div className="pt-12 pb-6 border-b-2 border-dashed border-black/10">
+      <h2 className="font-sans text-base font-bold tracking-[0.3em] uppercase text-black/75">Fond</h2>
+      <p className="text-[9px] text-black/30 uppercase tracking-[0.2em] mt-1">Official Romance Assessment</p>
+      <div className="flex gap-4 mt-2"><span className="text-[9px] text-black/20 font-mono">{d} {tm}</span></div>
+    </div>
+    {/* Statement body: post content */}
+    <div className="py-6 border-b border-dashed border-black/[0.06]">
+      <p className="text-[10px] text-black/25 uppercase tracking-[0.2em] font-bold mb-2">Statement For</p>
+      <p className="text-black/70 text-xl font-semibold">{content.partnerName||'someone'}</p>
+      {content.headline&&<p className="mt-3 text-black/45 text-base italic leading-relaxed font-serif">"{content.headline}"</p>}
+      {content.verdict&&<p className="mt-2 text-black/35 text-sm leading-relaxed font-serif">{content.verdict}</p>}
+    </div>
+    {/* Line items */}
+    <div className="flex-1 flex flex-col justify-center space-y-5 py-8">
+      {[{l:'Thoughtfulness',v:Math.min(s+8,100)},{l:'Effort',v:Math.max(s-5,1)},{l:'Creativity',v:Math.min(s+3,100)},{l:'Emotional Weight',v:s},{l:'Authenticity Tax',v:-3}].map((li,i)=><div key={i} className="flex justify-between items-center"><span className="text-black/45 text-[11px] uppercase tracking-[0.12em] font-medium">{li.l}</span><span className={`font-mono text-[11px] tabular-nums ${li.v<0?'text-amber-600/70':'text-black/65'}`}>{li.v}</span></div>)}
+      <div className="border-t-2 border-dashed border-black/10 pt-5"><div className="flex justify-between items-end"><span className="text-black/80 font-bold text-sm uppercase tracking-[0.15em]">Total</span><div className="flex items-baseline gap-1"><span className="font-score text-[3rem] leading-none text-black">{s}</span><span className="text-black/25 text-xs font-medium">/100</span></div></div></div>
+      {content.verdict&&<div className="pt-3 border-t border-black/[0.03]"><p className="text-[8px] text-black/20 uppercase tracking-[0.2em] font-bold mb-1">AI Notes</p><p className="text-black/35 text-[11px] italic leading-relaxed font-serif">"{content.verdict}"</p></div>}
+    </div>
+    {/* Footer */}
+    <div className="border-t-2 border-dashed border-black/10 pt-6 pb-8 flex justify-between items-end"><LoveCode username={content.username} theme="light"/><div className="flex flex-col items-end"><div className="flex gap-[1.5px] mb-2">{[...Array(22)].map((_,i)=><div key={i} className="bg-black/10" style={{width:`${Math.random()*3+1}px`,height:'18px'}}/>)}</div><span className="text-[7px] text-black/10 font-mono uppercase">fond.app · #{Math.floor(s*137)%9999}</span></div></div>
+  </div>
+</div>)}
+
+// ═══════════════════════════════════════════════════════════════
+// 7. HALL OF FAME (Rank) — "I ranked #32 in Mumbai"
+// ═══════════════════════════════════════════════════════════════
+function HallOfFameTemplate({content}:TP){const r=content.rank||1;const s=content.score||0;return(
+<div className="relative w-full h-full flex flex-col bg-[#080808] overflow-hidden">
+  <div className="absolute top-0 right-0 w-[60%] h-[50%] rounded-full bg-gold/[0.04] blur-[120px]"/>
+  <div className="absolute bottom-0 left-0 w-[50%] h-[30%] rounded-full bg-primary/[0.02] blur-[80px]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-14 flex items-center gap-3"><Sparkles className="h-4 w-4 text-gold"/><span className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold/70">Fond</span></div>
+    <div className="flex-1 flex flex-col justify-center">
+      {/* The hero statement */}
+      <div className="flex items-baseline gap-6">
+        <span className="font-score text-[12rem] sm:text-[15rem] leading-[0.82] text-gold tracking-tight">#{r}</span>
+      </div>
+      <p className="mt-2 font-display italic text-[2.5rem] sm:text-[3rem] leading-[1.1] text-white/70 max-w-[85%]">in {content.city||'the world'}</p>
+      {/* Divider */}
+      <div className="w-full h-px bg-gradient-to-r from-gold/15 via-gold/10 to-transparent mt-10 mb-8"/>
+      {/* Stats row */}
+      <div className="flex items-center gap-12">
+        <div><span className="text-[9px] uppercase tracking-[0.2em] text-white/20 block mb-1">Avg Score</span><span className="font-score text-[2.5rem] text-white">{s}</span></div>
+        {content.streak&&<div><span className="text-[9px] uppercase tracking-[0.2em] text-white/20 block mb-1">Streak</span><span className="font-score text-[2.5rem] text-white flex items-center gap-1.5"><Flame className="h-5 w-5 text-orange-400"/>{content.streak}</span></div>}
       </div>
     </div>
-  );
-}
+    <div className="pb-10 flex justify-between items-end"><LoveCode username={content.username} theme="gold"/><span className="text-[9px] text-white/12 uppercase tracking-[0.15em]">Global Leaderboard</span></div>
+  </div>
+</div>)}
 
-// ============================================================================
-// 5. IMESSAGE LEAK TEMPLATE
-// ============================================================================
-function IMessageTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-gradient-to-b from-[#1a1a2e] to-black p-6">
-      {/* Mock Header */}
-      <div className="flex flex-col items-center pt-8 pb-4 border-b border-white/10 mb-8 relative z-10">
-        <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center mb-2">
-           <User className="w-6 h-6 text-white/50" />
-        </div>
-        <span className="text-white font-semibold text-sm">Bestie 💅</span>
-        <span className="text-white/40 text-[10px]">iMessage</span>
-      </div>
-
-      <div className="flex-1 flex flex-col justify-end gap-6 pb-12 relative z-10 w-full px-2">
-        {/* Incoming */}
-        <div className="flex flex-col items-start max-w-[85%]">
-          <div className="bg-[#262628] text-white px-5 py-3 rounded-2xl rounded-bl-sm text-lg shadow-sm">
-            So... how did the date with {content.partnerName || 'them'} actually go? ☕️
-          </div>
-        </div>
-
-        {/* Outgoing */}
-        <div className="flex flex-col items-end self-end max-w-[85%] mt-4">
-          <div className="bg-[#007AFF] text-white px-5 py-3 rounded-2xl rounded-br-sm text-lg shadow-sm">
-            {content.verdict || content.headline}
-          </div>
-          <span className="text-[10px] text-white/40 mt-1 font-medium px-2">
-            Read • Score: {content.score || '0'}/100
-          </span>
-        </div>
-      </div>
-
-      <div className="flex justify-center w-full relative z-10 mt-auto pb-4">
-        <LoveCode username={content.username} theme="glass" />
+// ═══════════════════════════════════════════════════════════════
+// 8. THE ANNOUNCEMENT — Sports broadcast rank reveal
+// ═══════════════════════════════════════════════════════════════
+function PodiumTemplate({content}:TP){const r=content.rank||1;const s=content.score||0;const t3=r<=3;const col=r===1?'#DCBE78':r===2?'#B4B4B8':r===3?'#CD7F32':sHex(s);return(
+<div className="relative w-full h-full flex flex-col bg-[#060608] overflow-hidden">
+  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[90%] h-[50%] rounded-full opacity-[0.05] blur-[140px]" style={{backgroundColor:col}}/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-14 flex items-center justify-between"><span className="text-[10px] uppercase tracking-[0.35em] font-bold text-white/30">The Standings</span><span className="text-[9px] uppercase tracking-[0.2em] text-white/15">{content.city||'Global'}</span></div>
+    <div className="flex-1 flex flex-col items-center justify-center">
+      {/* Rank — monumental */}
+      <span className="font-score text-[16rem] sm:text-[20rem] leading-[0.8] tracking-tight select-none" style={{color:col,textShadow:`0 0 80px ${col}20`}}>#{r}</span>
+      {/* Label */}
+      <span className="text-[11px] uppercase tracking-[0.4em] font-bold text-white/25 mt-2">{t3?'You\'re on the podium':r<=10?'Top 10':'Climbing the ranks'}</span>
+      {/* Divider */}
+      <div className="w-24 h-px bg-white/[0.04] my-8"/>
+      {/* Identity */}
+      <p className="font-display italic text-2xl text-white/60">@{content.username.replace('@','')}</p>
+      {content.city&&<div className="flex items-center gap-1.5 mt-3 text-white/20 text-sm"><MapPin className="h-3.5 w-3.5"/><span>{content.city}</span></div>}
+      {/* Stats */}
+      <div className="flex items-center gap-10 mt-10">
+        <div className="text-center"><div className="font-score text-3xl text-white">{s}</div><div className="text-[9px] text-white/20 uppercase tracking-[0.2em] mt-1">Score</div></div>
+        <div className="w-px h-10 bg-white/[0.04]"/>
+        <div className="text-center"><div className="text-2xl">{t3?'🏅':r<=10?'🔥':'📈'}</div><div className="text-[9px] text-white/20 uppercase tracking-[0.2em] mt-1">{t3?'Podium':r<=10?'Rising':'Climbing'}</div></div>
       </div>
     </div>
-  );
-}
+    <div className="pb-10 flex justify-center"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-// ============================================================================
-// 6. SPOTIFY WRAPPED TEMPLATE
-// ============================================================================
-function WrappedTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#8A2BE2] p-8">
-      {/* Vibrant Gradient Mesh */}
-      <div className="absolute inset-0 opacity-80 pointer-events-none">
-        <div className="absolute top-[-20%] left-[-20%] w-[80%] h-[80%] bg-[#FF69B4] rounded-full blur-[100px] mix-blend-screen" />
-        <div className="absolute bottom-[-10%] right-[-30%] w-[90%] h-[90%] bg-[#FF4500] rounded-full blur-[120px] mix-blend-screen" />
+// ═══════════════════════════════════════════════════════════════
+// 9. FOND RATING — Institutional credit report
+// ═══════════════════════════════════════════════════════════════
+function FondRatingTemplate({content}:TP){const s=content.score||0;const t=tier(s);const outlook=s>=85?'Positive':s>=65?'Stable':s>=45?'Under Review':'Negative';const oc=outlook==='Positive'?'#64B491':outlook==='Stable'?'#DCBE78':outlook==='Under Review'?'#EBA564':'#EB6E73';return(
+<div className="relative w-full h-full flex flex-col bg-[#0a080c] overflow-hidden">
+  <div className="absolute top-0 left-0 w-full h-[40%] opacity-[0.04] blur-[100px] rounded-full" style={{backgroundColor:t.color}}/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-14 flex items-center justify-between"><span className="text-[10px] uppercase tracking-[0.35em] font-bold text-white/30">Fond Rating Agency</span><span className="text-[9px] text-white/12 font-mono uppercase">{content.date||'Today'}</span></div>
+    <div className="flex-1 flex flex-col justify-center">
+      <p className="text-white/35 text-sm mb-8"><span className="font-semibold text-white/60">@{content.username.replace('@','')}</span>{content.city&&<span className="text-white/15"> · {content.city}</span>}</p>
+      {/* Rating grade */}
+      <h2 className="font-display italic text-[4.5rem] sm:text-[5.5rem] leading-[1.05] font-bold text-white/90 mb-3">{t.name}</h2>
+      <div className="flex items-center gap-6">
+        <div className="flex items-baseline gap-1.5"><span className="font-score text-[5rem] leading-none text-white">{s}</span><span className="text-lg text-white/20 font-medium">/100</span></div>
+        <div className="flex flex-col"><span className="text-[9px] uppercase tracking-[0.2em] text-white/20 font-bold mb-1">Outlook</span><div className="flex items-center gap-2"><div className="h-2.5 w-2.5 rounded-full" style={{backgroundColor:oc}}/><span className="text-base font-bold" style={{color:oc}}>{outlook}</span></div></div>
       </div>
+      {/* Divider */}
+      <div className="w-full h-px bg-white/[0.04] my-8"/>
+      {/* Analyst summary */}
+      <p className="text-white/25 text-sm leading-relaxed max-w-[85%] italic">{t.desc} This rating reflects cumulative romantic performance and is subject to change with future gestures.</p>
+    </div>
+    <div className="pb-10 flex justify-between items-end"><LoveCode username={content.username} theme="dark"/><span className="text-[8px] text-white/10 font-mono uppercase tracking-[0.15em]">RAT-{Date.now().toString(36).toUpperCase()}</span></div>
+  </div>
+</div>)}
 
-      <div className="relative z-10 flex flex-col h-full">
-        <span className="text-white font-black text-2xl tracking-tighter mb-12">2026 Wrapped</span>
+// ═══════════════════════════════════════════════════════════════
+// 10. MEMBERSHIP CARD — Amex Centurion-style profile
+// ═══════════════════════════════════════════════════════════════
+function AvatarOrb({url,name,size,color,border}:{url?:string|null;name:string;size:string;color:string;border:string}){return(
+<div className={`${size} rounded-full overflow-hidden flex items-center justify-center font-display text-7xl text-white/80 shrink-0`} style={{border,borderColor:`${color}30`,background:`radial-gradient(circle at 40% 35%,${color}15,transparent 70%)`,boxShadow:`0 0 80px -30px ${color}20`}}>
+  {url?<img src={url} alt={name} className="w-full h-full object-cover"/>:<span>{(name.replace('@','')||'U')[0].toUpperCase()}</span>}
+</div>)}
 
-        <div className="flex-1 flex flex-col justify-center">
-          <p className="text-white/80 font-bold text-lg mb-2 uppercase tracking-widest">Top Genre</p>
-          <h2 className="text-white font-black text-[3.5rem] leading-[1] tracking-tighter mb-12">
-            Mixed Signals
-          </h2>
+function MembershipTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-[#0a080c] overflow-hidden">
+  <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[60%] h-[30%] rounded-full bg-gold/[0.03] blur-[100px]"/>
+  <div className="absolute bottom-0 left-0 w-[50%] h-[30%] rounded-full bg-primary/[0.02] blur-[80px]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-12 flex items-center justify-between"><Sparkles className="h-4 w-4 text-gold/60"/><span className="text-[9px] uppercase tracking-[0.3em] text-gold/40 font-bold">Member Since 2026</span></div>
+    <div className="flex-1 flex flex-col items-center justify-center">
+      <AvatarOrb url={content.avatarUrl} name={content.username} size="w-52 h-52" color={t.color} border="1.5px solid"/>
+      {/* Identity */}
+      <h2 className="font-display italic text-[2.5rem] text-white/90">@{content.username.replace('@','')}</h2>
+      <p className="text-white/35 text-base mt-2">{t.name}</p>
+      {/* Stats row */}
+      <div className="flex items-center gap-8 mt-12">
+        <div className="text-center px-6"><div className="font-score text-3xl text-white">{s}</div><div className="text-[9px] text-white/20 uppercase tracking-[0.15em] mt-1.5">Score</div></div>
+        <div className="w-px h-10 bg-white/[0.04]"/>
+        <div className="text-center px-6"><div className="font-score text-3xl text-gold">{content.rank||'—'}</div><div className="text-[9px] text-white/20 uppercase tracking-[0.15em] mt-1.5">Rank</div></div>
+        <div className="w-px h-10 bg-white/[0.04]"/>
+        <div className="text-center px-6"><div className="font-score text-3xl text-white flex items-center justify-center gap-1"><Flame className="h-5 w-5 text-orange-400"/>{content.streak||1}</div><div className="text-[9px] text-white/20 uppercase tracking-[0.15em] mt-1.5">Streak</div></div>
+      </div>
+      {/* City */}
+      {content.city&&<div className="flex items-center gap-1.5 mt-10 text-white/15 text-sm"><MapPin className="h-3.5 w-3.5"/><span>{content.city}</span></div>}
+    </div>
+    <div className="pb-10 flex justify-center"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-          <div className="w-48 h-48 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex flex-col items-center justify-center self-center shadow-2xl mb-12">
-            <span className="text-white/60 font-bold text-sm uppercase tracking-widest mb-1">Vibe Match</span>
-            <span className="font-score text-7xl text-white leading-none">{content.score || '0'}</span>
-          </div>
-
-          <p className="text-white font-bold text-2xl leading-snug text-center px-4">
-            "{content.headline}"
-          </p>
-        </div>
-
-        <div className="flex justify-center w-full mt-auto">
-           <LoveCode username={content.username} theme="glass" />
-        </div>
+// ═══════════════════════════════════════════════════════════════
+// 11. PLAYER STATS — NBA 2K stat screen
+// ═══════════════════════════════════════════════════════════════
+function PlayerStatsTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-[#060608] overflow-hidden">
+  <div className="absolute top-0 right-0 w-[40%] h-[30%] rounded-full bg-primary/[0.03] blur-[100px]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-12 flex items-center justify-between"><span className="text-[10px] uppercase tracking-[0.3em] font-bold text-white/25">Fond Athletics</span><span className="text-[9px] text-white/10 font-mono">SEASON 2026</span></div>
+    <div className="flex-1 flex flex-col justify-center">
+      {/* Player header */}
+      <div className="flex items-center gap-6 mb-12">
+        <div className="w-24 h-24 rounded-full border border-white/[0.06] bg-white/[0.02] flex items-center justify-center font-display text-4xl text-white/70 overflow-hidden">{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace('@','')||'U')[0].toUpperCase()}</span>}</div>
+        <div><h2 className="font-display italic text-3xl text-white/90">@{content.username.replace('@','')}</h2><p className="text-white/30 text-sm mt-1">{t.name} · {content.city||'Unlisted'}</p></div>
+      </div>
+      {/* Stat bars */}
+      <div className="space-y-6 max-w-[500px]">
+        {[{l:'AVERAGE SCORE',v:s,max:100,color:sHex(s)},{l:'RANK',v:content.rank||1,max:100,color:'#DCBE78',suffix:content.city?`in ${content.city}`:''},{l:'STREAK',v:content.streak||1,max:30,color:'#f97316'},{l:'TIER',v:s>=75?85:s>=55?60:s>=40?40:20,max:100,color:t.color,suffix:t.name}].map((bar,i)=><div key={i}>
+          <div className="flex justify-between items-baseline mb-2"><span className="text-[9px] uppercase tracking-[0.2em] font-bold text-white/20">{bar.l}</span><span className="text-white/60 text-sm font-medium">{bar.v}{bar.suffix?<span className="text-white/15 ml-2">{bar.suffix}</span>:null}</span></div>
+          <div className="h-1.5 w-full bg-white/[0.03] rounded-full overflow-hidden"><div className="h-full rounded-full transition-all" style={{width:`${Math.min(100,(bar.v/bar.max)*100)}%`,backgroundColor:bar.color}}/></div>
+        </div>)}
       </div>
     </div>
-  );
-}
+    <div className="pb-10 flex justify-between items-end"><LoveCode username={content.username} theme="gold"/><span className="text-[9px] text-white/10 font-mono uppercase">fond.app/athletics</span></div>
+  </div>
+</div>)}
 
-// ============================================================================
-// 7. TRADING CARD TEMPLATE (RANK/PROFILE)
-// ============================================================================
-function TradingCardTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#111] p-6 perspective-[1000px]">
-      <div className="w-full h-full rounded-[2rem] border-[8px] border-[#c0c0c0] bg-gradient-to-br from-[#222] to-[#0a0a0a] relative overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] flex flex-col">
-        
-        {/* Holographic overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(125deg,transparent_20%,rgba(255,255,255,0.4)_30%,transparent_40%,rgba(255,255,255,0.2)_50%,transparent_60%)] mix-blend-color-dodge opacity-60 pointer-events-none z-20" />
-        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none z-20" />
-
-        <div className="bg-[#c0c0c0] text-black font-black text-center py-2 text-xl tracking-[0.3em] uppercase z-10 border-b-4 border-[#888]">
-          FOND OFFICIAL
-        </div>
-
-        <div className="flex-1 flex flex-col p-6 z-10 relative">
-          <div className="flex justify-between items-start mb-6">
-            <div className="flex flex-col">
-              <span className="text-[#c0c0c0] font-bold text-[10px] tracking-widest uppercase">Player Name</span>
-              <span className="text-white font-black text-3xl tracking-tight uppercase">@{content.username}</span>
-            </div>
-            {/* Mock Rank Badge */}
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-gold to-yellow-600 border-2 border-white flex items-center justify-center shadow-lg">
-              <span className="text-black font-score text-3xl leading-none">#{content.score || '23'}</span>
-            </div>
-          </div>
-
-          <div className="w-full aspect-square bg-black/50 border border-white/20 rounded-xl mb-6 flex items-center justify-center overflow-hidden relative">
-             <div className="absolute inset-0 bg-primary/20 blur-[50px] rounded-full" />
-             <User className="w-32 h-32 text-white/20" />
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 mb-auto">
-            <div className="bg-black/40 border border-white/10 p-3 rounded-lg text-center">
-              <div className="text-[#c0c0c0] text-[9px] font-bold uppercase tracking-widest mb-1">AVG SCORE</div>
-              <div className="text-white font-score text-2xl">88.5</div>
-            </div>
-            <div className="bg-black/40 border border-white/10 p-3 rounded-lg text-center">
-              <div className="text-[#c0c0c0] text-[9px] font-bold uppercase tracking-widest mb-1">STREAK</div>
-              <div className="text-white font-score text-2xl">14 🔥</div>
-            </div>
-          </div>
-
-          <div className="text-center mt-6 border-t border-white/20 pt-4">
-             <span className="text-white/50 text-[8px] font-bold tracking-widest uppercase">1st Edition • Mint Condition</span>
-          </div>
-        </div>
+// ═══════════════════════════════════════════════════════════════
+// 12. FOND ID — Clean identity card (profile)
+// ═══════════════════════════════════════════════════════════════
+function ProfileCardTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-[#0a080c] overflow-hidden">
+  <div className="absolute -top-[10%] left-1/2 -translate-x-1/2 w-[70%] h-[40%] rounded-full bg-gold/[0.04] blur-[120px]"/>
+  <div className="absolute bottom-0 left-0 w-[60%] h-[35%] rounded-full bg-primary/[0.03] blur-[100px]"/>
+  <div className="relative z-10 flex flex-col h-full px-14">
+    <div className="pt-14 flex items-center justify-center"><div className="flex items-center gap-2 px-5 py-2 rounded-full bg-white/[0.03] border border-white/[0.06]"><Sparkles className="h-3.5 w-3.5 text-gold"/><span className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold/80">Fond Member</span></div></div>
+    <div className="flex-1 flex flex-col items-center justify-center">
+      <div className="w-44 h-44 rounded-full border-2 flex items-center justify-center mb-8 font-display text-6xl text-white/80 overflow-hidden" style={{borderColor:`${t.color}30`,background:`radial-gradient(circle at 40% 35%,${t.color}15,transparent 70%)`,boxShadow:`0 0 60px -15px ${t.color}30`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
+      <h2 className="font-display italic text-3xl text-white/90 mb-1">@{content.username.replace('@','')}</h2>
+      <div className="flex items-center gap-2 mt-2 mb-8"><span className="text-white/50 text-sm font-medium">{t.name}</span></div>
+      <div className="grid grid-cols-2 gap-3 w-full max-w-[320px]">
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.05] p-4 text-center"><div className="font-score text-2xl text-white">{s}</div><div className="text-[9px] text-white/25 uppercase tracking-[0.15em] mt-1">Avg Score</div></div>
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.05] p-4 text-center"><div className="font-score text-2xl text-gold">{content.rank||'—'}</div><div className="text-[9px] text-white/25 uppercase tracking-[0.15em] mt-1">Rank</div></div>
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.05] p-4 text-center"><div className="font-score text-2xl text-white flex items-center justify-center gap-1"><Flame className="h-4 w-4 text-orange-400"/>{content.streak||1}</div><div className="text-[9px] text-white/25 uppercase tracking-[0.15em] mt-1">Streak</div></div>
+        <div className="rounded-2xl bg-white/[0.03] border border-white/[0.05] p-4 text-center"><div className="text-2xl">{t.name.split(' ').map(w=>w[0]).join('')}</div><div className="text-[9px] text-white/25 uppercase tracking-[0.15em] mt-1">Tier</div></div>
       </div>
+      {content.city&&<div className="flex items-center gap-1.5 mt-6 text-white/20 text-sm"><MapPin className="h-3.5 w-3.5"/><span>{content.city}</span></div>}
     </div>
-  );
-}
+    <div className="pb-10 flex justify-center"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-// ============================================================================
-// 8. AURA TEMPLATE
-// ============================================================================
-function AuraTemplate({ content, format }: TemplateProps) {
-  return (
-    <div className="relative w-full h-full flex flex-col overflow-hidden bg-[#120E15] p-10 sm:p-12">
-      {/* Immersive Glowing Background (Mesh Gradient) */}
-      <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-background">
-        <div className="absolute -top-[10%] -left-[10%] w-[120%] aspect-square rounded-full bg-primary opacity-30 mix-blend-screen blur-[100px] animate-pulse-glow" />
-        <div className="absolute top-[20%] -right-[20%] w-[100%] aspect-square rounded-full bg-gold opacity-20 mix-blend-screen blur-[120px]" />
-        <div className="absolute -bottom-[20%] left-[10%] w-[140%] aspect-square rounded-full bg-primary opacity-20 mix-blend-screen blur-[140px]" />
-      </div>
+// ═══════════════════════════════════════════════════════════════
+// 12a. PROFILE PAGE — Mirror of the actual profile page design
+// ═══════════════════════════════════════════════════════════════
+function ProfilePageTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-card overflow-hidden">
+  <div className="absolute -top-[5%] left-1/2 -translate-x-1/2 w-[80%] h-[30%] rounded-full bg-primary/[0.04] blur-[100px]"/>
+  <div className="absolute bottom-0 right-0 w-[50%] h-[25%] rounded-full bg-gold/[0.03] blur-[80px]"/>
+  <div className="relative z-10 flex flex-col items-center justify-center h-full px-16 py-16 text-center">
 
-      {/* Center Content */}
-      <div className="flex-1 flex flex-col items-center justify-center relative z-10 w-full text-center">
-        <Sparkles className="w-12 h-12 text-gold mb-8 animate-pulse-glow" />
-        <h3 className="font-display italic text-[3.5rem] leading-[1.1] text-white">
-          {content.headline?.split('\n').map((line, i) => (
-            <React.Fragment key={i}>{line}<br/></React.Fragment>
-          )) || (
-            <>My dating vibe is<br/><span className="text-gold">immaculate</span></>
-          )}
-        </h3>
-        {content.score && (
-          <div className="mt-12 px-8 py-3 rounded-full border border-white/20 bg-white/5 backdrop-blur-md">
-            <span className="text-sm uppercase tracking-widest text-white/70 font-bold">Vibe Score: {content.score}/100</span>
-          </div>
-        )}
-      </div>
+    {/* Avatar — large centered circle */}
+    <div className="w-52 h-52 rounded-full border-[3px] border-border flex items-center justify-center font-display text-7xl text-muted-foreground mb-6 overflow-hidden" style={{boxShadow:`0 0 80px -20px ${t.color}20`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
 
-      {/* Bottom Footer */}
-      <div className="flex justify-center w-full relative z-10 mb-2">
-        <LoveCode username={content.username} theme="glass" />
-      </div>
+    {/* Username */}
+    <h2 className="font-display italic text-[3rem] text-foreground leading-tight">@{content.username.replace('@','')}</h2>
+
+    {/* Tier badge */}
+    <span className="inline-flex items-center mt-3 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/10 text-gold text-sm font-semibold">{t.name}</span>
+
+    {/* City + Streak */}
+    <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
+      {content.city&&<span className="text-base text-muted-foreground font-medium">📍 {content.city}</span>}
+      {content.streak&&content.streak>0&&<span className="inline-flex items-center gap-1.5 text-base text-orange-500 font-semibold"><Flame className="h-5 w-5 fill-orange-500"/>{content.streak}d streak</span>}
     </div>
-  );
-}
 
-// ============================================================================
-// MAIN EXPORT CONTROLLER
-// ============================================================================
-interface ShareTemplatesProps {
-  theme: ShareTemplateTheme;
-  content: ShareContent;
-  format: ShareFormat;
-  // Allows us to attach a ref to the container for html-to-image to capture
-  captureRef?: React.RefObject<HTMLDivElement>;
-}
+    {/* Divider */}
+    <div className="w-48 h-px bg-border my-8"/>
 
-export function ShareTemplates({ theme, content, format, captureRef }: ShareTemplatesProps) {
-  // Dimensions for export rendering. We enforce these so the output is perfect.
-  const dimensions = format === 'story' 
-    ? { width: 1080, height: 1920 } 
-    : { width: 1080, height: 1080 };
+    {/* Dating Philosophy */}
+    {content.bio&&<div className="w-full max-w-[550px]"><span className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold block mb-3">Dating Philosophy</span><p className="font-display italic text-muted-foreground/80 leading-relaxed text-xl">"{content.bio}"</p></div>}
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+    {/* Stats row */}
+    <div className="grid grid-cols-3 gap-5 mt-10 w-full max-w-[550px]">
+      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Posts</div><div className="font-score text-3xl text-foreground">{content.totalPosts||0}</div></div>
+      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Avg Score</div><div className="font-score text-3xl text-primary">{s}</div></div>
+      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Best Score</div><div className="font-score text-3xl text-gold">{content.bestScore||s}</div></div>
+    </div>
 
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
+    {/* Footer */}
+    <div className="mt-10"><LoveCode username={content.username} theme="gold"/></div>
+  </div>
+</div>)}
 
-    const observer = new ResizeObserver((entries) => {
-      const { width, height } = entries[0].contentRect;
-      const scaleX = width / dimensions.width;
-      const scaleY = height / dimensions.height;
-      setScale(Math.min(scaleX, scaleY));
-    });
+// ═══════════════════════════════════════════════════════════════
+// B. VERDICT CARD — Mirrors the actual post detail page layout
+// ═══════════════════════════════════════════════════════════════
+function VerdictCardTemplate({content}:TP){const s=content.score||0;const c=sHex(s);const t=tier(s);return(
+<div className="relative w-full h-full flex flex-col bg-card overflow-hidden px-14 py-12">
+  {/* Score Hero */}
+  <div className="text-center py-6 relative">
+    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(209,47,88,0.06),transparent)] blur-3xl -z-10"/>
+    <div className="flex justify-center mb-4"><ScoreRing score={s} size={100}/></div>
+    {content.partnerName&&<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-elevated border border-border mt-2"><span className="text-sm font-medium text-foreground/80">with {content.partnerName}</span></div>}
+    {content.rank&&<p className="text-sm text-gold font-medium mt-3 animate-pulse">Ranked #{content.rank} globally 🏆</p>}
+  </div>
+  {/* AI Feedback */}
+  {content.verdict&&<div className="rounded-3xl border border-gold/20 bg-gold/[0.06] p-6 shadow-sm relative overflow-hidden"><div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-primary/[0.07] blur-3xl pointer-events-none"/><div className="relative z-10"><div className="flex items-center gap-2 mb-3"><Sparkles className="h-4 w-4 text-gold"/><span className="font-sans tracking-[0.2em] uppercase text-[9px] font-bold text-gold/80">Fond AI Verdict</span></div><p className="font-display text-xl italic leading-relaxed text-foreground">"{content.verdict}"</p></div></div>}
+  {/* Original Story */}
+  {content.headline&&<div className="rounded-3xl border border-border bg-card p-6"><h4 className="font-sans tracking-widest uppercase text-[9px] font-bold text-muted-foreground mb-3">Original Story</h4><p className="text-foreground/85 leading-relaxed text-base whitespace-pre-wrap">{content.headline}</p></div>}
+  {/* Score Breakdown */}
+  <div className="rounded-3xl border border-border bg-card p-6"><h3 className="font-display text-lg italic text-foreground mb-4">Score Breakdown</h3><div className="space-y-3">
+    {[{k:'Thoughtfulness',v:Math.min(s+8,100),m:30},{k:'Effort',v:Math.max(s-5,1),m:25},{k:'Creativity',v:Math.min(s+3,100),m:20},{k:'Emotional Weight',v:Math.max(s-2,1),m:15},{k:'Authenticity',v:Math.max(Math.min(s+10,100)-30,1),m:10}].map((d,i)=><div key={i}><div className="flex justify-between items-end"><span className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{d.k}</span><span className="font-score text-sm text-foreground leading-none">{d.v}<span className="text-muted-foreground text-[10px] font-sans">/{d.m}</span></span></div><div className="h-1.5 w-full bg-elevated rounded-full overflow-hidden mt-1"><div className="h-full bg-primary rounded-full" style={{width:`${Math.min(100,(d.v/d.m)*100)}%`}}/></div></div>)}
+  </div></div>
+  {/* Couple + city */}
+  <div className="flex items-center justify-center gap-2 pt-3 text-xs text-muted-foreground"><span className="font-medium">@{content.username.replace('@','')}</span><span className="opacity-40">×</span><span>{content.partnerName||'partner'}</span>{content.city&&<><span className="opacity-30">·</span><span>{content.city}</span></>}</div>
+  {/* Footer */}
+  <div className="flex justify-center pt-3"><LoveCode username={content.username} theme="gold"/></div>
+</div>)}
 
-    observer.observe(container);
-    return () => observer.disconnect();
-  }, [dimensions.width, dimensions.height]);
-
-  // To preview cleanly in the UI, we scale down the exact dimensions using JS
-  return (
-    <div 
-      ref={containerRef}
-      className="relative flex items-center justify-center w-full h-full bg-black/20 overflow-hidden rounded-[2rem] border border-white/5"
-    >
-      <div 
-        className="absolute left-1/2 top-1/2"
-        style={{
-          width: `${dimensions.width}px`,
-          height: `${dimensions.height}px`,
-          transform: `translate(-50%, -50%) scale(${scale})`,
-          transformOrigin: 'center center'
-        }}
-      >
-        <div 
-          ref={captureRef}
-          className="w-full h-full bg-background overflow-hidden shadow-2xl relative"
-        >
-          {(() => {
-            switch (theme) {
-              case 'luxury':
-                return <LuxuryTemplate content={content} format={format} />;
-              case 'frosted':
-                return <FrostedTemplate content={content} format={format} />;
-              case 'receipt':
-                return <ReceiptTemplate content={content} format={format} />;
-              case 'warning':
-                return <WarningTemplate content={content} format={format} />;
-              case 'imessage':
-                return <IMessageTemplate content={content} format={format} />;
-              case 'wrapped':
-                return <WrappedTemplate content={content} format={format} />;
-              case 'trading_card':
-                return <TradingCardTemplate content={content} format={format} />;
-              case 'aura':
-                return <AuraTemplate content={content} format={format} />;
-              case 'romantic':
-                return <RomanticTemplate content={content} format={format} />;
-              default:
-                return <LuxuryTemplate content={content} format={format} />;
-            }
-          })()}
+// ═══════════════════════════════════════════════════════════════
+// C. LEADERBOARD CARD — Mirrors the actual leaderboard in-app design
+// ═══════════════════════════════════════════════════════════════
+function LeaderboardCardTemplate({content}:TP){const r=content.rank||1;const s=content.score||0;const c=sHex(s);const t=tier(s);const init=(content.username.replace('@','')||'U')[0].toUpperCase();return(
+<div className="relative w-full h-full flex flex-col bg-card overflow-hidden rounded-[2rem]">
+  {/* Decorative ambient */}
+  <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-primary/[0.03] blur-3xl pointer-events-none"/>
+  <div className="relative z-10 flex-1 flex flex-col px-12 py-10">
+    {/* Header */}
+    <div className="flex items-center justify-between mb-10"><span className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold">The Standings</span><span className="text-[9px] text-muted-foreground/40 font-medium">{content.city||'Global'}</span></div>
+    {/* Leaderboard entry — mirrors actual leaderboard row design */}
+    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 relative">
+      {/* Rank */}
+      <div className="font-score text-3xl leading-none text-muted-foreground/50 w-12 text-center">#{r}</div>
+      {/* Dual mini avatar */}
+      <div className="relative h-8 w-10 shrink-0">
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+          <span className="text-white text-[9px] font-bold">{(content.partnerName||'P')[0].toUpperCase()}</span>
+        </div>
+        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
+          {content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span className="text-white text-[9px] font-bold">{init}</span>}
         </div>
       </div>
+      {/* Names */}
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-semibold text-foreground">{content.partnerName||content.username}</div>
+        <div className="truncate text-[10px] text-muted-foreground">@{content.username.replace('@','')} · {content.city||'Unranked'}</div>
+      </div>
+      {/* Score — colored circle */}
+      <div className="flex items-center gap-3">
+        <div className="font-score text-2xl leading-none" style={{color:c}}>{s}</div>
+      </div>
     </div>
-  );
-}
+    {/* Rank change indicator */}
+    <div className="mt-6 flex items-center justify-center gap-4">
+      <div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground/50">Standing</span><span className="font-bold text-foreground">{r<=3?'Podium':r<=10?'Top 10':'Rising'}</span></div>
+      <span className="text-muted-foreground/20">·</span>
+      <div className="flex items-center gap-2 text-sm"><span className="text-muted-foreground/50">Score</span><span className="font-bold" style={{color:c}}>{s}</span></div>
+    </div>
+  </div>
+  {/* Footer */}
+  <div className="relative z-10 flex justify-center pb-8"><LoveCode username={content.username} theme="gold"/></div>
+</div>)}
+
+// ═══════════════════════════════════════════════════════════════
+// CONTROLLER
+// ═══════════════════════════════════════════════════════════════
+interface ShareTemplatesProps{theme:ShareTemplateTheme;content:C;format:ShareFormat;captureRef?:React.RefObject<HTMLDivElement|null>}
+export function ShareTemplates({theme,content,format,captureRef}:ShareTemplatesProps){
+  const dims=format==='story'?{w:1080,h:1920}:{w:1080,h:1080};
+  const cr=useRef<HTMLDivElement>(null);const[sc,setSc]=useState(0.5);
+  useEffect(()=>{const c=cr.current;if(!c)return;const o=new ResizeObserver(([e])=>{const rx=e.contentRect.width/dims.w;const ry=e.contentRect.height/dims.h;setSc(Math.min(rx,ry))});o.observe(c);return()=>o.disconnect()},[dims.w,dims.h]);
+  return(<div ref={cr} className="relative flex items-center justify-center w-full h-full bg-black/20 overflow-hidden rounded-[2rem]"><div className="absolute left-1/2 top-1/2" style={{width:`${dims.w}px`,height:`${dims.h}px`,transform:`translate(-50%,-50%) scale(${sc})`,transformOrigin:'center center'}}><div ref={captureRef as React.RefObject<HTMLDivElement>} className="w-full h-full overflow-hidden shadow-2xl relative">{
+    (()=>{switch(theme){
+      case'brutal-truth':return<BrutalTruthTemplate content={content} format={format}/>;
+      case'wrapped':return<WrappedTemplate content={content} format={format}/>;
+      case'daily-fond':return<DailyFondTemplate content={content} format={format}/>;
+      case'constellation':return<ConstellationTemplate content={content} format={format}/>;
+      case'aura':return<AuraTemplate content={content} format={format}/>;
+      case'receipt':return<ReceiptTemplate content={content} format={format}/>;
+      case'hall-of-fame':return<HallOfFameTemplate content={content} format={format}/>;
+      case'podium':return<PodiumTemplate content={content} format={format}/>;
+      case'fond-rating':return<FondRatingTemplate content={content} format={format}/>;
+      case'membership':return<MembershipTemplate content={content} format={format}/>;
+      case'player-stats':return<PlayerStatsTemplate content={content} format={format}/>;
+      case'profile-card':return<ProfileCardTemplate content={content} format={format}/>;
+      case'profile-page':return<ProfilePageTemplate content={content} format={format}/>;
+      case'verdict-card':return<VerdictCardTemplate content={content} format={format}/>;
+      case'leaderboard-card':return<LeaderboardCardTemplate content={content} format={format}/>;
+      default:return<BrutalTruthTemplate content={content} format={format}/>;
+    }})()
+  }</div></div></div>);}

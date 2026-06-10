@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* ==========================================================================
-   LOVE LEADERBOARD - CENTRAL THEME CONTROLLER
+   FOND — CENTRAL THEME CONTROLLER
    ==========================================================================
    This file acts as your central control panel. Change the values below 
    to instantly update the colors, fonts, and aesthetics across the entire app.
@@ -49,6 +49,7 @@
     --accent-foreground: 34 31 32; /* #221F20 */
     
     /* Unique Accents & Status */
+    --blush: 255 182 193;      /* #FFB6C1 — light rose pink */
     --champagne: 199 169 107;  /* #C7A96B */
     --gold: 199 169 107;       /* #C7A96B */
     
@@ -69,50 +70,51 @@
   .dark {
     --radius: 0.875rem;
 
-    /* Midnight Luxury */
-    --background: 24 20 22;    /* #181416 */
-    --surface: 32 27 30;       /* #201B1E */
-    --elevated: 41 35 38;      /* #292326 */
-    
-    --foreground: 247 244 242; /* #F7F4F2 */
-    --muted-foreground: 166 158 162; /* #A69EA2 */
-    
-    --primary: 230 76 117;     /* #E64C75 (Darker rose) */
-    --primary-foreground: 24 20 22; /* #181416 */
-    
+    /* Velvet Midnight — "Fond After Dark"
+       Warm burgundy-blacks with rose undertones.
+       Not a void — a theatre curtain, a members' club, a velvet room. */
+    --background: 22 12 18;     /* #160C12 — Warm black with rose undertone */
+    --surface: 30 16 23;        /* #1E1017 — Deep burgundy-black */
+    --elevated: 40 22 32;       /* #281620 — Richer aubergine, brighter */
+
+    --foreground: 250 245 243;  /* #FAF5F3 — Warm white */
+    --muted-foreground: 180 160 168; /* #B4A0A8 — Muted rose-gray */
+
+    --primary: 238 106 140;     /* #EE6A8C — Luminous rose, glows against dark */
+    --primary-foreground: 22 12 18; /* #160C12 */
+
     --card: var(--surface);
     --card-foreground: var(--foreground);
     --popover: var(--elevated);
     --popover-foreground: var(--foreground);
-    
-    --border: 58 51 55;        /* #3A3337 */
-    --input: var(--elevated);
-    --ring: 230 76 117;        /* #E64C75 */
 
-    --secondary: 41 35 38;     /* #292326 */
-    --secondary-foreground: 247 244 242; /* #F7F4F2 */
-    --muted: 41 35 38;         /* #292326 */
-    --accent: 41 35 38;        /* #292326 */
-    --accent-foreground: 247 244 242; /* #F7F4F2 */
-    
-    /* Unique Accents & Status */
-    --champagne: 199 169 107;  /* #C7A96B */
-    /* Unique Accents & Status */
-    --champagne: 199 169 107;  /* #C7A96B */
-    --gold: 199 169 107;       /* #C7A96B */
-    
-    --score-low: 214 92 92;    /* Soft Crimson */
-    --score-mid: 222 153 82;   /* Soft Amber */
-    --score-high: 80 160 120;  /* Elegant Jade */
-    --score-legendary: 199 169 107; /* #C7A96B */
-    
-    --destructive: 230 90 90;  /* #E65A5A */
-    --destructive-foreground: 255 255 255; /* #FFFFFF */
-    --success: 55 178 108;     /* #37B26C */
-    --warning: 240 169 74;     /* #F0A94A */
-    
-    --shadow-glow: 0 4px 24px -4px rgba(230, 76, 117, 0.15);
-    --shadow-gold: 0 4px 20px -4px rgba(199, 169, 107, 0.15);
+    --border: 75 45 55;         /* #4B2D37 — Lighter rose-tinted border, visible against burgundy */
+    --input: var(--elevated);
+    --ring: 238 106 140;        /* #EE6A8C */
+
+    --secondary: 40 22 32;      /* #281620 */
+    --secondary-foreground: 250 245 243; /* #FAF5F3 */
+    --muted: 40 22 32;          /* #281620 */
+    --accent: 65 35 48;         /* #412330 */
+    --accent-foreground: 250 245 243; /* #FAF5F3 */
+
+    /* Unique Accents & Status — warmer and more luminous against velvet */
+    --blush: 255 140 160;       /* #FF8CA0 — warmer rose for dark */
+    --champagne: 220 190 120;   /* #DCBE78 — Warmer gold */
+    --gold: 220 190 120;        /* #DCBE78 — Pops against burgundy */
+
+    --score-low: 235 110 115;   /* #EB6E73 — Warm crimson */
+    --score-mid: 235 165 100;   /* #EBA564 — Rich amber */
+    --score-high: 100 180 145;  /* #64B491 — Elegant jade */
+    --score-legendary: 220 190 120; /* #DCBE78 */
+
+    --destructive: 235 110 115;  /* #EB6E73 */
+    --destructive-foreground: 250 245 243; /* #FAF5F3 */
+    --success: 80 190 125;      /* #50BE7D */
+    --warning: 245 180 95;      /* #F5B45F */
+
+    --shadow-glow: 0 4px 32px -4px rgba(238, 106, 140, 0.25);
+    --shadow-gold: 0 4px 28px -4px rgba(220, 190, 120, 0.2);
   }
 
   body {
@@ -129,11 +131,83 @@
 }
 
 @layer utilities {
+  /* ═══════════════════════════════════════════════════════
+     GLASS SYSTEM — saturate boost for liquid transparency
+     ═══════════════════════════════════════════════════════ */
+
   .glass {
     background-color: var(--card);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: 0 1px 8px -2px rgba(158, 30, 60, 0.06);
+  }
+
+  /* ── Subtle frost — buttons, chips ── */
+  .glass-1 {
+    background: rgb(var(--surface) / 0.35);
+    border: 1px solid rgb(var(--foreground) / 0.06);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--foreground) / 0.05),
+      0 1px 4px rgb(var(--foreground) / 0.04);
+    backdrop-filter: blur(10px) saturate(150%);
+    -webkit-backdrop-filter: blur(10px) saturate(150%);
+  }
+
+  /* ── Card glass — widgets, panels ── */
+  .glass-2 {
+    background: rgb(var(--surface) / 0.4);
+    border: 1px solid rgb(var(--foreground) / 0.07);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--foreground) / 0.06),
+      0 4px 20px rgb(var(--foreground) / 0.05),
+      0 1px 4px rgb(var(--foreground) / 0.03);
+    backdrop-filter: blur(20px) saturate(170%);
+    -webkit-backdrop-filter: blur(20px) saturate(170%);
+  }
+
+  /* ── Heavy glass — modals, sheets ── */
+  .glass-3 {
+    background: rgb(var(--surface) / 0.45);
+    border: 1px solid rgb(var(--foreground) / 0.08);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--foreground) / 0.07),
+      0 8px 40px rgb(var(--foreground) / 0.08),
+      0 2px 8px rgb(var(--foreground) / 0.04);
+    backdrop-filter: blur(30px) saturate(180%);
+    -webkit-backdrop-filter: blur(30px) saturate(180%);
+  }
+
+  /* ── Dock glass — nav bars, max frost ── */
+  .glass-dock {
+    background: rgb(var(--surface) / 0.4);
+    border: 1px solid rgb(var(--foreground) / 0.08);
+    box-shadow:
+      inset 0 1px 1px rgb(var(--foreground) / 0.06),
+      0 8px 40px rgb(var(--foreground) / 0.1),
+      0 2px 8px rgb(var(--foreground) / 0.05);
+    backdrop-filter: blur(50px) saturate(200%);
+    -webkit-backdrop-filter: blur(50px) saturate(200%);
+  }
+
+  .dark .glass-1 {
+    background: rgb(22 12 18 / 0.4);
+    border-color: rgb(var(--foreground) / 0.05);
+    box-shadow: inset 0 1px 0 rgb(var(--foreground) / 0.04), 0 1px 4px rgb(0 0 0 / 0.2);
+  }
+  .dark .glass-2 {
+    background: rgb(22 12 18 / 0.45);
+    border-color: rgb(var(--foreground) / 0.06);
+    box-shadow: inset 0 1px 0 rgb(var(--foreground) / 0.05), 0 4px 20px rgb(0 0 0 / 0.3), 0 1px 4px rgb(0 0 0 / 0.15);
+  }
+  .dark .glass-3 {
+    background: rgb(22 12 18 / 0.5);
+    border-color: rgb(var(--foreground) / 0.07);
+    box-shadow: inset 0 1px 0 rgb(var(--foreground) / 0.06), 0 8px 40px rgb(0 0 0 / 0.4), 0 2px 8px rgb(0 0 0 / 0.2);
+  }
+  .dark .glass-dock {
+    background: rgb(22 12 18 / 0.45);
+    border-color: rgb(var(--foreground) / 0.07);
+    box-shadow: inset 0 1px 1px rgb(var(--foreground) / 0.05), 0 8px 40px rgb(0 0 0 / 0.5), 0 2px 8px rgb(0 0 0 / 0.25);
   }
 
   .bg-noise {
@@ -148,6 +222,40 @@
     letter-spacing: 0.02em;
   }
 
+  /* ── Scroll Reveal — cards settle into place on viewport entry ── */
+  .reveal-up {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-up.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* staggered children */
+  .reveal-up-stagger > * {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .reveal-up-stagger > *.is-visible:nth-child(1) { transition-delay: 0s; }
+  .reveal-up-stagger > *.is-visible:nth-child(2) { transition-delay: 0.08s; }
+  .reveal-up-stagger > *.is-visible:nth-child(3) { transition-delay: 0.16s; }
+  .reveal-up-stagger > *.is-visible:nth-child(4) { transition-delay: 0.24s; }
+  .reveal-up-stagger > *.is-visible:nth-child(5) { transition-delay: 0.32s; }
+  .reveal-up-stagger > *.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Safe area for iPhone notch / home indicator */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   .text-gradient-gold {
     background: linear-gradient(135deg, #E8C86A, #D4A843);
     -webkit-background-clip: text;
@@ -155,7 +263,7 @@
     color: transparent;
   }
   .dark .text-gradient-gold {
-    background: linear-gradient(135deg, oklch(0.86 0.14 90), oklch(0.68 0.14 60));
+    background: linear-gradient(135deg, #F0D78C, #DCBE78, #C4A050);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -168,7 +276,7 @@
     color: transparent;
   }
   .dark .text-gradient-crimson {
-    background: linear-gradient(135deg, oklch(0.65 0.24 18), oklch(0.74 0.14 15));
+    background: linear-gradient(135deg, #FF6B8A, #FFA0B8, #FFC8D6);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;

@@ -7,26 +7,46 @@ import { ShareTemplates, ShareFormat, ShareTemplateTheme } from './ShareTemplate
 import * as htmlToImage from 'html-to-image';
 import { useToast } from '../ui/Toast';
 
-const THEMES: { id: ShareTemplateTheme; label: string; description: string }[] = [
-  { id: 'luxury', label: 'Hall of Fame', description: 'Show off your global rank and premium status.' },
-  { id: 'frosted', label: 'The Brutal Truth', description: 'Share the raw, unfiltered AI verdict about your relationship.' },
-  { id: 'romantic', label: 'The Romantic', description: 'A soft, pastel aesthetic with glowing hearts.' },
-  { id: 'receipt', label: 'The Receipt', description: 'A quirky, viral itemized receipt of your romance stats.' },
-  { id: 'warning', label: 'Warning Label', description: 'A bold hazard warning or green flag certification.' },
-  { id: 'imessage', label: 'Text Leak', description: 'Looks just like an iMessage conversation.' },
-  { id: 'wrapped', label: 'Wrapped', description: 'The famous end-of-year music aesthetic, but for your love life.' },
-  { id: 'trading_card', label: 'Player Card', description: 'A holographic sports trading card to flex your profile stats.' },
-  { id: 'aura', label: 'Aura', description: 'Immersive glowing mesh gradient to flex your immaculate vibe.' },
+interface ThemeDef { id: ShareTemplateTheme; label: string; description: string; }
+
+const POST_THEMES: ThemeDef[] = [
+  { id: 'brutal-truth',  label: 'The Brutal Truth', description: 'Red menace. The AI verdict at maximum volume. Unfiltered.' },
+  { id: 'wrapped',       label: 'Wrapped',          description: 'Data-driven duotone. Your year in romance, visualized.' },
+  { id: 'daily-fond',    label: 'Daily Fond',        description: 'A newspaper front page. Your romance, above the fold.' },
+  { id: 'constellation', label: 'Constellation',      description: 'Your romance, written in the stars. Celestial.' },
+  { id: 'aura',          label: 'Aura',              description: 'Full-bleed dreamlike gradient. Pure atmosphere.' },
+  { id: 'receipt',       label: 'The Receipt',       description: 'Boutique receipt. Your romance, itemized.' },
+  { id: 'verdict-card',  label: 'Verdict Card',       description: 'The actual Fond VerdictCard. Score circle, tier, and quote.' },
+];
+
+const RANK_THEMES: ThemeDef[] = [
+  { id: 'hall-of-fame',  label: 'Hall of Fame',      description: '"I ranked #32 in Mumbai." The number is the flex.' },
+  { id: 'podium',        label: 'The Announcement',   description: 'Sports broadcast energy. Your rank, monumental.' },
+  { id: 'fond-rating',   label: 'Fond Rating',        description: 'Institutional credit report. Official and serious.' },
+  { id: 'leaderboard-card', label: 'Leaderboard Card', description: 'The actual Fond leaderboard row. Rank, avatar, score.' },
+];
+
+const PROFILE_THEMES: ThemeDef[] = [
+  { id: 'profile-page',  label: 'Profile Page',       description: 'Your actual Fond profile. Avatar, details, stats, and bio.' },
+  { id: 'membership',    label: 'Membership Card',   description: 'Like an Amex Centurion. Your Fond identity, in gold.' },
+  { id: 'player-stats',  label: 'Player Stats',       description: 'ESPN meets romance. Your numbers, visualized.' },
+  { id: 'profile-card',  label: 'Fond ID',            description: 'Clean identity card. Who you are on Fond.' },
 ];
 
 export function ShareStudio() {
   const { isOpen, shareData, closeShare } = useShare();
   const { addToast } = useToast();
   const captureRef = useRef<HTMLDivElement>(null);
-  
+
+
+  const themes = shareData?.type === 'rank'
+    ? RANK_THEMES
+    : shareData?.type === 'profile'
+      ? PROFILE_THEMES
+      : POST_THEMES;
   const [themeIndex, setThemeIndex] = useState(0);
-  const currentTheme = THEMES[themeIndex];
-  
+  const currentTheme = themes[Math.min(themeIndex, themes.length - 1)];
+
   const [format, setFormat] = useState<ShareFormat>('story');
   const [isExporting, setIsExporting] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -51,14 +71,14 @@ export function ShareStudio() {
 
     try {
       // Generate High-Res PNG
-      const dataUrl = await htmlToImage.toPng(captureRef.current, { 
+      const dataUrl = await htmlToImage.toPng(captureRef.current, {
         quality: 1,
-        pixelRatio: 1, // It's already 1080p natively
+        pixelRatio: 1,
       });
 
       if (action === 'save') {
         const link = document.createElement('a');
-        link.download = `loveboard-${shareData.type}-${Date.now()}.png`;
+        link.download = `fond-${shareData.type}-${currentTheme.id}-${Date.now()}.png`;
         link.href = dataUrl;
         link.click();
         addToast('Saved to camera roll!', 'success');
@@ -70,13 +90,13 @@ export function ShareStudio() {
         if (navigator.share && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
-            title: 'LoveBoard Share',
+            title: 'Fond Share',
             text: 'Check this out on Fond!',
           });
         } else {
           // Fallback to save if share API not supported
           const link = document.createElement('a');
-          link.download = `loveboard-${shareData.type}-${Date.now()}.png`;
+          link.download = `fond-${shareData.type}-${Date.now()}.png`;
           link.href = dataUrl;
           link.click();
           addToast('Saved image for sharing!', 'success');
@@ -98,23 +118,23 @@ export function ShareStudio() {
   };
 
   const handleNextTheme = () => {
-    setThemeIndex((prev) => (prev + 1) % THEMES.length);
+    setThemeIndex((prev) => (prev + 1) % themes.length);
   };
 
   const handlePrevTheme = () => {
-    setThemeIndex((prev) => (prev - 1 + THEMES.length) % THEMES.length);
+    setThemeIndex((prev) => (prev - 1 + themes.length) % themes.length);
   };
 
   return (
     <div 
       className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
     >
-      <div className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-white dark:bg-[#120E15] rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col lg:flex-row border border-black/5 dark:border-white/5">
+      <div className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-background rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col lg:flex-row border border-border">
 
         {/* Close Button (Top Right) */}
         <button 
           onClick={closeShare}
-          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full bg-black/5 border border-black/10 text-black/70 hover:text-black hover:bg-black/10 dark:bg-white/5 dark:border-white/10 dark:text-white/70 dark:hover:text-white dark:hover:bg-white/10 backdrop-blur-md transition-colors"
+          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated backdrop-blur-md transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -122,16 +142,16 @@ export function ShareStudio() {
         {/* LEFT PANEL: Live Preview Canvas */}
         <div className="flex-1 relative flex flex-col items-center justify-center p-6 lg:p-8 bg-black/5 dark:bg-black/20 overflow-hidden">
            <div className="w-full text-center lg:text-left mb-6 lg:mb-8 z-50 shrink-0">
-             <h2 className="font-display italic text-[2rem] text-black dark:text-white">Share to Story</h2>
+             <h2 className="font-display italic text-[2rem] text-foreground">Share to Story</h2>
            </div>
 
            <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
              {/* Navigation Chevrons */}
-             <button onClick={handlePrevTheme} className="absolute left-0 lg:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-[#3b82f6] bg-[#3b82f6]/10 text-[#3b82f6] dark:text-white hover:bg-[#3b82f6]/20 transition-colors">
+             <button onClick={handlePrevTheme} className="absolute left-0 lg:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
                <ChevronLeft className="w-5 h-5" />
              </button>
-             
-             <button onClick={handleNextTheme} className="absolute right-0 lg:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-black/10 bg-black/5 text-black hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:bg-white/10 transition-colors">
+
+             <button onClick={handleNextTheme} className="absolute right-0 lg:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-border bg-muted text-foreground hover:bg-elevated transition-colors">
                <ChevronRight className="w-5 h-5" />
              </button>
 
@@ -154,14 +174,14 @@ export function ShareStudio() {
           <div className="max-w-md w-full space-y-8">
             
             <div className="space-y-3">
-              <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-[#c2935b]">
-                FLEX YOUR SCORE
+              <div className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold">
+                {shareData?.type === 'rank' ? 'FLEX YOUR RANK' : shareData?.type === 'profile' ? 'FOND MEMBER' : 'FLEX YOUR SCORE'}
               </div>
-              <h1 className="font-display italic text-[2.5rem] leading-none text-black dark:text-white">
+              <h1 className="font-display italic text-[2.5rem] leading-none text-foreground">
                 {currentTheme.label}
               </h1>
-              <p className="text-sm text-black/50 dark:text-white/50 leading-relaxed max-w-[280px]">
-                Swipe to choose a template. These are perfectly sized (9:16) for Instagram or TikTok stories.
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-[280px]">
+                {currentTheme.description}
               </p>
             </div>
 
@@ -169,7 +189,7 @@ export function ShareStudio() {
               <button 
                 onClick={() => handleExport('share')}
                 disabled={isExporting}
-                className="w-full relative group overflow-hidden rounded-[2rem] bg-[#E8456B] px-6 py-5 flex items-center justify-center gap-3 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
+                className="w-full relative group overflow-hidden rounded-[2rem] bg-primary px-6 py-5 flex items-center justify-center gap-3 transition-transform active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none"
               >
                 <Share2 className="w-5 h-5 text-white relative z-10" />
                 <span className="text-[11px] uppercase tracking-widest font-bold text-white relative z-10">
@@ -182,7 +202,7 @@ export function ShareStudio() {
                 <button 
                   onClick={() => handleExport('save')}
                   disabled={isExporting}
-                  className="w-full rounded-[2rem] border border-black/10 bg-black/5 hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 px-6 py-5 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:pointer-events-none text-black dark:text-white"
+                  className="w-full rounded-[2rem] border border-border bg-muted hover:bg-elevated px-6 py-5 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:pointer-events-none text-foreground"
                 >
                   <Download className="w-4 h-4" />
                   <span className="text-[10px] uppercase tracking-widest font-bold">Save Image</span>
@@ -201,12 +221,12 @@ export function ShareStudio() {
             </div>
 
             {/* Carousel Dots */}
-            <div className="flex justify-center gap-2 pt-8 flex-wrap max-w-[200px] mx-auto">
-              {THEMES.map((t, i) => (
-                <button 
-                  key={t.id} 
+            <div className="flex justify-center gap-2 pt-8 flex-wrap max-w-[300px] mx-auto">
+              {themes.map((t, i) => (
+                <button
+                  key={t.id}
                   onClick={() => setThemeIndex(i)}
-                  className={`h-2 rounded-full transition-all duration-300 ${i === themeIndex ? 'w-6 bg-[#E8456B]' : 'w-2 bg-black/20 dark:bg-white/20'}`} 
+                  className={`h-2 rounded-full transition-all duration-300 ${i === themeIndex ? 'w-6 bg-primary' : 'w-2 bg-black/20 dark:bg-white/20'}`}
                 />
               ))}
             </div>

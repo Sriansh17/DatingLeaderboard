@@ -8,6 +8,22 @@ export type Tier =
   | "Legendary"
   | "The Algorithm Has No Words";
 
+export interface TierInfo {
+  name: Tier;
+  emoji: string;
+}
+
+export const TIER_MAP: Record<Tier, TierInfo> = {
+  "Still Dating":               { name: "Still Dating",               emoji: "🥉" },
+  "It's Complicated":           { name: "It's Complicated",           emoji: "📉" },
+  "Officially Exclusive":       { name: "Officially Exclusive",       emoji: "📊" },
+  "Relationship Goals":         { name: "Relationship Goals",         emoji: "⭐" },
+  "Certified Partner Material": { name: "Certified Partner Material", emoji: "💎" },
+  "Gold Standard":              { name: "Gold Standard",              emoji: "🏆" },
+  "Legendary":                  { name: "Legendary",                  emoji: "👑" },
+  "The Algorithm Has No Words": { name: "The Algorithm Has No Words", emoji: "🌟" },
+};
+
 export function tierForScore(score: number): Tier {
   if (score < 40) return "Still Dating";
   if (score < 55) return "It's Complicated";
@@ -17,6 +33,10 @@ export function tierForScore(score: number): Tier {
   if (score < 92) return "Gold Standard";
   if (score < 97) return "Legendary";
   return "The Algorithm Has No Words";
+}
+
+export function tierInfoForScore(score: number): TierInfo {
+  return TIER_MAP[tierForScore(score)];
 }
 
 export function scoreColor(score: number) {

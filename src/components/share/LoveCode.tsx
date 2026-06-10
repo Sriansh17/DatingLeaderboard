@@ -1,34 +1,34 @@
 import React from 'react';
-import { QrCode } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 
 interface LoveCodeProps {
   username: string;
-  theme?: 'dark' | 'light' | 'gold' | 'glass';
+  theme?: 'dark' | 'light' | 'gold';
   className?: string;
 }
 
 export function LoveCode({ username, theme = 'dark', className = '' }: LoveCodeProps) {
-  const isLight = theme === 'light';
-  
+  const bg = theme === 'gold'
+    ? 'bg-gold/10 border border-gold/20 text-gold'
+    : theme === 'light'
+      ? 'bg-white/60 border border-black/5 text-foreground'
+      : 'bg-black/30 border border-white/10 text-white';
+
+  const dotColor = theme === 'gold' ? 'bg-gold' : 'bg-primary';
+
   return (
-    <div className={`flex items-center gap-3 px-3 py-2.5 rounded-[20px] ${isLight ? 'bg-white/70 border border-black/5 text-rose-950' : 'bg-black/90 border border-white/10 text-white'} backdrop-blur-xl shadow-2xl ${className}`}>
-      {/* Pink QR Code Circle */}
-      <div className={`w-8 h-8 rounded-full ${isLight ? 'bg-rose-500' : 'bg-[#E8456B]'} flex items-center justify-center p-1.5 shrink-0`}>
-         <QrCode className="w-full h-full text-white" strokeWidth={2.5} />
-      </div>
+    <div className={`flex items-center gap-2.5 px-4 py-2.5 rounded-2xl ${bg} backdrop-blur-xl shadow-lg ${className}`}>
+      {/* Fond icon + brand */}
+      <Sparkles className={`h-3.5 w-3.5 shrink-0 ${theme === 'gold' ? 'text-gold' : theme === 'light' ? 'text-primary' : 'text-gold'}`} />
+      <span className="text-[11px] font-bold tracking-[0.15em] uppercase shrink-0">FOND</span>
 
-      {/* Audio Bars */}
-      <div className="flex items-end gap-[2.5px] h-4 shrink-0">
-        {[60, 80, 40, 100, 50, 70].map((h, i) => (
-          <div key={i} className={`w-[2.5px] ${isLight ? 'bg-rose-400' : 'bg-[#E8456B]'} rounded-full`} style={{ height: `${h}%` }} />
-        ))}
-      </div>
+      {/* Divider dot */}
+      <span className={`w-1 h-1 rounded-full shrink-0 ${theme === 'light' ? 'bg-foreground/20' : 'bg-white/20'}`} />
 
-      {/* Text */}
-      <div className="flex items-center gap-1.5 pl-1 pr-3 shrink-0">
-         <span className={`text-[11px] font-bold tracking-widest uppercase`}>FOND ✨</span>
-         <span className={`text-[11px] font-bold ${isLight ? 'text-rose-950/40' : 'text-white/40'} tracking-wider uppercase`}>@{username}</span>
-      </div>
+      {/* Username */}
+      <span className={`text-[11px] font-medium tracking-wide truncate ${theme === 'light' ? 'text-muted-foreground' : 'text-white/50'}`}>
+        @{username.replace('@', '')}
+      </span>
     </div>
   );
 }
