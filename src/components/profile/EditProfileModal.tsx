@@ -11,14 +11,16 @@ interface EditProfileModalProps {
 }
 
 export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }: EditProfileModalProps) {
-  const p = currentProfile || {};
-  const [username, setUsername] = useState(p.username || '');
-  const [bio, setBio] = useState(p.bio || "Reviewing dates, analyzing romance, and sharing stories. Welcome to my archive of romantic adventures.");
-  const [age, setAge] = useState(p.age || '');
-  const [gender, setGender] = useState(p.gender || '');
-  const [city, setCity] = useState(p.city || '');
-  const [occupation, setOccupation] = useState(p.occupation || '');
-  const [country, setCountry] = useState(p.country || '');
+  const [username, setUsername] = useState(currentProfile?.username || '');
+  const [bio, setBio] = useState(currentProfile?.bio || "Reviewing dates, analyzing romance, and sharing stories. Welcome to my archive of romantic adventures.");
+  
+  // Use metadata if passed, otherwise default
+  const meta = currentProfile?.user_metadata || {};
+  const [age, setAge] = useState(meta.age || '');
+  const [gender, setGender] = useState(meta.gender || '');
+  const [city, setCity] = useState(meta.city || currentProfile?.city || '');
+  const [occupation, setOccupation] = useState(meta.occupation || '');
+  const [country, setCountry] = useState(meta.country || currentProfile?.country || '');
   
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -33,7 +35,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
       // Update all fields in profiles table
       const { error } = await supabase
         .from('profiles')
-        .update({ username, bio, age, gender, city, occupation, country })
+        .update({ username, bio, city, country })
         .eq('id', currentProfile.id);
 
       if (!error) {
@@ -64,37 +66,69 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
             <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={() => alert("Photo upload coming soon!")} />
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Username</label>
-              <input type="text" value={username} onChange={(e) => setUsername(e.target.value)} className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" required />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Age</label>
-              <input type="text" value={age} onChange={(e) => setAge(e.target.value)} className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Gender</label>
-              <input type="text" value={gender} onChange={(e) => setGender(e.target.value)} className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">City</label>
-              <input type="text" value={city} onChange={(e) => setCity(e.target.value)} className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Occupation</label>
-              <input type="text" value={occupation} onChange={(e) => setOccupation(e.target.value)} className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
-            </div>
-            <div className="space-y-1">
-              <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
-              <input type="text" value={country} onChange={(e) => setCountry(e.target.value)} placeholder="e.g. India" className="w-full border-b border-border bg-transparent py-1.5 px-0 text-lg font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
-            </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Username</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+              required
+            />
           </div>
 
-          <div className="space-y-1">
-            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Dating Philosophy (Bio)</label>
-            <textarea value={bio} onChange={(e) => setBio(e.target.value)} rows={2} className="w-full resize-none border-b border-border bg-transparent py-1.5 px-0 text-lg font-display italic text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30" />
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Age</label>
+            <input
+              type="text"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+            />
           </div>
+
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Gender</label>
+            <input
+              type="text"
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">City</label>
+            <input
+              type="text"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Occupation</label>
+            <input
+              type="text"
+              value={occupation}
+              onChange={(e) => setOccupation(e.target.value)}
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
+            <input
+              type="text"
+              value={country}
+              onChange={(e) => setCountry(e.target.value)}
+              placeholder="e.g. India"
+              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+        </div>
         </div>
 
         {/* Sticky save button — always visible */}

@@ -1,21 +1,22 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { usePost } from '@/lib/hooks/usePosts';
+import { usePost, useLikePost } from '@/lib/hooks/usePosts';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles, Trash2, Share2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Trash2, Heart, MessageCircle, Send, Share2 } from 'lucide-react';
+import { ShareCard } from '@/components/posts/ShareCard';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useShare } from '@/components/providers/ShareProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
-import { useMemo } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-
+import type { Comment } from '@/types/database';
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -23,6 +24,7 @@ export default function PostDetailPage() {
   const { addToast } = useToast();
   const { openShare } = useShare();
   const { data: post, isLoading } = usePost(params.id as string);
+  const likePostMutation = useLikePost();
 
   const { data: globalLeaderboard } = useLeaderboard({ type: 'global', limit: 100 });
 
@@ -32,6 +34,54 @@ export default function PostDetailPage() {
     return entry?.rank;
   }, [globalLeaderboard, post]);
 
+  // Comments state
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  // Fetch comments
+  useEffect(() => {
+    if (!post) return;
+    const fetchComments = async () => {
+      try {
+        const res = await fetch(`/api/posts/${post.id}/comments`);
+        const data = await res.json();
+        if (data.success) setComments(data.data);
+      } catch {}
+      finally { setCommentsLoading(false); }
+    };
+    fetchComments();
+  }, [post?.id]);
+
+  const handleLike = async () => {
+    if (!user || likePostMutation.isPending || !post) return;
+
+    try {
+      await likePostMutation.mutateAsync(post.id);
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
+
+  const handleComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user || !newComment.trim() || submitting || !post) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch(`/api/posts/${post.id}/comments`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: newComment.trim() }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setComments(prev => [...prev, data.data]);
+        setNewComment('');
+      }
+    } catch { addToast('Failed to post comment', 'error'); }
+    finally { setSubmitting(false); }
+  };
   const handleDelete = async () => {
     if (!confirm('Delete this post?')) return;
     const supabase = createClient();
@@ -49,7 +99,7 @@ export default function PostDetailPage() {
   } catch {}
 
   return (
-    <main className="relative px-4 sm:px-6 lg:px-8 pb-32">
+    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-32 md:pb-40">
       <div className="absolute top-8 left-6 sm:left-12">
         <button
           onClick={() => router.back()}
@@ -157,7 +207,7 @@ export default function PostDetailPage() {
             verdict: post.ai_feedback || undefined,
             score: post.ai_score || 0,
             rank: authorRank,
-            city: (post as any).post_city || post.profile?.city || undefined,
+            city: post.post_city || post.profile?.city || undefined,
             date: formatRelativeTime(post.created_at),
             avatarUrl: post.profile?.avatar_url,
           })}
@@ -176,6 +226,84 @@ export default function PostDetailPage() {
           </button>
         )}
       </div>
+
+      {/* Like + Comments count */}
+      <div className="flex items-center justify-center gap-6 pt-2">
+        <button
+          onClick={handleLike}
+          disabled={likePostMutation.isPending || !user}
+          className={`flex items-center gap-2 text-sm transition-colors ${
+            post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+          } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <Heart className={`h-5 w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
+          <span>{post.likes_count ?? 0} {(post.likes_count ?? 0) === 1 ? 'like' : 'likes'}</span>
+        </button>
+        <span className="flex items-center gap-2 text-sm text-muted-foreground">
+          <MessageCircle className="h-5 w-5" />
+          <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
+        </span>
+      </div>
+
+      {/* Comments Section */}
+      <div className="rounded-3xl border border-border bg-card p-8">
+        <h3 className="font-display text-xl italic text-foreground mb-6 flex items-center gap-2">
+          <MessageCircle className="h-5 w-5" />
+          Comments ({comments.length})
+        </h3>
+
+        {user ? (
+          <form onSubmit={handleComment} className="flex items-center gap-3 mb-6">
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Write a comment..."
+              maxLength={500}
+              className="flex-1 rounded-full border border-border bg-muted/30 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+            />
+            <button
+              type="submit"
+              disabled={!newComment.trim() || submitting}
+              className="p-2.5 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity hover:opacity-90"
+            >
+              <Send className="h-4 w-4" />
+            </button>
+          </form>
+        ) : (
+          <p className="text-sm text-muted-foreground mb-6">
+            <a href="/auth/login" className="text-primary hover:underline">Sign in</a> to leave a comment.
+          </p>
+        )}
+
+        {commentsLoading ? (
+          <div className="py-8 flex justify-center"><Spinner size="sm" /></div>
+        ) : comments.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-6">No comments yet. Be the first!</p>
+        ) : (
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {comments.map((comment) => (
+              <div key={comment.id} className="flex gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white shrink-0">
+                  {(comment.profile?.username?.[0] || 'U').toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      @{comment.profile?.username || 'unknown'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {formatRelativeTime(comment.created_at)}
+                    </span>
+                  </div>
+                  <p className="text-sm text-foreground/80 mt-0.5">{comment.content}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
       </div>
     </main>
   );

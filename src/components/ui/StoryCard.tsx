@@ -3,10 +3,13 @@
 import { useState } from "react";
 import { ScoreRing } from "./ScoreRing";
 import type { Story } from "@/lib/mock-data";
+import type { Post } from "@/types/database";
 import Link from "next/link";
 import { Heart, Trophy, Share2, Sparkles } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useShare } from "@/components/providers/ShareProvider";
+import { useUser } from "@/components/providers/AuthProvider";
+import { useLikePost } from "@/lib/hooks/usePosts";
 import { motion, AnimatePresence } from "framer-motion";
 
 export type StoryCardVariant = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G';
@@ -15,21 +18,50 @@ interface StoryCardProps {
   story: Story;
   variant?: StoryCardVariant;
   compact?: boolean;
+  post?: Post; // Add optional post prop for real data
 }
 
-export function StoryCard({ story, variant = 'C', compact = false }: StoryCardProps) {
+export function StoryCard({ story, variant = 'C', compact = false, post }: StoryCardProps) {
   const { addToast } = useToast();
   const { openShare } = useShare();
+  const { user } = useUser();
+  const likePostMutation = useLikePost();
   const [activeReaction, setActiveReaction] = useState<string | null>(null);
+  const [isLiked, setIsLiked] = useState(post?.has_liked ?? false);
+  const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
 
-  const handleReact = (e: React.MouseEvent, type: string) => {
+  // Debug logging
+  if (post) {
+    console.log('[StoryCard] Render - Post:', post.id.slice(0, 8), 'has_liked:', post.has_liked, 'likes_count:', post.likes_count);
+  }
+
+  const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
-    if (activeReaction === type) {
-      setActiveReaction(null);
-      addToast(`Removed reaction`, 'success');
+    e.stopPropagation();
+    
+    if (type === 'Heart' && post && user) {
+      // Optimistic update
+      setIsLiked(prev => !prev);
+      setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+      try {
+        await likePostMutation.mutateAsync(post.id);
+      } catch (error) {
+        // Revert on error
+        setIsLiked(prev => !prev);
+        setLikesCount(prev => isLiked ? prev + 1 : prev - 1);
+        console.error('Failed to toggle like:', error);
+      }
+    } else if (type === 'Heart' && !user) {
+      addToast('Sign in to like posts', 'error');
     } else {
-      setActiveReaction(type);
-      addToast(`Reacted with ${type}!`, 'success');
+      // For other reactions, use local state
+      if (activeReaction === type) {
+        setActiveReaction(null);
+        addToast(`Removed reaction`, 'success');
+      } else {
+        setActiveReaction(type);
+        addToast(`Reacted with ${type}!`, 'success');
+      }
     }
   };
 
@@ -52,15 +84,25 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
     </header>
   );
 
-  const renderFooter = (mutedClass = "text-muted-foreground hover:text-foreground", borderClass = "border-border/50") => (
+  const renderFooter = (mutedClass = "text-muted-foreground hover:text-foreground", borderClass = "border-border/50") => {
+    // Use local state for optimistic updates, fall back to prop on initial render
+    const heartActive = post ? isLiked : activeReaction === 'Heart';
+    const heartCount = post ? likesCount : 0;
+    
+    console.log('[StoryCard renderFooter] isLiked:', isLiked, 'likesCount:', likesCount);
+    
+    return (
     <footer className={`mt-auto pt-5 sm:pt-6 flex items-center justify-between relative z-10 border-t ${borderClass}`}>
       <div className="flex items-center gap-4 sm:gap-6">
         <button 
           onClick={(e) => handleReact(e, 'Heart')}
-          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${activeReaction === 'Heart' ? 'text-primary' : mutedClass}`}
+          disabled={post && likePostMutation.isPending}
+          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+            heartActive ? 'text-red-500 hover:text-red-600' : mutedClass
+          }`}
         >
-          <Heart className={`h-4 w-4 ${activeReaction === 'Heart' ? 'fill-current' : ''}`} />
-          <span className="hidden sm:inline">Like</span>
+          <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-red-500 text-red-500' : ''}`} />
+          <span className="hidden sm:inline">{post && heartCount > 0 ? heartCount : 'Like'}</span>
         </button>
         <button 
           onClick={(e) => handleReact(e, 'Trophy')}
@@ -121,6 +163,7 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
       </button>
     </footer>
   );
+  };
 
   // Focus primarily on Variant C which is the main hybrid style used
   if (variant === 'C') {
@@ -221,12 +264,13 @@ export function StoryCard({ story, variant = 'C', compact = false }: StoryCardPr
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <button 
                 onClick={(e) => handleReact(e, 'Heart')}
-                className={`relative group/heart flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Heart' ? 'bg-primary border-primary text-primary-foreground' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
+                disabled={post && likePostMutation.isPending}
+                className={`relative group/heart flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${(post ? isLiked : activeReaction === 'Heart') ? 'bg-red-500 border-red-500 text-white' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
               >
-                <Heart className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Heart' ? 'fill-current text-primary-foreground' : 'text-foreground/70'}`} />
+                <Heart className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-white text-white' : 'text-foreground/70'}`} />
                 
                 <AnimatePresence>
-                  {activeReaction === 'Heart' && (
+                  {(post ? isLiked : activeReaction === 'Heart') && (
                     <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
                       {[...Array(6)].map((_, i) => {
                         const angle = (i / 6) * Math.PI * 2;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
 import { Mail, Lock, ArrowRight } from 'lucide-react';
@@ -11,6 +11,8 @@ export function LoginForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirect') || '/dashboard';
   const { addToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,7 +32,7 @@ export function LoginForm() {
     }
 
     addToast('Welcome back! ❤️', 'success');
-    router.push('/dashboard');
+    router.push(redirectTo);
   };
 
   return (

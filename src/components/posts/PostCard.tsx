@@ -5,8 +5,10 @@ import { Card } from '@/components/ui/Card';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { Avatar } from '@/components/ui/Avatar';
 import type { Post } from '@/types/database';
-import { Share } from 'lucide-react';
+import { Share, Heart, MessageCircle } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
+import { useUser } from '@/components/providers/AuthProvider';
+import { useLikePost } from '@/lib/hooks/usePosts';
 
 interface PostCardProps {
   post: Post;
@@ -14,6 +16,20 @@ interface PostCardProps {
 
 export function PostCard({ post }: PostCardProps) {
   const { openShare } = useShare();
+  const { user } = useUser();
+  const likePostMutation = useLikePost();
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!user || likePostMutation.isPending) return;
+
+    try {
+      await likePostMutation.mutateAsync(post.id);
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
 
   return (
     <Link href={`/posts/${post.id}`} className="block w-full max-w-2xl mx-auto mb-4 sm:mb-6 px-3 sm:px-0">
@@ -37,7 +53,7 @@ export function PostCard({ post }: PostCardProps) {
         </div>
         
         <div className="mt-4 sm:mt-5 text-sm sm:text-[16px] leading-[1.5] sm:leading-[1.6] text-foreground/90 font-light italic line-clamp-4">
-          "{post.description}"
+          &ldquo;{post.description}&rdquo;
         </div>
         
         {post.ai_score ? (
@@ -57,8 +73,21 @@ export function PostCard({ post }: PostCardProps) {
         ) : null}
         
         <div className="mt-5 sm:mt-6 pt-4 border-t border-border flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center text-[12px] sm:text-[14px] text-muted-foreground">
-          <div className="flex items-center gap-2">
-            ♡ {Math.floor(Math.random() * 50) + 10} &nbsp;&nbsp; ✨ {Math.floor(Math.random() * 20) + 5}
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleLike}
+              disabled={likePostMutation.isPending || !user}
+              className={`flex items-center gap-1.5 transition-colors ${
+                post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+              } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
+              <span className="text-xs sm:text-sm">{post.likes_count ?? 0}</span>
+            </button>
+            <span className="flex items-center gap-1.5 text-muted-foreground">
+              <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+              <span className="text-xs sm:text-sm">{post.comments_count ?? 0}</span>
+            </span>
           </div>
           <button 
             className="bg-primary px-5 py-2 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"

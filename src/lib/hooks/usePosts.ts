@@ -23,14 +23,12 @@ async function fetchPosts(userId?: string): Promise<Post[]> {
 }
 
 async function fetchPost(id: string): Promise<Post> {
-  const { data, error } = await supabase
-    .from('posts')
-    .select('*, partner:partners(*), profile:profiles(*)')
-    .eq('id', id)
-    .single();
-
-  if (error) throw error;
-  return data;
+  const res = await fetch(`/api/posts/${id}`);
+  if (!res.ok) throw new Error('Failed to fetch post');
+  const json = await res.json();
+  if (!json.success) throw new Error(json.error || 'Failed to fetch post');
+  console.log('[fetchPost] Got post:', id, 'likes_count:', json.data?.likes_count, 'has_liked:', json.data?.has_liked);
+  return json.data;
 }
 
 async function createPost(payload: CreatePostPayload & { user_id: string }) {
@@ -88,6 +86,8 @@ export function usePost(id: string) {
     queryKey: ['post', id],
     queryFn: () => fetchPost(id),
     enabled: !!id,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
 
@@ -101,6 +101,41 @@ export function useCreatePost() {
       queryClient.invalidateQueries({ queryKey: ['posts'] });
       queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboards'] });
+    },
+  });
+}
+
+// Hook for toggling likes on posts
+export function useLikePost() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      console.log('[useLikePost] Toggling like for post:', postId);
+      const res = await fetch(`/api/posts/${postId}/like`, { method: 'POST' });
+      if (!res.ok) {
+        const error = await res.json();
+        console.error('[useLikePost] API error:', error);
+        throw new Error('Failed to toggle like');
+      }
+      const data = await res.json();
+      console.log('[useLikePost] API response:', data);
+      return { postId, ...data };
+    },
+    onSuccess: (data) => {
+      console.log('[useLikePost] Success, invalidating queries for post:', data.postId);
+      // Invalidate all post queries to refetch with updated like counts
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      queryClient.invalidateQueries({ queryKey: ['post', data.postId] });
+      queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
+      
+      // Force immediate refetch
+      queryClient.refetchQueries({ queryKey: ['explore-posts'] });
+      queryClient.refetchQueries({ queryKey: ['post', data.postId] });
+      console.log('[useLikePost] Refetch triggered');
+    },
+    onError: (error) => {
+      console.error('[useLikePost] Mutation error:', error);
     },
   });
 }

@@ -20,6 +20,7 @@ async function fetchExplorePosts(): Promise<Post[]> {
   const res = await fetch('/api/posts/explore');
   if (!res.ok) throw new Error('Failed to fetch posts');
   const json = await res.json();
+  console.log('[fetchExplorePosts] Got posts:', json.data?.length, 'first post likes:', json.data?.[0]?.likes_count, 'has_liked:', json.data?.[0]?.has_liked);
   return json.data || [];
 }
 
@@ -35,10 +36,16 @@ export default function DashboardPage() {
   const { profile, loading: authLoading } = useUser();
   const router = useRouter();
 
-  // Redirect to onboarding if not completed
+  // Redirect to onboarding only for users who explicitly haven't onboarded
+  // null = old user (skip), false = new signup (redirect), true = completed
   useEffect(() => {
     if (!authLoading && profile && profile.has_onboarded === false) {
-      router.replace('/onboarding');
+      // Double check: if user already has posts or partners, skip onboarding
+      fetch('/api/partners').then(r => r.json()).then(data => {
+        if (!data.data || data.data.length === 0) {
+          router.replace('/onboarding');
+        }
+      }).catch(() => {});
     }
   }, [authLoading, profile, router]);
 
@@ -388,6 +395,9 @@ export default function DashboardPage() {
                 postedAt: formatRelativeTime(post.created_at),
                 userAvatarUrl: post.profile?.avatar_url || null,
                 partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
+                // Add real like data
+                likes_count: post.likes_count || 0,
+                has_liked: post.has_liked || false,
               };
 
               return (
@@ -399,7 +409,7 @@ export default function DashboardPage() {
                   key={post.id} 
                   className="break-inside-avoid relative pb-6"
                 >
-                  <StoryCard story={story} />
+                  <StoryCard story={story} post={post} />
                 </motion.div>
               );
             })}

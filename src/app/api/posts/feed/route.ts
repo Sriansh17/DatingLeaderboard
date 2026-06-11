@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createAdminClient } from '@/lib/supabase/admin';
 import { POSTS_PER_PAGE } from '@/lib/utils/constants';
 
 export async function GET(request: Request) {
@@ -10,10 +11,17 @@ export async function GET(request: Request) {
     const start = (page - 1) * limit;
 
     const supabase = await createServerSupabaseClient();
+    const admin = createAdminClient();
 
-    const { data, error, count } = await supabase
+    const { data, error, count } = await admin
       .from('posts')
-      .select('*, partner:partners(*), profile:profiles(*)', { count: 'exact' })
+      .select(`
+        *,
+        partner:partners(*),
+        profile:profiles(*),
+        likes:likes(count),
+        comments:comments(count)
+      `, { count: 'exact' })
       .eq('is_public', true)
       .not('ai_score', 'is', null)
       .order('created_at', { ascending: false })
@@ -21,9 +29,36 @@ export async function GET(request: Request) {
 
     if (error) throw error;
 
+    // Get current user to check likes
+    let userLikes = new Set<string>();
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: likes } = await admin
+          .from('likes')
+          .select('post_id')
+          .eq('user_id', user.id);
+        if (likes) {
+          userLikes = new Set(likes.map(l => l.post_id));
+        }
+      }
+    } catch {
+      // Not logged in
+    }
+
+    // Flatten counts and add has_liked
+    const enriched = (data || []).map((post: any) => ({
+      ...post,
+      likes_count: post.likes?.[0]?.count ?? 0,
+      comments_count: post.comments?.[0]?.count ?? 0,
+      has_liked: userLikes.has(post.id),
+      likes: undefined,
+      comments: undefined,
+    }));
+
     return NextResponse.json({
       success: true,
-      data: data || [],
+      data: enriched,
       total: count || 0,
       page,
       limit,

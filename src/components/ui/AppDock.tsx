@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail } from "lucide-react";
+import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Users } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -11,6 +11,7 @@ import { useAtmosphere, type Atmosphere } from '@/components/providers/Atmospher
 const tabs = [
   { href: "/dashboard", label: "Feed", icon: Home },
   { href: "/leaderboards", label: "Ranks", icon: Trophy },
+  { href: "/circles", label: "Circles", icon: Users },
   { href: "/partners", label: "Partners", icon: Heart },
   { href: "/profile", label: "Profile", icon: User },
 ] as const;

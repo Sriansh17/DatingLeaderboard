@@ -20,23 +20,6 @@ export interface Profile {
   updated_at: string;
 }
 
-export interface Post {
-  id: string;
-  user_id: string;
-  partner_id: string;
-  description: string;
-  ai_score: number | null;
-  ai_feedback: string | null;
-  ai_explanation: string | null;
-  is_public: boolean;
-  post_city: string | null;
-  created_at: string;
-  updated_at: string;
-  // Joined fields
-  partner?: Partner;
-  profile?: Profile;
-}
-
 export interface Partner {
   id: string;
   user_id: string;
@@ -47,6 +30,45 @@ export interface Partner {
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface Post {
+  id: string;
+  user_id: string;
+  partner_id: string;
+  description: string;
+  ai_score: number | null;
+  ai_feedback: string | null;
+  ai_explanation: string | null;
+  is_public: boolean;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  partner?: Partner;
+  profile?: Profile;
+  post_city?: string | null;
+  // Computed fields
+  likes_count?: number;
+  comments_count?: number;
+  has_liked?: boolean;
+}
+
+export interface Like {
+  id: string;
+  post_id: string;
+  user_id: string;
+  profile?: Profile;
+  created_at: string;
+}
+
+export interface Comment {
+  id: string;
+  post_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  // Joined fields
+  profile?: Profile;
 }
 
 export interface LeaderboardEntry {
@@ -60,6 +82,35 @@ export interface LeaderboardEntry {
   top_partner_name: string;
   top_partner_avatar: string | null;
   top_partner_emoji: string;
+}
+
+export interface Circle {
+  id: string;
+  name: string;
+  emoji: string;
+  code: string;
+  created_by: string;
+  max_members: number;
+  invite_expires_at: string | null;
+  passcode: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  creator?: Profile;
+  members?: CircleMember[];
+  member_count?: number;
+}
+
+export interface CircleMember {
+  id: string;
+  circle_id: string;
+  user_id: string;
+  role: 'creator' | 'admin' | 'member';
+  joined_at: string;
+  // Joined fields
+  profile?: Profile;
+  avg_score?: number;
+  total_posts?: number;
 }
 
 export interface Flag {

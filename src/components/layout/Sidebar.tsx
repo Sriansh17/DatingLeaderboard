@@ -21,6 +21,7 @@ import {
 const navItems = [
   { href: '/dashboard', label: 'Explore', icon: Compass },
   { href: '/leaderboards', label: 'Leaderboards', icon: Trophy },
+  { href: '/circles', label: 'Circles', icon: Users },
   { href: '/posts/new', label: 'New Post', icon: PlusCircle },
   { href: '/partners', label: 'Partners', icon: Users },
   { href: '/profile', label: 'Profile', icon: User },

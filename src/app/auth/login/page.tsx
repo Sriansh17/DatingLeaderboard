@@ -2,6 +2,44 @@ import Link from 'next/link';
 import { Sparkles, ArrowLeft } from 'lucide-react';
 import { LoginForm } from '@/components/auth/LoginForm';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Suspense } from 'react';
+
+function LoginContent() {
+  return (
+    <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12">
+      <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col h-full justify-between sm:justify-center">
+
+        <div className="text-center sm:mb-10 mt-12 sm:mt-0">
+          {/* Brand mark */}
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Sparkles className="h-5 w-5 text-gold" />
+            <span className="font-display italic text-gold text-lg">Fond</span>
+          </div>
+          <h1 className="font-display text-5xl italic font-bold tracking-tight text-foreground leading-tight">
+            Welcome back.
+          </h1>
+          <p className="text-muted-foreground mt-3 text-sm">
+            Your rank won&apos;t climb itself.
+          </p>
+        </div>
+
+        <div className="mt-auto sm:mt-0 space-y-5">
+          <LoginForm />
+
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">
+              Don&apos;t have an account?{' '}
+              <Link href="/auth/signup" className="text-foreground dark:text-white hover:text-primary font-bold transition-colors">
+                Create one
+              </Link>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
 
 export default function LoginPage() {
   return (
@@ -26,38 +64,9 @@ export default function LoginPage() {
         <ThemeToggle />
       </div>
 
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12">
-        <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col h-full justify-between sm:justify-center">
-
-          <div className="text-center sm:mb-10 mt-12 sm:mt-0">
-            {/* Brand mark */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <Sparkles className="h-5 w-5 text-gold" />
-              <span className="font-display italic text-gold text-lg">Fond</span>
-            </div>
-            <h1 className="font-display text-5xl italic font-bold tracking-tight text-foreground leading-tight">
-              Welcome back.
-            </h1>
-            <p className="text-muted-foreground mt-3 text-sm">
-              Your rank won&apos;t climb itself.
-            </p>
-          </div>
-
-          <div className="mt-auto sm:mt-0 space-y-5">
-            <LoginForm />
-
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground">
-                Don&apos;t have an account?{' '}
-                <Link href="/auth/signup" className="text-foreground dark:text-white hover:text-primary font-bold transition-colors">
-                  Create one
-                </Link>
-              </p>
-            </div>
-          </div>
-
-        </div>
-      </div>
+      <Suspense fallback={null}>
+        <LoginContent />
+      </Suspense>
     </div>
   );
 }

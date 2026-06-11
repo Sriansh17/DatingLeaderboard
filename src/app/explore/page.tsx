@@ -1,29 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { PostCard } from '@/components/posts/PostCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { Heart, Compass } from 'lucide-react';
 import type { Post } from '@/types/database';
 
-export default function ExplorePage() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [loading, setLoading] = useState(true);
+async function fetchExplorePosts(): Promise<Post[]> {
+  const res = await fetch('/api/posts/explore');
+  if (!res.ok) throw new Error('Failed to fetch posts');
+  const json = await res.json();
+  return json.data || [];
+}
 
-  useEffect(() => {
-    fetch('/api/posts/explore')
-      .then((res) => res.json())
-      .then(({ data, error }) => {
-        if (error) console.error('[Explore] API error:', error);
-        console.log(`[Explore] Fetched ${data?.length || 0} posts`);
-        setPosts(data || []);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error('[Explore] Fetch failed:', err);
-        setLoading(false);
-      });
-  }, []);
+export default function ExplorePage() {
+  const { data: posts = [], isLoading: loading } = useQuery({
+    queryKey: ['explore-posts'],
+    queryFn: fetchExplorePosts,
+    staleTime: 0,
+    refetchOnWindowFocus: true,
+  });
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
