@@ -33,12 +33,17 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }:
       const supabase = createClient();
       
       // Update all fields in profiles table
-      const { error } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({ username, bio, city, country })
         .eq('id', currentProfile.id);
 
-      if (!error) {
+      // Update user metadata (age, gender, occupation live here)
+      const { error: metaError } = await supabase.auth.updateUser({
+        data: { age, gender, city, occupation, country }
+      });
+
+      if (!profileError && !metaError) {
         onSuccess();
         onClose();
       }
