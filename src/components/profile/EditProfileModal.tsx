@@ -7,15 +7,16 @@ interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentProfile: any;
+  currentUser?: any;
   onSuccess: () => void;
 }
 
-export function EditProfileModal({ isOpen, onClose, currentProfile, onSuccess }: EditProfileModalProps) {
+export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser, onSuccess }: EditProfileModalProps) {
   const [username, setUsername] = useState(currentProfile?.username || '');
   const [bio, setBio] = useState(currentProfile?.bio || "Reviewing dates, analyzing romance, and sharing stories. Welcome to my archive of romantic adventures.");
   
-  // Use metadata if passed, otherwise default
-  const meta = currentProfile?.user_metadata || {};
+  // Use metadata from user object (Supabase Auth), not profile (profiles table)
+  const meta = currentUser?.user_metadata || {};
   const [age, setAge] = useState(meta.age || '');
   const [gender, setGender] = useState(meta.gender || '');
   const [city, setCity] = useState(meta.city || currentProfile?.city || '');

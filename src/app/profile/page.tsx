@@ -383,6 +383,7 @@ export default function ProfilePage() {
         isOpen={isEditing}
         onClose={() => setIsEditing(false)}
         currentProfile={profile}
+        currentUser={user}
         onSuccess={() => {
           refreshProfile();
           setIsEditing(false);
