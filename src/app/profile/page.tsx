@@ -138,10 +138,10 @@ export default function ProfilePage() {
                 bestScore,
                 totalPosts: posts?.length || 0,
                 bio: profile.bio,
-                age: (profile as any).age,
-                gender: (profile as any).gender,
-                occupation: (profile as any).occupation,
-                country: (profile as any).country,
+                age: user?.user_metadata?.age,
+                gender: user?.user_metadata?.gender,
+                occupation: user?.user_metadata?.occupation,
+                country: user?.user_metadata?.country,
               })}
               className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Share profile"
@@ -203,23 +203,23 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Age</p>
-                  <p className="text-foreground/90 font-medium">{(profile as any).age || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.age || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Gender</p>
-                  <p className="text-foreground/90 font-medium">{(profile as any).gender || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.gender || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">City</p>
-                  <p className="text-foreground/90 font-medium">{profile.city || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{profile.city || user?.user_metadata?.city || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Occupation</p>
-                  <p className="text-foreground/90 font-medium">{(profile as any).occupation || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.occupation || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Country</p>
-                  <p className="text-foreground/90 font-medium">{(profile as any).country || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.country || (profile as any)?.country || '—'}</p>
                 </div>
               </div>
 
@@ -349,7 +349,7 @@ export default function ProfilePage() {
                   username: profile?.username ? `@${profile.username}` : '@you',
                   partnerNickname: post.partner?.name || 'partner',
                   city: post.post_city || profile?.city || 'Unknown',
-                  country: (profile as any)?.country || 'Earth',
+                  country: user?.user_metadata?.country || 'Earth',
                   headline: post.description || '',
                   score: post.ai_score || 0,
                   verdict: post.ai_feedback || 'No feedback provided.',
