@@ -9,10 +9,12 @@ import { formatRelativeTime } from '@/lib/utils/format';
 import { tierForScore } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo } from 'react';
+import type { Post } from '@/types/database';
 import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings } from 'lucide-react';
 import Link from 'next/link';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
+import { EditPostModal } from '@/components/posts/EditPostModal';
 import { Share2 } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
 import { useToast } from '@/components/ui/Toast';
@@ -29,6 +31,7 @@ export default function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { openShare } = useShare();
   const { addToast } = useToast();
@@ -437,7 +440,7 @@ export default function ProfilePage() {
                 };
                 return (
                   <div key={post.id} className="break-inside-avoid">
-                    <StoryCard story={story} compact={true} />
+                    <StoryCard story={story} compact={true} onEdit={() => setEditingPost(post)} />
                   </div>
                 );
               })}
@@ -476,6 +479,15 @@ export default function ProfilePage() {
           setIsAvatarModalOpen(false);
         }}
       />
+
+      {editingPost && (
+        <EditPostModal
+          post={editingPost}
+          isOpen={!!editingPost}
+          onClose={() => setEditingPost(null)}
+          isPremium={!!profile?.is_premium}
+        />
+      )}
 
       <Modal
         isOpen={isRestoreModalOpen}
