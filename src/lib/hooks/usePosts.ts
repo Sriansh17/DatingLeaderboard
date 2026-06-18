@@ -3,7 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import type { Post } from '@/types/database';
-import type { CreatePostPayload, AIScoreResult } from '@/types/api';
+import type { CreatePostPayload } from '@/types/api';
 
 const supabase = createClient();
 
@@ -32,46 +32,34 @@ async function fetchPost(id: string): Promise<Post> {
 }
 
 async function createPost(payload: CreatePostPayload & { user_id: string }) {
-  // First, get AI score
-  const scoreResponse = await fetch('/api/ai/score', {
+  const response = await fetch('/api/posts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ description: payload.description }),
-  });
-
-  if (!scoreResponse.ok) {
-    const errData = await scoreResponse.json().catch(() => ({}));
-    const error = new Error(errData.error || 'Failed to get AI score');
-    (error as any).flagged = errData.flagged;
-    throw error;
-  }
-  const aiResult: AIScoreResult = await scoreResponse.json();
-
-  // Fetch user's city to freeze on the post at creation time
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('city')
-    .eq('id', payload.user_id)
-    .single();
-
-  // Then, create the post with the score + frozen city
-  const { data, error } = await supabase
-    .from('posts')
-    .insert({
-      user_id: payload.user_id,
+    body: JSON.stringify({
       partner_id: payload.partner_id,
       description: payload.description,
-      is_public: payload.is_public ?? true,
-      ai_score: aiResult.score,
-      ai_feedback: aiResult.feedback,
-      ai_explanation: JSON.stringify(aiResult.breakdown),
-      post_city: profile?.city || null,
-    })
-    .select('*, partner:partners(*)')
-    .single();
+      is_public: payload.is_public,
+      timezone_offset_minutes: new Date().getTimezoneOffset(),
+    }),
+  });
 
-  if (error) throw error;
-  return { post: data, aiResult };
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    const error = new Error(errData.error || 'Failed to get AI score');
+    (error as any).flagged = errData.flagged;
+    (error as any).code = errData.code;
+    throw error;
+  }
+
+  const json = await response.json();
+  if (!json.success) {
+    const error = new Error(json.error || 'Failed to create post');
+    (error as any).flagged = json.flagged;
+    (error as any).code = json.code;
+    throw error;
+  }
+
+  return { post: json.data, aiResult: json.aiResult };
 }
 
 export function usePosts(userId?: string) {

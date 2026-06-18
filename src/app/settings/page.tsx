@@ -7,11 +7,32 @@ import { useToast } from '@/components/ui/Toast';
 import { Settings, LogOut, CreditCard } from 'lucide-react';
 
 export default function SettingsPage() {
-  const { signOut } = useUser();
+  const { signOut, profile, refreshProfile } = useUser();
   const { addToast } = useToast();
 
-  const handleUpgrade = () => {
-    addToast('Payment integration coming soon!', 'info');
+  const handleUpgrade = async () => {
+    try {
+      if (profile?.is_premium) {
+        addToast('You are already on Premium.', 'info');
+        return;
+      }
+
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_premium: true }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to upgrade to premium');
+      }
+
+      await refreshProfile();
+      addToast('Premium activated. You can now post without limits.', 'success');
+    } catch (error: any) {
+      addToast(error.message || 'Upgrade failed. Please try again.', 'error');
+    }
   };
 
   return (
@@ -27,7 +48,7 @@ export default function SettingsPage() {
         <div className="space-y-3">
           <Button variant="outline" className="w-full justify-start" onClick={handleUpgrade}>
             <CreditCard className="h-4 w-4" />
-            Premium Plan (Coming Soon)
+            {profile?.is_premium ? 'Premium Active' : 'Upgrade to Premium'}
           </Button>
           <Button variant="danger" className="w-full justify-start" onClick={signOut}>
             <LogOut className="h-4 w-4" />

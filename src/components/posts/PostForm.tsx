@@ -14,12 +14,17 @@ import { VerdictCard } from '@/components/ui/VerdictCard';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { Confetti } from '@/components/ui/Confetti';
 import { useShare } from '@/components/providers/ShareProvider';
+import { useUser } from '@/components/providers/AuthProvider';
 
 type Step = "write" | "loading" | "verdict";
 
 interface PostFormProps {
   partners: Partner[];
   userId: string;
+  isPremium?: boolean;
+  postCount?: number;
+  postLimitReached?: boolean;
+  onUpgradedToPremium?: () => void;
 }
 
 const WRITING_PROMPTS = [
@@ -42,7 +47,14 @@ function lenFeedback(n: number) {
   return { text: "Good detail. The AI rewards specifics.", emoji: "✨", pulse: 1 };
 }
 
-export function PostForm({ partners, userId }: PostFormProps) {
+export function PostForm({
+  partners,
+  userId,
+  isPremium = false,
+  postCount = 0,
+  postLimitReached = false,
+  onUpgradedToPremium,
+}: PostFormProps) {
   const [step, setStep] = useState<Step>("write");
   const [description, setDescription] = useState('');
   const [partnerId, setPartnerId] = useState(partners[0]?.id || '');
@@ -57,15 +69,42 @@ export function PostForm({ partners, userId }: PostFormProps) {
   const [isFirstPost, setIsFirstPost] = useState(false);
   const [showWelcomeCeremony, setShowWelcomeCeremony] = useState(false);
   const [showVerdictCard, setShowVerdictCard] = useState(false);
+  const [isUpgrading, setIsUpgrading] = useState(false);
 
   const router = useRouter();
   const { addToast } = useToast();
+  const { refreshProfile } = useUser();
   const createPost = useCreatePost();
   const { openShare } = useShare();
 
   const selectedPartner = partners.find(p => p.id === partnerId);
   const partnerNickname = selectedPartner?.name || "your partner";
   const feedback = lenFeedback(description.length);
+  const limitReached = !isPremium && postLimitReached;
+
+  const handleUpgradeToPremium = async () => {
+    try {
+      setIsUpgrading(true);
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_premium: true }),
+      });
+
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to upgrade to premium');
+      }
+
+      await refreshProfile();
+      onUpgradedToPremium?.();
+      addToast('Premium activated. You can post now.', 'success');
+    } catch (error: any) {
+      addToast(error.message || 'Upgrade failed. Please try again.', 'error');
+    } finally {
+      setIsUpgrading(false);
+    }
+  };
 
   const shufflePrompt = () => {
     let next;
@@ -76,6 +115,11 @@ export function PostForm({ partners, userId }: PostFormProps) {
   };
 
   const submit = async () => {
+    if (limitReached) {
+      addToast('Free users can only create up to 2 posts per day. Upgrade to premium for unlimited posts.', 'warning');
+      return;
+    }
+
     if (description.length < 30) return;
     
     setThinkingPhase(0);
@@ -349,6 +393,25 @@ export function PostForm({ partners, userId }: PostFormProps) {
         The AI will score it. Brutally. Be specific.
       </p>
 
+      <div className="mt-4 rounded-2xl border border-border bg-card/50 px-4 py-3 text-xs text-muted-foreground">
+        {isPremium
+          ? `Premium plan: unlimited posts. You have ${postCount} post${postCount === 1 ? '' : 's'} today.`
+          : `Free plan: 2 posts per day. You have used ${postCount}/2 today.`}
+      </div>
+
+      {limitReached && (
+        <div className="mt-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
+          <p>You have reached today's free plan limit. Upgrade to premium to keep posting.</p>
+          <button
+            onClick={handleUpgradeToPremium}
+            disabled={isUpgrading}
+            className="mt-3 inline-flex items-center justify-center rounded-full border border-amber-300/60 bg-amber-300/20 px-4 py-2 text-[11px] font-semibold text-amber-100 transition-colors hover:bg-amber-300/30 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isUpgrading ? 'Upgrading...' : 'Upgrade to Premium'}
+          </button>
+        </div>
+      )}
+
       {/* Partner Selection as glowing pills */}
       <div className="mt-6 flex flex-wrap gap-2">
         {partners.map(p => (
@@ -466,7 +529,7 @@ export function PostForm({ partners, userId }: PostFormProps) {
       {/* Submit button — pulses with intensity as detail grows */}
       <motion.button
         onClick={submit}
-        disabled={description.length < 30 || createPost.isPending}
+        disabled={limitReached || description.length < 30 || createPost.isPending}
         animate={{
           scale: description.length >= 30 ? [1, 1 + feedback.pulse * 0.015, 1] : 1,
           boxShadow: description.length >= 30
