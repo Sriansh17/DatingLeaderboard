@@ -3,14 +3,14 @@
 import { useUser } from '@/components/providers/AuthProvider';
 import { StoryCard } from '@/components/ui/StoryCard';
 import { Modal } from '@/components/ui/Modal';
-import { usePosts } from '@/lib/hooks/usePosts';
+import { usePosts, useArchivedPosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { tierForScore } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
-import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings } from 'lucide-react';
+import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore } from 'lucide-react';
 import Link from 'next/link';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const RESTORE_STREAK_AMOUNT = 49;
   const { user, profile, loading: authLoading, signOut, refreshProfile } = useUser();
   const { data: posts, isLoading } = usePosts(user?.id);
+  const { data: archivedPosts, isLoading: archivedLoading, refetch: refetchArchived } = useArchivedPosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
@@ -33,6 +34,26 @@ export default function ProfilePage() {
   const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [unarchivingId, setUnarchivingId] = useState<string | null>(null);
+
+  const handleUnarchive = useCallback(async (postId: string) => {
+    try {
+      setUnarchivingId(postId);
+      const res = await fetch(`/api/posts/${postId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_archived: false }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) throw new Error(json.error || 'Failed to unarchive');
+      await refetchArchived();
+      addToast('Post restored to your profile.', 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Failed to unarchive post.', 'error');
+    } finally {
+      setUnarchivingId(null);
+    }
+  }, [refetchArchived]);
   const { openShare } = useShare();
   const { addToast } = useToast();
 
@@ -454,6 +475,71 @@ export default function ProfilePage() {
                   Claim your first verdict
                 </button>
               </Link>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Archived Posts Panel */}
+      <div className="p-5">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/40 p-8 shadow-lg backdrop-blur-xl">
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-display text-2xl italic text-foreground flex items-center gap-3">
+              <Archive className="h-5 w-5 text-muted-foreground" />
+              Archived Posts
+            </h3>
+            {archivedPosts && archivedPosts.length > 0 && (
+              <span className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                {archivedPosts.length} post{archivedPosts.length === 1 ? '' : 's'}
+              </span>
+            )}
+          </div>
+
+          {archivedLoading ? (
+            <div className="py-12 text-center">
+              <div className="h-6 w-32 bg-black/5 dark:bg-white/5 rounded-full mx-auto animate-pulse" />
+            </div>
+          ) : archivedPosts && archivedPosts.length > 0 ? (
+            <div className="columns-1 md:columns-2 gap-6 space-y-6">
+              {archivedPosts.map((post) => {
+                const story = {
+                  id: post.id,
+                  username: profile?.username ? `@${profile.username}` : '@you',
+                  partnerNickname: post.partner?.name || 'partner',
+                  city: post.post_city || profile?.city || 'Unknown',
+                  country: user?.user_metadata?.country || 'Earth',
+                  headline: post.description || '',
+                  score: post.ai_score || 0,
+                  verdict: post.ai_feedback || 'No feedback provided.',
+                  reactions: { heart: 0, fire: 0, laugh: 0, trophy: 0 },
+                  believable: 0,
+                  sus: 0,
+                  postedAt: formatRelativeTime(post.created_at),
+                };
+                return (
+                  <div key={post.id} className="break-inside-avoid relative">
+                    {/* Dimmed overlay to signal archived state */}
+                    <div className="opacity-60 pointer-events-none select-none">
+                      <StoryCard story={story} compact={true} />
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <button
+                        onClick={() => handleUnarchive(post.id)}
+                        disabled={unarchivingId === post.id}
+                        className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur px-5 py-2.5 text-xs font-semibold text-foreground hover:bg-elevated shadow-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                      >
+                        <ArchiveRestore className="h-4 w-4" />
+                        {unarchivingId === post.id ? 'Restoring…' : 'Restore Post'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="text-center py-12">
+              <Archive className="h-10 w-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-sm text-muted-foreground">No archived posts.</p>
             </div>
           )}
         </div>

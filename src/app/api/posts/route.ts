@@ -15,6 +15,7 @@ export async function GET() {
       .from('posts')
       .select('*, partner:partners(*)')
       .eq('user_id', user.id)
+      .eq('is_archived', false)
       .order('created_at', { ascending: false });
 
     if (error) throw error;

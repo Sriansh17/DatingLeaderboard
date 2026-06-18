@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { formatRelativeTime, getScoreColor, getScoreBgColor } from '@/lib/utils/format';
-import { Sparkles, Trash2, Heart, MessageCircle, Send } from 'lucide-react';
+import { Sparkles, Archive, Heart, MessageCircle, Send } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
@@ -95,10 +95,14 @@ export function PostDetail({ post }: PostDetailProps) {
   } catch {}
 
   const handleDelete = async () => {
-    if (!confirm('Delete this post?')) return;
-    const supabase = createClient();
-    await supabase.from('posts').delete().eq('id', post.id);
-    addToast('Post deleted', 'success');
+    if (!confirm('Archive this post? It will no longer be visible to anyone.')) return;
+    const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.success) {
+      addToast('Failed to archive post.', 'error');
+      return;
+    }
+    addToast('Post archived.', 'success');
     router.push('/dashboard');
   };
 
@@ -257,8 +261,8 @@ export function PostDetail({ post }: PostDetailProps) {
       {user && post.user_id === user.id && (
         <div className="flex justify-end">
           <Button variant="ghost" size="sm" onClick={handleDelete}>
-            <Trash2 className="h-4 w-4" />
-            Delete
+            <Archive className="h-4 w-4" />
+            Archive
           </Button>
         </div>
       )}

@@ -11,6 +11,7 @@ async function fetchPosts(userId?: string): Promise<Post[]> {
   let query = supabase
     .from('posts')
     .select('*, partner:partners(*)')
+    .eq('is_archived', false)
     .order('created_at', { ascending: false });
 
   if (userId) {
@@ -66,6 +67,24 @@ export function usePosts(userId?: string) {
   return useQuery({
     queryKey: ['posts', userId],
     queryFn: () => fetchPosts(userId),
+  });
+}
+
+export function useArchivedPosts(userId: string | undefined) {
+  return useQuery({
+    queryKey: ['archived-posts', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      const { data, error } = await supabase
+        .from('posts')
+        .select('*, partner:partners(*)')
+        .eq('user_id', userId)
+        .eq('is_archived', true)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data || []) as Post[];
+    },
+    enabled: !!userId,
   });
 }
 

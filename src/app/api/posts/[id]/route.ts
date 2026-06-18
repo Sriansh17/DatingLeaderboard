@@ -99,7 +99,12 @@ export async function PATCH(
 
     if (profileError && (profileError as any).code !== 'PGRST116') throw profileError;
 
-    if (!profile?.is_premium) {
+    const body = await request.json();
+
+    // Only the description edit requires premium; toggling is_archived does not
+    const isArchiveToggle = Object.keys(body).length === 1 && 'is_archived' in body;
+
+    if (!isArchiveToggle && !profile?.is_premium) {
       return NextResponse.json(
         {
           success: false,
@@ -109,8 +114,6 @@ export async function PATCH(
         { status: 403 }
       );
     }
-
-    const body = await request.json();
 
     // If description is being changed, re-run AI scoring
     let aiFields: Record<string, unknown> = {};
@@ -158,16 +161,17 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Archive instead of hard-delete
     const { error } = await supabase
       .from('posts')
-      .delete()
+      .update({ is_archived: true })
       .eq('id', id)
       .eq('user_id', user.id);
 
     if (error) throw error;
-    return NextResponse.json({ success: true, message: 'Post deleted' });
+    return NextResponse.json({ success: true, message: 'Post archived' });
   } catch (error) {
-    console.error('Post DELETE error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to delete post' }, { status: 500 });
+    console.error('Post archive error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to archive post' }, { status: 500 });
   }
 }

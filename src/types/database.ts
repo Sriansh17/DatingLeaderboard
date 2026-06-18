@@ -45,6 +45,7 @@ export interface Post {
   ai_feedback: string | null;
   ai_explanation: string | null;
   is_public: boolean;
+  is_archived: boolean;
   created_at: string;
   updated_at: string;
   // Joined fields
