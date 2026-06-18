@@ -2,6 +2,7 @@
 
 import { useUser } from '@/components/providers/AuthProvider';
 import { StoryCard } from '@/components/ui/StoryCard';
+import { Modal } from '@/components/ui/Modal';
 import { usePosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
 import { formatRelativeTime } from '@/lib/utils/format';
@@ -14,24 +15,92 @@ import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
 import { Share2 } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
+import { useToast } from '@/components/ui/Toast';
 import { motion } from 'framer-motion';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { Spinner } from '@/components/ui/Spinner';
 
 export default function ProfilePage() {
+  const RESTORE_STREAK_AMOUNT = 49;
   const { user, profile, loading: authLoading, signOut, refreshProfile } = useUser();
   const { data: posts, isLoading } = usePosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
+  const [isRestoreModalOpen, setIsRestoreModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const { openShare } = useShare();
+  const { addToast } = useToast();
+
+  // Build override from profile DB columns so restoration survives page refresh
+  const streakOverride = useMemo(() => {
+    if (!profile?.streak_override_count || !profile?.streak_override_date) return null;
+    return { count: profile.streak_override_count, date: profile.streak_override_date };
+  }, [profile?.streak_override_count, profile?.streak_override_date]);
 
   const streak = useMemo(() => {
     if (!posts || posts.length === 0) return null;
-    return calculateStreak(posts.map((p) => p.created_at));
+    return calculateStreak(posts.map((p) => p.created_at), streakOverride);
+  }, [posts, streakOverride]);
+
+  // How long the most-recent consecutive chain of past posts was
+  const restorableStreakLength = useMemo(() => {
+    if (!posts || posts.length === 0) return 0;
+    const uniqueDays = Array.from(new Set(posts.map((p) => p.created_at.slice(0, 10))))
+      .sort((a, b) => b.localeCompare(a));
+    if (uniqueDays.length === 0) return 0;
+    let chain = 1;
+    for (let i = 1; i < uniqueDays.length; i++) {
+      const prev = new Date(uniqueDays[i - 1]);
+      const curr = new Date(uniqueDays[i]);
+      const diff = Math.round((prev.getTime() - curr.getTime()) / (1000 * 60 * 60 * 24));
+      if (diff === 1) chain++; else break;
+    }
+    return chain;
   }, [posts]);
+
+  // streak is already resolved (override applied inside calculateStreak)
+  const displayStreak = streak;
+
+  // Only block restore if an override is *currently active* (saved today or yesterday).
+  // Once the window expires the user can pay to restore a new broken streak.
+  const overrideIsCurrentlyActive = useMemo(() => {
+    if (!profile?.streak_override_count || !profile?.streak_override_date) return false;
+    const overrideDay = new Date(profile.streak_override_date);
+    const today = new Date();
+    const diffMs = today.getTime() - overrideDay.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    return diffDays <= 1;
+  }, [profile?.streak_override_count, profile?.streak_override_date]);
+
+  const canRestoreStreak = !!streak && streak.currentStreak === 0 && !overrideIsCurrentlyActive && restorableStreakLength > 0;
+
+  const [isRestoringStreak, setIsRestoringStreak] = useState(false);
+
+  const handleConfirmRestoreStreak = async () => {
+    try {
+      setIsRestoringStreak(true);
+      const today = new Date().toISOString().slice(0, 10);
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          streak_override_count: restorableStreakLength,
+          streak_override_date: today,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) throw new Error(json.error || 'Failed to restore streak');
+      await refreshProfile();
+      setIsRestoreModalOpen(false);
+      addToast(`Streak restored to ${restorableStreakLength} days.`, 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Failed to restore streak. Please try again.', 'error');
+    } finally {
+      setIsRestoringStreak(false);
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -134,7 +203,7 @@ export default function ProfilePage() {
                 score: avgScore,
                 rank: undefined,
                 city: profile.city || undefined,
-                streak: streak?.currentStreak || 0,
+                streak: displayStreak?.currentStreak || 0,
                 bestScore,
                 totalPosts: posts?.length || 0,
                 bio: profile.bio,
@@ -178,9 +247,9 @@ export default function ProfilePage() {
                   📍 {profile.city}
                 </span>
               )}
-              {streak && (
+              {displayStreak && (
                 <span className="inline-flex items-center gap-1 text-xs text-orange-500 font-semibold">
-                  <Flame className="h-3.5 w-3.5 fill-orange-500" /> {streak.currentStreak}d streak
+                  <Flame className="h-3.5 w-3.5 fill-orange-500" /> {displayStreak.currentStreak}d streak
                 </span>
               )}
             </div>
@@ -302,7 +371,7 @@ export default function ProfilePage() {
                     avatarUrl: profile.avatar_url,
                     score: avgScore,
                     city: profile.city || undefined,
-                    streak: streak?.currentStreak || 0,
+                    streak: displayStreak?.currentStreak || 0,
                   });
                 }}
               >
@@ -313,7 +382,7 @@ export default function ProfilePage() {
               </button>
             </div>
           </div>
-          {streak && (
+          {displayStreak && (
             <motion.div 
               initial={{ scale: 0.97, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -323,11 +392,19 @@ export default function ProfilePage() {
               <Flame className="h-8 w-8 text-orange-500 dark:text-orange-500 fill-orange-500" />
               <div>
                 <p className="text-lg font-display italic text-orange-600 dark:text-orange-400">
-                  {streak.message}
+                  {displayStreak.message}
                 </p>
                 <p className="text-xs text-orange-500/80 dark:text-orange-500/70 uppercase tracking-widest font-medium">
-                  Longest Streak: {streak.longestStreak} days
+                  Longest Streak: {displayStreak.longestStreak} days
                 </p>
+                {canRestoreStreak && (
+                  <button
+                    onClick={() => setIsRestoreModalOpen(true)}
+                    className="mt-3 inline-flex items-center rounded-full border border-orange-300/50 bg-orange-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-orange-600 transition-colors hover:bg-orange-500/20 dark:text-orange-300"
+                  >
+                    Restore Streak
+                  </button>
+                )}
               </div>
             </motion.div>
           )}
@@ -399,6 +476,40 @@ export default function ProfilePage() {
           setIsAvatarModalOpen(false);
         }}
       />
+
+      <Modal
+        isOpen={isRestoreModalOpen}
+        onClose={() => setIsRestoreModalOpen(false)}
+        title="Restore Streak"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Payment flow placeholder: restoring your streak currently simulates a successful payment.
+          </p>
+          <div className="rounded-2xl border border-border bg-secondary/30 p-4">
+            <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground mb-2">Amount</p>
+            <p className="font-score text-3xl text-foreground">Rs {RESTORE_STREAK_AMOUNT}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              This will restore your streak to {restorableStreakLength} day{restorableStreakLength === 1 ? '' : 's'}.
+            </p>
+          </div>
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => setIsRestoreModalOpen(false)}
+              className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleConfirmRestoreStreak}
+              disabled={isRestoringStreak}
+              className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              {isRestoringStreak ? 'Restoring...' : 'Pay & Restore (Placeholder)'}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </main>
   );
 }
