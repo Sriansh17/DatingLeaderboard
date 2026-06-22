@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card } from '@/components/ui/Card';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { Avatar } from '@/components/ui/Avatar';
@@ -15,6 +16,7 @@ interface PostCardProps {
 }
 
 export function PostCard({ post }: PostCardProps) {
+  const router = useRouter();
   const { openShare } = useShare();
   const { user } = useUser();
   const likePostMutation = useLikePost();
@@ -46,8 +48,12 @@ export function PostCard({ post }: PostCardProps) {
             <div className="font-semibold text-sm sm:text-[15px] text-foreground truncate">
               {post.partner ? post.partner.name : 'Unknown Partner'}
             </div>
-            <div className="text-muted-foreground text-[11px] sm:text-[13px] mt-0.5">
-              {formatRelativeTime(post.created_at)}
+            <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] sm:text-[13px] mt-0.5">
+              {post.profile?.username && (
+                <span>@{post.profile.username}</span>
+              )}
+              <span>&bull;</span>
+              <span>{formatRelativeTime(post.created_at)}</span>
             </div>
           </div>
         </div>
@@ -89,11 +95,23 @@ export function PostCard({ post }: PostCardProps) {
               <span className="text-xs sm:text-sm">{post.comments_count ?? 0}</span>
             </span>
           </div>
-          <button 
-            className="bg-primary px-5 py-2 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
-            onClick={(e) => {
-              e.preventDefault();
-              openShare('post', {
+          <div className="flex items-center gap-2 ml-auto">
+            {post.profile?.username && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  router.push(`/users/${post.profile?.id || post.user_id}`);
+                }}
+                className="px-4 py-2 rounded-[18px] border border-border text-muted-foreground text-xs sm:text-sm font-medium hover:bg-muted/50 transition-colors"
+              >
+                Profile
+              </button>
+            )}
+            <button 
+              className="bg-primary px-5 py-2 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
+              onClick={(e) => {
+                e.preventDefault();
+                openShare('post', {
                 username: post.profile?.username || 'Someone',
                 partnerName: post.partner?.name || 'Partner',
                 avatarUrl: post.partner?.avatar_url,
@@ -107,6 +125,7 @@ export function PostCard({ post }: PostCardProps) {
           >
             <Share className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Share
           </button>
+          </div>
         </div>
       </Card>
     </Link>

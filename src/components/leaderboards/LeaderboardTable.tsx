@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { getRankEmoji, getScoreBgColor } from '@/lib/utils/format';
 import type { LeaderboardEntry } from '@/types/database';
+import Link from 'next/link';
 
 interface LeaderboardTableProps {
   entries?: LeaderboardEntry[];
@@ -53,7 +54,13 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
                 {entry.top_partner_name}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                by {entry.full_name || entry.username}
+                by{' '}
+                <Link
+                  href={`/users/${entry.user_id}`}
+                  className="hover:text-primary transition-colors"
+                >
+                  {entry.full_name || entry.username}
+                </Link>
               </p>
             </div>
           </div>

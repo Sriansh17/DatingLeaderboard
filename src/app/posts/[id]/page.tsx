@@ -1,6 +1,7 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { usePost, useLikePost } from '@/lib/hooks/usePosts';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
@@ -99,7 +100,7 @@ export default function PostDetailPage() {
   } catch {}
 
   return (
-    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-32 md:pb-40">
+    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-40">
       <div className="absolute top-8 left-6 sm:left-12">
         <button
           onClick={() => router.back()}
@@ -289,9 +290,12 @@ export default function PostDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">
+                    <Link
+                      href={`/users/${comment.user_id}`}
+                      className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                    >
                       @{comment.profile?.username || 'unknown'}
-                    </span>
+                    </Link>
                     <span className="text-[10px] text-muted-foreground">
                       {formatRelativeTime(comment.created_at)}
                     </span>

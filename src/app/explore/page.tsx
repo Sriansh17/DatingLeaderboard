@@ -5,6 +5,7 @@ import { PostCard } from '@/components/posts/PostCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { Heart, Compass } from 'lucide-react';
 import type { Post } from '@/types/database';
+import Link from 'next/link';
 
 async function fetchExplorePosts(): Promise<Post[]> {
   const res = await fetch('/api/posts/explore');
@@ -53,9 +54,12 @@ export default function ExplorePage() {
             <div key={post.id}>
               {post.profile && (
                 <div className="flex items-center gap-2 mb-1.5 px-1">
-                  <span className="text-xs text-gray-400">
+                  <Link
+                    href={`/users/${post.profile.id || post.user_id}`}
+                    className="text-xs text-gray-400 hover:text-primary transition-colors"
+                  >
                     {post.profile.full_name || post.profile.username}
-                  </span>
+                  </Link>
                   <span className="text-xs text-gray-300">•</span>
                   <span className="text-xs text-gray-400">
                     {post.partner?.emoji} {post.partner?.name}
