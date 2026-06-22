@@ -5,7 +5,7 @@ import { ScoreRing } from "./ScoreRing";
 import type { Story } from "@/lib/mock-data";
 import type { Post } from "@/types/database";
 import Link from "next/link";
-import { Heart, Trophy, Share2, Sparkles } from "lucide-react";
+import { Heart, Trophy, Share2, Sparkles, Pencil } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useShare } from "@/components/providers/ShareProvider";
 import { useUser } from "@/components/providers/AuthProvider";
@@ -19,9 +19,10 @@ interface StoryCardProps {
   variant?: StoryCardVariant;
   compact?: boolean;
   post?: Post; // Add optional post prop for real data
+  onEdit?: () => void;
 }
 
-export function StoryCard({ story, variant = 'C', compact = false, post }: StoryCardProps) {
+export function StoryCard({ story, variant = 'C', compact = false, post, onEdit }: StoryCardProps) {
   const { addToast } = useToast();
   const { openShare } = useShare();
   const { user } = useUser();
@@ -161,6 +162,16 @@ export function StoryCard({ story, variant = 'C', compact = false, post }: Story
         <Share2 className="h-4 w-4 relative z-10" />
         <span className="hidden sm:inline relative z-10">Share</span>
       </button>
+      {onEdit && (
+        <button
+          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
+          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${mutedClass}`}
+          title="Edit"
+        >
+          <Pencil className="h-4 w-4" />
+          <span className="hidden sm:inline">Edit</span>
+        </button>
+      )}
     </footer>
   );
   };
@@ -319,25 +330,36 @@ export function StoryCard({ story, variant = 'C', compact = false, post }: Story
               </button>
             </div>
 
-            <button 
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                openShare('post', {
-                  username: story.username,
-                  partnerName: story.partnerNickname,
-                  headline: story.headline,
-                  verdict: story.verdict,
-                  score: story.score,
-                  city: story.city,
-                  date: story.postedAt,
-                });
-              }}
-              className="relative overflow-hidden group/share flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors shrink-0"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
-              <span className="relative z-10 text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 group-hover/share:text-foreground transition-colors">SHARE</span>
-            </button>
+            <div className="flex items-center gap-2 shrink-0">
+              {onEdit && (
+                <button
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
+                  className="flex items-center justify-center gap-1.5 px-4 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 hover:text-foreground"
+                >
+                  <Pencil className="h-4 w-4" />
+                  <span className="hidden sm:inline">EDIT</span>
+                </button>
+              )}
+              <button 
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openShare('post', {
+                    username: story.username,
+                    partnerName: story.partnerNickname,
+                    headline: story.headline,
+                    verdict: story.verdict,
+                    score: story.score,
+                    city: story.city,
+                    date: story.postedAt,
+                  });
+                }}
+                className="relative overflow-hidden group/share flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors shrink-0"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
+                <span className="relative z-10 text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 group-hover/share:text-foreground transition-colors">SHARE</span>
+              </button>
+            </div>
           </footer>
         </motion.article>
       </Link>

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
+import { scorePost } from '@/lib/ai/scoring';
 
 export async function GET(
   _request: Request,
@@ -89,10 +90,51 @@ export async function PATCH(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Check premium status — editing posts requires premium
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('is_premium')
+      .eq('id', user.id)
+      .single();
+
+    if (profileError && (profileError as any).code !== 'PGRST116') throw profileError;
+
     const body = await request.json();
+
+    // Only the description edit requires premium; toggling is_archived does not
+    const isArchiveToggle = Object.keys(body).length === 1 && 'is_archived' in body;
+
+    if (!isArchiveToggle && !profile?.is_premium) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Editing posts is a premium feature. Upgrade to premium to edit your posts.',
+          code: 'PREMIUM_REQUIRED',
+        },
+        { status: 403 }
+      );
+    }
+
+    // If description is being changed, re-run AI scoring
+    let aiFields: Record<string, unknown> = {};
+    if (body.description) {
+      const aiResult = await scorePost(body.description);
+      if (aiResult.flagged) {
+        return NextResponse.json(
+          { success: false, flagged: true, error: aiResult.flag_reason || 'This post was flagged as invalid or unrealistic.' },
+          { status: 400 }
+        );
+      }
+      aiFields = {
+        ai_score: aiResult.score,
+        ai_feedback: aiResult.feedback,
+        ai_explanation: JSON.stringify(aiResult.breakdown),
+      };
+    }
+
     const { data, error } = await supabase
       .from('posts')
-      .update(body)
+      .update({ ...body, ...aiFields })
       .eq('id', id)
       .eq('user_id', user.id)
       .select('*, partner:partners(*)')
@@ -119,16 +161,17 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Archive instead of hard-delete
     const { error } = await supabase
       .from('posts')
-      .delete()
+      .update({ is_archived: true })
       .eq('id', id)
       .eq('user_id', user.id);
 
     if (error) throw error;
-    return NextResponse.json({ success: true, message: 'Post deleted' });
+    return NextResponse.json({ success: true, message: 'Post archived' });
   } catch (error) {
-    console.error('Post DELETE error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to delete post' }, { status: 500 });
+    console.error('Post archive error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to archive post' }, { status: 500 });
   }
 }

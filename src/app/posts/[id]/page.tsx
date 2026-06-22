@@ -3,14 +3,13 @@
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { usePost, useLikePost } from '@/lib/hooks/usePosts';
-import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles, Trash2, Heart, MessageCircle, Send, Share2 } from 'lucide-react';
+import { ArrowLeft, Sparkles, Archive, Heart, MessageCircle, Send, Share2, Pencil } from 'lucide-react';
 import { ShareCard } from '@/components/posts/ShareCard';
-import { createClient } from '@/lib/supabase/client';
+import { Spinner } from '@/components/ui/Spinner';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useShare } from '@/components/providers/ShareProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
@@ -18,12 +17,14 @@ import { useToast } from '@/components/ui/Toast';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { Comment } from '@/types/database';
+import { EditPostModal } from '@/components/posts/EditPostModal';
 export default function PostDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const { addToast } = useToast();
   const { openShare } = useShare();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { data: post, isLoading } = usePost(params.id as string);
   const likePostMutation = useLikePost();
 
@@ -84,10 +85,14 @@ export default function PostDetailPage() {
     finally { setSubmitting(false); }
   };
   const handleDelete = async () => {
-    if (!confirm('Delete this post?')) return;
-    const supabase = createClient();
-    await supabase.from('posts').delete().eq('id', params.id);
-    addToast('Post deleted', 'success');
+    if (!confirm('Archive this post? It will no longer be visible to anyone.')) return;
+    const res = await fetch(`/api/posts/${params.id}`, { method: 'DELETE' });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || !json.success) {
+      addToast('Failed to archive post.', 'error');
+      return;
+    }
+    addToast('Post archived.', 'success');
     router.push('/dashboard');
   };
 
@@ -218,13 +223,22 @@ export default function PostDetailPage() {
           Share This Verdict
         </button>
         {user && post.user_id === user.id && (
-          <button
-            onClick={handleDelete}
-            className="flex items-center gap-2 px-4 py-2 rounded-full border border-destructive/30 bg-destructive/10 text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors text-sm font-medium"
-          >
-            <Trash2 className="h-4 w-4" />
-            Delete Memory
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors text-sm font-medium"
+            >
+              <Pencil className="h-4 w-4" />
+              Edit Post
+            </button>
+            <button
+              onClick={handleDelete}
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/70 transition-colors text-sm font-medium"
+            >
+              <Archive className="h-4 w-4" />
+              Archive
+            </button>
+          </div>
         )}
       </div>
 
@@ -309,6 +323,15 @@ export default function PostDetailPage() {
       </div>
 
       </div>
+
+      {post && user && post.user_id === user.id && (
+        <EditPostModal
+          post={post}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          isPremium={!!profile?.is_premium}
+        />
+      )}
     </main>
   );
 }

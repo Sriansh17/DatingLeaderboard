@@ -11,12 +11,37 @@ import { Plus, Edit3 } from 'lucide-react';
 import { PartnerForm } from '@/components/partners/PartnerForm';
 
 export default function PartnersPage() {
-  const { user } = useUser();
+  const { user, profile, refreshProfile } = useUser();
   const { addToast } = useToast();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
+  const [upgrading, setUpgrading] = useState(false);
+
+  const isPremium = !!profile?.is_premium;
+  const canAddAnotherPartner = isPremium || partners.length === 0;
+
+  const handleUpgrade = async () => {
+    try {
+      setUpgrading(true);
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_premium: true }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to upgrade to premium');
+      }
+      await refreshProfile();
+      addToast('Premium activated. You can now add multiple partners.', 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Upgrade failed. Please try again.', 'error');
+    } finally {
+      setUpgrading(false);
+    }
+  };
 
   const loadPartners = async () => {
     if (!user) return;
@@ -99,7 +124,7 @@ export default function PartnersPage() {
         )}
 
         {/* Add Partner Button */}
-        {!showAddForm && (
+        {!showAddForm && canAddAnotherPartner && (
           <button 
             onClick={() => setShowAddForm(true)}
             className="flex items-center gap-2 px-8 py-3 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-primary font-medium tracking-wide shadow-sm"
@@ -107,6 +132,22 @@ export default function PartnersPage() {
             <Plus className="w-5 h-5" />
             Add Partner
           </button>
+        )}
+
+        {!showAddForm && !canAddAnotherPartner && (
+          <div className="text-center rounded-2xl border border-gold/30 bg-gold/10 px-6 py-5 max-w-xl w-full">
+            <p className="text-xs uppercase tracking-[0.2em] font-bold text-gold mb-2">Premium required</p>
+            <p className="text-sm text-foreground/90 mb-4">
+              Free plan supports one partner. Upgrade to premium to add multiple partners.
+            </p>
+            <button
+              onClick={handleUpgrade}
+              disabled={upgrading}
+              className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+            >
+              {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
+            </button>
+          </div>
         )}
 
         {/* Add Form Container */}

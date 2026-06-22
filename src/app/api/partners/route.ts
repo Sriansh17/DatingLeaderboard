@@ -33,15 +33,48 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { name, relationship, emoji } = await request.json();
+    const { name, relationship, emoji, avatar_url } = await request.json();
 
     if (!name) {
       return NextResponse.json({ success: false, error: 'Name is required' }, { status: 400 });
     }
 
+    // Free users can only have one partner. Premium users can add multiple.
+    const [{ data: profile, error: profileError }, { count: partnerCount, error: partnerCountError }] = await Promise.all([
+      supabase
+        .from('profiles')
+        .select('is_premium')
+        .eq('id', user.id)
+        .single(),
+      supabase
+        .from('partners')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id),
+    ]);
+
+    if (profileError && (profileError as any).code !== 'PGRST116') throw profileError;
+    if (partnerCountError) throw partnerCountError;
+
+    if (!profile?.is_premium && (partnerCount || 0) >= 1) {
+      return NextResponse.json(
+        {
+          success: false,
+          code: 'PREMIUM_REQUIRED',
+          error: 'Adding multiple partners is a premium feature. Upgrade to premium to add more partners.',
+        },
+        { status: 403 }
+      );
+    }
+
     const { data, error } = await supabase
       .from('partners')
-      .insert({ user_id: user.id, name, relationship: relationship || 'partner', emoji: emoji || '💖' })
+      .insert({
+        user_id: user.id,
+        name,
+        relationship: relationship || 'partner',
+        emoji: emoji || '💖',
+        avatar_url: avatar_url || null,
+      })
       .select()
       .single();
 

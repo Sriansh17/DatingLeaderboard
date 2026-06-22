@@ -23,6 +23,7 @@ export async function GET(request: Request) {
         comments:comments(count)
       `, { count: 'exact' })
       .eq('is_public', true)
+      .eq('is_archived', false)
       .not('ai_score', 'is', null)
       .order('created_at', { ascending: false })
       .range(start, start + limit - 1);

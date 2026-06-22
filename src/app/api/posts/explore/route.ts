@@ -23,6 +23,7 @@ export async function GET() {
         comments:comments(count)
       `)
       .eq('is_public', true)
+      .eq('is_archived', false)
       .order('created_at', { ascending: false })
       .limit(50);
 

@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { useToast } from '@/components/ui/Toast';
 import { createClient } from '@/lib/supabase/client';
+import { useUser } from '@/components/providers/AuthProvider';
 import { Camera } from 'lucide-react';
 import type { Partner } from '@/types/database';
 import { AvatarPicker, type Gender } from '@/components/ui/AvatarPicker';
@@ -62,6 +63,7 @@ function resizeImage(file: File): Promise<string> {
 }
 
 export function PartnerForm({ userId, partner, onSuccess, compact = false }: PartnerFormProps) {
+  const { refreshProfile } = useUser();
   const [name, setName] = useState(partner?.name || '');
   const [relationship, setRelationship] = useState<string>(partner?.relationship || 'partner');
   const [gender, setGender] = useState<Gender>('');
@@ -69,8 +71,32 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
   const [avatarBase64, setAvatarBase64] = useState<string | null>(partner?.avatar_url || null);
   const [avatarPreview, setAvatarPreview] = useState<string | null>(partner?.avatar_url || null);
   const [loading, setLoading] = useState(false);
+  const [showPremiumPrompt, setShowPremiumPrompt] = useState(false);
+  const [upgrading, setUpgrading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { addToast } = useToast();
+
+  const handleUpgrade = async () => {
+    try {
+      setUpgrading(true);
+      const res = await fetch('/api/users', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_premium: true }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        throw new Error(json.error || 'Failed to upgrade to premium');
+      }
+      await refreshProfile();
+      setShowPremiumPrompt(false);
+      addToast('Premium activated. You can now add multiple partners.', 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Upgrade failed. Please try again.', 'error');
+    } finally {
+      setUpgrading(false);
+    }
+  };
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -95,6 +121,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setShowPremiumPrompt(false);
 
     const supabase = createClient();
     const payload: Record<string, unknown> = {
@@ -107,26 +134,42 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
       payload.avatar_url = avatarBase64;
     }
 
-    let result;
+    let data: Partner | null = null;
+    let errorMessage: string | null = null;
+
     if (partner) {
-      result = await supabase
+      const result = await supabase
         .from('partners')
         .update(payload)
         .eq('id', partner.id)
         .select()
         .single();
+      data = result.data;
+      errorMessage = result.error?.message || null;
     } else {
-      result = await supabase
-        .from('partners')
-        .insert(payload)
-        .select()
-        .single();
+      const res = await fetch('/api/partners', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: name.trim(),
+          relationship,
+          emoji,
+          avatar_url: avatarBase64 || undefined,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (!res.ok || !json.success) {
+        if (json.code === 'PREMIUM_REQUIRED') {
+          setShowPremiumPrompt(true);
+        }
+        errorMessage = json.error || 'Failed to create partner';
+      } else {
+        data = json.data;
+      }
     }
 
-    const { data, error } = result;
-
-    if (error) {
-      addToast(error.message, 'error');
+    if (errorMessage || !data) {
+      addToast(errorMessage || 'Failed to save partner', 'error');
       setLoading(false);
       return;
     }
@@ -255,6 +298,23 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
           ))}
         </div>
       </div>
+
+      {showPremiumPrompt && !partner && (
+        <div className="rounded-2xl border border-gold/30 bg-gold/10 p-4 space-y-3">
+          <p className="text-xs uppercase tracking-[0.2em] font-bold text-gold">Premium required</p>
+          <p className="text-sm text-foreground/90">
+            Free plan supports one partner. Upgrade to premium to add multiple partners.
+          </p>
+          <button
+            type="button"
+            onClick={handleUpgrade}
+            disabled={upgrading}
+            className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+          >
+            {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
+          </button>
+        </div>
+      )}
 
       <div className={`${compact ? 'pt-2' : 'pt-6 border-t border-white/5 mt-8'}`}>
         <button

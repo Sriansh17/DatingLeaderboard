@@ -17,6 +17,9 @@ export interface Profile {
   onboarding_goals: string[] | null;
   love_languages: string[] | null;
   is_premium: boolean;
+  // Streak restoration
+  streak_override_count: number | null;
+  streak_override_date: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -42,6 +45,7 @@ export interface Post {
   ai_feedback: string | null;
   ai_explanation: string | null;
   is_public: boolean;
+  is_archived: boolean;
   created_at: string;
   updated_at: string;
   // Joined fields
