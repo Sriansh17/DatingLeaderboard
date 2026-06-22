@@ -46,11 +46,15 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  let user = null;
+  try {
+    const authResult = await supabase.auth.getUser();
+    user = authResult.data.user;
+  } catch (err) {
+    console.log(`[Middleware] ${pathname} | auth.getUser failed:`, err);
+  }
 
-  console.log(`[Middleware] ${pathname} | auth.getUser: ${Date.now() - start}ms | user: ${!!user}`);
+  console.log(`[Middleware] ${pathname} | auth: ${Date.now() - start}ms | user: ${!!user}`);
 
   // API routes: just refresh session cookies, don't redirect
   if (isApiRoute) {
