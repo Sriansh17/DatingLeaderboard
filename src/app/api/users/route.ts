@@ -41,7 +41,19 @@ export async function PATCH(request: Request) {
       .select()
       .single();
 
-    if (error) throw error;
+    if (error) {
+      if ((error as any).code === 'PGRST204' && body?.is_premium !== undefined) {
+        return NextResponse.json(
+          {
+            success: false,
+            code: 'PREMIUM_COLUMN_MISSING',
+            error: 'Premium is not enabled in this database yet. Run supabase-migration-premium-post-limit.sql first.',
+          },
+          { status: 409 }
+        );
+      }
+      throw error;
+    }
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Profile PATCH error:', error);

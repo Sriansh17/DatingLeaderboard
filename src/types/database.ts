@@ -16,6 +16,7 @@ export interface Profile {
   relationship_status: string | null;
   onboarding_goals: string[] | null;
   love_languages: string[] | null;
+  is_premium: boolean;
   created_at: string;
   updated_at: string;
 }

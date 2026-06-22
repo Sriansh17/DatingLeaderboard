@@ -11,24 +11,43 @@ import { Heart, ArrowLeft } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export default function NewPostPage() {
-  const { user } = useUser();
+  const { user, profile } = useUser();
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [postCountToday, setPostCountToday] = useState(0);
+  const [isPremiumLocal, setIsPremiumLocal] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
   useEffect(() => {
+    setIsPremiumLocal(!!profile?.is_premium);
+  }, [profile?.is_premium]);
+
+  useEffect(() => {
     if (!user) return;
     const supabase = createClient();
-    supabase
-      .from('partners')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .then(({ data }) => {
-        setPartners(data || []);
+    const startOfToday = new Date();
+    startOfToday.setHours(0, 0, 0, 0);
+
+    Promise.all([
+      supabase
+        .from('partners')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_active', true),
+      supabase
+        .from('posts')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', startOfToday.toISOString()),
+    ]).then(([partnersRes, postsRes]) => {
+        setPartners(partnersRes.data || []);
+        setPostCountToday(postsRes.count || 0);
         setLoading(false);
       });
   }, [user]);
+
+  const isPremium = isPremiumLocal;
+  const postLimitReached = !isPremiumLocal && postCountToday >= 2;
 
   if (!user) return null;
   
@@ -65,7 +84,14 @@ export default function NewPostPage() {
         <ArrowLeft className="h-3.5 w-3.5" /> Cancel
       </button>
 
-      <PostForm partners={partners} userId={user.id} />
+      <PostForm
+        partners={partners}
+        userId={user.id}
+        isPremium={isPremium}
+        postCount={postCountToday}
+        postLimitReached={postLimitReached}
+        onUpgradedToPremium={() => setIsPremiumLocal(true)}
+      />
     </main>
   );
 }
