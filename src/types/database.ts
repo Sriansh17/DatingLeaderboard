@@ -126,6 +126,60 @@ export interface Flag {
   created_at: string;
 }
 
+export type ReactionType = 'peek' | 'spicy' | 'relatable' | 'dead' | 'wholesome';
+
+export const REACTION_EMOJIS: Record<ReactionType, string> = {
+  peek: '👀',
+  spicy: '🔥',
+  relatable: '😭',
+  dead: '💀',
+  wholesome: '🫶',
+};
+
+export const REACTION_LABELS: Record<ReactionType, string> = {
+  peek: 'Peek',
+  spicy: 'Spicy',
+  relatable: 'Relatable',
+  dead: 'Dead',
+  wholesome: 'Wholesome',
+};
+
+export interface ConfessionReaction {
+  id: string;
+  confession_id: string;
+  user_id: string;
+  reaction: ReactionType;
+  created_at: string;
+}
+
+export interface ConfessionReply {
+  id: string;
+  confession_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  // Anonymous identity (computed, not stored)
+  anonymous_emoji?: string;
+  anonymous_color?: string;
+}
+
+export interface Confession {
+  id: string;
+  user_id: string;
+  content: string;
+  is_approved: boolean;
+  created_at: string;
+  updated_at: string;
+  // Computed fields
+  reaction_counts: Record<ReactionType, number>;
+  user_reaction: ReactionType | null;
+  is_confession_of_day: boolean;
+  replies_count: number;
+  // Joined fields
+  profile?: Profile;
+}
+
 export interface LeaderboardCache {
   id: string;
   data: LeaderboardEntry[];

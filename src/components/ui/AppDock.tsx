@@ -1,19 +1,24 @@
 'use client';
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Users } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Users, Eye, EyeOff, Lock } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAtmosphere, type Atmosphere } from '@/components/providers/AtmosphereProvider';
+import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 
-const tabs = [
+const fullTabs = [
   { href: "/dashboard", label: "Feed", icon: Home },
   { href: "/leaderboards", label: "Ranks", icon: Trophy },
   { href: "/circles", label: "Circles", icon: Users },
   { href: "/partners", label: "Partners", icon: Heart },
   { href: "/profile", label: "Profile", icon: User },
+] as const;
+
+const anonymousTabs = [
+  { href: "/dashboard", label: "Feed", icon: Home },
 ] as const;
 
 const BubblesIcon = ({ className }: { className?: string }) => (
@@ -60,6 +65,7 @@ function AtmospherePanel({
   onClose?: () => void;
 }) {
   const { resolvedTheme, setTheme } = useTheme();
+  const { isAnonymousMode, toggleAnonymousMode } = useAnonymousMode();
 
   const getAtmColor = (a: string) => {
     switch (a) {
@@ -135,6 +141,32 @@ function AtmospherePanel({
         })}
       </div>
 
+      {/* Anonymous Mode Toggle */}
+      <div className="flex items-center justify-between py-3 border-t border-border">
+        <div className="flex items-center gap-2">
+          {isAnonymousMode ? (
+            <Lock className="h-3.5 w-3.5 text-primary" />
+          ) : (
+            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+          )}
+          <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">
+            {isAnonymousMode ? 'Anonymous Mode ON' : 'Anonymous Mode OFF'}
+          </span>
+        </div>
+        <button
+          onClick={() => { toggleAnonymousMode(); onClose?.(); }}
+          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
+            isAnonymousMode ? 'bg-primary' : 'bg-muted-foreground/30'
+          }`}
+        >
+          <span
+            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
+              isAnonymousMode ? 'translate-x-[18px]' : 'translate-x-[3px]'
+            }`}
+          />
+        </button>
+      </div>
+
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-border">
         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">More</span>
@@ -152,11 +184,13 @@ function AtmospherePanel({
 
 export function AppDock() {
   const pathname = usePathname();
+  const router = useRouter();
   const { resolvedTheme, setTheme } = useTheme();
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const { atmosphere, setAtmosphere, particlesEnabled, setParticlesEnabled } = useAtmosphere();
+  const { isAnonymousMode } = useAnonymousMode();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -167,9 +201,28 @@ export function AppDock() {
   // Close sheet on route change
   useEffect(() => { setSheetOpen(false); }, [pathname]);
 
+  // Redirect when anonymous mode toggles and current page doesn't match
+  const prevModeRef = useRef(isAnonymousMode);
+  useEffect(() => {
+    const prev = prevModeRef.current;
+    if (prev !== isAnonymousMode) {
+      // Switched OFF anonymous mode while on a /confessions page
+      if (!isAnonymousMode && pathname.startsWith('/confessions')) {
+        router.push('/dashboard');
+      }
+      // Switched ON anonymous mode while on /posts/new
+      if (isAnonymousMode && pathname === '/posts/new') {
+        router.push('/confessions/new');
+      }
+      prevModeRef.current = isAnonymousMode;
+    }
+  }, [isAnonymousMode, pathname, router]);
+
   if (pathname === '/' || pathname.startsWith('/auth') || pathname.startsWith('/onboarding')) {
     return null;
   }
+
+  const tabs = isAnonymousMode ? anonymousTabs : fullTabs;
 
   const renderTab = ({ href, label, icon: Icon }: typeof tabs[number]) => {
     const isActive = pathname.startsWith(href);
@@ -280,14 +333,26 @@ export function AppDock() {
             </div>
           )}
 
-          {tabs.slice(0, 2).map(renderTab)}
+          {/* Anonymous Mode Indicator Pill — visible when mode is on */}
+          {isAnonymousMode && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20 mr-1">
+              <Lock className="h-3 w-3 text-primary" />
+              <span className="text-[8px] font-bold uppercase tracking-wider text-primary hidden sm:inline">Anonymous</span>
+            </div>
+          )}
+
+          {/* Show only Feed in anonymous mode, otherwise show Feed + Ranks */}
+          {isAnonymousMode
+            ? tabs.slice(0, 1).map(renderTab)
+            : tabs.slice(0, 2).map(renderTab)
+          }
 
           {/* FAB */}
           <div className="px-1 sm:px-2">
             <Link
-              href="/posts/new"
+              href={isAnonymousMode ? "/confessions/new" : "/posts/new"}
               className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 animate-pulse-glow"
-              aria-label="New post"
+              aria-label={isAnonymousMode ? "New confession" : "New post"}
               style={{
                 background: 'linear-gradient(180deg, rgb(var(--primary)), color-mix(in oklab, rgb(var(--primary)) 85%, black))',
                 boxShadow: '0 6px 20px -6px rgba(var(--primary), 0.5), 0 2px 6px -1px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)',
@@ -297,10 +362,10 @@ export function AppDock() {
             </Link>
           </div>
 
-          {tabs.slice(2).map(renderTab)}
+          {/* In anonymous mode, don't render remaining tabs (only Feed was rendered above) */}
+          {!isAnonymousMode && tabs.slice(2).map(renderTab)}
         </nav>
       </div>
     </>
   );
 }
-

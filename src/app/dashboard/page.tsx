@@ -11,6 +11,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
+import { ConfessionsFeed } from '@/components/confessions/ConfessionsFeed';
 import { useRouter } from 'next/navigation';
 
 import { formatRelativeTime } from '@/lib/utils/format';
@@ -25,6 +27,13 @@ async function fetchExplorePosts(): Promise<Post[]> {
 }
 
 export default function DashboardPage() {
+
+  const { isAnonymousMode } = useAnonymousMode();
+
+  // In anonymous mode, show the confessions feed instead
+  if (isAnonymousMode) {
+    return <ConfessionsFeed />;
+  }
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['explore-posts'],

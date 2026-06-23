@@ -47,6 +47,10 @@ export interface UpdateProfilePayload {
   avatar_url?: string;
 }
 
+export interface CreateConfessionPayload {
+  content: string;
+}
+
 export interface LeaderboardQuery {
   type: 'local' | 'city' | 'country' | 'global';
   latitude?: number;
