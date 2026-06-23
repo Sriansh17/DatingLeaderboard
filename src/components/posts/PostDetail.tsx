@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { Spinner } from '@/components/ui/Spinner';
 import { formatRelativeTime, getScoreColor, getScoreBgColor } from '@/lib/utils/format';
-import { Sparkles, Archive, Heart, MessageCircle, Send } from 'lucide-react';
+import { Sparkles, Archive, Heart, MessageCircle, Send, Eye } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
@@ -25,7 +26,9 @@ export function PostDetail({ post }: PostDetailProps) {
   const [liked, setLiked] = useState(post.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes_count ?? 0);
   const [liking, setLiking] = useState(false);
+  const [viewsCount, setViewsCount] = useState(post.views_count ?? 0);
 
+  const queryClient = useQueryClient();
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [newComment, setNewComment] = useState('');
@@ -45,6 +48,20 @@ export function PostDetail({ post }: PostDetailProps) {
       }
     };
     fetchComments();
+  }, [post.id]);
+
+  // Register a view on page load
+  useEffect(() => {
+    const registerView = async () => {
+      try {
+        const res = await fetch(`/api/posts/${post.id}/view`, { method: 'POST' });
+        const data = await res.json();
+        if (data.success) setViewsCount(data.views_count);
+      } catch {
+        // silently fail — views are non-critical
+      }
+    };
+    registerView();
   }, [post.id]);
 
   const handleLike = async () => {
@@ -78,6 +95,9 @@ export function PostDetail({ post }: PostDetailProps) {
       if (data.success) {
         setComments(prev => [...prev, data.data]);
         setNewComment('');
+        // Force refresh feed cards so comment count updates
+        queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
+        queryClient.refetchQueries({ queryKey: ['explore-posts'] });
       }
     } catch {
       addToast('Failed to post comment', 'error');
@@ -128,24 +148,6 @@ export function PostDetail({ post }: PostDetailProps) {
         )}
       </div>
 
-      {/* Like + Comment counts row */}
-      <div className="flex items-center justify-center gap-6 text-sm">
-        <button
-          onClick={handleLike}
-          disabled={liking || !user}
-          className={`flex items-center gap-2 transition-colors ${
-            liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
-          } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <Heart className={`h-5 w-5 ${liked ? 'fill-red-500' : ''}`} />
-          <span>{likesCount} {likesCount === 1 ? 'like' : 'likes'}</span>
-        </button>
-        <span className="flex items-center gap-2 text-muted-foreground">
-          <MessageCircle className="h-5 w-5" />
-          <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
-        </span>
-      </div>
-
       {/* AI Feedback */}
       {post.ai_feedback && (
         <Card className="bg-gradient-to-r from-pink-50 to-rose-50 dark:from-pink-900/20 dark:to-rose-900/20 border-primary/30 dark:border-primary/30">
@@ -166,6 +168,28 @@ export function PostDetail({ post }: PostDetailProps) {
           <Badge variant={post.is_public ? 'success' : 'default'}>
             {post.is_public ? 'Public' : 'Private'}
           </Badge>
+        </div>
+
+        {/* Like + Comment + Views — right below text */}
+        <div className="flex items-center gap-5 mt-5 pt-4 border-t border-border text-sm">
+          <button
+            onClick={handleLike}
+            disabled={liking || !user}
+            className={`flex items-center gap-1.5 transition-colors ${
+              liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+            } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+          >
+            <Heart className={`h-4 w-4 ${liked ? 'fill-red-500' : ''}`} />
+            <span>{likesCount}</span>
+          </button>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <MessageCircle className="h-4 w-4" />
+            <span>{comments.length}</span>
+          </span>
+          <span className="flex items-center gap-1.5 text-muted-foreground">
+            <Eye className="h-4 w-4" />
+            <span>{viewsCount}</span>
+          </span>
         </div>
       </Card>
 

@@ -39,7 +39,10 @@ export default function DashboardPage() {
     queryKey: ['explore-posts'],
     queryFn: fetchExplorePosts,
     staleTime: 0,
+    refetchOnMount: 'always',
     refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 15000,
   });
 
   const { profile, loading: authLoading } = useUser();

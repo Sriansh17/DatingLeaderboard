@@ -55,6 +55,7 @@ export interface Post {
   // Computed fields
   likes_count?: number;
   comments_count?: number;
+  views_count?: number;
   has_liked?: boolean;
 }
 

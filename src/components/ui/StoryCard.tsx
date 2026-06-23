@@ -5,7 +5,7 @@ import { ScoreRing } from "./ScoreRing";
 import type { Story } from "@/lib/mock-data";
 import type { Post } from "@/types/database";
 import Link from "next/link";
-import { Heart, Trophy, Share2, Sparkles, Pencil } from "lucide-react";
+import { Heart, Share2, Pencil, MessageCircle } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useShare } from "@/components/providers/ShareProvider";
 import { useUser } from "@/components/providers/AuthProvider";
@@ -94,7 +94,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     
     return (
     <footer className={`mt-auto pt-5 sm:pt-6 flex items-center justify-between relative z-10 border-t ${borderClass}`}>
-      <div className="flex items-center gap-4 sm:gap-6">
+      <div className="flex items-center gap-4 sm:gap-5">
         <button 
           onClick={(e) => handleReact(e, 'Heart')}
           disabled={post && likePostMutation.isPending}
@@ -103,42 +103,12 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           }`}
         >
           <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-red-500 text-red-500' : ''}`} />
-          <span className="hidden sm:inline">{post && heartCount > 0 ? heartCount : 'Like'}</span>
+          <span>{post && heartCount > 0 ? heartCount : 0}</span>
         </button>
-        <button 
-          onClick={(e) => handleReact(e, 'Trophy')}
-          className={`relative group/trophy flex items-center gap-1.5 text-xs font-medium transition-colors ${activeReaction === 'Trophy' ? 'text-gold' : mutedClass}`}
-        >
-          <div className="absolute inset-0 overflow-hidden rounded-md pointer-events-none -mx-2 px-2">
-            <motion.div 
-              initial={{ x: "-150%", skewX: -15 }}
-              whileHover={{ x: "200%", transition: { duration: 1.5, ease: "easeOut" } }}
-              className="absolute inset-0 w-full bg-gradient-to-r from-transparent via-white/40 to-transparent mix-blend-overlay" 
-            />
-          </div>
-          <Trophy className={`h-4 w-4 relative z-10 ${activeReaction === 'Trophy' ? 'fill-current' : ''}`} />
-          <span className="hidden sm:inline relative z-10">Applaud</span>
-          
-          <AnimatePresence>
-            {activeReaction === 'Trophy' && (
-              <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
-                {[...Array(6)].map((_, i) => {
-                  const angle = (i / 6) * Math.PI * 2;
-                  const distance = 25 + Math.random() * 15;
-                  return (
-                    <motion.div
-                      key={i}
-                      initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-                      animate={{ opacity: 0, scale: 1.5, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance }}
-                      transition={{ duration: 0.6, ease: "easeOut" }}
-                      className="absolute w-1 h-1 bg-gold rounded-full"
-                    />
-                  );
-                })}
-              </div>
-            )}
-          </AnimatePresence>
-        </button>
+        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+          <MessageCircle className="h-4 w-4" />
+          <span>{post?.comments_count ?? 0}</span>
+        </span>
       </div>
 
       <button 
@@ -272,72 +242,35 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           </div>
           
           <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border ${compact ? 'mt-4 sm:mt-6 pt-3 sm:pt-4' : 'mt-10 pt-6'}`}>
-            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            <div className="flex items-center gap-3 sm:gap-5 shrink-0">
               <button 
                 onClick={(e) => handleReact(e, 'Heart')}
                 disabled={post && likePostMutation.isPending}
-                className={`relative group/heart flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${(post ? isLiked : activeReaction === 'Heart') ? 'bg-red-500 border-red-500 text-white' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
+                className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                  (post ? isLiked : activeReaction === 'Heart')
+                    ? 'text-red-500 hover:text-red-600'
+                    : 'text-muted-foreground hover:text-red-400'
+                } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <Heart className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-white text-white' : 'text-foreground/70'}`} />
-                
-                <AnimatePresence>
-                  {(post ? isLiked : activeReaction === 'Heart') && (
-                    <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
-                      {[...Array(6)].map((_, i) => {
-                        const angle = (i / 6) * Math.PI * 2;
-                        const distance = 40 + Math.random() * 20;
-                        return (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-                            animate={{ opacity: 0, scale: 1.5, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
-                            className="absolute w-1.5 h-1.5 bg-primary rounded-full"
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </AnimatePresence>
+                <Heart className={`h-4 w-4 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-red-500' : ''}`} />
+                <span>{post ? likesCount : 0}</span>
               </button>
               
-              {/* The Prestige Trophy Button */}
-              <button 
-                onClick={(e) => handleReact(e, 'Trophy')}
-                className={`relative group/trophy flex h-12 w-12 sm:h-[3.25rem] sm:w-[3.25rem] items-center justify-center rounded-full border transition-colors ${activeReaction === 'Trophy' ? 'bg-gold border-gold text-primary-foreground shadow-[0_0_15px_rgba(255,215,0,0.3)]' : 'border-border bg-muted text-foreground/70 hover:bg-elevated'}`}
-              >
-                <Trophy className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 ${activeReaction === 'Trophy' ? 'fill-current text-primary-foreground' : 'text-foreground/70 group-hover/trophy:text-gold transition-colors duration-500'}`} />
-                
-                <AnimatePresence>
-                  {activeReaction === 'Trophy' && (
-                    <div className="absolute inset-0 pointer-events-none z-0 flex items-center justify-center">
-                      {[...Array(8)].map((_, i) => {
-                        const angle = (i / 8) * Math.PI * 2;
-                        const distance = 40 + Math.random() * 20;
-                        return (
-                          <motion.div
-                            key={i}
-                            initial={{ opacity: 1, scale: 0, x: 0, y: 0 }}
-                            animate={{ opacity: 0, scale: 1.5, x: Math.cos(angle) * distance, y: Math.sin(angle) * distance }}
-                            transition={{ duration: 0.6, ease: "easeOut" }}
-                            className="absolute w-1.5 h-1.5 bg-gold rounded-full"
-                          />
-                        );
-                      })}
-                    </div>
-                  )}
-                </AnimatePresence>
-              </button>
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <MessageCircle className="h-4 w-4" />
+                <span>{post?.comments_count ?? 0}</span>
+              </span>
+
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               {onEdit && (
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
-                  className="flex items-center justify-center gap-1.5 px-4 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 hover:text-foreground"
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted"
                 >
-                  <Pencil className="h-4 w-4" />
-                  <span className="hidden sm:inline">EDIT</span>
+                  <Pencil className="h-3.5 w-3.5 inline mr-1" />
+                  Edit
                 </button>
               )}
               <button 
@@ -354,10 +287,10 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                     date: story.postedAt,
                   });
                 }}
-                className="relative overflow-hidden group/share flex items-center justify-center px-6 sm:px-8 h-12 sm:h-[3.25rem] rounded-full border border-border bg-muted hover:bg-elevated transition-colors shrink-0"
+                className="relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-hover/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
-                <span className="relative z-10 text-xs sm:text-[13px] font-bold tracking-wide text-foreground/90 group-hover/share:text-foreground transition-colors">SHARE</span>
+                <Share2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Share</span>
               </button>
             </div>
           </footer>
