@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import { Spinner } from '@/components/ui/Spinner';
 import { ArrowLeft, Copy, Check, Users, Crown, Trophy, LogOut, UserMinus, Trash2 } from 'lucide-react';
 import type { Circle, CircleMember } from '@/types/database';
@@ -25,6 +26,7 @@ export default function CircleDetailPage() {
   const router = useRouter();
   const { user } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   const [circle, setCircle] = useState<Circle | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -78,7 +80,7 @@ export default function CircleDetailPage() {
 
   const handleLeave = async () => {
     if (!circle || leaving) return;
-    if (!confirm('Leave this circle?')) return;
+    if (!(await confirm({ title: 'Leave Circle', message: 'Leave this circle?', confirmLabel: 'Leave', variant: 'warning' }))) return;
     setLeaving(true);
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
@@ -101,7 +103,7 @@ export default function CircleDetailPage() {
   };
 
   const handleKick = async (userId: string, username: string) => {
-    if (!confirm(`Remove @${username} from this circle?`)) return;
+    if (!(await confirm({ title: 'Remove Member', message: `Remove @${username} from this circle?`, confirmLabel: 'Remove', variant: 'danger' }))) return;
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
         method: 'DELETE',
@@ -123,7 +125,7 @@ export default function CircleDetailPage() {
 
   const handleDelete = async () => {
     if (!circle || deleting) return;
-    if (!confirm('Delete this entire circle? This cannot be undone.')) return;
+    if (!(await confirm({ title: 'Delete Circle', message: 'Delete this entire circle? This cannot be undone.', confirmLabel: 'Delete', variant: 'danger' }))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/circles/${circleId}`, { method: 'DELETE' });

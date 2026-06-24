@@ -12,6 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import type { Post, Comment } from '@/types/database';
 
 interface PostDetailProps {
@@ -22,6 +23,7 @@ export function PostDetail({ post }: PostDetailProps) {
   const router = useRouter();
   const { user } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   const [liked, setLiked] = useState(post.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes_count ?? 0);
@@ -115,7 +117,7 @@ export function PostDetail({ post }: PostDetailProps) {
   } catch {}
 
   const handleDelete = async () => {
-    if (!confirm('Archive this post? It will no longer be visible to anyone.')) return;
+    if (!(await confirm({ title: 'Archive Post', message: 'Archive this post? It will no longer be visible to anyone.', confirmLabel: 'Archive', variant: 'warning' }))) return;
     const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json.success) {

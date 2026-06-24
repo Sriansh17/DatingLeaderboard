@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
 import { ArrowDown, ArrowUp, Minus, Share2, TrendingUp, TrendingDown, Trophy } from "lucide-react";
@@ -12,7 +13,7 @@ import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Spinner } from "@/components/ui/Spinner";
 import Link from 'next/link';
 
-const scopes = ["Global", "Country", "Local"] as const;
+const scopes = ["Country", "City", "Circle"] as const;
 const timeframes = ["All Time", "This Week"] as const;
 
 interface LeaderboardEntry {
@@ -146,25 +147,75 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
 }
 
 export default function RanksPage() {
-  const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
+  const [scope, setScope] = useState<(typeof scopes)[number]>("Country");
   const [timeframe, setTimeframe] = useState<(typeof timeframes)[number]>("All Time");
+  const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
+  const [userCircles, setUserCircles] = useState<any[]>([]);
+  const [circlesLoading, setCirclesLoading] = useState(false);
   const { openShare } = useShare();
   const { profile } = useUser();
   const { latitude, longitude, loading: geoLoading } = useGeolocation();
 
-  const apiType = scope === 'Global' ? 'global' : scope === 'Country' ? 'country' : 'local';
+  // Fetch user's circles when scope changes to 'Circle'
+  useEffect(() => {
+    if (scope === 'Circle') {
+      setCirclesLoading(true);
+      fetch('/api/circles')
+        .then(r => r.json())
+        .then(data => {
+          if (data.success) {
+            setUserCircles(data.data || []);
+            if (data.data?.length > 0 && !selectedCircleId) {
+              setSelectedCircleId(data.data[0].id);
+            }
+          }
+        })
+        .catch(() => {})
+        .finally(() => setCirclesLoading(false));
+    }
+  }, [scope]);
 
-  const params = {
-    type: apiType as 'global' | 'country' | 'local',
+  // Reset circle selection when scope changes away
+  useEffect(() => {
+    if (scope !== 'Circle') setSelectedCircleId(null);
+  }, [scope]);
+
+  const isCircle = scope === 'Circle';
+
+  const params = isCircle ? {} : {
+    type: (scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
     country: scope === 'Country' ? (profile as any)?.country || undefined : undefined,
-    city: scope === 'Local' ? profile?.city || undefined : undefined,
-    latitude: scope === 'Local' ? latitude || undefined : undefined,
-    longitude: scope === 'Local' ? longitude || undefined : undefined,
+    city: scope === 'City' ? profile?.city || undefined : undefined,
+    latitude: scope === 'City' ? latitude || undefined : undefined,
+    longitude: scope === 'City' ? longitude || undefined : undefined,
     limit: 50,
-    enabled: scope !== 'Local' || !geoLoading,
+    enabled: scope !== 'City' || !geoLoading,
   };
 
-  const { data: entries, isLoading } = useLeaderboard(params);
+  // Fetch leaderboard data (uses different query for circle vs country/city)
+  const { data: entries, isLoading } = useQuery({
+    queryKey: isCircle ? ['circle-leaderboard', selectedCircleId] : ['leaderboard', params],
+    queryFn: async () => {
+      if (isCircle) {
+        if (!selectedCircleId) return [];
+        const res = await fetch(`/api/circles/${selectedCircleId}/leaderboard`);
+        const json = await res.json();
+        return json.data || [];
+      }
+      // For country/city, use the leaderboard API
+      const type = scope === 'Country' ? 'country' : 'city';
+      const searchParams = new URLSearchParams({ type, limit: '50' });
+      if (scope === 'Country' && (profile as any)?.country) searchParams.set('country', (profile as any).country);
+      if (scope === 'City' && profile?.city) searchParams.set('city', profile.city);
+      if (scope === 'City' && latitude) searchParams.set('latitude', String(latitude));
+      if (scope === 'City' && longitude) searchParams.set('longitude', String(longitude));
+      const res = await fetch(`/api/leaderboards?${searchParams}`);
+      const json = await res.json();
+      return json.data || [];
+    },
+    enabled: isCircle ? !!selectedCircleId : true,
+    staleTime: 30000,
+  });
 
   const top3 = entries?.slice(0, 3) || [];
   const rest = entries?.slice(3) || [];
@@ -233,12 +284,41 @@ export default function RanksPage() {
           ))}
         </div>
         <p className="mt-2 text-center text-xs text-muted-foreground max-w-7xl mx-auto">
-          {scope === "Global"
-            ? "Top couples worldwide"
-            : scope === "Country"
-            ? (profile as any)?.country ? `Top in ${(profile as any).country}` : "Set your country in profile"
-            : latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"}
+          {scope === "Country"
+            ? (profile as any)?.country ? `Top couples in ${(profile as any).country}` : "Set your country in profile settings"
+            : scope === "City"
+            ? latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"
+            : "Leaderboard for members of your circle"}
         </p>
+
+        {/* Circle selector */}
+        {scope === 'Circle' && (
+          <div className="flex justify-center mt-4">
+            {circlesLoading ? (
+              <Spinner size="sm" />
+            ) : userCircles.length === 0 ? (
+              <Link href="/circles" className="text-xs text-primary hover:underline">
+                Create or join a circle to see its leaderboard
+              </Link>
+            ) : (
+              <div className="flex flex-wrap gap-2 justify-center">
+                {userCircles.map((circle: any) => (
+                  <button
+                    key={circle.id}
+                    onClick={() => setSelectedCircleId(circle.id)}
+                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      selectedCircleId === circle.id
+                        ? 'bg-primary text-primary-foreground'
+                        : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border'
+                    }`}
+                  >
+                    {circle.emoji} {circle.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="max-w-7xl mx-auto">
@@ -253,8 +333,10 @@ export default function RanksPage() {
             </div>
             <h3 className="font-display italic text-2xl text-foreground mb-2">No couples found here</h3>
             <p className="text-muted-foreground max-w-sm mb-8 mx-auto text-sm leading-relaxed">
-              {scope === 'Local' 
+              {scope === 'City' 
                 ? "No one near you has scored yet. The local throne is unclaimed. Fix that."
+                : scope === 'Circle'
+                ? "No one in this circle has scored yet."
                 : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
             </p>
             <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
@@ -263,21 +345,28 @@ export default function RanksPage() {
           </div>
         ) : (
           <>
-            {/* Top 3 Podium */}
-            {top3.length >= 3 && (
+            {/* Top Podium — adapts to available entries */}
+            {top3.length > 0 && (
               <div className="flex items-end justify-center gap-2 sm:gap-4 px-4 pt-8 pb-2 mt-2">
-                <PodiumItem entry={top3[1]} rank={2} />
-                <PodiumItem entry={top3[0]} rank={1} />
-                <PodiumItem entry={top3[2]} rank={3} />
+                {top3.length === 1 ? (
+                  <PodiumItem entry={top3[0]} rank={1} />
+                ) : top3.length === 2 ? (
+                  <>
+                    <PodiumItem entry={top3[1]} rank={2} />
+                    <PodiumItem entry={top3[0]} rank={1} />
+                  </>
+                ) : (
+                  <>
+                    <PodiumItem entry={top3[1]} rank={2} />
+                    <PodiumItem entry={top3[0]} rank={1} />
+                    <PodiumItem entry={top3[2]} rank={3} />
+                  </>
+                )}
               </div>
             )}
 
-            {/* List */}
-            {entries.length <= 3 ? (
-              <div className="text-center py-12 px-4">
-                <p className="text-muted-foreground italic font-display text-lg">These are all the couples on the leaderboard so far! Share a post to join them.</p>
-              </div>
-            ) : (
+            {/* List — shows all entries after the podium */}
+            {entries.length > 3 && (
               <motion.ol className="space-y-2 px-4 pb-4 pt-2">
                 {entries.slice(3).map((e, index) => (
                   <motion.li

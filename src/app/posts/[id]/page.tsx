@@ -14,6 +14,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { useShare } from '@/components/providers/ShareProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import type { Comment } from '@/types/database';
@@ -23,6 +24,7 @@ export default function PostDetailPage() {
   const router = useRouter();
   const { user, profile } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const { openShare } = useShare();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { data: post, isLoading } = usePost(params.id as string);
@@ -85,7 +87,7 @@ export default function PostDetailPage() {
     finally { setSubmitting(false); }
   };
   const handleDelete = async () => {
-    if (!confirm('Archive this post? It will no longer be visible to anyone.')) return;
+    if (!(await confirm({ title: 'Archive Post', message: 'Archive this post? It will no longer be visible to anyone.', confirmLabel: 'Archive', variant: 'warning' }))) return;
     const res = await fetch(`/api/posts/${params.id}`, { method: 'DELETE' });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json.success) {

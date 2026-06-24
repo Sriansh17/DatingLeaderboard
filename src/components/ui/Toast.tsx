@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext, useCallback } from 'react';
 import { cn } from '@/lib/utils/cn';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Toast, ToastVariant } from '@/types/ui';
 import { CheckCircle2, AlertCircle, Info, AlertTriangle, X } from 'lucide-react';
 
@@ -32,54 +33,126 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      <div className="fixed top-6 left-1/2 z-[100] flex -translate-x-1/2 flex-col gap-3 pointer-events-none w-full max-w-sm px-4">
-        {toasts.map((toast) => (
-          <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
-        ))}
-      </div>
+      {/* Centered alert box — shows one at a time */}
+      <AnimatePresence>
+        {toasts.length > 0 && (
+          <motion.div
+            key={toasts[0].id}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-6"
+          >
+            {/* Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+              onClick={() => removeToast(toasts[0].id)}
+            />
+            <AlertBox toast={toasts[0]} onDismiss={() => removeToast(toasts[0].id)} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </ToastContext.Provider>
   );
 }
 
-const variantStyles: Record<ToastVariant, { border: string; icon: React.ReactNode }> = {
-  success: { border: 'border-emerald-500/50 bg-emerald-50 text-emerald-900 dark:bg-emerald-500/10 dark:text-emerald-200', icon: <CheckCircle2 className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> },
-  error: { border: 'border-rose-500/50 bg-rose-50 text-rose-900 dark:bg-rose-500/10 dark:text-rose-200', icon: <AlertCircle className="h-5 w-5 text-rose-600 dark:text-rose-400" /> },
-  info: { border: 'border-blue-500/50 bg-blue-50 text-blue-900 dark:bg-blue-500/10 dark:text-blue-200', icon: <Info className="h-5 w-5 text-blue-600 dark:text-blue-400" /> },
-  warning: { border: 'border-amber-500/50 bg-amber-50 text-amber-900 dark:bg-amber-500/10 dark:text-amber-200', icon: <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" /> },
+const variantConfig: Record<ToastVariant, { border: string; bg: string; icon: React.ReactNode; label: string }> = {
+  success: {
+    border: 'border-emerald-500/40',
+    bg: 'bg-emerald-50 dark:bg-emerald-950/40',
+    icon: <CheckCircle2 className="h-6 w-6 text-emerald-600 dark:text-emerald-400" />,
+    label: 'Success',
+  },
+  error: {
+    border: 'border-rose-500/40',
+    bg: 'bg-rose-50 dark:bg-rose-950/40',
+    icon: <AlertCircle className="h-6 w-6 text-rose-600 dark:text-rose-400" />,
+    label: 'Error',
+  },
+  info: {
+    border: 'border-blue-500/40',
+    bg: 'bg-blue-50 dark:bg-blue-950/40',
+    icon: <Info className="h-6 w-6 text-blue-600 dark:text-blue-400" />,
+    label: 'Info',
+  },
+  warning: {
+    border: 'border-amber-500/40',
+    bg: 'bg-amber-50 dark:bg-amber-950/40',
+    icon: <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-400" />,
+    label: 'Warning',
+  },
 };
 
-function ToastItem({ toast, onRemove }: { toast: Toast; onRemove: (id: string) => void }) {
-  const [isLeaving, setIsLeaving] = useState(false);
+function AlertBox({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
+  const [progress, setProgress] = useState(100);
+  const config = variantConfig[toast.variant];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLeaving(true);
-      setTimeout(() => onRemove(toast.id), 300); // wait for animation
-    }, toast.duration);
-    return () => clearTimeout(timer);
-  }, [toast.id, toast.duration, onRemove]);
+    const start = Date.now();
+    const duration = toast.duration;
 
-  const style = variantStyles[toast.variant];
+    const interval = setInterval(() => {
+      const elapsed = Date.now() - start;
+      const remaining = Math.max(0, 100 - (elapsed / duration) * 100);
+      setProgress(remaining);
+      if (remaining <= 0) {
+        clearInterval(interval);
+        onDismiss();
+      }
+    }, 50);
+
+    return () => clearInterval(interval);
+  }, [toast.duration, onDismiss]);
 
   return (
-    <div
+    <motion.div
+      initial={{ y: 20 }}
+      animate={{ y: 0 }}
+      exit={{ y: 20 }}
+      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'pointer-events-auto flex items-center gap-3 rounded-2xl border px-4 py-3 shadow-[0_20px_40px_-15px_rgba(0,0,0,0.5)] backdrop-blur-xl transition-all duration-300',
-        style.border,
-        isLeaving ? 'animate-out fade-out slide-out-to-top-4' : 'animate-in fade-in slide-in-from-top-4'
+        'relative w-full max-w-sm rounded-2xl border shadow-2xl backdrop-blur-xl overflow-hidden',
+        config.border,
+        config.bg
       )}
     >
-      <div className="mt-0.5 flex-shrink-0">{style.icon}</div>
-      <div className="flex-1 text-sm font-medium">{toast.message}</div>
-      <button
-        onClick={() => {
-          setIsLeaving(true);
-          setTimeout(() => onRemove(toast.id), 300);
-        }}
-        className="ml-2 mt-0.5 rounded-full p-1 opacity-50 hover:bg-white/10 hover:opacity-100 transition-colors"
-      >
-        <X className="h-4 w-4" />
-      </button>
-    </div>
+      {/* Progress bar at top */}
+      <div
+        className="absolute top-0 left-0 h-1 bg-foreground/20 transition-all duration-100 ease-linear"
+        style={{ width: `${progress}%` }}
+      />
+
+      <div className="p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 mt-0.5">{config.icon}</div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-bold uppercase tracking-wider text-foreground/60 mb-1">
+              {config.label}
+            </p>
+            <p className="text-sm font-medium text-foreground leading-relaxed">
+              {toast.message}
+            </p>
+          </div>
+          <button
+            onClick={onDismiss}
+            className="flex-shrink-0 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        {/* Dismiss button */}
+        <button
+          onClick={onDismiss}
+          className="mt-4 w-full rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground text-sm font-semibold py-2.5 transition-colors"
+        >
+          Dismiss
+        </button>
+      </div>
+    </motion.div>
   );
 }

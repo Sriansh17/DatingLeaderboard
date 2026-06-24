@@ -5,7 +5,7 @@ import { StoryCard } from '@/components/ui/StoryCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { motion } from 'framer-motion';
 
-import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
+import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Users, Globe } from 'lucide-react';
 import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -26,6 +26,13 @@ async function fetchExplorePosts(): Promise<Post[]> {
   return json.data || [];
 }
 
+async function fetchCircleFeed(): Promise<Post[]> {
+  const res = await fetch('/api/posts/circle-feed');
+  if (!res.ok) throw new Error('Failed to fetch circle feed');
+  const json = await res.json();
+  return json.data || [];
+}
+
 export default function DashboardPage() {
 
   const { isAnonymousMode } = useAnonymousMode();
@@ -35,6 +42,9 @@ export default function DashboardPage() {
     return <ConfessionsFeed />;
   }
 
+  const [feedTab, setFeedTab] = useState<'global' | 'circles'>('global');
+  const [hasCircles, setHasCircles] = useState(false);
+
   const { data: posts, isLoading } = useQuery({
     queryKey: ['explore-posts'],
     queryFn: fetchExplorePosts,
@@ -42,8 +52,32 @@ export default function DashboardPage() {
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
     refetchOnReconnect: true,
-    refetchInterval: 15000,
+    refetchInterval: 30000,
+    enabled: feedTab === 'global',
   });
+
+  const { data: circlePosts, isLoading: circleLoading } = useQuery({
+    queryKey: ['circle-feed'],
+    queryFn: fetchCircleFeed,
+    staleTime: 0,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
+    refetchOnReconnect: true,
+    refetchInterval: 30000,
+    enabled: feedTab === 'circles',
+  });
+
+  // Check if user has any circles (to show/hide the Circles tab)
+  useEffect(() => {
+    fetch('/api/circles')
+      .then(r => r.json())
+      .then(data => {
+        const hasAny = data.success && data.data?.length > 0;
+        setHasCircles(hasAny);
+        if (!hasAny && feedTab === 'circles') setFeedTab('global');
+      })
+      .catch(() => {});
+  }, []);
 
   const { profile, loading: authLoading } = useUser();
   const router = useRouter();
@@ -123,16 +157,44 @@ export default function DashboardPage() {
         <header className="mb-12">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-2">
-              <Sparkles className="h-4 w-4" /> Global Feed
+              <Sparkles className="h-4 w-4" /> Feed
             </p>
             <InstallAppButton />
           </div>
           <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
             The Timeline
           </h1>
+
+          {/* Feed tabs */}
+          <div className="flex gap-2 mt-6">
+            <button
+              onClick={() => setFeedTab('global')}
+              className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                feedTab === 'global'
+                  ? 'bg-primary text-primary-foreground shadow-md'
+                  : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border'
+              }`}
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Global
+            </button>
+            {hasCircles && (
+              <button
+                onClick={() => setFeedTab('circles')}
+                className={`flex items-center gap-2 px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                  feedTab === 'circles'
+                    ? 'bg-primary text-primary-foreground shadow-md'
+                    : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border'
+                }`}
+              >
+                <Users className="h-3.5 w-3.5" />
+                Circles
+              </button>
+            )}
+          </div>
         </header>
 
-        {isLoading ? (
+        {feedTab === 'global' ? (isLoading ? (
           <div className="flex justify-center py-32 min-h-[50vh] items-center">
             <Spinner size="lg" text={["SYNCING TIMELINE...", "INITIALIZING FOND...", "LOADING ARCHIVES..."]} />
           </div>
@@ -426,6 +488,71 @@ export default function DashboardPage() {
               );
             })}
           </div>
+          </>
+        )) : null}
+
+        {/* Circle Feed */}
+        {feedTab === 'circles' && (
+          <>
+            {circleLoading ? (
+              <div className="flex justify-center py-32 min-h-[50vh] items-center">
+                <Spinner size="lg" text={["LOADING CIRCLE FEED...", "FETCHING FROM YOUR CIRCLES..."]} />
+              </div>
+            ) : !circlePosts || circlePosts.length === 0 ? (
+              <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
+                <Users className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
+                <h3 className="text-3xl font-display italic text-foreground mb-4">
+                  No circle posts yet
+                </h3>
+                <p className="text-muted-foreground text-lg mb-2 max-w-sm mx-auto">
+                  Join or create a circle to see posts from your group.
+                </p>
+                <Link
+                  href="/circles"
+                  className="inline-flex items-center gap-2 mt-4 rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+                >
+                  Manage Circles
+                </Link>
+              </div>
+            ) : (
+              <div className="columns-1 md:columns-2 xl:columns-3 gap-8 space-y-8">
+                {circlePosts.map((post) => {
+                  const story = {
+                    id: post.id,
+                    username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
+                    partnerNickname: post.partner?.name || 'partner',
+                    city: post.post_city || post.profile?.city || '',
+                    country: (post.profile as any)?.country || '',
+                    headline: post.description || '',
+                    score: post.ai_score || 0,
+                    verdict: post.ai_feedback || 'No feedback provided.',
+                    explanationStr: post.ai_explanation || null,
+                    reactions: { heart: 0, fire: 0, laugh: 0, trophy: 0 },
+                    believable: 0,
+                    sus: 0,
+                    postedAt: formatRelativeTime(post.created_at),
+                    userAvatarUrl: post.profile?.avatar_url || null,
+                    partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
+                    likes_count: post.likes_count || 0,
+                    has_liked: post.has_liked || false,
+                    comments_count: post.comments_count || 0,
+                    views_count: post.views_count || 0,
+                  };
+                  return (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 30, scale: 0.98 }}
+                      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                      viewport={{ once: true, margin: "50px" }}
+                      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                      key={post.id} 
+                      className="break-inside-avoid relative pb-6"
+                    >
+                      <StoryCard story={story} post={post} />
+                    </motion.div>
+                  );
+                })}
+              </div>
+            )}
           </>
         )}
       </div>

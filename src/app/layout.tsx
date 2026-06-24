@@ -9,6 +9,7 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { ShareProvider } from '@/components/providers/ShareProvider';
 import { AppDock } from '@/components/ui/AppDock';
 import { AnonymousModeProvider } from '@/components/providers/AnonymousModeProvider';
+import { ConfirmProvider } from '@/components/ui/ConfirmModal';
 import { ServiceWorkerRegister } from '@/components/ui/ServiceWorkerRegister';
 
 
@@ -40,6 +41,7 @@ export default function RootLayout({
               <AuthProvider>
                 <ToastProvider>
                   <ShareProvider>
+                    <ConfirmProvider>
                     <AnonymousModeProvider>
                     <div className="min-h-screen flex flex-col relative">
                       <div className="flex-1 w-full mx-auto pb-28 md:pb-32">
@@ -48,6 +50,7 @@ export default function RootLayout({
                       <AppDock />
                     </div>
                     </AnonymousModeProvider>
+                    </ConfirmProvider>
                   </ShareProvider>
                 </ToastProvider>
               </AuthProvider>

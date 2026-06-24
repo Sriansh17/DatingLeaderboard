@@ -6,6 +6,7 @@ import { Spinner } from '@/components/ui/Spinner';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import type { Partner } from '@/types/database';
 import { Plus, Edit3 } from 'lucide-react';
 import { PartnerForm } from '@/components/partners/PartnerForm';
@@ -13,6 +14,7 @@ import { PartnerForm } from '@/components/partners/PartnerForm';
 export default function PartnersPage() {
   const { user, profile, refreshProfile } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -62,7 +64,7 @@ export default function PartnersPage() {
   const handleDelete = async (id: string, e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
-    if (!confirm('Remove this partner?')) return;
+    if (!(await confirm({ title: 'Remove Partner', message: 'Remove this partner?', confirmLabel: 'Remove', variant: 'danger' }))) return;
     const supabase = createClient();
     await supabase.from('partners').delete().eq('id', id);
     addToast('Partner removed', 'info');
