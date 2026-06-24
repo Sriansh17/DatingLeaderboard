@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { Camera, Loader2 } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
+import { AvatarSelectionModal } from './AvatarSelectionModal';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -13,18 +14,16 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser, onSuccess }: EditProfileModalProps) {
   const [username, setUsername] = useState(currentProfile?.username || '');
-  const [bio, setBio] = useState(currentProfile?.bio || "Reviewing dates, analyzing romance, and sharing stories. Welcome to my archive of romantic adventures.");
-  
-  // Use metadata from user object (Supabase Auth), not profile (profiles table)
-  const meta = currentUser?.user_metadata || {};
-  const [age, setAge] = useState(meta.age || '');
-  const [gender, setGender] = useState(meta.gender || '');
-  const [city, setCity] = useState(meta.city || currentProfile?.city || '');
-  const [occupation, setOccupation] = useState(meta.occupation || '');
-  const [country, setCountry] = useState(meta.country || currentProfile?.country || '');
+  const [fullName, setFullName] = useState(currentProfile?.full_name || '');
+  const [bio, setBio] = useState(currentProfile?.bio || '');
+  const [age, setAge] = useState(currentProfile?.age || '');
+  const [gender, setGender] = useState(currentProfile?.gender || '');
+  const [city, setCity] = useState(currentProfile?.city || '');
+  const [occupation, setOccupation] = useState(currentProfile?.occupation || '');
+  const [country, setCountry] = useState(currentProfile?.country || '');
   
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +35,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
       // Update all fields in profiles table
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ username, bio, city, country })
+        .update({ username, full_name: fullName, bio, age, gender, city, occupation, country })
         .eq('id', currentProfile.id);
 
       // Update user metadata (age, gender, occupation live here)
@@ -61,27 +60,53 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
         {/* Scrollable fields area */}
         <div className="space-y-6 overflow-y-auto pr-3" style={{maxHeight:'calc(80vh - 160px)'}}>
           <div className="flex flex-col items-center gap-4 py-2">
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+            <div className="relative group cursor-pointer" onClick={() => setAvatarModalOpen(true)}>
               <div className="w-20 h-20 rounded-full overflow-hidden border border-border flex items-center justify-center transition-all bg-background font-display text-3xl text-muted-foreground shadow-lg group-hover:border-blush/50">
-                {username[1]?.toUpperCase() || 'U'}
+                {currentProfile?.avatar_url ? (
+                  currentProfile.avatar_url.startsWith('http') ? (
+                    <img src={currentProfile.avatar_url} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-2xl">{currentProfile.avatar_url}</span>
+                  )
+                ) : (
+                  username[1]?.toUpperCase() || 'U'
+                )}
               </div>
               <div className="absolute inset-0 bg-primary/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
                 <Camera className="w-5 h-5 text-white" />
               </div>
             </div>
-            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={() => alert("Photo upload coming soon!")} />
+            <p className="text-[10px] text-muted-foreground/60 -mt-1">Tap to change</p>
           </div>
+          <AvatarSelectionModal
+            isOpen={avatarModalOpen}
+            onClose={() => setAvatarModalOpen(false)}
+            currentProfile={currentProfile}
+            onSuccess={() => { setAvatarModalOpen(false); onSuccess(); }}
+          />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-1 group">
-            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Username</label>
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Full Name</label>
             <input
               type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
               className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
-              required
             />
+          </div>
+          <div className="space-y-1 group">
+            <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Username</label>
+            <div className="flex items-center border-b border-border focus-within:border-primary transition-colors">
+              <span className="text-xl font-display text-muted-foreground/50 pb-0.5">@</span>
+              <input
+                type="text"
+                value={username.replace('@', '')}
+                onChange={(e) => setUsername(e.target.value.replace(/[@\s]/g, ''))}
+                className="flex-1 border-0 bg-transparent py-2 px-1 text-xl font-display text-foreground outline-none placeholder:text-muted-foreground/30"
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-1 group">
@@ -134,6 +159,18 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
               className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
             />
           </div>
+        </div>
+
+        {/* Dating Philosophy */}
+        <div className="space-y-1 group">
+          <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Dating Philosophy</label>
+          <textarea
+            value={bio}
+            onChange={(e) => setBio(e.target.value)}
+            rows={2}
+            placeholder="What's your approach to love?"
+            className="w-full resize-none border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+          />
         </div>
         </div>
 

@@ -6,7 +6,8 @@ import { useRouter } from 'next/navigation';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
 import { Spinner } from '@/components/ui/Spinner';
-import { PlusCircle, Users, LogIn, Copy, Check, ArrowRight, Sparkles } from 'lucide-react';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { PlusCircle, Diamond, LogIn, Copy, Check, ArrowRight, Sparkles } from 'lucide-react';
 import type { Circle } from '@/types/database';
 
 export default function CirclesPage() {
@@ -43,7 +44,7 @@ export default function CirclesPage() {
       const data = await res.json();
       if (data.success) setCircles(data.data);
     } catch {
-      addToast('Failed to load circles', 'error');
+      addToast('Failed to load cliques', 'error');
     } finally {
       setLoading(false);
     }
@@ -65,16 +66,16 @@ export default function CirclesPage() {
       });
       const data = await res.json();
       if (data.success) {
-        addToast('Circle created! Share the invite code with friends.', 'success');
+        addToast('Clique created! Share the invite code with friends.', 'success');
         setShowCreate(false);
         setNewName('');
         setNewPasscode('');
         fetchCircles();
       } else {
-        addToast(data.error || 'Failed to create circle', 'error');
+        addToast(data.error || 'Failed to create clique', 'error');
       }
     } catch {
-      addToast('Failed to create circle', 'error');
+      addToast('Failed to create clique', 'error');
     } finally {
       setCreating(false);
     }
@@ -124,8 +125,8 @@ export default function CirclesPage() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-        <h1 className="font-display text-3xl italic text-foreground mb-2">Private Circles</h1>
+        <Diamond className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+        <h1 className="font-display text-3xl italic text-foreground mb-2">Private Cliques</h1>
         <p className="text-muted-foreground mb-6">Sign in to create or join a private leaderboard with friends.</p>
         <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
           <LogIn className="h-4 w-4" /> Sign In
@@ -136,13 +137,14 @@ export default function CirclesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      <ScrollToTop label="Cliques" />
       {/* Header */}
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-purple-400 to-pink-500 flex items-center justify-center shadow-md">
-          <Users className="h-5 w-5 text-white" />
+        <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-gold/80 to-primary flex items-center justify-center shadow-md">
+          <Diamond className="h-5 w-5 text-white" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Circles</h1>
+          <h1 className="text-2xl font-bold text-foreground">Cliques</h1>
           <p className="text-sm text-muted-foreground">Private leaderboards with friends</p>
         </div>
       </div>
@@ -157,7 +159,7 @@ export default function CirclesPage() {
               : 'border border-border bg-card/50 text-foreground hover:bg-card'
           }`}
         >
-          <PlusCircle className="h-4 w-4" /> Create Circle
+          <PlusCircle className="h-4 w-4" /> Create Clique
         </button>
         <button
           onClick={() => { setShowJoin(true); setShowCreate(false); }}
@@ -174,7 +176,7 @@ export default function CirclesPage() {
       {/* Create form */}
       {showCreate && (
         <form onSubmit={handleCreate} className="mb-8 p-6 rounded-2xl border border-border bg-card/60 backdrop-blur-xl space-y-4">
-          <h3 className="font-display text-lg italic text-foreground">New Circle</h3>
+          <h3 className="font-display text-lg italic text-foreground">New Clique</h3>
           <div>
             <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mb-2 block">Name</label>
             <input
@@ -224,7 +226,7 @@ export default function CirclesPage() {
             disabled={creating || !newName.trim()}
             className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 hover:opacity-90 transition-opacity"
           >
-            {creating ? <Spinner size="sm" /> : <><Sparkles className="h-4 w-4" /> Create Circle</>}
+            {creating ? <Spinner size="sm" /> : <><Sparkles className="h-4 w-4" /> Create Clique</>}
           </button>
         </form>
       )}
@@ -232,7 +234,7 @@ export default function CirclesPage() {
       {/* Join form */}
       {showJoin && (
         <form onSubmit={handleJoin} className="mb-8 p-6 rounded-2xl border border-border bg-card/60 backdrop-blur-xl space-y-4">
-          <h3 className="font-display text-lg italic text-foreground">Join a Circle</h3>
+          <h3 className="font-display text-lg italic text-foreground">Join a Clique</h3>
           <p className="text-sm text-muted-foreground">Enter the invite code or paste the full invite link.</p>
           <input
             type="text"
@@ -253,18 +255,18 @@ export default function CirclesPage() {
             disabled={joining || !inviteCode.trim()}
             className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 hover:opacity-90 transition-opacity"
           >
-            {joining ? <Spinner size="sm" /> : <><LogIn className="h-4 w-4" /> Join Circle</>}
+            {joining ? <Spinner size="sm" /> : <><LogIn className="h-4 w-4" /> Join Clique</>}
           </button>
         </form>
       )}
 
       {/* Circles list */}
       {loading ? (
-        <div className="py-20 flex justify-center"><Spinner size="lg" /></div>
+        <div className="py-20 flex justify-center"><Spinner size="lg" text={["LOADING CLIQUES..."]} /></div>
       ) : circles.length === 0 ? (
         <div className="text-center py-16">
-          <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-display text-xl italic text-foreground mb-2">No circles yet</h3>
+          <Diamond className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+          <h3 className="font-display text-xl italic text-foreground mb-2">No cliques yet</h3>
           <p className="text-sm text-muted-foreground">Create one or join with an invite code to get started.</p>
         </div>
       ) : (
@@ -275,7 +277,7 @@ export default function CirclesPage() {
               <Link
                 key={circle.id}
                 href={`/circles/${circle.id}`}
-                className="block p-5 rounded-2xl border border-border bg-card/60 hover:bg-card/80 hover:border-primary/30 transition-all backdrop-blur-xl"
+                className="block p-5 rounded-2xl border border-border bg-card shadow-sm hover:border-primary/20 hover:shadow-md hover:-translate-y-0.5 transition-all"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -283,7 +285,7 @@ export default function CirclesPage() {
                     <div>
                       <h3 className="font-display text-lg italic text-foreground">{circle.name}</h3>
                       <p className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
-                        <Users className="h-3 w-3" />
+                        <Diamond className="h-3 w-3" />
                         {circle.member_count ?? 0}/{circle.max_members} members
                         {isCreator && (
                           <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold text-[10px] font-semibold">Creator</span>

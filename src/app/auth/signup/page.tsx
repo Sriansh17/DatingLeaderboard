@@ -36,8 +36,8 @@ export default function SignupPage() {
               <span className="font-display italic text-gold text-lg">Fond</span>
             </div>
             <h1 className="font-display text-4xl sm:text-5xl italic font-bold tracking-tight text-foreground leading-tight">
-              Claim your spot<br />
-              <span className="text-gradient-crimson">on the board.</span>
+              Join<br />
+              <span className="text-gradient-crimson">the leaderboard.</span>
             </h1>
             <p className="text-muted-foreground mt-4 text-sm leading-relaxed">
               Post one story. AI judges it. The world sees it.

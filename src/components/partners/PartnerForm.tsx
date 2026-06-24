@@ -320,7 +320,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
         <button
           type="submit"
           disabled={loading || !name.trim()}
-          className="w-full flex items-center justify-center rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40"
+          className="w-full flex items-center justify-center rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
         >
           {partner ? 'Save Changes' : 'Add Partner 💖'}
         </button>

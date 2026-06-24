@@ -21,6 +21,12 @@ export function PostCard({ post }: PostCardProps) {
   const { user } = useUser();
   const likePostMutation = useLikePost();
 
+  const handleCommentClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    router.push(`/posts/${post.id}`);
+  };
+
   const handleLike = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -90,10 +96,10 @@ export function PostCard({ post }: PostCardProps) {
               <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
               <span className="text-xs sm:text-sm">{post.likes_count ?? 0}</span>
             </button>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
+            <button onClick={handleCommentClick} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
               <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-xs sm:text-sm">{post.comments_count ?? 0}</span>
-            </span>
+            </button>
           </div>
           <div className="flex items-center gap-2 ml-auto">
             {post.profile?.username && (

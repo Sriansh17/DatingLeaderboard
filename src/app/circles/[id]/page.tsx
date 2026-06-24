@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
 import { Spinner } from '@/components/ui/Spinner';
-import { ArrowLeft, Copy, Check, Users, Crown, Trophy, LogOut, UserMinus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Diamond, Crown, Trophy, LogOut, UserMinus, Trash2 } from 'lucide-react';
 import type { Circle, CircleMember } from '@/types/database';
 
 interface LeaderboardEntry {
@@ -47,7 +47,7 @@ export default function CircleDetailPage() {
       const data = await res.json();
       if (data.success) setCircle(data.data);
     } catch {
-      addToast('Failed to load circle', 'error');
+      addToast('Failed to load clique', 'error');
     } finally {
       setLoading(false);
     }
@@ -78,7 +78,7 @@ export default function CircleDetailPage() {
 
   const handleLeave = async () => {
     if (!circle || leaving) return;
-    if (!confirm('Leave this circle?')) return;
+    if (!confirm('Leave this clique?')) return;
     setLeaving(true);
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
@@ -88,13 +88,13 @@ export default function CircleDetailPage() {
       });
       const data = await res.json();
       if (data.success) {
-        addToast('Left the circle', 'success');
+        addToast('Left the clique', 'success');
         router.push('/circles');
       } else {
         addToast(data.error || 'Failed to leave', 'error');
       }
     } catch {
-      addToast('Failed to leave circle', 'error');
+      addToast('Failed to leave clique', 'error');
     } finally {
       setLeaving(false);
     }
@@ -123,13 +123,13 @@ export default function CircleDetailPage() {
 
   const handleDelete = async () => {
     if (!circle || deleting) return;
-    if (!confirm('Delete this entire circle? This cannot be undone.')) return;
+    if (!confirm('Delete this entire clique? This cannot be undone.')) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/circles/${circleId}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        addToast('Circle deleted', 'success');
+        addToast('Clique deleted', 'success');
         router.push('/circles');
       } else {
         addToast(data.error || 'Failed to delete', 'error');
@@ -161,7 +161,7 @@ export default function CircleDetailPage() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-muted-foreground">Sign in to view circles.</p>
+        <p className="text-muted-foreground">Sign in to view cliques.</p>
         <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground mt-4">
           Sign In
         </Link>
@@ -172,7 +172,7 @@ export default function CircleDetailPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 flex justify-center">
-        <Spinner size="lg" />
+        <Spinner size="lg" text={["LOADING CLIQUE..."]} />
       </div>
     );
   }
@@ -180,8 +180,8 @@ export default function CircleDetailPage() {
   if (!circle) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-muted-foreground mb-4">Circle not found.</p>
-        <Link href="/circles" className="text-primary hover:underline">Back to Circles</Link>
+        <p className="text-muted-foreground mb-4">Clique not found.</p>
+        <Link href="/circles" className="text-primary hover:underline">Back to Cliques</Link>
       </div>
     );
   }
@@ -199,7 +199,7 @@ export default function CircleDetailPage() {
             <div>
               <h1 className="text-2xl font-bold text-foreground">{circle.name}</h1>
               <p className="text-xs text-muted-foreground flex items-center gap-2">
-                <Users className="h-3 w-3" />
+                <Diamond className="h-3 w-3" />
                 {circle.member_count}/{circle.max_members} members
                 {isCreator && (
                   <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold text-[10px] font-semibold">Creator</span>
@@ -267,7 +267,7 @@ export default function CircleDetailPage() {
       {/* Members */}
       <div className="mb-6">
         <h2 className="font-display text-xl italic text-foreground mb-4 flex items-center gap-2">
-          <Users className="h-5 w-5" /> Members
+          <Diamond className="h-5 w-5" /> Members
         </h2>
         <div className="flex flex-wrap gap-2">
           {circle.members?.map((member) => (

@@ -70,8 +70,8 @@ export default function PartnersPage() {
   };
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-transparent">
-      <Spinner size="lg" className="text-primary" />
+    <div className="flex min-h-[60vh] items-center justify-center bg-transparent">
+      <Spinner size="lg" text={["LOADING PARTNERS..."]} />
     </div>
   );
 
@@ -80,7 +80,7 @@ export default function PartnersPage() {
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         {/* Header Section */}
         <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-4">
-          My Circle
+          My Person
         </p>
         <h1 className="font-display text-5xl sm:text-6xl italic text-foreground mb-12">
           Partners
@@ -127,7 +127,7 @@ export default function PartnersPage() {
         {!showAddForm && canAddAnotherPartner && (
           <button 
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-8 py-3 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 transition-all text-primary font-medium tracking-wide shadow-sm"
+            className="flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground shadow-glow hover:opacity-90 transition-all text-sm font-bold uppercase tracking-[0.2em]"
           >
             <Plus className="w-5 h-5" />
             Add Partner

@@ -42,7 +42,7 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col pb-20">
+    <div className="relative min-h-screen w-full flex flex-col pb-12">
 
       {/* Nav */}
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { ArrowDown, ArrowUp, Minus, Share2, TrendingUp, TrendingDown, Trophy } from "lucide-react";
 import { useShare } from "@/components/providers/ShareProvider";
 import { AnimatedNumber } from "@/components/ui/AnimatedNumber";
@@ -178,7 +179,8 @@ export default function RanksPage() {
   const pointsGap = rivalEntry && myEntry ? (rivalEntry.average_score - myEntry.average_score).toFixed(1) : null;
 
   return (
-    <main className="pb-48 w-full min-h-screen bg-transparent relative">
+    <main className="pb-12 w-full min-h-screen bg-transparent relative">
+      <ScrollToTop label="Leaderboard" />
       {/* Header — eyebrow + headline + stat block */}
       <header className="px-5 pb-2 pt-8 max-w-7xl mx-auto">
         <p className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-2">The Standings</p>

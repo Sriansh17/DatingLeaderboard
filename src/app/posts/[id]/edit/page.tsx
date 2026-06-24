@@ -18,7 +18,7 @@ export default function EditPostPage() {
   const [description, setDescription] = useState('');
   const [saving, setSaving] = useState(false);
 
-  if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (isLoading) return <Spinner size="lg" text={["LOADING POST..."]} />
   if (!post) return <div className="text-center py-20 text-gray-500">Post not found</div>;
 
   // Set initial description

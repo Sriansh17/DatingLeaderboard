@@ -1,9 +1,4 @@
-import { Spinner } from '@/components/ui/Spinner';
-
 export default function Loading() {
-  return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <Spinner size="lg" text="INITIALIZING FOND..." variant="heart" />
-    </div>
-  );
+  // Intentionally minimal — each page owns its loading state.
+  return null;
 }

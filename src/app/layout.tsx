@@ -7,7 +7,7 @@ import { AtmosphereProvider } from '@/components/providers/AtmosphereProvider';
 import { QueryProvider } from '@/components/providers/QueryProvider';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ShareProvider } from '@/components/providers/ShareProvider';
-import { AppDock } from '@/components/ui/AppDock';
+import { ClientLayoutWrapper } from '@/components/layout/ClientLayoutWrapper';
 import { AnonymousModeProvider } from '@/components/providers/AnonymousModeProvider';
 import { ServiceWorkerRegister } from '@/components/ui/ServiceWorkerRegister';
 
@@ -41,12 +41,9 @@ export default function RootLayout({
                 <ToastProvider>
                   <ShareProvider>
                     <AnonymousModeProvider>
-                    <div className="min-h-screen flex flex-col relative">
-                      <div className="flex-1 w-full mx-auto pb-28 md:pb-32">
+                      <ClientLayoutWrapper>
                         {children}
-                      </div>
-                      <AppDock />
-                    </div>
+                      </ClientLayoutWrapper>
                     </AnonymousModeProvider>
                   </ShareProvider>
                 </ToastProvider>

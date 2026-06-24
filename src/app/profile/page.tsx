@@ -10,8 +10,11 @@ import { tierForScore } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
 import { EditPostModal } from '@/components/posts/EditPostModal';
@@ -25,6 +28,8 @@ import { Spinner } from '@/components/ui/Spinner';
 export default function ProfilePage() {
   const RESTORE_STREAK_AMOUNT = 49;
   const { user, profile, loading: authLoading, signOut, refreshProfile } = useUser();
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: posts, isLoading } = usePosts(user?.id);
   const { data: archivedPosts, isLoading: archivedLoading, refetch: refetchArchived } = useArchivedPosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
@@ -179,7 +184,8 @@ export default function ProfilePage() {
   const bestScore = scoredPosts.length > 0 ? Math.max(...scoredPosts.map((p) => p.ai_score || 0)) : 0;
 
   return (
-    <main className="w-full mx-auto min-h-screen bg-transparent relative pb-32 px-4 sm:px-8">
+    <main className="w-full mx-auto min-h-screen bg-transparent relative pb-12 px-4 sm:px-8">
+      <ScrollToTop label="The Archives" />
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <motion.p
@@ -199,14 +205,14 @@ export default function ProfilePage() {
             My Profile
           </motion.h1>
         </div>
-        <div className="flex items-center gap-3">
-          <button onClick={() => setIsEditing(true)} className="px-5 py-2 rounded-full border border-border dark:border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-            Edit Profile
+        <div className="flex items-center gap-2">
+          <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            Edit
           </button>
           <button onClick={async () => {
             setIsLoggingOut(true);
             await signOut();
-          }} className="p-2 rounded-full border border-border dark:border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          }} className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             <LogOut className="h-5 w-5" />
           </button>
         </div>
@@ -231,10 +237,10 @@ export default function ProfilePage() {
                 bestScore,
                 totalPosts: posts?.length || 0,
                 bio: profile.bio,
-                age: user?.user_metadata?.age,
-                gender: user?.user_metadata?.gender,
-                occupation: user?.user_metadata?.occupation,
-                country: user?.user_metadata?.country,
+                age: (profile as any)?.age,
+                gender: (profile as any)?.gender,
+                occupation: (profile as any)?.occupation,
+                country: (profile as any)?.country,
               })}
               className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground transition-colors"
               aria-label="Share profile"
@@ -246,7 +252,11 @@ export default function ProfilePage() {
             <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
               <div className="h-44 w-44 rounded-full border-4 border-elevated shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] bg-transparent flex items-center justify-center font-display text-6xl text-muted-foreground overflow-hidden">
                 {profile.avatar_url ? (
-                  <img src={profile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
+                  profile.avatar_url.startsWith('http') ? (
+                    <img src={profile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-5xl">{profile.avatar_url}</span>
+                  )
                 ) : (
                   profile.username[0]?.toUpperCase() || 'U'
                 )}
@@ -292,27 +302,27 @@ export default function ProfilePage() {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-y-6 gap-x-8 border-y border-border dark:border-border py-6 mb-6">
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Name</p>
-                  <p className="text-foreground/90 font-medium">{profile.username}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any)?.full_name || profile.username}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Age</p>
-                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.age || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any)?.age || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Gender</p>
-                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.gender || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any)?.gender || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">City</p>
-                  <p className="text-foreground/90 font-medium">{profile.city || user?.user_metadata?.city || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{profile.city || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Occupation</p>
-                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.occupation || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any)?.occupation || '—'}</p>
                 </div>
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] font-medium text-muted-foreground/60 mb-1">Country</p>
-                  <p className="text-foreground/90 font-medium">{user?.user_metadata?.country || (profile as any)?.country || '—'}</p>
+                  <p className="text-foreground/90 font-medium">{(profile as any)?.country || '—'}</p>
                 </div>
               </div>
 
@@ -450,7 +460,7 @@ export default function ProfilePage() {
                   username: profile?.username ? `@${profile.username}` : '@you',
                   partnerNickname: post.partner?.name || 'partner',
                   city: post.post_city || profile?.city || 'Unknown',
-                  country: user?.user_metadata?.country || 'Earth',
+                  country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
                   score: post.ai_score || 0,
                   verdict: post.ai_feedback || 'No feedback provided.',
@@ -507,7 +517,7 @@ export default function ProfilePage() {
                   username: profile?.username ? `@${profile.username}` : '@you',
                   partnerNickname: post.partner?.name || 'partner',
                   city: post.post_city || profile?.city || 'Unknown',
-                  country: user?.user_metadata?.country || 'Earth',
+                  country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
                   score: post.ai_score || 0,
                   verdict: post.ai_feedback || 'No feedback provided.',
@@ -552,6 +562,7 @@ export default function ProfilePage() {
         currentUser={user}
         onSuccess={() => {
           refreshProfile();
+          queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
           setIsEditing(false);
         }}
       />
@@ -562,6 +573,7 @@ export default function ProfilePage() {
         currentProfile={profile}
         onSuccess={() => {
           refreshProfile();
+          queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
           setIsAvatarModalOpen(false);
         }}
       />

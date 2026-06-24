@@ -3,7 +3,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { ConfessionCard } from './ConfessionCard';
 import { Spinner } from '@/components/ui/Spinner';
-import { Sparkles, Lock, Heart } from 'lucide-react';
+import { Sparkles, Lock, Heart, EyeOff } from 'lucide-react';
+import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 import Link from 'next/link';
 import type { Confession } from '@/types/database';
 
@@ -15,6 +16,7 @@ async function fetchConfessions(): Promise<Confession[]> {
 }
 
 export function ConfessionsFeed() {
+  const { toggleAnonymousMode } = useAnonymousMode();
   const { data: confessions, isLoading, isError, error } = useQuery({
     queryKey: ['confessions'],
     queryFn: fetchConfessions,
@@ -26,9 +28,16 @@ export function ConfessionsFeed() {
     <main className="w-full min-h-screen bg-transparent">
       {/* Anonymous mode header bar */}
       <div className="overflow-hidden border-b border-border/50 bg-primary/5 backdrop-blur-md py-3">
-        <div className="flex items-center justify-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-primary">
+        <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary">
           <Lock className="h-3 w-3" />
           <span>Anonymous Mode — Your identity is hidden</span>
+          <button
+            onClick={toggleAnonymousMode}
+            className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[9px] font-bold text-primary hover:bg-primary/20 transition-colors inline-flex items-center gap-1"
+          >
+            <EyeOff className="h-3 w-3" />
+            Exit
+          </button>
         </div>
       </div>
 

@@ -22,7 +22,6 @@ interface PostFormProps {
   partners: Partner[];
   userId: string;
   isPremium?: boolean;
-  postCount?: number;
   postLimitReached?: boolean;
   onUpgradedToPremium?: () => void;
 }
@@ -51,7 +50,6 @@ export function PostForm({
   partners,
   userId,
   isPremium = false,
-  postCount = 0,
   postLimitReached = false,
   onUpgradedToPremium,
 }: PostFormProps) {
@@ -365,7 +363,7 @@ export function PostForm({
                 </button>
                 <button
                   onClick={() => router.push('/leaderboards')}
-                  className="w-full rounded-full bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.01]"
+                  className="w-full rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] uppercase tracking-[0.2em] text-[10px]"
                 >
                   See My New Rank ↑
                 </button>
@@ -392,25 +390,6 @@ export function PostForm({
       <p className="mt-2 text-sm text-muted-foreground">
         The AI will score it. Brutally. Be specific.
       </p>
-
-      <div className="mt-4 rounded-2xl border border-border bg-card/50 px-4 py-3 text-xs text-muted-foreground">
-        {isPremium
-          ? `Premium plan: unlimited posts. You have ${postCount} post${postCount === 1 ? '' : 's'} today.`
-          : `Free plan: 2 posts per day. You have used ${postCount}/2 today.`}
-      </div>
-
-      {limitReached && (
-        <div className="mt-3 rounded-2xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-xs text-amber-200">
-          <p>You have reached today's free plan limit. Upgrade to premium to keep posting.</p>
-          <button
-            onClick={handleUpgradeToPremium}
-            disabled={isUpgrading}
-            className="mt-3 inline-flex items-center justify-center rounded-full border border-amber-300/60 bg-amber-300/20 px-4 py-2 text-[11px] font-semibold text-amber-100 transition-colors hover:bg-amber-300/30 disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isUpgrading ? 'Upgrading...' : 'Upgrade to Premium'}
-          </button>
-        </div>
-      )}
 
       {/* Partner Selection as glowing pills */}
       <div className="mt-6 flex flex-wrap gap-2">
@@ -545,7 +524,7 @@ export function PostForm({
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed"
+        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-[0.2em] text-[10px]"
       >
         {createPost.isPending ? 'Submitting...' : (
           <>
@@ -561,6 +540,12 @@ export function PostForm({
           </>
         )}
       </motion.button>
+
+      {limitReached && (
+        <p className="mt-2 text-center text-[10px] text-amber-500/70 font-medium uppercase tracking-wider">
+          Daily post limit reached
+        </p>
+      )}
 
       {/* Flagged Modal — Red Card */}
       <Modal

@@ -5,7 +5,7 @@ import { StoryCard } from '@/components/ui/StoryCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { motion } from 'framer-motion';
 
-import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight } from 'lucide-react';
+import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff } from 'lucide-react';
 import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -15,6 +15,7 @@ import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 import { ConfessionsFeed } from '@/components/confessions/ConfessionsFeed';
 import { useRouter } from 'next/navigation';
 
+import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { formatRelativeTime } from '@/lib/utils/format';
 import type { Post } from '@/types/database';
 
@@ -27,13 +28,7 @@ async function fetchExplorePosts(): Promise<Post[]> {
 }
 
 export default function DashboardPage() {
-
   const { isAnonymousMode } = useAnonymousMode();
-
-  // In anonymous mode, show the confessions feed instead
-  if (isAnonymousMode) {
-    return <ConfessionsFeed />;
-  }
 
   const { data: posts, isLoading } = useQuery({
     queryKey: ['explore-posts'],
@@ -95,11 +90,14 @@ export default function DashboardPage() {
   const globalAverage = globalEntries?.length 
     ? (globalEntries.reduce((acc, curr) => acc + curr.average_score, 0) / globalEntries.length).toFixed(1)
     : "0";
-  // User's own score from their posts
   const userScore = posts?.length
     ? (posts.filter(p => p.ai_score).reduce((acc, p) => acc + (p.ai_score || 0), 0) / posts.filter(p => p.ai_score).length).toFixed(1)
     : "0";
 
+  // In anonymous mode, show the confessions feed instead (all hooks above are universal)
+  if (isAnonymousMode) {
+    return <ConfessionsFeed />;
+  }
 
   return (
     <main className="w-full min-h-screen bg-transparent">
@@ -118,19 +116,24 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 md:py-12 pb-32">
+      <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 md:py-12 pb-12">
         
         <header className="mb-12">
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-2">
               <Sparkles className="h-4 w-4" /> Global Feed
             </p>
-            <InstallAppButton />
+            <div className="flex items-center gap-2">
+              <AnonymousToggle />
+              <InstallAppButton />
+            </div>
           </div>
           <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
             The Timeline
           </h1>
         </header>
+
+        <ScrollToTop label="The Timeline" />
 
         {isLoading ? (
           <div className="flex justify-center py-32 min-h-[50vh] items-center">
@@ -430,5 +433,26 @@ export default function DashboardPage() {
         )}
       </div>
     </main>
+  );
+}
+
+
+function AnonymousToggle() {
+  const { isAnonymousMode, toggleAnonymousMode } = useAnonymousMode();
+  return (
+    <button
+      onClick={toggleAnonymousMode}
+      className={`rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-colors inline-flex items-center gap-1.5 ${
+        isAnonymousMode
+          ? 'border-primary/30 bg-primary/10 text-primary'
+          : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/60'
+      }`}
+    >
+      {isAnonymousMode ? (
+        <><Lock className="h-3 w-3" /> Anonymous</>
+      ) : (
+        <><EyeOff className="h-3.5 w-3.5" /> Anonymous</>
+      )}
+    </button>
   );
 }

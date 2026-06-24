@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Users, Eye, EyeOff, Lock } from "lucide-react";
+import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Diamond } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -12,7 +12,7 @@ import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 const fullTabs = [
   { href: "/dashboard", label: "Feed", icon: Home },
   { href: "/leaderboards", label: "Ranks", icon: Trophy },
-  { href: "/circles", label: "Circles", icon: Users },
+  { href: "/circles", label: "Cliques", icon: Diamond },
   { href: "/partners", label: "Partners", icon: Heart },
   { href: "/profile", label: "Profile", icon: User },
 ] as const;
@@ -65,7 +65,6 @@ function AtmospherePanel({
   onClose?: () => void;
 }) {
   const { resolvedTheme, setTheme } = useTheme();
-  const { isAnonymousMode, toggleAnonymousMode } = useAnonymousMode();
 
   const getAtmColor = (a: string) => {
     switch (a) {
@@ -141,31 +140,7 @@ function AtmospherePanel({
         })}
       </div>
 
-      {/* Anonymous Mode Toggle */}
-      <div className="flex items-center justify-between py-3 border-t border-border">
-        <div className="flex items-center gap-2">
-          {isAnonymousMode ? (
-            <Lock className="h-3.5 w-3.5 text-primary" />
-          ) : (
-            <Eye className="h-3.5 w-3.5 text-muted-foreground" />
-          )}
-          <span className="text-[10px] font-bold text-foreground uppercase tracking-widest">
-            {isAnonymousMode ? 'Anonymous Mode ON' : 'Anonymous Mode OFF'}
-          </span>
-        </div>
-        <button
-          onClick={() => { toggleAnonymousMode(); onClose?.(); }}
-          className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none ${
-            isAnonymousMode ? 'bg-primary' : 'bg-muted-foreground/30'
-          }`}
-        >
-          <span
-            className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform ${
-              isAnonymousMode ? 'translate-x-[18px]' : 'translate-x-[3px]'
-            }`}
-          />
-        </button>
-      </div>
+
 
       {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-border">
@@ -190,7 +165,7 @@ export function AppDock() {
   const [isMounted, setIsMounted] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const { atmosphere, setAtmosphere, particlesEnabled, setParticlesEnabled } = useAtmosphere();
-  const { isAnonymousMode } = useAnonymousMode();
+  const { isAnonymousMode, toggleAnonymousMode } = useAnonymousMode();
 
   useEffect(() => {
     const timer = setTimeout(() => setIsVisible(true), 100);
@@ -333,13 +308,7 @@ export function AppDock() {
             </div>
           )}
 
-          {/* Anonymous Mode Indicator Pill — visible when mode is on */}
-          {isAnonymousMode && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-primary/10 border border-primary/20 mr-1">
-              <Lock className="h-3 w-3 text-primary" />
-              <span className="text-[8px] font-bold uppercase tracking-wider text-primary hidden sm:inline">Anonymous</span>
-            </div>
-          )}
+
 
           {/* Show only Feed in anonymous mode, otherwise show Feed + Ranks */}
           {isAnonymousMode

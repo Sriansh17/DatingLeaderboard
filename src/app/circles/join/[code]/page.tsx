@@ -163,7 +163,7 @@ export default function JoinCirclePage() {
                 href="/circles"
                 className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
               >
-                <Users className="h-4 w-4" /> My Circles
+                <Users className="h-4 w-4" /> My Cliques
               </Link>
               <button onClick={() => handleJoin()} className="text-sm text-primary hover:underline">
                 Try again

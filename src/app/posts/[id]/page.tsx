@@ -96,7 +96,11 @@ export default function PostDetailPage() {
     router.push('/dashboard');
   };
 
-  if (isLoading) return <Spinner size="lg" className="mx-auto mt-20" />;
+  if (isLoading) return (
+    <div className="flex items-center justify-center min-h-[60vh]">
+      <Spinner size="lg" text={["LOADING POST...", "FETCHING VERDICT...", "PREPARING ARCHIVE..."]} />
+    </div>
+  );
   if (!post) return <div className="text-center py-20 text-muted-foreground">Post not found</div>;
 
   let breakdown: Record<string, number> = {};
@@ -105,8 +109,8 @@ export default function PostDetailPage() {
   } catch {}
 
   return (
-    <main className="min-h-screen bg-background relative px-4 sm:px-6 lg:px-8 pb-40">
-      <div className="absolute top-8 left-6 sm:left-12">
+    <main className="min-h-screen bg-transparent relative px-4 sm:px-6 lg:px-8 pb-12">
+      <div className="fixed top-8 left-6 sm:left-12 z-40">
         <button
           onClick={() => router.back()}
           className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors flex items-center gap-2 group"
@@ -124,7 +128,7 @@ export default function PostDetailPage() {
         <div className="flex justify-center mb-6">
           <ScoreRing score={post.ai_score || 0} size={120} />
         </div>
-        
+
         {post.partner && (
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-elevated border border-border mt-2">
             <span>{post.partner.emoji}</span>
@@ -132,10 +136,32 @@ export default function PostDetailPage() {
           </div>
         )}
         {authorRank && (
-          <p className="text-sm text-gold font-medium mt-4 animate-pulse">
+          <p className="text-sm text-gold font-medium mt-4 animate-slide-up">
             Ranked #{authorRank} globally 🏆
           </p>
         )}
+      </div>
+
+      {/* Like + Comments count — primary social signal */}
+      <div className="flex items-center justify-center gap-8 py-2">
+        <button
+          onClick={handleLike}
+          disabled={likePostMutation.isPending || !user}
+          className={`flex items-center gap-2 text-sm font-medium transition-colors ${
+            post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+          } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
+        >
+          <Heart className={`h-5 w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
+          <span>{post.likes_count ?? 0} {(post.likes_count ?? 0) === 1 ? 'like' : 'likes'}</span>
+        </button>
+        <span className="text-muted-foreground/30">|</span>
+        <button
+          onClick={() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })}
+          className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
+          <MessageCircle className="h-5 w-5" />
+          <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
+        </button>
       </div>
 
       {/* AI Feedback */}
@@ -170,7 +196,6 @@ export default function PostDetailPage() {
         </div>
       </div>
 
-      {/* Breakdown */}
       {Object.keys(breakdown).length > 0 && (
         <div className="rounded-3xl border border-border bg-card p-8">
           <h3 className="font-display text-2xl italic text-foreground mb-6">Score Breakdown</h3>
@@ -242,26 +267,8 @@ export default function PostDetailPage() {
         )}
       </div>
 
-      {/* Like + Comments count */}
-      <div className="flex items-center justify-center gap-6 pt-2">
-        <button
-          onClick={handleLike}
-          disabled={likePostMutation.isPending || !user}
-          className={`flex items-center gap-2 text-sm transition-colors ${
-            post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
-          } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <Heart className={`h-5 w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
-          <span>{post.likes_count ?? 0} {(post.likes_count ?? 0) === 1 ? 'like' : 'likes'}</span>
-        </button>
-        <span className="flex items-center gap-2 text-sm text-muted-foreground">
-          <MessageCircle className="h-5 w-5" />
-          <span>{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
-        </span>
-      </div>
-
       {/* Comments Section */}
-      <div className="rounded-3xl border border-border bg-card p-8">
+      <div id="comments" className="rounded-3xl border border-border bg-card p-8">
         <h3 className="font-display text-xl italic text-foreground mb-6 flex items-center gap-2">
           <MessageCircle className="h-5 w-5" />
           Comments ({comments.length})
@@ -323,6 +330,7 @@ export default function PostDetailPage() {
       </div>
 
       </div>
+
 
       {post && user && post.user_id === user.id && (
         <EditPostModal

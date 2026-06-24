@@ -444,7 +444,7 @@ function VerdictCardTemplate({content}:TP){const s=content.score||0;const c=sHex
     <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(209,47,88,0.06),transparent)] blur-3xl -z-10"/>
     <div className="flex justify-center mb-4"><ScoreRing score={s} size={100}/></div>
     {content.partnerName&&<div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-elevated border border-border mt-2"><span className="text-sm font-medium text-foreground/80">with {content.partnerName}</span></div>}
-    {content.rank&&<p className="text-sm text-gold font-medium mt-3 animate-pulse">Ranked #{content.rank} globally 🏆</p>}
+    {content.rank&&<p className="text-sm text-gold font-medium mt-3">Ranked #{content.rank} globally 🏆</p>}
   </div>
   {/* AI Feedback */}
   {content.verdict&&<div className="rounded-3xl border border-gold/20 bg-gold/[0.06] p-6 shadow-sm relative overflow-hidden"><div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-primary/[0.07] blur-3xl pointer-events-none"/><div className="relative z-10"><div className="flex items-center gap-2 mb-3"><Sparkles className="h-4 w-4 text-gold"/><span className="font-sans tracking-[0.2em] uppercase text-[9px] font-bold text-gold/80">Fond AI Verdict</span></div><p className="font-display text-xl italic leading-relaxed text-foreground">"{content.verdict}"</p></div></div>}

@@ -5,15 +5,17 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useUser } from '@/components/providers/AuthProvider';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
-import { Sparkles, ArrowRight, Compass, Star, ArrowLeft, Volume2, VolumeX } from 'lucide-react';
+import { Sparkles, ArrowRight, Compass, Star, ArrowLeft, Volume2, VolumeX, Camera, ChevronDown } from 'lucide-react';
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAtmosphere } from '@/components/providers/AtmosphereProvider';
 import { PartnerForm } from '@/components/partners/PartnerForm';
+import { AvatarPicker } from '@/components/ui/AvatarPicker';
+import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
 import { motion, AnimatePresence, useMotionValue, useTransform, useAnimate, stagger } from 'framer-motion';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
-const TOTAL_STEPS = 7;
+const TOTAL_STEPS = 8;
 
 const GOALS = [
   'Be more thoughtful',
@@ -390,6 +392,30 @@ export default function OnboardingFlow() {
   const [status, setStatus] = useState('');
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([]);
+  const [displayName, setDisplayName] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [avatarUrl, setAvatarUrl] = useState('');
+  const [showAvatarModal, setShowAvatarModal] = useState(false);
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
+  const [ageInvalid, setAgeInvalid] = useState(false);
+  const [age, setAge] = useState('');
+  const [gender, setGender] = useState('');
+  const [occupation, setOccupation] = useState('');
+  const [city, setCity] = useState('');
+  const [country, setCountry] = useState('');
+  const [bio, setBio] = useState('');
+  // Prefill from profile (set during signup) — keep editable
+  useEffect(() => {
+    if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+    if (profile?.full_name) setFullName(profile.full_name);
+    if (profile?.username) setDisplayName(profile.username);
+    if (profile?.age) setAge(profile.age);
+    if (profile?.gender) setGender(profile.gender);
+    if (profile?.occupation) setOccupation(profile.occupation);
+    if (profile?.city) setCity(profile.city);
+    if (profile?.country) setCountry(profile.country);
+    if (profile?.bio) setBio(profile.bio);
+  }, [profile?.id]);
   const { theme, setTheme } = useTheme();
   const { particlesEnabled, setParticlesEnabled, atmosphere, setAtmosphere } = useAtmosphere();
 
@@ -462,6 +488,14 @@ export default function OnboardingFlow() {
           relationship_status: status || null,
           onboarding_goals: selectedGoals.length ? selectedGoals : null,
           love_languages: selectedLanguages.length ? selectedLanguages : null,
+          username: displayName || null,
+          avatar_url: avatarUrl || null,
+          age: age || null,
+          gender: gender || null,
+          occupation: occupation || null,
+          bio: bio || null,
+          city: city || null,
+          country: country || null,
         })
         .eq('id', user.id);
 
@@ -568,12 +602,191 @@ export default function OnboardingFlow() {
           >
 
             {/* ══════════ STEP 1 — Welcome ══════════ */}
-            {step === 1 && (
+                {step === 1 && (
               <CinematicIntro onStart={() => goTo(2)} audioRef={audioRef} />
             )}
 
-            {/* ══════════ STEP 2 — Relationship Status ══════════ */}
+            {/* ══════════ STEP 2 — About You ══════════ */}
             {step === 2 && (
+              <div className="flex-1 flex flex-col justify-center">
+                <Eyebrow step={step} />
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] uppercase tracking-widest font-semibold mb-4 w-fit">
+                  <Sparkles className="h-3 w-3" /> About You
+                </div>
+                <h1 className="font-display text-4xl italic font-bold mb-2">
+                  {fullName ? `Welcome, ${fullName.split(' ')[0]}!` : 'Welcome!'}
+                </h1>
+                <p className="text-muted-foreground text-sm mb-6">
+                  Choose an avatar, pick a username, and share a few details.
+                </p>
+
+                {/* Avatar selector — clickable avatar + modal */}
+                <div className="flex flex-col items-center mb-6">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold mb-3 block">Choose your avatar</label>
+                  <button
+                    type="button"
+                    onClick={() => setShowAvatarModal(true)}
+                    className="w-24 h-24 rounded-full border-2 border-dashed border-border hover:border-primary/40 transition-colors flex items-center justify-center overflow-hidden bg-muted/20"
+                  >
+                    {avatarUrl ? (
+                      avatarUrl.startsWith('http') ? (
+                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-3xl">{avatarUrl}</span>
+                      )
+                    ) : (
+                      <Camera className="h-8 w-8 text-muted-foreground/50" />
+                    )}
+                  </button>
+                  <p className="text-[10px] text-muted-foreground/50 mt-2">Tap to choose</p>
+                </div>
+
+                {/* Username */}
+                <div className="space-y-1.5 mb-5">
+                  <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Username</label>
+                  <div className="flex items-center border-b border-border focus-within:border-primary transition-colors">
+                    <span className="text-xl font-display text-muted-foreground/50 pb-0.5">@</span>
+                    <input
+                      type="text"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value.replace(/\s/g, ''))}
+                      placeholder="username"
+                      maxLength={30}
+                      className="flex-1 border-0 bg-transparent py-2.5 px-1 text-xl font-display text-foreground outline-none placeholder:text-muted-foreground/30"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  {/* Age + Gender row */}
+                  <div className="grid grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Age</label>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={age}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 3);
+                          setAge(val);
+                          const num = parseInt(val);
+                          setAgeInvalid(val.length > 0 && (num < 13 || num > 120));
+                        }}
+                        placeholder="24"
+                        className={`w-full border-b bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none transition-colors placeholder:text-muted-foreground/30 ${ageInvalid ? 'border-destructive/60' : 'border-border focus:border-primary'}`}
+                      />
+                      {ageInvalid && (
+                        <p className="text-[9px] text-destructive/80 font-medium mt-1">Enter a valid age (13–120)</p>
+                      )}
+                    </div>
+                    <div className="space-y-1.5 relative">
+                      <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Gender</label>
+                      <div className="relative">
+                        <button
+                          type="button"
+                          onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+                          onBlur={() => setTimeout(() => setShowGenderDropdown(false), 200)}
+                          className="w-full border-b border-border bg-transparent py-2 px-0 text-sm text-left outline-none focus:border-primary transition-colors flex items-center justify-between"
+                        >
+                          <span className={gender ? 'text-foreground' : 'text-muted-foreground/40'}>{gender || 'Select gender'}</span>
+                          <ChevronDown className={'h-4 w-4 text-muted-foreground/40 transition-transform ' + (showGenderDropdown ? 'rotate-180' : '')} />
+                        </button>
+                        {showGenderDropdown && (
+                          <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden">
+                            {['Male', 'Female', 'Non-binary', 'Gender-fluid', 'Agender', 'Prefer not to say', 'Other'].map((opt) => (
+                              <button
+                                key={opt}
+                                type="button"
+                                onMouseDown={() => { setGender(opt); setShowGenderDropdown(false); }}
+                                className={'w-full text-left px-4 py-3 text-sm transition-colors ' + (gender === opt ? 'text-primary bg-primary/5 font-medium' : 'text-foreground hover:bg-muted')}
+                              >
+                                {opt}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Occupation */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Occupation</label>
+                    <input
+                      type="text"
+                      value={occupation}
+                      onChange={(e) => setOccupation(e.target.value)}
+                      placeholder="e.g. Designer, Engineer, Student"
+                      className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+                    />
+                  </div>
+
+                  {/* Country — pre-filled from signup */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Country</label>
+                    <input
+                      type="text"
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      placeholder="Your country"
+                      className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+                    />
+                  </div>
+
+                  {/* City — pre-filled from signup */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">City</label>
+                    <input
+                      type="text"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder="Your city"
+                      className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
+                    />
+                  </div>
+
+                  {/* Dating Philosophy */}
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Dating Philosophy</label>
+                    <textarea
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      placeholder="What's your approach to love? (optional)"
+                      rows={2}
+                      className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display italic text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30 resize-none"
+                    />
+                  </div>
+
+                </div>
+
+
+                <div className="mt-auto flex flex-col gap-3 pt-10">
+                  <button
+                    onClick={() => goTo(3)}
+                    disabled={!displayName.trim() || !age || !gender || !occupation || !city || !country}
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+                  >
+                    Continue <ArrowRight className="h-4 w-4" />
+                  </button>
+                </div>
+
+                {/* Avatar selection modal */}
+                <AvatarSelectionModal
+                  isOpen={showAvatarModal}
+                  onClose={() => setShowAvatarModal(false)}
+                  currentProfile={profile || { id: user?.id, avatar_url: avatarUrl }}
+                  onSuccess={() => {
+                    refreshProfile();
+                    setShowAvatarModal(false);
+                    if (profile?.avatar_url) setAvatarUrl(profile.avatar_url);
+                  }}
+                />
+              </div>
+            )}
+
+
+            {/* ══════════ STEP 3 — Relationship Status ══════════ */}
+                {step === 3 && (
               <div className="flex-1 flex flex-col justify-center">
                 <Eyebrow step={step} />
                 <h1 className="font-display text-4xl italic font-bold mb-2 mt-1">
@@ -590,7 +803,7 @@ export default function OnboardingFlow() {
                       selected={status === s}
                       onClick={() => {
                         setStatus(s);
-                        setTimeout(() => goTo(3), 260);
+                        setTimeout(() => goTo(4), 260);
                       }}
                     />
                   ))}
@@ -598,8 +811,8 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* ══════════ STEP 3 — Partner ══════════ */}
-            {step === 3 && (
+            {/* ══════════ STEP 4 — Partner ══════════ */}
+                {step === 4 && (
               <div className="flex-1 flex flex-col">
                 <Eyebrow step={step} />
                 <h1 className="font-display text-4xl italic font-bold mb-1 mt-1">
@@ -609,10 +822,10 @@ export default function OnboardingFlow() {
                   Who are we celebrating? You can always add more later.
                 </p>
                 <div className="rounded-2xl border border-black/8 dark:border-border bg-white/30 dark:bg-white/[0.03] backdrop-blur-xl p-5">
-                  <PartnerForm userId={user.id} onSuccess={() => goTo(4)} />
+                  <PartnerForm userId={user.id} onSuccess={() => goTo(5)} />
                 </div>
                 <button
-                  onClick={() => goTo(4)}
+                  onClick={() => goTo(5)}
                   className="mt-4 text-center text-muted-foreground text-sm font-medium hover:text-foreground transition-colors py-2"
                 >
                   Skip for now
@@ -620,8 +833,8 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* ══════════ STEP 4 — Goals ══════════ */}
-            {step === 4 && (
+            {/* ══════════ STEP 5 — Goals ══════════ */}
+                {step === 5 && (
               <div className="flex-1 flex flex-col justify-center">
                 <Eyebrow step={step} />
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gold/10 border border-gold/20 text-gold text-[10px] uppercase tracking-widest font-semibold mb-4 w-fit">
@@ -645,14 +858,14 @@ export default function OnboardingFlow() {
                 </div>
                 <div className="mt-auto flex flex-col gap-3">
                   <button
-                    onClick={() => goTo(5)}
+                    onClick={() => goTo(6)}
                     disabled={selectedGoals.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-35"
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => goTo(5)}
+                    onClick={() => goTo(6)}
                     className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
                   >
                     Skip for now
@@ -661,8 +874,8 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* ══════════ STEP 5 — Love Languages ══════════ */}
-            {step === 5 && (
+            {/* ══════════ STEP 6 — Love Languages ══════════ */}
+                {step === 6 && (
               <div className="flex-1 flex flex-col justify-center">
                 <Eyebrow step={step} />
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-[10px] uppercase tracking-widest font-semibold mb-4 w-fit">
@@ -688,14 +901,14 @@ export default function OnboardingFlow() {
                 </div>
                 <div className="mt-auto flex flex-col gap-3">
                   <button
-                    onClick={() => goTo(6)}
+                    onClick={() => goTo(7)}
                     disabled={selectedLanguages.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 font-semibold text-primary-foreground transition-transform hover:scale-[1.02] disabled:opacity-35"
+                    className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
-                    onClick={() => goTo(6)}
+                    onClick={() => goTo(7)}
                     className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
                   >
                     Skip for now
@@ -704,8 +917,8 @@ export default function OnboardingFlow() {
               </div>
             )}
 
-            {/* ══════════ STEP 6 — Aesthetics ══════════ */}
-            {step === 6 && (
+            {/* ══════════ STEP 7 — Aesthetics ══════════ */}
+                {step === 7 && (
               <div className="flex-1 flex flex-col">
                 <Eyebrow step={step} />
                 <h1 className="font-display text-4xl italic font-bold mb-1 mt-1">Choose your world.</h1>
@@ -832,16 +1045,16 @@ export default function OnboardingFlow() {
                 </label>
 
                 <button
-                  onClick={() => goTo(7)}
-                  className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground transition-transform hover:scale-[1.02] mt-auto"
+                  onClick={() => goTo(8)}
+                  className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] mt-auto uppercase tracking-[0.2em] text-[10px]"
                 >
                   Continue <ArrowRight className="h-4 w-4" />
                 </button>
               </div>
             )}
 
-            {/* ══════════ STEP 7 — Finale ══════════ */}
-            {step === 7 && (
+            {/* ══════════ STEP 8 — Finale ══════════ */}
+                {step === 8 && (
               <div className="flex-1 flex flex-col justify-center text-center relative">
                 {/* Heartbeat aura — 60 BPM */}
                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>

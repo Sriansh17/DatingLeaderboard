@@ -10,7 +10,10 @@ export interface Profile {
   age: string | null;
   gender: string | null;
   occupation: string | null;
+  phone: string | null;
+  date_of_birth: string | null;
   country: string | null;
+  state: string | null;
   // Onboarding fields
   has_onboarded: boolean | null;
   relationship_status: string | null;

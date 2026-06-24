@@ -59,7 +59,7 @@ export default function ShowcasePage() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-6xl mx-auto pb-32">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-12 max-w-6xl mx-auto pb-12">
           
           <div className="flex flex-col gap-6">
             <div className="text-center">

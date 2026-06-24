@@ -41,25 +41,23 @@ export function LoginForm() {
         <div className="relative">
           <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <input
-            id="email"
             type="email"
             placeholder="you@example.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-2xl border border-black/10 dark:border-border bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm"
           />
         </div>
         <div className="relative">
           <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
           <input
-            id="password"
             type="password"
             placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-2xl border border-black/10 dark:border-border bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
+            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm"
           />
         </div>
       </div>
@@ -81,11 +79,11 @@ export function LoginForm() {
           Forgot password?
         </button>
       </div>
-      
-      <button 
-        type="submit" 
-        disabled={loading} 
-        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50"
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
       >
         <span>{loading ? 'Signing in...' : 'Sign In'}</span>
         {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
