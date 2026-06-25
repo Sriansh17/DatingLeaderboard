@@ -15,7 +15,7 @@ async function fetchExplorePosts(): Promise<Post[]> {
 }
 
 export default function ExplorePage() {
-  const { data: posts = [], isLoading: loading } = useQuery({
+  const { data: posts = [], isLoading: loading, isError } = useQuery({
     queryKey: ['explore-posts'],
     queryFn: fetchExplorePosts,
     staleTime: 0,
@@ -34,7 +34,17 @@ export default function ExplorePage() {
         </div>
       </div>
 
-      {loading ? (
+      {isError ? (
+        <div className="text-center py-20">
+          <div className="w-12 h-12 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-4">
+            <Heart className="h-6 w-6 text-rose-500" />
+          </div>
+          <h3 className="text-lg font-semibold text-foreground/90 mb-2">
+            Couldn&apos;t load posts
+          </h3>
+          <p className="text-gray-500 text-sm">Something went wrong. Try refreshing the page.</p>
+        </div>
+      ) : loading ? (
         <div className="flex items-center justify-center py-20">
           <Spinner size="lg" />
         </div>
