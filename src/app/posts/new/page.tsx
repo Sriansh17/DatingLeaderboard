@@ -8,7 +8,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import type { Partner } from '@/types/database';
 import { Heart, ArrowLeft, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function NewPostPage() {
   const { user, profile } = useUser();
@@ -17,6 +17,8 @@ export default function NewPostPage() {
   const [isPremiumLocal, setIsPremiumLocal] = useState(false);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isFirstPostRequired = searchParams.get('first') === '1';
 
   useEffect(() => {
     setIsPremiumLocal(!!profile?.is_premium);
@@ -77,6 +79,15 @@ export default function NewPostPage() {
 
   return (
     <main className="max-w-2xl mx-auto px-5 py-6">
+      {isFirstPostRequired && (
+        <div className="mb-4 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary">Almost there</p>
+          <p className="mt-1 text-sm text-foreground/90">
+            Add your first post to customize your experience and finish setup.
+          </p>
+        </div>
+      )}
+
       {/* Cancel + Premium status row */}
       <div className="mb-4 flex items-center justify-between">
         <button
