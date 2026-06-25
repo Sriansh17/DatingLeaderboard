@@ -20,6 +20,7 @@ export interface Profile {
   onboarding_goals: string[] | null;
   love_languages: string[] | null;
   is_premium: boolean;
+  is_admin: boolean;
   // Streak restoration
   streak_override_count: number | null;
   streak_override_date: string | null;
