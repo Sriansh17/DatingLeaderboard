@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
@@ -65,6 +65,30 @@ function calcAge(iso: string): string {
 
 export function SignupForm() {
   const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  // Debounced username availability check
+  useEffect(() => {
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      setCheckingUsername(false);
+      return;
+    }
+    setCheckingUsername(true);
+    const timer = setTimeout(async () => {
+      const client = createClient();
+      const { data } = await client
+        .from('profiles')
+        .select('id')
+        .eq('username', username)
+        .maybeSingle();
+      setUsernameAvailable(!data);
+      setCheckingUsername(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [username]);
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -162,6 +186,51 @@ export function SignupForm() {
         <input type="text" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required
           className="w-full rounded-2xl border border-border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm" />
       </div>
+
+      {/* Username */}
+      <div className="relative">
+        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground z-10 text-sm font-mono font-semibold">@</span>
+        <input type="text" placeholder="Username *" value={username}
+          onChange={e => setUsername(e.target.value.replace(/[^a-zA-Z0-9_.]/g, '').toLowerCase())} required
+          className={`w-full rounded-2xl border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-sm ${
+            username && username.length >= 3
+              ? usernameAvailable === true
+                ? 'border-emerald-500/50 focus:border-emerald-500/50'
+                : usernameAvailable === false
+                ? 'border-rose-500/50 focus:border-rose-500/50'
+                : 'border-border focus:border-primary/50'
+              : 'border-border focus:border-primary/50'
+          }`} />
+        {/* Availability indicator */}
+        {username && username.length >= 3 && (
+          <div className="absolute right-3 top-1/2 -translate-y-1/2">
+            {checkingUsername ? (
+              <div className="h-4 w-4 rounded-full border-2 border-muted-foreground/30 border-t-primary animate-spin" />
+            ) : usernameAvailable === true ? (
+              <svg className="h-4 w-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" /></svg>
+            ) : usernameAvailable === false ? (
+              <svg className="h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" /></svg>
+            ) : null}
+          </div>
+        )}
+      </div>
+      {username && username.length >= 3 && usernameAvailable === false && (
+        <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" />
+          This username is taken. Try a different one.
+        </p>
+      )}
+      {username && username.length >= 3 && usernameAvailable === true && (
+        <p className="text-[10px] text-emerald-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500" />
+          Username available
+        </p>
+      )}
+      {!username && (
+        <p className="text-[9px] text-muted-foreground/50 -mt-1">
+          Tip: Use your Instagram handle for a unique username
+        </p>
+      )}
 
       {/* Email */}
       <div className="relative">
@@ -300,7 +369,7 @@ export function SignupForm() {
         </div>
       </div>
 
-      <button type="submit" disabled={loading || !name || !email || !PASSWORD_REGEX.test(password) || password !== confirmPassword}
+      <button type="submit" disabled={loading || !name || !username || usernameAvailable !== true || !email || !PASSWORD_REGEX.test(password) || password !== confirmPassword}
         className="group mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]">
         <span>{loading ? 'Creating account...' : 'Create Account'}</span>
         {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
