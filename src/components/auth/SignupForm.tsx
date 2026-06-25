@@ -1,16 +1,73 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { useToast } from '@/components/ui/Toast';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Calendar, Phone, ChevronDown } from 'lucide-react';
+
+const COUNTRY_CODES = [
+  { code: '+91', label: 'IN +91' }, { code: '+1', label: 'US +1' }, { code: '+44', label: 'UK +44' },
+  { code: '+61', label: 'AU +61' }, { code: '+81', label: 'JP +81' }, { code: '+86', label: 'CN +86' },
+  { code: '+49', label: 'DE +49' }, { code: '+33', label: 'FR +33' }, { code: '+55', label: 'BR +55' },
+  { code: '+971', label: 'AE +971' }, { code: '+65', label: 'SG +65' }, { code: '+82', label: 'KR +82' },
+  { code: '+39', label: 'IT +39' }, { code: '+34', label: 'ES +34' }, { code: '+7', label: 'RU +7' },
+];
+
+const CTRY = [
+  'India', 'United States', 'United Kingdom', 'Canada', 'Australia', 'Germany', 'France', 'Japan',
+  'Singapore', 'UAE', 'Brazil', 'Mexico', 'Italy', 'Spain', 'Netherlands', 'South Korea', 'New Zealand',
+  'Sweden', 'Norway', 'Denmark', 'Switzerland', 'Ireland',
+];
+
+const STATES_MAP: Record<string, string[]> = {
+  India: ['Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh', 'Goa', 'Gujarat', 'Haryana', 'Himachal Pradesh', 'Jharkhand', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Manipur', 'Meghalaya', 'Mizoram', 'Nagaland', 'Odisha', 'Punjab', 'Rajasthan', 'Sikkim', 'Tamil Nadu', 'Telangana', 'Tripura', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal', 'Delhi'],
+  'United States': ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'],
+  'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland'],
+  'Canada': ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
+  'Australia': ['New South Wales', 'Queensland', 'South Australia', 'Tasmania', 'Victoria', 'Western Australia'],
+};
+
+const CITIES = [
+  'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata', 'Pune', 'Ahmedabad', 'Jaipur',
+  'Chandigarh', 'Lucknow', 'New York', 'Los Angeles', 'Chicago', 'San Francisco', 'London', 'Paris',
+  'Berlin', 'Tokyo', 'Dubai', 'Singapore', 'Sydney', 'Toronto', 'Melbourne',
+];
+
+function toIso(val: string): string | null {
+  const s = val.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (s) {
+    const d = new Date(+s[3], +s[2] - 1, +s[1], 12, 0, 0);
+    if (d.getDate() === +s[1] && d.getMonth() === +s[2] - 1 && d <= new Date()) return d.toISOString().split('T')[0];
+  }
+  const i = val.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (i) {
+    const d = new Date(+i[1], +i[2] - 1, +i[3], 12, 0, 0);
+    if (d.getDate() === +i[3] && d.getMonth() === +i[2] - 1 && d <= new Date()) return val;
+  }
+  return null;
+}
+
+function fmt(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso + 'T12:00:00');
+  const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  return d.getDate() + ' ' + months[d.getMonth()] + ' ' + d.getFullYear();
+}
+
+function calcAge(iso: string): string {
+  if (!iso) return '';
+  const b = new Date(iso), t = new Date();
+  let a = t.getFullYear() - b.getFullYear();
+  if (t.getMonth() < b.getMonth() || (t.getMonth() === b.getMonth() && t.getDate() < b.getDate())) a--;
+  return a > 0 && a < 150 ? String(a) : '';
+}
 
 export function SignupForm() {
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
 
   const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_\-+={}[\]|:;"'<>,.?/~`]).{8,}$/;
 
@@ -34,8 +91,36 @@ export function SignupForm() {
   const [stateName, setStateName] = useState('');
   const [city, setCity] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showCountryList, setShowCountryList] = useState(false);
+  const [showStateList, setShowStateList] = useState(false);
+  const [showCityList, setShowCityList] = useState(false);
+  const [showCodePicker, setShowCodePicker] = useState(false);
   const router = useRouter();
   const { addToast } = useToast();
+
+  const filteredCtry = CTRY.filter(c => c.toLowerCase().includes(country.toLowerCase()));
+  const filteredStates = (STATES_MAP[country] || CTRY).filter(s => s.toLowerCase().includes(stateName.toLowerCase()));
+  const filteredCities = CITIES.filter(c => c.toLowerCase().includes(city.toLowerCase()));
+  const age = useMemo(() => calcAge(dobIso), [dobIso]);
+
+  const handleDobText = (val: string) => {
+    setDobError('');
+    const digits = val.replace(/\D/g, '').slice(0, 8);
+    let display = digits;
+    if (digits.length >= 3) display = digits.slice(0, 2) + '/' + digits.slice(2);
+    if (digits.length >= 5) display = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+    setDobText(display);
+    if (digits.length === 8) {
+      const f = digits.slice(0, 2) + '/' + digits.slice(2, 4) + '/' + digits.slice(4);
+      const iso = toIso(f);
+      if (iso) setDobIso(iso);
+      else { setDobIso(''); setDobError('Invalid date'); }
+    } else setDobIso('');
+  };
+
+  const handleDobBlur = () => {
+    if (dobText && !dobIso) setDobError('Enter a valid date');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,7 +154,7 @@ export function SignupForm() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3.5">
+    <form onSubmit={handleSubmit} className="space-y-3.5">
 
       {/* Name */}
       <div className="relative">
@@ -89,7 +174,7 @@ export function SignupForm() {
       <div className="relative">
         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
         <input type="password" placeholder="Password *" value={password}
-          onChange={e => { setPassword(e.target.value); setPasswordError(''); }}
+          onChange={e => setPassword(e.target.value)}
           className={`w-full rounded-2xl border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-sm ${password && !PASSWORD_REGEX.test(password) ? 'border-rose-500/50 focus:border-rose-500/50' : 'border-border focus:border-primary/50'}`} />
       </div>
       {password && (
@@ -154,45 +239,64 @@ export function SignupForm() {
         </div>
       </div>
 
-      {/* Date of Birth — simple input with DD/MM/YYYY placeholder */}
+      {/* Date of Birth */}
       <div className="relative">
         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-        <div className="relative">
-          <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-          <input
-            id="username"
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-            className="w-full rounded-2xl border border-black/10 dark:border-border bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-          />
+        <input type="text" inputMode="numeric" placeholder="DD/MM/YYYY" value={dobText}
+          onChange={e => handleDobText(e.target.value)} onBlur={handleDobBlur}
+          className="w-full rounded-2xl border border-border bg-muted/30 pl-12 pr-4 py-4 text-sm text-foreground placeholder:text-muted-foreground/35 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all" />
+      </div>
+      {dobIso && <p className="text-[11px] text-muted-foreground/70 -mt-1">Born {fmt(dobIso)} &middot; <span className="text-foreground/80 font-medium">{age} years</span></p>}
+      {dobError && <p className="text-[10px] text-destructive/80 font-medium -mt-1">{dobError}</p>}
+
+      {/* Country, State, City */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="relative col-span-1">
+          <input type="text" placeholder="Country" value={country}
+            onChange={e => { setCountry(e.target.value); setStateName(''); setShowCountryList(true); }}
+            onFocus={() => setShowCountryList(true)} onBlur={() => setTimeout(() => setShowCountryList(false), 200)}
+            className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-4 pr-8 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none" />
+          {showCountryList && country && filteredCtry.length > 0 && (
+            <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden max-h-36 overflow-y-auto">
+              {filteredCtry.map(c => (
+                <button key={c} type="button" onMouseDown={() => { setCountry(c); setShowCountryList(false); }}
+                  className="w-full text-left px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors">{c}</button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-          <input
-            id="email"
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="w-full rounded-2xl border border-black/10 dark:border-border bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-          />
+        <div className="relative col-span-1">
+          <input type="text" placeholder={country ? 'State' : 'Select country first'} value={stateName}
+            onChange={e => { setStateName(e.target.value); setShowStateList(true); }}
+            onFocus={() => setShowStateList(true)} onBlur={() => setTimeout(() => setShowStateList(false), 200)}
+            disabled={!country}
+            className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-4 pr-8 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none" />
+          {showStateList && country && stateName && filteredStates.length > 0 && (
+            <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden max-h-36 overflow-y-auto">
+              {filteredStates.map(s => (
+                <button key={s} type="button" onMouseDown={() => { setStateName(s); setShowStateList(false); }}
+                  className="w-full text-left px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors">{s}</button>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-          <input
-            id="password"
-            type="password"
-            placeholder="Password (min 6 chars)"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            minLength={6}
-            required
-            className="w-full rounded-2xl border border-black/10 dark:border-border bg-black/5 dark:bg-white/5 px-12 py-4 text-foreground placeholder:text-muted-foreground outline-none focus:border-blush focus:bg-black/10 dark:focus:bg-white/10 transition-all backdrop-blur-md shadow-[inset_0_1px_0_rgba(0,0,0,0.05)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)]"
-          />
+        <div className="relative col-span-1">
+          <input type="text" placeholder={stateName ? 'City' : 'Select state first'} value={city}
+            onChange={e => { setCity(e.target.value); setShowCityList(true); }}
+            onFocus={() => setShowCityList(true)} onBlur={() => setTimeout(() => setShowCityList(false), 200)}
+            disabled={!stateName}
+            className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-4 pr-8 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm disabled:opacity-40 disabled:cursor-not-allowed" />
+          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none" />
+          {showCityList && stateName && city && filteredCities.length > 0 && (
+            <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden max-h-36 overflow-y-auto">
+              {filteredCities.map(c => (
+                <button key={c} type="button" onMouseDown={() => { setCity(c); setShowCityList(false); }}
+                  className="w-full text-left px-3 py-2.5 text-sm text-foreground hover:bg-muted transition-colors">{c}</button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
 
