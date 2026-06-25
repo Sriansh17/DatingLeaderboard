@@ -9,6 +9,7 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { ShareProvider } from '@/components/providers/ShareProvider';
 import { ClientLayoutWrapper } from '@/components/layout/ClientLayoutWrapper';
 import { AnonymousModeProvider } from '@/components/providers/AnonymousModeProvider';
+import { ConfirmProvider } from '@/components/ui/ConfirmModal';
 import { ServiceWorkerRegister } from '@/components/ui/ServiceWorkerRegister';
 
 
@@ -40,11 +41,13 @@ export default function RootLayout({
               <AuthProvider>
                 <ToastProvider>
                   <ShareProvider>
+                    <ConfirmProvider>
                     <AnonymousModeProvider>
                       <ClientLayoutWrapper>
                         {children}
                       </ClientLayoutWrapper>
                     </AnonymousModeProvider>
+                    </ConfirmProvider>
                   </ShareProvider>
                 </ToastProvider>
               </AuthProvider>

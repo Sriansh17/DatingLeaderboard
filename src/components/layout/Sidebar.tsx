@@ -56,8 +56,8 @@ export function Sidebar() {
       )}
     >
       {/* Decorative art blob */}
-      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-[#FFB3C6]/30 to-[#FFDEE6]/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-[#FFDEE6]/25 to-[#FFB3C6]/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -top-20 -right-20 w-48 h-48 bg-gradient-to-br from-blush/30 to-blush/15 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-gradient-to-tr from-blush/25 to-blush/10 rounded-full blur-3xl pointer-events-none" />
 
       {/* Collapse Toggle Button */}
       {isMounted && (
@@ -117,7 +117,7 @@ export function Sidebar() {
             >
               {/* Active background with glassmorphism */}
               {isActive && (
-                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-100/80 to-rose-100/50 dark:from-primary/15 dark:to-accent/10 border border-primary/30/50 dark:border-pink-400/20 shadow-sm backdrop-blur-sm" />
+                <span className="absolute inset-0 rounded-2xl bg-gradient-to-r from-blush/30 to-blush/15 dark:from-primary/15 dark:to-accent/10 border border-primary/30/50 dark:border-primary/30 shadow-sm backdrop-blur-sm" />
               )}
 
               {/* Hover glow */}

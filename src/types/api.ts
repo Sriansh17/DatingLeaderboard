@@ -60,3 +60,51 @@ export interface LeaderboardQuery {
   page?: number;
   limit?: number;
 }
+
+// ─── Connection / Bond feature ─────────────────────────────────────────────────────
+
+export interface SendConnectionRequestPayload {
+  receiver_id: string;
+}
+
+export interface RespondToConnectionRequestPayload {
+  status: 'accepted' | 'rejected';
+}
+
+export interface InviteToCirclePayload {
+  user_id: string;
+}
+
+export interface RemoveConnectionPayload {
+  user_id: string;
+}
+
+// ─── Notifications ─────────────────────────────────────────────────────────────────
+
+export interface UnreadCountResponse {
+  count: number;
+}
+
+// ─── Subscription / Premium ────────────────────────────────────────────────────────
+
+export interface CreateSubscriptionOrderPayload {
+  plan_id: string;
+}
+
+export interface VerifySubscriptionPayload {
+  orderId: string;
+  paymentId: string;
+  signature: string;
+  plan_id: string;
+}
+
+export interface SubscriptionPlan {
+  id: string;
+  name: string;
+  price: number;
+  priceDisplay: string;
+  currency: string;
+  period: string;
+  features: string[];
+  popular?: boolean;
+}

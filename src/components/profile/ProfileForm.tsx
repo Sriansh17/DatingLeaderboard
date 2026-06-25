@@ -135,12 +135,12 @@ export function ProfileForm({ profile, onSuccess }: ProfileFormProps) {
             src={avatarPreview || profile.avatar_url}
             alt={profile.username}
             size="lg"
-            className="ring-2 ring-pink-200 dark:ring-pink-800"
+            className="ring-2 ring-blush/40"
           />
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-pink-600 transition-colors shadow-md"
+            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center hover:bg-primary/90 transition-colors shadow-md"
           >
             <Camera className="h-4 w-4" />
           </button>

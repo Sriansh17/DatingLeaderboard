@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
@@ -12,6 +13,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { createClient } from '@/lib/supabase/client';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import type { Post, Comment } from '@/types/database';
 
 interface PostDetailProps {
@@ -22,6 +24,7 @@ export function PostDetail({ post }: PostDetailProps) {
   const router = useRouter();
   const { user } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   const [liked, setLiked] = useState(post.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post.likes_count ?? 0);
@@ -115,7 +118,7 @@ export function PostDetail({ post }: PostDetailProps) {
   } catch {}
 
   const handleDelete = async () => {
-    if (!confirm('Archive this post? It will no longer be visible to anyone.')) return;
+    if (!(await confirm({ title: 'Archive Post', message: 'Archive this post? It will no longer be visible to anyone.', confirmLabel: 'Archive', variant: 'warning' }))) return;
     const res = await fetch(`/api/posts/${post.id}`, { method: 'DELETE' });
     const json = await res.json().catch(() => ({}));
     if (!res.ok || !json.success) {
@@ -143,7 +146,13 @@ export function PostDetail({ post }: PostDetailProps) {
         )}
         {post.profile && (
           <p className="text-xs text-muted-foreground mt-1">
-            by @{post.profile.username}
+            by{' '}
+            <Link
+              href={`/users/${post.profile.id || post.user_id}`}
+              className="hover:text-primary transition-colors"
+            >
+              @{post.profile.username}
+            </Link>
           </p>
         )}
       </div>
@@ -261,14 +270,24 @@ export function PostDetail({ post }: PostDetailProps) {
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {comments.map((comment) => (
               <div key={comment.id} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white shrink-0">
-                  {(comment.profile?.username?.[0] || 'U').toUpperCase()}
-                </div>
+                <Link
+                  href={`/users/${comment.user_id}`}
+                  className="shrink-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white hover:opacity-80 transition-opacity">
+                    {(comment.profile?.username?.[0] || 'U').toUpperCase()}
+                  </div>
+                </Link>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">
+                    <Link
+                      href={`/users/${comment.user_id}`}
+                      className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       @{comment.profile?.username || 'unknown'}
-                    </span>
+                    </Link>
                     <span className="text-[10px] text-muted-foreground">
                       {formatRelativeTime(comment.created_at)}
                     </span>

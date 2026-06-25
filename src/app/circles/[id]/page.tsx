@@ -5,7 +5,9 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import { Spinner } from '@/components/ui/Spinner';
+import { PageBell } from '@/components/ui/PageBell';
 import { ArrowLeft, Copy, Check, Diamond, Crown, Trophy, LogOut, UserMinus, Trash2 } from 'lucide-react';
 import type { Circle, CircleMember } from '@/types/database';
 
@@ -25,6 +27,7 @@ export default function CircleDetailPage() {
   const router = useRouter();
   const { user } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
 
   const [circle, setCircle] = useState<Circle | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -78,7 +81,7 @@ export default function CircleDetailPage() {
 
   const handleLeave = async () => {
     if (!circle || leaving) return;
-    if (!confirm('Leave this clique?')) return;
+    if (!(await confirm({ title: 'Leave Circle', message: 'Are you sure you want to leave this clique?', confirmLabel: 'Leave', variant: 'warning' }))) return;
     setLeaving(true);
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
@@ -101,7 +104,7 @@ export default function CircleDetailPage() {
   };
 
   const handleKick = async (userId: string, username: string) => {
-    if (!confirm(`Remove @${username} from this circle?`)) return;
+    if (!(await confirm({ title: 'Remove Member', message: `Remove @${username} from this circle?`, confirmLabel: 'Remove', variant: 'danger' }))) return;
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
         method: 'DELETE',
@@ -123,7 +126,7 @@ export default function CircleDetailPage() {
 
   const handleDelete = async () => {
     if (!circle || deleting) return;
-    if (!confirm('Delete this entire clique? This cannot be undone.')) return;
+    if (!(await confirm({ title: 'Delete Circle', message: 'Delete this entire clique? This cannot be undone. All members will be removed.', confirmLabel: 'Delete', variant: 'danger' }))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/circles/${circleId}`, { method: 'DELETE' });
@@ -146,16 +149,16 @@ export default function CircleDetailPage() {
 
   const rankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="h-5 w-5 text-gold" />;
-    if (rank === 2) return <Trophy className="h-4 w-4 text-gray-400" />;
-    if (rank === 3) return <Trophy className="h-4 w-4 text-amber-600" />;
+    if (rank === 2) return <Trophy className="h-4 w-4 text-muted-foreground" />;
+    if (rank === 3) return <Trophy className="h-4 w-4 text-score-mid" />;
     return null;
   };
 
   const scoreColor = (score: number) => {
-    if (score >= 80) return 'text-green-500';
-    if (score >= 60) return 'text-yellow-500';
-    if (score >= 40) return 'text-orange-500';
-    return 'text-red-400';
+    if (score >= 92) return 'text-score-legendary';
+    if (score >= 75) return 'text-score-high';
+    if (score >= 55) return 'text-score-mid';
+    return 'text-score-low';
   };
 
   if (!user) {
@@ -187,19 +190,32 @@ export default function CircleDetailPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      {/* Back + Header */}
-      <div className="flex items-center gap-4 mb-8">
-        <Link href="/circles" className="p-2 rounded-full hover:bg-muted/50 transition-colors">
+    <div className="max-w-2xl mx-auto px-4 py-8 relative">
+      {/* Fond rose glow */}
+      <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary/[0.05] blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-blush/20 blur-3xl pointer-events-none" />
+
+      {/* Back + Header — aligned with design system */}
+      <div className="flex items-start gap-4 mb-10">
+        <Link href="/circles" className="p-2 rounded-full hover:bg-elevated transition-colors mt-1">
           <ArrowLeft className="h-5 w-5 text-muted-foreground" />
         </Link>
         <div className="flex-1">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{circle.emoji}</span>
+          <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-foreground">{circle.name}</h1>
-              <p className="text-xs text-muted-foreground flex items-center gap-2">
-                <Diamond className="h-3 w-3" />
+              <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-1 flex items-center gap-2">
+                <Diamond className="h-3 w-3" /> Bond
+              </p>
+            </div>
+            <PageBell />
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="text-4xl">{circle.emoji}</span>
+            <div>
+              <h1 className="font-display text-4xl sm:text-5xl italic text-foreground tracking-tight leading-none">
+                {circle.name}
+              </h1>
+              <p className="text-sm text-muted-foreground flex items-center gap-2 mt-1.5">
                 {circle.member_count}/{circle.max_members} members
                 {isCreator && (
                   <span className="px-2 py-0.5 rounded-full bg-gold/10 text-gold text-[10px] font-semibold">Creator</span>
@@ -213,10 +229,10 @@ export default function CircleDetailPage() {
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-red-200 dark:border-red-900 text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm text-destructive hover:bg-destructive/5 hover:border-destructive/30 transition-all"
             >
               <Trash2 className="h-4 w-4" />
-              {deleting ? 'Deleting...' : 'Delete Circle'}
+              {deleting ? 'Deleting...' : 'Delete'}
             </button>
           ) : (
             <button
@@ -275,7 +291,7 @@ export default function CircleDetailPage() {
               key={member.id}
               className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/40 text-sm"
             >
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-[10px] font-bold text-white">
+              <div className="w-6 h-6 rounded-full glass-2 flex items-center justify-center text-[10px] font-bold text-white">
                 {(member.profile as any)?.username?.[0]?.toUpperCase() || '?'}
               </div>
               <span className="text-foreground">@{(member.profile as any)?.username || 'unknown'}</span>
@@ -312,7 +328,7 @@ export default function CircleDetailPage() {
                 key={entry.user_id}
                 className={`flex items-center gap-4 px-5 py-4 ${
                   i > 0 ? 'border-t border-border' : ''
-                } ${isMe ? 'bg-primary/5' : ''} hover:bg-muted/20 transition-colors`}
+                } ${isMe ? 'bg-primary/5' : ''} ${entry.rank === 1 ? 'bg-gold/[0.03]' : ''} hover:bg-elevated transition-colors`}
               >
                 {/* Rank */}
                 <div className="w-10 text-center shrink-0">
@@ -324,7 +340,7 @@ export default function CircleDetailPage() {
                 </div>
 
                 {/* Avatar + Name */}
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white shrink-0">
+                <div className="w-8 h-8 rounded-full glass-2 flex items-center justify-center text-xs font-bold text-white shrink-0">
                   {entry.username[0]?.toUpperCase() || '?'}
                 </div>
                 <div className="flex-1 min-w-0">

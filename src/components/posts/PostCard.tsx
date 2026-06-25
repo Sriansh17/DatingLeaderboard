@@ -21,9 +21,18 @@ export function PostCard({ post }: PostCardProps) {
   const { user } = useUser();
   const likePostMutation = useLikePost();
 
-  const handleCommentClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  // Single click handler routes based on data-* attributes (no nested interactive elements)
+  const handleCardClick = (e: React.MouseEvent) => {
+    const el = e.target as HTMLElement;
+    // Profile link — always takes priority
+    if (el.closest('[data-profile]')) {
+      e.preventDefault();
+      router.push(`/users/${post.profile?.id || post.user_id}`);
+      return;
+    }
+    // Action buttons (like, comment, share) — handled by their own handlers with stopPropagation
+    if (el.closest('[data-action]')) return;
+    // Default: navigate to post detail
     router.push(`/posts/${post.id}`);
   };
 
@@ -31,7 +40,6 @@ export function PostCard({ post }: PostCardProps) {
     e.preventDefault();
     e.stopPropagation();
     if (!user || likePostMutation.isPending) return;
-
     try {
       await likePostMutation.mutateAsync(post.id);
     } catch (error) {
@@ -40,10 +48,10 @@ export function PostCard({ post }: PostCardProps) {
   };
 
   return (
-    <Link href={`/posts/${post.id}`} className="block w-full max-w-2xl mx-auto mb-4 sm:mb-6 px-3 sm:px-0">
+    <div className="block w-full max-w-2xl mx-auto mb-4 sm:mb-6 px-3 sm:px-0 cursor-pointer" onClick={handleCardClick}>
       <Card hover>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-primary/80 overflow-hidden flex items-center justify-center text-base font-bold text-primary-foreground flex-shrink-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-accent overflow-hidden flex items-center justify-center text-base font-bold text-primary-foreground flex-shrink-0">
             {post.partner && post.partner.avatar_url ? (
               <img src={post.partner.avatar_url} alt={post.partner.name} className="w-full h-full object-cover" />
             ) : post.partner?.emoji ? (
@@ -56,18 +64,23 @@ export function PostCard({ post }: PostCardProps) {
             </div>
             <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] sm:text-[13px] mt-0.5">
               {post.profile?.username && (
-                <span>@{post.profile.username}</span>
+                <span
+                  data-profile
+                  className="text-primary font-medium underline decoration-dotted decoration-primary/30 underline-offset-2"
+                >
+                  @{post.profile.username}
+                </span>
               )}
               <span>&bull;</span>
               <span>{formatRelativeTime(post.created_at)}</span>
             </div>
           </div>
         </div>
-        
+
         <div className="mt-4 sm:mt-5 text-sm sm:text-[16px] leading-[1.5] sm:leading-[1.6] text-foreground/90 font-light italic line-clamp-4">
           &ldquo;{post.description}&rdquo;
         </div>
-        
+
         {post.ai_score ? (
           <div className="mt-5 sm:mt-6 text-center">
             <div className="inline-block px-3 py-1.5 rounded-full bg-muted text-[10px] sm:text-[12px] tracking-[1px] text-muted-foreground mb-3 sm:mb-4 font-medium">
@@ -83,10 +96,11 @@ export function PostCard({ post }: PostCardProps) {
             )}
           </div>
         ) : null}
-        
+
         <div className="mt-5 sm:mt-6 pt-4 border-t border-border flex flex-col sm:flex-row gap-3 sm:gap-0 sm:justify-between sm:items-center text-[12px] sm:text-[14px] text-muted-foreground">
           <div className="flex items-center gap-3">
             <button
+              data-action
               onClick={handleLike}
               disabled={likePostMutation.isPending || !user}
               className={`flex items-center gap-1.5 transition-colors ${
@@ -96,7 +110,7 @@ export function PostCard({ post }: PostCardProps) {
               <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
               <span className="text-xs sm:text-sm">{post.likes_count ?? 0}</span>
             </button>
-            <button onClick={handleCommentClick} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+            <button data-action onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/posts/${post.id}`); }} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
               <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-xs sm:text-sm">{post.comments_count ?? 0}</span>
             </button>
@@ -104,8 +118,10 @@ export function PostCard({ post }: PostCardProps) {
           <div className="flex items-center gap-2 ml-auto">
             {post.profile?.username && (
               <button
+                data-action
                 onClick={(e) => {
                   e.preventDefault();
+                  e.stopPropagation();
                   router.push(`/users/${post.profile?.id || post.user_id}`);
                 }}
                 className="px-4 py-2 rounded-[18px] border border-border text-muted-foreground text-xs sm:text-sm font-medium hover:bg-muted/50 transition-colors"
@@ -113,27 +129,29 @@ export function PostCard({ post }: PostCardProps) {
                 Profile
               </button>
             )}
-            <button 
+            <button
+              data-action
               className="bg-primary px-5 py-2 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
               onClick={(e) => {
                 e.preventDefault();
+                e.stopPropagation();
                 openShare('post', {
-                username: post.profile?.username || 'Someone',
-                partnerName: post.partner?.name || 'Partner',
-                avatarUrl: post.partner?.avatar_url,
-                headline: post.description,
-                verdict: post.ai_feedback || undefined,
-                score: post.ai_score || undefined,
-                city: post.post_city || post.profile?.city || undefined,
-                date: formatRelativeTime(post.created_at),
-              });
-            }}
-          >
-            <Share className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Share
-          </button>
+                  username: post.profile?.username || 'Someone',
+                  partnerName: post.partner?.name || 'Partner',
+                  avatarUrl: post.partner?.avatar_url,
+                  headline: post.description,
+                  verdict: post.ai_feedback || undefined,
+                  score: post.ai_score || undefined,
+                  city: post.post_city || post.profile?.city || undefined,
+                  date: formatRelativeTime(post.created_at),
+                });
+              }}
+            >
+              <Share className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Share
+            </button>
           </div>
         </div>
       </Card>
-    </Link>
+    </div>
   );
 }

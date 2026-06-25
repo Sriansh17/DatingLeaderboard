@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { ScoreRing } from "./ScoreRing";
+import { CommentModal } from "./CommentModal";
 import type { Story } from "@/lib/mock-data";
 import type { Post } from "@/types/database";
 import Link from "next/link";
@@ -30,16 +31,12 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
   const [activeReaction, setActiveReaction] = useState<string | null>(null);
   const [isLiked, setIsLiked] = useState(post?.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
-
-  // Debug logging
-  if (post) {
-    console.log('[StoryCard] Render - Post:', post.id.slice(0, 8), 'has_liked:', post.has_liked, 'likes_count:', post.likes_count);
-  }
+  const [showComments, setShowComments] = useState(false);
 
   const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (type === 'Heart' && post && user) {
       // Optimistic update
       setIsLiked(prev => !prev);
@@ -66,12 +63,37 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     }
   };
 
+  // Single click handler — routes based on data-* attributes, no nested interactive elements
+  const handleCardClick = (e: React.MouseEvent) => {
+    if (showComments) return; // don't navigate when modal is open
+    const el = e.target as HTMLElement;
+    if (el.closest('[data-profile]')) {
+      e.preventDefault();
+      const userId = post?.user_id;
+      if (userId) window.location.href = `/users/${userId}`;
+      return;
+    }
+    if (el.closest('[data-action]')) return;
+    if (post) {
+      window.location.href = `/posts/${story.id}`;
+    }
+  };
+
   const renderHeader = (textColorClass = "text-foreground", mutedColorClass = "text-muted-foreground") => (
     <header className="flex items-start justify-between gap-4 relative z-10 w-full mb-6">
       <div className="flex flex-col gap-1 min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
-          <span className={`${textColorClass} font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%]`}>{story.username}</span>
-          <span className={`${mutedColorClass} italic shrink-0`}>&times;</span>
+          {post ? (
+            <span
+              data-profile
+              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/30 underline-offset-2`}
+            >
+              {story.username}
+            </span>
+          ) : (
+            <span className={`${textColorClass} font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%]`}>{story.username}</span>
+          )}
+          <span className={`${mutedColorClass} italic shrink-0`}>×</span>
           <span className={`${textColorClass} opacity-80 font-medium text-base sm:text-lg truncate max-w-[45%]`}>{story.partnerNickname}</span>
         </div>
         <div className={`text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold ${mutedColorClass} opacity-60`}>
@@ -95,7 +117,8 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     return (
     <footer className={`mt-auto pt-5 sm:pt-6 flex items-center justify-between relative z-10 border-t ${borderClass}`}>
       <div className="flex items-center gap-4 sm:gap-5">
-        <button 
+        <button
+          data-action
           onClick={(e) => handleReact(e, 'Heart')}
           disabled={post && likePostMutation.isPending}
           className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
@@ -105,13 +128,20 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-red-500 text-red-500' : ''}`} />
           <span>{post && heartCount > 0 ? heartCount : 0}</span>
         </button>
-        <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+        <button data-action
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (post) setShowComments(true);
+          }}
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+        >
           <MessageCircle className="h-4 w-4" />
           <span>{post?.comments_count ?? 0}</span>
-        </span>
+        </button>
       </div>
 
-      <button 
+      <button data-action
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -133,7 +163,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
         <span className="hidden sm:inline relative z-10">Share</span>
       </button>
       {onEdit && (
-        <button
+        <button data-action
           onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
           className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${mutedClass}`}
           title="Edit"
@@ -149,8 +179,8 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
   // Focus primarily on Variant C which is the main hybrid style used
   if (variant === 'C') {
     return (
-      <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-        <motion.article 
+      <div onClick={handleCardClick} className="block outline-none group relative h-full cursor-pointer">
+        <motion.article
           layout
           initial={{ opacity: 0, filter: "blur(20px)", y: 20 }}
           animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
@@ -214,7 +244,16 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               {/* Names */}
               <div className="flex flex-col gap-0.5 min-w-0">
                 <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                  <span className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>
+                  {post ? (
+                    <button
+                      data-profile
+                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/30 underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                    >
+                      {story.username}
+                    </button>
+                  ) : (
+                    <span className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>
+                  )}
                   <span className="text-muted-foreground/50 text-xs">×</span>
                   <span className="text-foreground/80 font-medium text-sm sm:text-base truncate max-w-[100px]">{story.partnerNickname}</span>
                 </div>
@@ -256,16 +295,23 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 <span>{post ? likesCount : 0}</span>
               </button>
               
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (post) setShowComments(true);
+                }}
+                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
                 <MessageCircle className="h-4 w-4" />
                 <span>{post?.comments_count ?? 0}</span>
-              </span>
+              </button>
 
             </div>
 
             <div className="flex items-center gap-2 shrink-0">
               {onEdit && (
-                <button
+                <button data-action
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
                   className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted"
                 >
@@ -273,7 +319,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   Edit
                 </button>
               )}
-              <button 
+              <button data-action
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
@@ -295,14 +341,24 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
             </div>
           </footer>
         </motion.article>
-      </Link>
+
+        {/* Comment modal */}
+        {post && (
+          <CommentModal
+            postId={post.id}
+            isOpen={showComments}
+            onClose={() => setShowComments(false)}
+            commentsCount={post.comments_count}
+          />
+        )}
+      </div>
     );
   }
 
   // Fallback for Variant A (baseline) and others to keep code minimal here, though they can be expanded if needed.
   return (
-    <Link href={`/posts/${story.id}`} className="block outline-none group relative h-full">
-      <motion.article 
+    <div onClick={handleCardClick} className="block outline-none group relative h-full cursor-pointer">
+      <motion.article
         layout
         initial={{ opacity: 0, filter: "blur(10px)", y: 10 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
@@ -321,6 +377,15 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
         </div>
         {renderFooter()}
       </motion.article>
-    </Link>
+
+      {post && (
+        <CommentModal
+          postId={post.id}
+          isOpen={showComments}
+          onClose={() => setShowComments(false)}
+          commentsCount={post.comments_count}
+        />
+      )}
+    </div>
   );
 }

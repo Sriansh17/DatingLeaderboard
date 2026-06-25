@@ -35,35 +35,29 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
       {entries.map((entry) => (
         <div
           key={entry.user_id}
-          className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-gray-100 dark:border-gray-800 hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-border hover:shadow-md transition-shadow"
         >
           {/* Rank */}
           <div className="w-10 text-center">
             <span className="text-lg font-bold">{getRankEmoji(entry.rank)}</span>
           </div>
 
-          {/* Partner Avatar & Name */}
-          <div className="flex items-center gap-3 flex-1 min-w-0">
+          {/* Avatar + Names — entire block links to user profile */}
+          <Link href={`/users/${entry.user_id}`} className="flex items-center gap-3 flex-1 min-w-0 group">
             {entry.top_partner_avatar ? (
               <Avatar src={entry.top_partner_avatar} alt={entry.top_partner_name} size="md" />
             ) : (
-              <span className="text-2xl">{entry.top_partner_emoji}</span>
+              <span className="text-2xl group-hover:scale-110 transition-transform">{entry.top_partner_emoji}</span>
             )}
             <div className="min-w-0">
-              <p className="font-semibold text-foreground truncate">
+              <p className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                 {entry.top_partner_name}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                by{' '}
-                <Link
-                  href={`/users/${entry.user_id}`}
-                  className="hover:text-primary transition-colors"
-                >
-                  {entry.full_name || entry.username}
-                </Link>
+                by <span className="hover:text-primary transition-colors">{entry.full_name || entry.username}</span>
               </p>
             </div>
-          </div>
+          </Link>
 
           {/* Stats */}
           <div className="hidden sm:flex items-center gap-3">
@@ -77,7 +71,7 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
             }`}>
               {entry.average_score}
             </div>
-            <p className="text-xs text-gray-400 mt-1">avg</p>
+            <p className="text-xs text-muted-foreground mt-1">avg</p>
           </div>
         </div>
       ))}

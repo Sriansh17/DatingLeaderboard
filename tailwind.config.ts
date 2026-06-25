@@ -8,18 +8,16 @@ const config: Config = {
     "./src/lib/**/*.{js,ts,jsx,tsx}",
   ],
   safelist: [
-    'bg-green-500',
-    'bg-emerald-500',
-    'bg-yellow-500',
-    'bg-orange-500',
-    'bg-red-500',
-    'text-green-500',
-    'text-emerald-500',
-    'text-yellow-500',
-    'text-orange-500',
-    'text-red-500',
+    'bg-score-low',
+    'bg-score-mid',
+    'bg-score-high',
+    'bg-score-legendary',
+    'text-score-low',
+    'text-score-mid',
+    'text-score-high',
+    'text-score-legendary',
   ],
-  darkMode: 'class', // kept for future use but dark class is never applied
+  darkMode: 'class', // applied by ThemeProvider — adds .dark class to html
   theme: {
     extend: {
       colors: {
@@ -59,7 +57,7 @@ const config: Config = {
           foreground: "rgb(var(--card-foreground) / <alpha-value>)",
         },
         gold: "rgb(var(--gold) / <alpha-value>)",
-        blush: "var(--blush)",
+        blush: "rgb(var(--blush) / <alpha-value>)",
         champagne: "rgb(var(--champagne) / <alpha-value>)",
         warning: "rgb(var(--warning) / <alpha-value>)",
         success: "rgb(var(--success) / <alpha-value>)",

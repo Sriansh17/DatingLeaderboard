@@ -61,6 +61,48 @@ export async function GET(
       isPremiumViewer = !!subscription;
     }
 
+    // Check connection status between viewer and profile owner
+    let connectionStatus: 'none' | 'pending_sent' | 'pending_received' | 'connected' = 'none';
+    if (user && user.id !== id) {
+      // Check if connected
+      const { data: connected } = await admin
+        .from('connections')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('connected_user_id', id)
+        .maybeSingle();
+
+      if (connected) {
+        connectionStatus = 'connected';
+      } else {
+        // Check for pending request from viewer to profile owner
+        const { data: sentRequest } = await admin
+          .from('connection_requests')
+          .select('id')
+          .eq('sender_id', user.id)
+          .eq('receiver_id', id)
+          .eq('status', 'pending')
+          .maybeSingle();
+
+        if (sentRequest) {
+          connectionStatus = 'pending_sent';
+        } else {
+          // Check for pending request from profile owner to viewer
+          const { data: receivedRequest } = await admin
+            .from('connection_requests')
+            .select('id')
+            .eq('sender_id', id)
+            .eq('receiver_id', user.id)
+            .eq('status', 'pending')
+            .maybeSingle();
+
+          if (receivedRequest) {
+            connectionStatus = 'pending_received';
+          }
+        }
+      }
+    }
+
     // Enrich posts with counts
     const enrichedPosts = (posts || []).map((post: any) => ({
       ...post,
@@ -89,6 +131,7 @@ export async function GET(
           top_partner_emoji: topPartner?.emoji || null,
         },
         posts: enrichedPosts,
+        connection_status: user ? connectionStatus : undefined,
         // Extended data — only for premium viewers
         ...(isPremiumViewer ? {
           partners: partners || [],

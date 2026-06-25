@@ -6,13 +6,16 @@ import { Spinner } from '@/components/ui/Spinner';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/components/ui/Toast';
+import { useConfirm } from '@/components/ui/ConfirmModal';
 import type { Partner } from '@/types/database';
 import { Plus, Edit3 } from 'lucide-react';
+import { PageBell } from '@/components/ui/PageBell';
 import { PartnerForm } from '@/components/partners/PartnerForm';
 
 export default function PartnersPage() {
   const { user, profile, refreshProfile } = useUser();
   const { addToast } = useToast();
+  const { confirm } = useConfirm();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -62,7 +65,7 @@ export default function PartnersPage() {
   const handleDelete = async (id: string, e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
-    if (!confirm('Remove this partner?')) return;
+    if (!(await confirm({ title: 'Remove Partner', message: 'Remove this partner?', confirmLabel: 'Remove', variant: 'danger' }))) return;
     const supabase = createClient();
     await supabase.from('partners').delete().eq('id', id);
     addToast('Partner removed', 'info');
@@ -79,9 +82,12 @@ export default function PartnersPage() {
     <main className="min-h-screen bg-transparent py-16 px-6 relative">
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         {/* Header Section */}
-        <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-4">
-          My Person
-        </p>
+        <div className="w-full flex items-center justify-between mb-4">
+          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold">
+            My Person
+          </p>
+          <PageBell />
+        </div>
         <h1 className="font-display text-5xl sm:text-6xl italic text-foreground mb-12">
           Partners
         </h1>

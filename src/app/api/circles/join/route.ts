@@ -92,6 +92,17 @@ export async function POST(request: Request) {
 
     if (joinError) throw joinError;
 
+    // Notify the circle creator
+    await admin
+      .from('notifications')
+      .insert({
+        user_id: circle.created_by,
+        type: 'clique_joined',
+        actor_id: user.id,
+        reference_id: circle.id,
+      })
+      .maybeSingle();
+
     return NextResponse.json({ success: true, data: circle });
   } catch (error) {
     console.error('Circle join error:', error);

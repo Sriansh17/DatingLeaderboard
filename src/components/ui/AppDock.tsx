@@ -2,17 +2,25 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Diamond } from "lucide-react";
+import { Home, Trophy, Plus, Heart, User, Sparkles, X, Mail, Settings } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from '@/components/providers/ThemeProvider';
 import { useAtmosphere, type Atmosphere } from '@/components/providers/AtmosphereProvider';
 import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 
+// ─── Bond Icon: two interlocking circles ──
+const BondIcon = ({ className }: { className?: string }) => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" className={className}>
+    <circle cx="8.5" cy="12" r="4.5" />
+    <circle cx="15.5" cy="12" r="4.5" />
+  </svg>
+);
+
 const fullTabs = [
   { href: "/dashboard", label: "Feed", icon: Home },
   { href: "/leaderboards", label: "Ranks", icon: Trophy },
-  { href: "/circles", label: "Cliques", icon: Diamond },
+  { href: "/circles", label: "Bond", icon: BondIcon },
   { href: "/partners", label: "Partners", icon: Heart },
   { href: "/profile", label: "Profile", icon: User },
 ] as const;
@@ -49,7 +57,7 @@ const MoonIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-// ─── Atmosphere Panel content (shared between popover and bottom sheet) ───────
+// ─── Atmosphere Panel ──────────────────────────────────────────────────────────────
 
 function AtmospherePanel({
   atmosphere,
@@ -89,14 +97,12 @@ function AtmospherePanel({
 
   return (
     <div className="w-full">
-      {/* Header: name + icon controls */}
       <div className="flex items-center justify-between mb-4">
         <span className="text-[10px] font-bold tracking-[0.15em] text-foreground uppercase">
           Atmosphere <span className="text-muted-foreground font-normal">·</span>{' '}
           <span className="text-muted-foreground font-normal normal-case tracking-normal">{ATM_NAMES[atmosphere] || atmosphere}</span>
         </span>
         <div className="flex items-center gap-1">
-          {/* Bubbles toggle icon */}
           <button
             onClick={() => setParticlesEnabled(!particlesEnabled)}
             className={`p-2 rounded-full border transition-colors ${particlesEnabled ? 'text-gold border-gold/30 bg-gold/10' : 'text-muted-foreground border-border bg-card hover:text-foreground'}`}
@@ -104,7 +110,6 @@ function AtmospherePanel({
           >
             <BubblesIcon className="h-3.5 w-3.5" />
           </button>
-          {/* Sun/Moon theme toggle icon */}
           <button
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground transition-colors"
@@ -118,7 +123,6 @@ function AtmospherePanel({
         </div>
       </div>
 
-      {/* Gradient circles */}
       <div className="grid grid-cols-6 gap-3 mb-5">
         {ATM_OPTIONS.map((atm) => {
           const isActive = atmosphere === atm;
@@ -140,22 +144,30 @@ function AtmospherePanel({
         })}
       </div>
 
-
-
-      {/* Footer */}
       <div className="flex items-center justify-between pt-3 border-t border-border">
-        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">More</span>
-        <Link
-          href="/contact"
-          onClick={onClose}
-          className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest flex items-center gap-1.5 transition-colors"
-        >
-          <Mail className="h-3 w-3" /> Meet the Creators
-        </Link>
+        <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Quick Links</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/settings"
+            onClick={onClose}
+            className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
+          >
+            <Settings className="h-3 w-3" /> Settings
+          </Link>
+          <Link
+            href="/contact"
+            onClick={onClose}
+            className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
+          >
+            <Mail className="h-3 w-3" /> Creators
+          </Link>
+        </div>
       </div>
     </div>
   );
 }
+
+// ─── AppDock ────────────────────────────────────────────────────────────────────────
 
 export function AppDock() {
   const pathname = usePathname();
@@ -176,19 +188,13 @@ export function AppDock() {
   // Close sheet on route change
   useEffect(() => { setSheetOpen(false); }, [pathname]);
 
-  // Redirect when anonymous mode toggles and current page doesn't match
+  // Redirect when anonymous mode toggles
   const prevModeRef = useRef(isAnonymousMode);
   useEffect(() => {
     const prev = prevModeRef.current;
     if (prev !== isAnonymousMode) {
-      // Switched OFF anonymous mode while on a /confessions page
-      if (!isAnonymousMode && pathname.startsWith('/confessions')) {
-        router.push('/dashboard');
-      }
-      // Switched ON anonymous mode while on /posts/new
-      if (isAnonymousMode && pathname === '/posts/new') {
-        router.push('/confessions/new');
-      }
+      if (!isAnonymousMode && pathname.startsWith('/confessions')) router.push('/dashboard');
+      if (isAnonymousMode && pathname === '/posts/new') router.push('/confessions/new');
       prevModeRef.current = isAnonymousMode;
     }
   }, [isAnonymousMode, pathname, router]);
@@ -228,7 +234,6 @@ export function AppDock() {
       <AnimatePresence>
         {sheetOpen && (
           <>
-            {/* Backdrop */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -237,7 +242,6 @@ export function AppDock() {
               className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
               onClick={() => setSheetOpen(false)}
             />
-            {/* Sheet */}
             <motion.div
               initial={{ y: '100%' }}
               animate={{ y: 0 }}
@@ -245,9 +249,7 @@ export function AppDock() {
               transition={{ type: 'spring', stiffness: 300, damping: 32 }}
               className="fixed bottom-0 inset-x-0 z-50 md:hidden rounded-t-3xl border-t border-border bg-popover px-6 pt-5 pb-10 shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.2)]"
             >
-              {/* Drag handle */}
               <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-muted-foreground/30" />
-
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-display italic text-xl text-foreground">Customise</h2>
                 <button
@@ -280,7 +282,12 @@ export function AppDock() {
               <button
                 onClick={(e) => {
                   e.preventDefault();
-                  setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+                  const isMobile = window.innerWidth < 768;
+                  if (isMobile) {
+                    setSheetOpen(true);
+                  } else {
+                    setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+                  }
                 }}
                 className="relative z-[60] flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full text-gold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
                 title="Toggle theme"
@@ -308,8 +315,6 @@ export function AppDock() {
             </div>
           )}
 
-
-
           {/* Show only Feed in anonymous mode, otherwise show Feed + Ranks */}
           {isAnonymousMode
             ? tabs.slice(0, 1).map(renderTab)
@@ -331,7 +336,7 @@ export function AppDock() {
             </Link>
           </div>
 
-          {/* In anonymous mode, don't render remaining tabs (only Feed was rendered above) */}
+          {/* Remaining tabs (in anonymous mode, only Feed was rendered above) */}
           {!isAnonymousMode && tabs.slice(2).map(renderTab)}
         </nav>
       </div>

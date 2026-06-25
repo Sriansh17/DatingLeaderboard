@@ -62,9 +62,9 @@ export function Spinner({ size = 'md', className, variant = 'heart', text }: Spi
         {variant === 'heart' ? (
           <>
             <motion.div
-              animate={{ scale: [1, 2.5, 1], opacity: [0, 0.6, 0] }}
+              animate={{ scale: [1, 1.6, 1], opacity: [0, 0.25, 0] }}
               transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute inset-[-50%] bg-blush rounded-full blur-xl z-0 pointer-events-none"
+              className="absolute inset-[-50%] bg-blush rounded-full blur-lg z-0 pointer-events-none"
             />
             <motion.div
               animate={{ scale: [1, 1.15, 1] }}

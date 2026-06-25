@@ -27,7 +27,7 @@ export function Avatar({ src, alt = '', size = 'md', className }: AvatarProps) {
   return (
     <div
       className={cn(
-        'rounded-full bg-gradient-to-br from-pink-400 to-accent flex items-center justify-center text-white font-semibold',
+        'rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-primary-foreground font-semibold',
         sizeMap[size],
         className
       )}

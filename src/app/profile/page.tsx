@@ -11,14 +11,14 @@ import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
-import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore } from 'lucide-react';
+import { PageBell } from '@/components/ui/PageBell';
+import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { EditProfileModal } from '@/components/profile/EditProfileModal';
 import { AvatarSelectionModal } from '@/components/profile/AvatarSelectionModal';
 import { EditPostModal } from '@/components/posts/EditPostModal';
-import { Share2 } from 'lucide-react';
 import { useShare } from '@/components/providers/ShareProvider';
 import { useToast } from '@/components/ui/Toast';
 import { motion } from 'framer-motion';
@@ -206,6 +206,10 @@ export default function ProfilePage() {
           </motion.h1>
         </div>
         <div className="flex items-center gap-2">
+          <PageBell />
+          <Link href="/settings" className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+            <Settings className="h-5 w-5" />
+          </Link>
           <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
             Edit
           </button>
@@ -282,8 +286,8 @@ export default function ProfilePage() {
                 </span>
               )}
               {displayStreak && (
-                <span className="inline-flex items-center gap-1 text-xs text-orange-500 font-semibold">
-                  <Flame className="h-3.5 w-3.5 fill-orange-500" /> {displayStreak.currentStreak}d streak
+                <span className="inline-flex items-center gap-1 text-xs text-score-mid font-semibold">
+                  <Flame className="h-3.5 w-3.5 fill-score-mid" /> {displayStreak.currentStreak}d streak
                 </span>
               )}
             </div>
@@ -421,20 +425,20 @@ export default function ProfilePage() {
               initial={{ scale: 0.97, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: 0.6 }}
-              className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-orange-50 dark:bg-orange-900/10 border border-orange-200 dark:border-orange-500/20"
+              className="flex items-center gap-4 px-6 py-4 rounded-2xl bg-warning/10 border border-warning/30"
             >
-              <Flame className="h-8 w-8 text-orange-500 dark:text-orange-500 fill-orange-500" />
+              <Flame className="h-8 w-8 text-warning fill-warning" />
               <div>
-                <p className="text-lg font-display italic text-orange-600 dark:text-orange-400">
+                <p className="text-lg font-display italic text-warning">
                   {displayStreak.message}
                 </p>
-                <p className="text-xs text-orange-500/80 dark:text-orange-500/70 uppercase tracking-widest font-medium">
+                <p className="text-xs text-warning/80 uppercase tracking-widest font-medium">
                   Longest Streak: {displayStreak.longestStreak} days
                 </p>
                 {canRestoreStreak && (
                   <button
                     onClick={() => setIsRestoreModalOpen(true)}
-                    className="mt-3 inline-flex items-center rounded-full border border-orange-300/50 bg-orange-500/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-orange-600 transition-colors hover:bg-orange-500/20 dark:text-orange-300"
+                    className="mt-3 inline-flex items-center rounded-full border border-warning/40 bg-warning/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-warning transition-colors hover:bg-warning/20"
                   >
                     Restore Streak
                   </button>
@@ -471,7 +475,7 @@ export default function ProfilePage() {
                 };
                 return (
                   <div key={post.id} className="break-inside-avoid">
-                    <StoryCard story={story} compact={true} onEdit={() => setEditingPost(post)} />
+                    <StoryCard story={story} compact={true} post={post} onEdit={() => setEditingPost(post)} />
                   </div>
                 );
               })}

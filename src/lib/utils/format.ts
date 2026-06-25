@@ -13,19 +13,17 @@ export function formatScore(score: number): string {
 }
 
 export function getScoreColor(score: number): string {
-  if (score >= 80) return 'text-green-500';
-  if (score >= 60) return 'text-emerald-500';
-  if (score >= 40) return 'text-yellow-500';
-  if (score >= 20) return 'text-orange-500';
-  return 'text-red-500';
+  if (score >= 92) return 'text-score-legendary';
+  if (score >= 75) return 'text-score-high';
+  if (score >= 55) return 'text-score-mid';
+  return 'text-score-low';
 }
 
 export function getScoreBgColor(score: number): string {
-  if (score >= 80) return 'bg-green-500';
-  if (score >= 60) return 'bg-emerald-500';
-  if (score >= 40) return 'bg-yellow-500';
-  if (score >= 20) return 'bg-orange-500';
-  return 'bg-red-500';
+  if (score >= 92) return 'bg-score-legendary';
+  if (score >= 75) return 'bg-score-high';
+  if (score >= 55) return 'bg-score-mid';
+  return 'bg-score-low';
 }
 
 export function getRankEmoji(rank: number): string {

@@ -9,10 +9,10 @@ interface ClientLayoutWrapperProps {
 
 export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const pathname = usePathname();
-  
+
   // Matches AppDock's visibility logic exactly
   const showDock = pathname !== '/' && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding');
-  
+
   return (
     <div className="min-h-screen flex flex-col relative">
       <div className={`flex-1 w-full mx-auto ${showDock ? 'pb-28 md:pb-32' : ''}`}>

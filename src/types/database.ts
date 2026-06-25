@@ -190,3 +190,63 @@ export interface LeaderboardCache {
   expires_at: string;
   created_at: string;
 }
+
+// ─── Connection / Bond feature ─────────────────────────────────────────────────────
+
+export type ConnectionStatus = 'none' | 'pending_sent' | 'pending_received' | 'connected';
+
+export interface ConnectionRequest {
+  id: string;
+  sender_id: string;
+  receiver_id: string;
+  status: 'pending' | 'accepted' | 'rejected';
+  created_at: string;
+  updated_at: string;
+  // Joined fields
+  sender?: Profile;
+  receiver?: Profile;
+}
+
+export interface Connection {
+  id: string;
+  user_id: string;
+  connected_user_id: string;
+  created_at: string;
+  // Joined fields
+  profile?: Profile;
+}
+
+// ─── Notifications ─────────────────────────────────────────────────────────────────
+
+export type NotificationType =
+  | 'connection_request'
+  | 'connection_accepted'
+  | 'clique_invite'
+  | 'clique_joined';
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  actor_id: string | null;
+  reference_id: string | null;
+  read: boolean;
+  created_at: string;
+  // Joined fields
+  actor?: Profile;
+}
+
+// ─── Subscription ──────────────────────────────────────────────────────────────────
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  plan_id: string | null;
+  amount: number | null;
+  currency: string | null;
+  status: string;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  created_at: string;
+  updated_at: string;
+}

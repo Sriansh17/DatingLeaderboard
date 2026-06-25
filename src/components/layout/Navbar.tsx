@@ -5,6 +5,7 @@ import { useUser } from '@/components/providers/AuthProvider';
 import { Button } from '@/components/ui/Button';
 import { Avatar } from '@/components/ui/Avatar';
 import { Heart, Menu, X, Mail, Sparkles } from 'lucide-react';
+import { NotificationBell } from '@/components/notifications/NotificationBell';
 import { useState } from 'react';
 import { cn } from '@/lib/utils/cn';
 
@@ -13,7 +14,7 @@ export function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg backdrop-blur-lg border-b border-border">
+    <nav className="sticky top-0 z-40 bg-background/80 backdrop-blur-lg border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -30,25 +31,25 @@ export function Navbar() {
               <>
                 <Link
                   href="/dashboard"
-                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/leaderboards"
-                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   Leaderboards
                 </Link>
                 <Link
                   href="/posts/new"
-                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   New Post
                 </Link>
                 <Link
                   href="/contact"
-                  className="text-sm text-muted-foreground hover:text-primary dark:hover:text-pink-400 transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Mail className="h-4 w-4 inline mr-1" />
                   Contact
@@ -77,13 +78,16 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-gray-100 dark:hover:bg-gray-800"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
+          {/* Right side: Bell (always visible) + Mobile menu button */}
+          <div className="flex items-center gap-1">
+            {user && <NotificationBell />}
+            <button
+              className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-elevated"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -97,17 +101,19 @@ export function Navbar() {
         <div className="px-4 py-3 space-y-2 border-t border-border">
           {user ? (
             <>
-              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Dashboard</Link>
-              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
-              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>New Post</Link>
-              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Partners</Link>
-              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Contact</Link>
-              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Profile</Link>
-              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20">Sign Out</button>
+              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
+              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>New Post</Link>
+              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Partners</Link>
+              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Contact</Link>
+              <Link href="/notifications" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Notifications</Link>
+              <Link href="/circles" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Bonds</Link>
+              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Profile</Link>
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10">Sign Out</button>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-gray-100 dark:hover:bg-gray-800" onClick={() => setMobileOpen(false)}>Sign In</Link>
+              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Sign In</Link>
               <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/15" onClick={() => setMobileOpen(false)}>Get Started</Link>
             </>
           )}

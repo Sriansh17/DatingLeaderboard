@@ -37,7 +37,7 @@ export function FondCalendar({ onSelect, onClose, current }: FondCalendarProps) 
   const next = () => { if (month === 11) { setMonth(0); setYear(year + 1); } else setMonth(month + 1); };
 
   return (
-    <div ref={ref} className="bg-card border border-border rounded-2xl shadow-2xl backdrop-blur-2xl p-4 w-72 z-50" style={{ background: 'rgb(var(--card) / 0.95)' }}>
+    <div ref={ref} className="glass-3 p-4 w-72 z-50 rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <button type="button" onClick={prev} className="p-1.5 rounded-lg hover:bg-muted transition-colors"><ChevronLeft className="h-4 w-4 text-foreground" /></button>
