@@ -323,7 +323,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
           <div className="mb-2 ml-10">
             <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/40 transition-colors resize-none" rows={2} />
             <div className="flex gap-2 mt-2">
-              <button onClick={submitEdit} disabled={saving || !editText.trim()} className="px-3 py-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold disabled:opacity-40">Save</button>
+              <button onClick={submitEdit} disabled={saving || !editText.trim()} className="px-3 py-1 rounded-full glass-btn text-xs font-semibold disabled:opacity-40">Save</button>
               <button onClick={() => setShowEdit(false)} className="px-3 py-1 rounded-full border border-border text-xs text-muted-foreground">Cancel</button>
             </div>
           </div>
@@ -393,7 +393,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
                 maxLength={500}
                 className="flex-1 rounded-full border border-border bg-muted/30 px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-primary/40 transition-colors"
               />
-              <button onClick={submitReply} disabled={!replyText.trim()} className={`p-1.5 rounded-full transition-all ${replyText.trim() ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground/30'}`}>
+              <button onClick={submitReply} disabled={!replyText.trim()} className={`p-1.5 rounded-full transition-all ${replyText.trim() ? 'glass-btn' : 'bg-muted text-muted-foreground/30'}`}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4z"/></svg>
               </button>
             </div>

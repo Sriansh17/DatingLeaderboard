@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PageBell } from '@/components/ui/PageBell';
-import { ArrowLeft, Heart, Trophy, MapPin, Sparkles, MessageCircle, LogIn, Users } from 'lucide-react';
+import { ArrowLeft, Heart, Trophy, MapPin, Sparkles, MessageCircle, LogIn, Users, Diamond } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { ConnectButton } from '@/components/cliques/ConnectButton';
@@ -44,6 +44,8 @@ export default function UserProfilePage() {
   const [error, setError] = useState('');
   const [inviteOpen, setInviteOpen] = useState(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('none');
+  const [bondCount, setBondCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
 
   useEffect(() => {
     const id = params.id as string;
@@ -63,6 +65,12 @@ export default function UserProfilePage() {
         })
         .catch(() => setError('Failed to load profile'))
         .finally(() => setLoading(false));
+
+      // Fetch social counts
+      fetch(`/api/circles?userId=${id}`)
+        .then(r => r.json()).then(d => { if (d.success) setBondCount(d.data?.length || 0); }).catch(() => {});
+      fetch(`/api/connections?userId=${id}`)
+        .then(r => r.json()).then(d => { if (d.success) setConnectionCount(d.data?.length || 0); }).catch(() => {});
     } else {
       // Username lookup — search then redirect to UUID URL
       fetch(`/api/users/search?q=${encodeURIComponent(id)}`)
@@ -187,6 +195,22 @@ export default function UserProfilePage() {
             </div>
           </div>
 
+          {/* Social stats — bonds + connections */}
+          <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="p-4 rounded-2xl border border-border bg-elevated/50 text-center">
+              <div className="font-score text-xl text-foreground">{bondCount}</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1">
+                <Diamond className="h-3 w-3" /> Bonds
+              </div>
+            </div>
+            <div className="p-4 rounded-2xl border border-border bg-elevated/50 text-center">
+              <div className="font-score text-xl text-gold">{connectionCount}</div>
+              <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1">
+                <Users className="h-3 w-3" /> Connections
+              </div>
+            </div>
+          </div>
+
           {/* Bio & details — if available */}
           {(profile.bio || partners) && (
             <div className="border-t border-border pt-6 space-y-4">
@@ -230,7 +254,7 @@ export default function UserProfilePage() {
                     className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-elevated transition-colors"
                   >
                     <Users className="h-3.5 w-3.5" />
-                    Invite to Clique
+                    Invite to Bond
                   </button>
                 </div>
               ) : (

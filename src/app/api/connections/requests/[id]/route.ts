@@ -94,3 +94,44 @@ export async function PATCH(
     );
   }
 }
+
+// DELETE /api/connections/requests/[id] — cancel a sent request (sender only)
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const supabase = await createServerSupabaseClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const admin = createAdminClient();
+
+    // Verify the user is the sender of this request
+    const { data: reqData, error: fetchError } = await admin
+      .from('connection_requests')
+      .select('sender_id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !reqData) {
+      return NextResponse.json({ success: false, error: 'Request not found' }, { status: 404 });
+    }
+
+    if (reqData.sender_id !== user.id) {
+      return NextResponse.json({ success: false, error: 'Only the sender can cancel this request' }, { status: 403 });
+    }
+
+    const { error } = await admin.from('connection_requests').delete().eq('id', id);
+    if (error) throw error;
+
+    return NextResponse.json({ success: true, message: 'Request cancelled' });
+  } catch (error) {
+    console.error('Connection request DELETE error:', error);
+    return NextResponse.json({ success: false, error: 'Failed to cancel request' }, { status: 500 });
+  }
+}

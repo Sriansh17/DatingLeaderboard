@@ -83,7 +83,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
       >
         <span>{loading ? 'Signing in...' : 'Sign In'}</span>
         {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}

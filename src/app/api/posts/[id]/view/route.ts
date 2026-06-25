@@ -9,31 +9,37 @@ export async function POST(
     const { id } = await params;
     const admin = createAdminClient();
 
-    // Read current views_count and increment
-    const { data: post, error: fetchError } = await admin
-      .from('posts')
-      .select('views_count')
-      .eq('id', id)
-      .single();
+    // Atomic increment via RPC — avoids race condition from read-then-write pattern
+    const { data, error } = await admin.rpc('increment_views', { post_id: id });
 
-    if (fetchError) {
-      console.error('[View API] Fetch error:', fetchError);
-      return NextResponse.json({ success: false, error: fetchError.message }, { status: 500 });
+    if (error) {
+      console.error('[View API] RPC error:', error);
+      // Fallback to non-atomic increment for resilience
+      const { data: post, error: fetchError } = await admin
+        .from('posts')
+        .select('views_count')
+        .eq('id', id)
+        .single();
+
+      if (fetchError) {
+        return NextResponse.json({ success: false, error: fetchError.message }, { status: 500 });
+      }
+
+      const currentViews = (post?.views_count || 0) + 1;
+
+      const { error: updateError } = await admin
+        .from('posts')
+        .update({ views_count: currentViews })
+        .eq('id', id);
+
+      if (updateError) {
+        return NextResponse.json({ success: false, error: updateError.message }, { status: 500 });
+      }
+
+      return NextResponse.json({ success: true, views_count: currentViews });
     }
 
-    const currentViews = (post?.views_count || 0) + 1;
-
-    const { error: updateError } = await admin
-      .from('posts')
-      .update({ views_count: currentViews })
-      .eq('id', id);
-
-    if (updateError) {
-      console.error('[View API] Update error:', updateError);
-      return NextResponse.json({ success: false, error: updateError.message }, { status: 500 });
-    }
-
-    return NextResponse.json({ success: true, views_count: currentViews });
+    return NextResponse.json({ success: true, views_count: data });
   } catch (error) {
     console.error('[View API] Error:', error);
     return NextResponse.json({ success: false, error: 'Failed to record view' }, { status: 500 });

@@ -345,31 +345,35 @@ export function PostForm({
                 partnerNickname={partnerNickname}
               />
 
-              <div className="mt-6 space-y-3">
-                <button
-                  onClick={() => openShare('post', {
-                    username: '@you',
-                    partnerName: partnerNickname,
-                    headline: description,
-                    verdict: aiResult.feedback,
-                    score: aiResult.score,
-                    city: '',
-                    date: new Date().toLocaleDateString(),
-                  })}
-                  className="w-full flex items-center justify-center gap-2.5 rounded-full border border-gold/40 bg-gold/10 py-4 font-bold text-gold shadow-[0_0_20px_rgba(199,169,107,0.15)] transition-all hover:scale-[1.02] hover:bg-gold/20"
-                >
-                  <Share2 className="h-4 w-4" />
-                  Share This Verdict
-                </button>
-                <button
-                  onClick={() => router.push('/leaderboards')}
-                  className="w-full rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] uppercase tracking-[0.2em] text-[10px]"
-                >
-                  See My New Rank ↑
-                </button>
+              <div className="mt-6 flex flex-col gap-3">
+                {/* Primary actions — side by side */}
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => openShare('post', {
+                      username: '@you',
+                      partnerName: partnerNickname,
+                      headline: description,
+                      verdict: aiResult.feedback,
+                      score: aiResult.score,
+                      city: '',
+                      date: new Date().toLocaleDateString(),
+                    })}
+                    className="flex-1 flex items-center justify-center gap-2.5 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-xl py-3.5 font-bold text-gold text-sm transition-all hover:bg-gold/20 hover:scale-[1.02]"
+                  >
+                    <Share2 className="h-4 w-4" />
+                    Share
+                  </button>
+                  <button
+                    onClick={() => router.push('/leaderboards')}
+                    className="flex-1 flex items-center justify-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary py-3.5 font-bold text-sm transition-all hover:bg-primary/25 hover:scale-[1.02]"
+                  >
+                    My Rank ↑
+                  </button>
+                </div>
+                {/* Secondary — subtle link */}
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="rounded-full border border-border bg-elevated/40 px-5 py-2 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+                  className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors underline underline-offset-2 decoration-dotted"
                 >
                   Back to feed
                 </button>
@@ -612,7 +616,7 @@ export function PostForm({
           >
             <button
               onClick={() => setShowFlaggedModal(false)}
-              className="w-full py-4 rounded-full bg-foreground text-background text-sm font-bold hover:scale-[1.02] transition-transform shadow-lg"
+              className="w-full py-4 rounded-full bg-foreground/10 backdrop-blur-xl border border-foreground/20 text-foreground text-sm font-bold hover:bg-foreground/20 transition-all hover:scale-[1.02] shadow-lg"
             >
               My bad, let me tell the truth
             </button>

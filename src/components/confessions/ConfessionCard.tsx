@@ -308,7 +308,7 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
                   <button
                     onClick={submitReply}
                     disabled={!replyText.trim() || replyPending || !user}
-                    className="flex items-center justify-center h-9 w-9 rounded-full bg-primary text-primary-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all flex-shrink-0"
+                    className="flex items-center justify-center h-9 w-9 rounded-full glass-btn disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all flex-shrink-0"
                   >
                     <Send className="h-4 w-4" />
                   </button>

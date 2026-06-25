@@ -64,7 +64,7 @@ export function FondCalendar({ onSelect, onClose, current }: FondCalendarProps) 
               type="button"
               disabled={!isPast}
               onClick={() => onSelect(date)}
-              className={`text-center text-sm py-1.5 rounded-xl transition-colors ${isSel ? 'bg-primary text-primary-foreground font-semibold' : isToday ? 'border border-primary/30 text-foreground font-medium' : 'text-foreground/70 hover:bg-muted'} ${!isPast ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+              className={`text-center text-sm py-1.5 rounded-xl transition-colors ${isSel ? 'glass-btn font-semibold' : isToday ? 'border border-primary/30 text-foreground font-medium' : 'text-foreground/70 hover:bg-muted'} ${!isPast ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {d}
             </button>
