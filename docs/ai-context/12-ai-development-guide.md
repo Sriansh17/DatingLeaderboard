@@ -25,7 +25,7 @@ This file is the operating manual for future AI coding sessions working on Fond.
 ### Before Creating a New Component
 
 1. Search the component catalog for existing components that could be reused
-2. Check if a similar component exists with a different name (e.g., `ProfileForm` vs `EditProfileModal`)
+2. Check if a similar component already exists (e.g., `EditProfileModal` handles all profile editing — `ProfileForm` was merged into it)
 3. Verify that no UI primitive already covers the need (`Button`, `Card`, `Modal`, `Tabs`, etc.)
 
 ---
@@ -36,7 +36,7 @@ This file is the operating manual for future AI coding sessions working on Fond.
 
 1. **ALL buttons use `rounded-full`** — never use squared or different corner radii for buttons
 2. **ALL cards use `.glass`** (or glass-1/glass-2 for specific purposes) — defined in `globals.css`
-3. **Primary CTAs** use `bg-primary text-primary-foreground` + `shadow-[var(--shadow-glow)]`
+3. **Primary CTAs** use `glass-btn` class (semi-transparent bg with backdrop-blur, colored border, glow shadow). Gold variant: `glass-btn-gold`. Defined in `globals.css`.
 4. **Small labels** use the pattern: `text-[9px] or text-[10px] uppercase tracking-[0.2em] font-bold`
 5. **Headings** use `font-display italic` — always italic for display text
 6. **Score numbers** use `font-score` class — always

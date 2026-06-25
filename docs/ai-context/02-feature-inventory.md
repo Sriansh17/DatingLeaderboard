@@ -155,15 +155,12 @@
 ## Partially Implemented Features
 
 ### 18. Share Studio (Incomplete)
-- **Status:** Framework exists, `ShareTemplates/` directory is **empty**
-- **Evidence:** `ShareStudio.tsx` renders a full-screen editor with template carousel navigation, but no actual templates are loaded. "Share to Story" button has no platform integration.
+- **Status:** `ShareTemplates/` directory was **empty** — has been removed. Feature remains skeletal.
 - **Components:** `ShareStudio.tsx`, `LoveCode.tsx`
 - **Recommendation:** Either implement the 14 template variants or remove the feature.
 
 ### 19. Admin/Migration Tooling
-- **Status:** Directory exists, no route file
-- **Location:** `src/app/api/admin/migrate/`
-- **Recommendation:** Remove empty directory or implement.
+- **Status:** Empty `migrate/` directory has been **removed**.
 
 ### 20. Premium Bypass
 - **Status:** `PostForm.tsx:83-97` has `handleUpgradeToPremium` that calls `PATCH /api/users` with `is_premium: true` directly — no payment verification
@@ -180,11 +177,8 @@
 - **Recommendation:** Update migration comments.
 
 ### 22. Bottom Navigation (Legacy)
-- **Status:** `BottomNav.tsx` and `MobileNav.tsx` exist but are replaced by `AppDock.tsx`
-- **Risk:** May render simultaneously with AppDock
-- **Recommendation:** Remove.
+- **Status:** `BottomNav.tsx` and `MobileNav.tsx` have been **removed**. AppDock is the single navigation component.
 
 ### 23. Test Particles Page
-- **Status:** `/test-particles/page.tsx` is a public route for particle testing
-- **Risk:** Exposed admin/test page in production
+- **Status:** `/test-particles/page.tsx` has been **removed**.
 - **Recommendation:** Remove or gate behind dev mode.

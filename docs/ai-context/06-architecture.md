@@ -50,7 +50,6 @@ DatingLeaderboard/
 │   │   ├── contact/            # Creators page
 │   │   ├── users/              # Public user profiles
 │   │   ├── health/             # Health check endpoint
-│   │   ├── test-particles/     # DEV: particle prototypes
 │   │   └── api/                # All API routes
 │   ├── components/
 │   │   ├── ui/                 # Primitive components

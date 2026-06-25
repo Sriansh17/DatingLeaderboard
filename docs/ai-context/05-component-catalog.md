@@ -121,16 +121,6 @@
 - **Status:** ACTIVE — desktop top nav
 - **Content:** Logo, desktop nav links, user avatar + sign out, hamburger menu on mobile
 
-### BottomNav (Legacy — DO NOT USE)
-- **File:** `src/components/layout/BottomNav.tsx`
-- **Status:** DEAD — replaced by AppDock
-- **Action:** Remove
-
-### MobileNav (Legacy — DO NOT USE)
-- **File:** `src/components/layout/MobileNav.tsx`
-- **Status:** DEAD — replaced by AppDock
-- **Action:** Remove
-
 ### ClientLayoutWrapper
 - **File:** `src/components/layout/ClientLayoutWrapper.tsx`
 - **Purpose:** Renders AppDock conditionally (hides on landing, auth, onboarding), adds bottom padding for dock
@@ -178,8 +168,7 @@
 |-----------|------|---------|
 | ProfileHeader | `profile/ProfileHeader.tsx` | Avatar, name, streak, bio, stats grid |
 | ProfileStats | `profile/ProfileStats.tsx` | Posts/avg/best/partners stats |
-| ProfileForm | `profile/ProfileForm.tsx` | Simplified profile editor (fewer fields) |
-| EditProfileModal | `profile/EditProfileModal.tsx` | Full profile editor with all fields |
+| EditProfileModal | `profile/EditProfileModal.tsx` | Full profile editor with all fields + avatar upload |
 | AvatarSelectionModal | `profile/AvatarSelectionModal.tsx` | Avatar picker grid |
 
 ### Leaderboards

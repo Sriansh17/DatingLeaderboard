@@ -230,7 +230,7 @@ CSS-based scroll reveal via `reveal-up` and `reveal-up-stagger` classes with Int
 
 1. **ALL buttons use `rounded-full`** — no sharp-cornered buttons
 2. **ALL cards use `.glass` base** (or glass-2 for widgets)
-3. **Primary CTA uses `bg-primary text-primary-foreground` + `shadow-[var(--shadow-glow)]`**
+3. **Primary CTA uses `glass-btn` class** — semi-transparent bg with backdrop-blur, colored border, and glow shadow. Defined in `globals.css`. Also available: `glass-btn-gold` for gold variants.
 4. **Small labels use `text-[9px] uppercase tracking-[0.2em] font-bold`**
 5. **Headings use `font-display italic`**
 6. **Score numbers use `font-score`**
