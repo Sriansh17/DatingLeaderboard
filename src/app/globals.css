@@ -122,6 +122,14 @@
     color: var(--foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    /* Mobile performance & UX */
+    -webkit-tap-highlight-color: transparent;
+    overscroll-behavior: contain;
+  }
+
+  /* Smooth momentum scrolling on iOS */
+  .scrollable {
+    -webkit-overflow-scrolling: touch;
   }
 
   h1, h2, h3, h4 {
@@ -254,6 +262,35 @@
   /* Safe area for iPhone notch / home indicator */
   .pb-safe {
     padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  /* Min touch target — ensures interactive elements meet 44px WCAG */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Scroll indicator fade for horizontal scroll areas */
+  .scroll-fade-right {
+    -webkit-mask-image: linear-gradient(to right, black 85%, transparent 100%);
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+  }
+  .scroll-fade-left {
+    -webkit-mask-image: linear-gradient(to left, black 85%, transparent 100%);
+    mask-image: linear-gradient(to left, black 85%, transparent 100%);
   }
 
   .text-gradient-gold {

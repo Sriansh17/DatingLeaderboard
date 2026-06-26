@@ -96,18 +96,18 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           <span className={`${mutedColorClass} italic shrink-0`}>×</span>
           <span className={`${textColorClass} opacity-80 font-medium text-base sm:text-lg truncate max-w-[45%]`}>{story.partnerNickname}</span>
         </div>
-        <div className={`text-[9px] sm:text-[10px] uppercase tracking-[0.2em] font-bold ${mutedColorClass} opacity-60`}>
+        <div className={`text-[10px] sm:text-[11px] uppercase tracking-[0.2em] font-bold ${mutedColorClass} opacity-60`}>
           {story.city} • {story.postedAt}
         </div>
       </div>
       
-      <div className="flex-shrink-0 transition-transform duration-700 group-hover:scale-105 ml-2">
+      <div className="flex-shrink-0 transition-transform duration-700 group-hover:scale-105 group-focus-within:scale-105 ml-2">
         <ScoreRing score={story.score} size={64} />
       </div>
     </header>
   );
 
-  const renderFooter = (mutedClass = "text-muted-foreground hover:text-foreground", borderClass = "border-border/50") => {
+  const renderFooter = (mutedClass = "text-muted-foreground hover:text-foreground active:text-foreground", borderClass = "border-border/50") => {
     // Use local state for optimistic updates, fall back to prop on initial render
     const heartActive = post ? isLiked : activeReaction === 'Heart';
     const heartCount = post ? likesCount : 0;
@@ -122,7 +122,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           onClick={(e) => handleReact(e, 'Heart')}
           disabled={post && likePostMutation.isPending}
           className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
-            heartActive ? 'text-red-500 hover:text-red-600' : mutedClass
+            heartActive ? 'text-red-500 hover:text-red-600 active:text-red-600' : mutedClass
           }`}
         >
           <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-red-500 text-red-500' : ''}`} />
@@ -134,7 +134,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
             e.stopPropagation();
             if (post) setShowComments(true);
           }}
-          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
         >
           <MessageCircle className="h-4 w-4" />
           <span>{post?.comments_count ?? 0}</span>
@@ -222,7 +222,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 {/* Partner avatar (back) */}
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
                   {story.partnerAvatarUrl ? (
-                    <img src={story.partnerAvatarUrl} alt={story.partnerNickname} className="h-full w-full object-cover" />
+                    <img src={story.partnerAvatarUrl} alt={story.partnerNickname} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-white text-[11px] font-bold leading-none">
                       {story.partnerNickname.charAt(0).toUpperCase()}
@@ -232,7 +232,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 {/* User avatar (front) */}
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
                   {story.userAvatarUrl ? (
-                    <img src={story.userAvatarUrl} alt={story.username} className="h-full w-full object-cover" />
+                    <img src={story.userAvatarUrl} alt={story.username} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
                     <span className="text-white text-[11px] font-bold leading-none">
                       {story.username.replace('@', '').charAt(0).toUpperCase()}
@@ -247,7 +247,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   {post ? (
                     <button
                       data-profile
-                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/30 underline-offset-2 hover:text-primary transition-colors cursor-pointer"
+                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/30 underline-offset-2 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
                     >
                       {story.username}
                     </button>
@@ -257,7 +257,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   <span className="text-muted-foreground/50 text-xs">×</span>
                   <span className="text-foreground/80 font-medium text-sm sm:text-base truncate max-w-[100px]">{story.partnerNickname}</span>
                 </div>
-                <div className="text-[9px] sm:text-[10px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
+                <div className="text-[10px] sm:text-[11px] uppercase tracking-[0.25em] font-bold text-muted-foreground">
                   {story.city}{story.city ? ' · ' : ''}{story.postedAt}
                 </div>
               </div>
@@ -273,7 +273,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               &quot;{story.headline}&quot;
             </h3>
             <div className={compact ? "mt-4 sm:mt-6" : "mt-10"}>
-              <span className="font-bold uppercase tracking-[0.2em] text-[9px] text-primary block mb-2 sm:mb-3">AI Verdict</span>
+              <span className="font-bold uppercase tracking-[0.2em] text-[10px] text-primary block mb-2 sm:mb-3">AI Verdict</span>
               <p className={`text-foreground/80 leading-relaxed font-sans font-light ${compact ? 'text-xs sm:text-sm line-clamp-3' : 'text-base line-clamp-2'}`}>
                 {story.verdict}
               </p>
@@ -287,8 +287,8 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 disabled={post && likePostMutation.isPending}
                 className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
                   (post ? isLiked : activeReaction === 'Heart')
-                    ? 'text-red-500 hover:text-red-600'
-                    : 'text-muted-foreground hover:text-red-400'
+                    ? 'text-red-500 hover:text-red-600 active:text-red-600'
+                    : 'text-muted-foreground hover:text-red-400 active:text-red-500'
                 } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
                 <Heart className={`h-4 w-4 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-red-500' : ''}`} />
@@ -301,7 +301,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   e.stopPropagation();
                   if (post) setShowComments(true);
                 }}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{post?.comments_count ?? 0}</span>
@@ -313,7 +313,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               {onEdit && (
                 <button data-action
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted"
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted active:bg-muted/80"
                 >
                   <Pencil className="h-3.5 w-3.5 inline mr-1" />
                   Edit
@@ -333,7 +333,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                     date: story.postedAt,
                   });
                 }}
-                className="relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>
@@ -362,16 +362,16 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
         layout
         initial={{ opacity: 0, filter: "blur(10px)", y: 10 }}
         animate={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-        className="rounded-3xl border border-border bg-card p-5 sm:p-8 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_rgba(233,43,84,0.15)] hover:border-primary/30 hover:-translate-y-1 relative overflow-hidden flex flex-col h-full min-h-[300px]"
+        className="rounded-3xl border border-border bg-card p-5 sm:p-8 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_rgba(233,43,84,0.15)] hover:border-primary/30 hover:-translate-y-1 active:shadow-[0_20px_60px_-15px_rgba(233,43,84,0.15)] active:border-primary/40 active:translate-y-0 relative overflow-hidden flex flex-col h-full min-h-[300px]"
       >
         <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent dark:from-white/[0.02] mix-blend-overlay pointer-events-none" />
         {renderHeader()}
         <div className="flex-1 flex flex-col justify-center py-6 sm:py-8 relative z-10">
-          <h3 className="font-display italic text-2xl sm:text-3xl md:text-4xl leading-tight text-foreground line-clamp-4 group-hover:text-primary transition-colors duration-500">
+          <h3 className="font-display italic text-2xl sm:text-3xl md:text-4xl leading-tight text-foreground line-clamp-4 group-hover:text-primary group-focus-within:text-primary transition-colors duration-500">
             &quot;{story.headline}&quot;
           </h3>
           <p className="mt-4 sm:mt-6 text-xs sm:text-sm text-muted-foreground/80 leading-relaxed line-clamp-2 max-w-full sm:max-w-[85%] font-sans">
-            <span className="font-bold uppercase tracking-widest text-[9px] text-primary/80 block mb-1">AI Verdict</span>
+            <span className="font-bold uppercase tracking-widest text-[10px] text-primary/80 block mb-1">AI Verdict</span>
             {story.verdict}
           </p>
         </div>

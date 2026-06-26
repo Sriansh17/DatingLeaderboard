@@ -200,7 +200,7 @@ function SelectPill({
       className={`flex items-center gap-2 px-5 py-3 rounded-full border text-sm font-medium transition-all duration-300 ${
         selected
           ? active
-          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 active:bg-black/12 dark:active:bg-white/12 text-foreground'
       }`}
     >
       <AnimatePresence>
@@ -366,7 +366,7 @@ function CinematicIntro({ onStart, audioRef }: { onStart: () => void; audioRef: 
         <div id="intro-cta" className="opacity-0 w-full max-w-xs mt-8">
           <button
             onClick={onStart}
-            className="relative w-full overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/15 hover:shadow-[0_0_50px_-4px_rgba(199,169,107,0.4)] active:scale-[0.98]"
+            className="relative w-full overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/15 hover:shadow-[0_0_50px_-4px_rgba(199,169,107,0.4)] active:scale-[0.98] active:bg-gold/25"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
             <span className="relative z-10 flex items-center gap-2.5">
@@ -542,7 +542,7 @@ export default function OnboardingFlow() {
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5, duration: 0.4 }}
         onClick={() => setMuted(m => !m)}
-        className="fixed top-5 right-5 z-50 p-2.5 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-white/60 hover:text-white hover:bg-black/40 transition-all"
+        className="fixed top-5 right-5 z-50 p-2.5 rounded-full border border-white/10 bg-black/20 backdrop-blur-md text-white/60 hover:text-white hover:bg-black/40 active:text-white/80 active:bg-black/50 transition-all"
         aria-label={muted ? 'Unmute' : 'Mute'}
       >
         {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
@@ -577,7 +577,7 @@ export default function OnboardingFlow() {
           {step > 1 ? (
             <button
               onClick={() => goTo(step - 1)}
-              className="p-2 -ml-2 rounded-full hover:bg-black/6 dark:hover:bg-white/8 transition-colors shrink-0"
+              className="p-2 -ml-2 rounded-full hover:bg-black/6 dark:hover:bg-white/8 active:bg-black/10 dark:active:bg-white/12 transition-colors shrink-0"
               aria-label="Go back"
             >
               <ArrowLeft className="h-[18px] w-[18px]" />
@@ -626,11 +626,11 @@ export default function OnboardingFlow() {
                   <button
                     type="button"
                     onClick={() => setShowAvatarModal(true)}
-                    className="w-24 h-24 rounded-full border-2 border-dashed border-border hover:border-primary/40 transition-colors flex items-center justify-center overflow-hidden bg-muted/20"
+                    className="w-24 h-24 rounded-full border-2 border-dashed border-border hover:border-primary/40 active:border-primary/50 transition-colors flex items-center justify-center overflow-hidden bg-muted/20"
                   >
                     {avatarUrl ? (
                       avatarUrl.startsWith('http') ? (
-                        <img src={avatarUrl} alt="" className="w-full h-full object-cover" />
+                        <img src={avatarUrl} alt="" loading="lazy" className="w-full h-full object-cover" />
                       ) : (
                         <span className="text-3xl">{avatarUrl}</span>
                       )
@@ -676,7 +676,7 @@ export default function OnboardingFlow() {
                         className={`w-full border-b bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none transition-colors placeholder:text-muted-foreground/30 ${ageInvalid ? 'border-destructive/60' : 'border-border focus:border-primary'}`}
                       />
                       {ageInvalid && (
-                        <p className="text-[9px] text-destructive/80 font-medium mt-1">Enter a valid age (13–120)</p>
+                        <p className="text-[10px] text-destructive/80 font-medium mt-1">Enter a valid age (13–120)</p>
                       )}
                     </div>
                     <div className="space-y-1.5 relative">
@@ -698,7 +698,7 @@ export default function OnboardingFlow() {
                                 key={opt}
                                 type="button"
                                 onMouseDown={() => { setGender(opt); setShowGenderDropdown(false); }}
-                                className={'w-full text-left px-4 py-3 text-sm transition-colors ' + (gender === opt ? 'text-primary bg-primary/5 font-medium' : 'text-foreground hover:bg-muted')}
+                                className={'w-full text-left px-4 py-3 text-sm transition-colors ' + (gender === opt ? 'text-primary bg-primary/5 font-medium' : 'text-foreground hover:bg-muted active:bg-muted/80')}
                               >
                                 {opt}
                               </button>
@@ -764,7 +764,7 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(3)}
                     disabled={!displayName.trim() || !age || !gender || !occupation || !city || !country}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
@@ -826,7 +826,7 @@ export default function OnboardingFlow() {
                 </div>
                 <button
                   onClick={() => goTo(5)}
-                  className="mt-4 text-center text-muted-foreground text-sm font-medium hover:text-foreground transition-colors py-2"
+                  className="mt-4 text-center text-muted-foreground text-sm font-medium hover:text-foreground active:text-foreground transition-colors py-3 touch-target"
                 >
                   Skip for now
                 </button>
@@ -860,13 +860,13 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(6)}
                     disabled={selectedGoals.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => goTo(6)}
-                    className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
+                    className="text-muted-foreground text-sm font-medium py-3 hover:text-foreground active:text-foreground transition-colors touch-target"
                   >
                     Skip for now
                   </button>
@@ -903,13 +903,13 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(7)}
                     disabled={selectedLanguages.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => goTo(7)}
-                    className="text-muted-foreground text-sm font-medium py-2 hover:text-foreground transition-colors"
+                    className="text-muted-foreground text-sm font-medium py-3 hover:text-foreground active:text-foreground transition-colors touch-target"
                   >
                     Skip for now
                   </button>
@@ -936,7 +936,7 @@ export default function OnboardingFlow() {
                       className={`flex items-center gap-1.5 px-4 py-2 rounded-full border text-sm font-medium transition-all ${
                         theme === t.id
                           ? 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-                          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+                          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 active:bg-black/12 dark:active:bg-white/12 text-foreground'
                       }`}
                     >
                       {t.label}
@@ -994,7 +994,7 @@ export default function OnboardingFlow() {
                         className={`relative h-24 rounded-2xl overflow-hidden border-2 transition-all duration-200 ${
                           isActive
                             ? 'border-white/80 shadow-[0_0_20px_rgba(255,255,255,0.2)] scale-[1.03]'
-                            : 'border-transparent hover:border-white/30 hover:scale-[1.01]'
+                            : 'border-transparent hover:border-white/30 hover:scale-[1.01] active:border-white/40 active:scale-[0.99]'
                         } ${atm.bg}`}
                         aria-pressed={isActive}
                         title={atm.name}
@@ -1039,14 +1039,14 @@ export default function OnboardingFlow() {
                       className="absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm"
                     />
                   </div>
-                  <span className="text-sm text-foreground font-medium group-hover:text-foreground/80 transition-colors">
+                  <span className="text-sm text-foreground font-medium group-hover:text-foreground/80 group-focus-within:text-foreground/80 transition-colors">
                     ✨ Enable magic particles
                   </span>
                 </label>
 
                 <button
                   onClick={() => goTo(8)}
-                  className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] mt-auto uppercase tracking-[0.2em] text-[10px]"
+                  className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] mt-auto uppercase tracking-[0.2em] text-[10px]"
                 >
                   Continue <ArrowRight className="h-4 w-4" />
                 </button>
@@ -1103,7 +1103,7 @@ export default function OnboardingFlow() {
                   >
                     <button
                       onClick={completeOnboarding}
-                      className="mx-auto w-full max-w-sm relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/18 hover:shadow-[0_0_40px_-4px_rgba(199,169,107,0.35)]"
+                      className="mx-auto w-full max-w-sm relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md py-5 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/18 hover:shadow-[0_0_40px_-4px_rgba(199,169,107,0.35)] active:scale-[0.98] active:bg-gold/25"
                     >
                       <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
                       <span className="relative z-10 flex items-center gap-3">
@@ -1159,7 +1159,7 @@ function ToggleChip({
           ? gold
             ? 'border-gold/50 bg-gold/10 text-gold shadow-[0_0_14px_-2px_rgba(199,169,107,0.25)]'
             : 'border-primary/50 bg-primary/10 text-primary shadow-[0_0_14px_-2px_rgb(var(--primary)/0.2)]'
-          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 text-foreground'
+          : 'border-black/10 dark:border-border bg-black/4 dark:bg-white/4 hover:bg-black/8 dark:hover:bg-white/8 active:bg-black/12 dark:active:bg-white/12 text-foreground'
       }`}
     >
       {label}

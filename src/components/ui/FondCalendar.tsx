@@ -40,9 +40,9 @@ export function FondCalendar({ onSelect, onClose, current }: FondCalendarProps) 
     <div ref={ref} className="glass-3 p-4 w-72 z-50 rounded-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
-        <button type="button" onClick={prev} className="p-1.5 rounded-lg hover:bg-muted transition-colors"><ChevronLeft className="h-4 w-4 text-foreground" /></button>
+        <button type="button" onClick={prev} className="p-1.5 rounded-lg hover:bg-muted active:bg-muted/80 transition-colors"><ChevronLeft className="h-4 w-4 text-foreground" /></button>
         <span className="text-sm font-semibold text-foreground">{MONTHS[month]} {year}</span>
-        <button type="button" onClick={next} className="p-1.5 rounded-lg hover:bg-muted transition-colors"><ChevronRight className="h-4 w-4 text-foreground" /></button>
+        <button type="button" onClick={next} className="p-1.5 rounded-lg hover:bg-muted active:bg-muted/80 transition-colors"><ChevronRight className="h-4 w-4 text-foreground" /></button>
       </div>
 
       {/* Day headers */}
@@ -64,7 +64,7 @@ export function FondCalendar({ onSelect, onClose, current }: FondCalendarProps) 
               type="button"
               disabled={!isPast}
               onClick={() => onSelect(date)}
-              className={`text-center text-sm py-1.5 rounded-xl transition-colors ${isSel ? 'glass-btn font-semibold' : isToday ? 'border border-primary/30 text-foreground font-medium' : 'text-foreground/70 hover:bg-muted'} ${!isPast ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
+              className={`text-center text-sm py-1.5 rounded-xl transition-colors ${isSel ? 'glass-btn font-semibold' : isToday ? 'border border-primary/30 text-foreground font-medium' : 'text-foreground/70 hover:bg-muted active:bg-muted/80'} ${!isPast ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'}`}
             >
               {d}
             </button>

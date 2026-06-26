@@ -134,7 +134,7 @@ export function ShareStudio() {
         {/* Close Button (Top Right) */}
         <button 
           onClick={closeShare}
-          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated backdrop-blur-md transition-colors"
+          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 backdrop-blur-md transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -147,11 +147,11 @@ export function ShareStudio() {
 
            <div className="flex-1 w-full flex items-center justify-center min-h-0 relative">
              {/* Navigation Chevrons */}
-             <button onClick={handlePrevTheme} className="absolute left-0 lg:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors">
+             <button onClick={handlePrevTheme} className="absolute left-0 lg:left-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 active:bg-primary/15 transition-colors">
                <ChevronLeft className="w-5 h-5" />
              </button>
 
-             <button onClick={handleNextTheme} className="absolute right-0 lg:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-border bg-muted text-foreground hover:bg-elevated transition-colors">
+             <button onClick={handleNextTheme} className="absolute right-0 lg:right-4 top-1/2 -translate-y-1/2 z-20 p-3 rounded-xl border border-border bg-muted text-foreground hover:bg-elevated active:bg-elevated/80 transition-colors">
                <ChevronRight className="w-5 h-5" />
              </button>
 
@@ -195,14 +195,14 @@ export function ShareStudio() {
                 <span className="text-[11px] uppercase tracking-widest font-bold text-white relative z-10">
                   {isExporting ? 'Generating...' : 'Share to Story'}
                 </span>
-                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
+                <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 group-focus-within:translate-y-0 transition-transform duration-300 ease-out" />
               </button>
 
               <div className="grid grid-cols-2 gap-4">
                 <button 
                   onClick={() => handleExport('save')}
                   disabled={isExporting}
-                  className="w-full rounded-[2rem] border border-border bg-muted hover:bg-elevated px-6 py-5 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:pointer-events-none text-foreground"
+                  className="w-full rounded-[2rem] border border-border bg-muted hover:bg-elevated active:bg-elevated/80 px-6 py-5 flex items-center justify-center gap-3 transition-colors disabled:opacity-50 disabled:pointer-events-none text-foreground"
                 >
                   <Download className="w-4 h-4" />
                   <span className="text-[10px] uppercase tracking-widest font-bold">Save Image</span>
@@ -210,7 +210,7 @@ export function ShareStudio() {
 
                 <button 
                   onClick={handleCopyLink}
-                  className="w-full rounded-[2rem] border border-black/10 bg-black/5 hover:bg-black/10 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 px-6 py-5 flex items-center justify-center gap-3 transition-colors text-black dark:text-white"
+                  className="w-full rounded-[2rem] border border-black/10 bg-black/5 hover:bg-black/10 active:bg-black/15 dark:border-white/10 dark:bg-white/5 dark:hover:bg-white/10 dark:active:bg-white/15 px-6 py-5 flex items-center justify-center gap-3 transition-colors text-black dark:text-white"
                 >
                   <LinkIcon className="w-4 h-4" />
                   <span className="text-[10px] uppercase tracking-widest font-bold">

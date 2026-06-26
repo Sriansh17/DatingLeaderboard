@@ -110,13 +110,13 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors"
+              className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleUpgrade}
-              className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors"
+              className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-5 py-2 text-xs font-semibold text-black transition-colors"
             >
               Upgrade to Premium
             </button>
@@ -169,7 +169,7 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
               <button
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors disabled:opacity-50"
+                className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -180,7 +180,7 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
                   description.trim().length < 30 ||
                   description.trim() === post.description
                 }
-                className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 active:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isSubmitting ? 'Saving…' : 'Save & Re-score'}
               </button>

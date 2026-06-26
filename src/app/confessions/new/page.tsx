@@ -11,7 +11,7 @@ export default function NewConfessionPage() {
     <main>
       <button
         onClick={() => router.push("/dashboard")}
-        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
+        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Feed
       </button>

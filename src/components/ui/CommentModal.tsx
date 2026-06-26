@@ -75,13 +75,13 @@ export function CommentModal({ postId, isOpen, onClose, commentsCount }: Comment
           <div className="flex rounded-lg border border-border p-0.5 bg-muted/30">
             <button
               onClick={() => setSort('popular')}
-              className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sort === 'popular' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sort === 'popular' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground active:text-foreground'}`}
             >
               Popular
             </button>
             <button
               onClick={() => setSort('recent')}
-              className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sort === 'recent' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sort === 'recent' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground active:text-foreground'}`}
             >
               Recent
             </button>
@@ -110,7 +110,7 @@ export function CommentModal({ postId, isOpen, onClose, commentsCount }: Comment
           <CommentInput onSubmit={handleSubmit} avatarUrl={profile?.avatar_url} />
         ) : (
           <p className="text-sm text-muted-foreground text-center pt-3 border-t border-border/60">
-            <Link href="/auth/login" className="text-primary hover:underline" onClick={onClose}>Sign in</Link> to leave a love note.
+            <Link href="/auth/login" className="text-primary hover:underline active:underline" onClick={onClose}>Sign in</Link> to leave a love note.
           </p>
         )}
       </div>

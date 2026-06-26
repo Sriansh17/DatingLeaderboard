@@ -4,8 +4,8 @@ import { Heart } from 'lucide-react';
 
 export default function NotFound() {
   return (
-    <div className="flex items-center justify-center min-h-[60vh]">
-      <div className="text-center max-w-md">
+    <div className="flex items-center justify-center min-h-[60vh] px-4">
+      <div className="text-center max-w-md w-full">
         <Heart className="h-16 w-16 text-pink-300 mx-auto mb-4" />
         <h1 className="text-4xl font-bold text-foreground mb-2">404</h1>
         <p className="text-muted-foreground mb-6">

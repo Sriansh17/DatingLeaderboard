@@ -54,7 +54,7 @@ function PodiumAvatar({
         className={`${size} rounded-full border-2 overflow-hidden flex items-center justify-center font-display text-xl shadow-[0_0_20px_-5px_currentColor] z-10 relative ${colorClass} ${borderClass} bg-elevated`}
       >
         {avatarUrl ? (
-          <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+          <img src={avatarUrl} alt={name} loading="lazy" className="h-full w-full object-cover" />
         ) : (
           <span className="select-none">{initial}</span>
         )}
@@ -101,7 +101,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
       initial={{ y: riseY, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1], delay }}
-      className="flex flex-col items-center w-24 sm:w-32 hover:-translate-y-1 transition-transform duration-300"
+      className="flex flex-col items-center w-24 sm:w-32 hover:-translate-y-1 active:translate-y-0 transition-transform duration-300"
     >
       <Link href={`/users/${entry.user_id}`} className="flex flex-col items-center" onClick={(e) => e.stopPropagation()}>
         {/* Dual avatar lockup */}
@@ -109,9 +109,9 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
           {/* Partner avatar (small, offset back-right) */}
           <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center z-0">
             {entry.top_partner_avatar ? (
-              <img src={entry.top_partner_avatar} alt={entry.top_partner_name} className="h-full w-full object-cover" />
+              <img src={entry.top_partner_avatar} alt={entry.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
             ) : (
-              <span className="text-white text-[9px] font-bold">
+              <span className="text-white text-[10px] font-bold">
                 {(entry.top_partner_name?.[0] || '?').toUpperCase()}
               </span>
             )}
@@ -132,7 +132,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
           <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
             {entry.top_partner_name || entry.username}
           </div>
-          <div className="text-[9px] text-muted-foreground truncate">@{entry.username}</div>
+          <div className="text-[10px] text-muted-foreground truncate">@{entry.username}</div>
           <div className={`text-xl font-score mt-0.5 ${colorClass}`}>{entry.average_score}</div>
         </div>
       </Link>
@@ -197,7 +197,7 @@ export default function RanksPage() {
   };
 
   // Fetch leaderboard data (uses different query for circle vs country/city)
-  const { data: entries, isLoading } = useQuery({
+  const { data: entries, isLoading } = useQuery<LeaderboardEntry[]>({
     queryKey: isCircle ? ['circle-leaderboard', selectedCircleId] : ['leaderboard', params],
     queryFn: async () => {
       if (isCircle) {
@@ -233,7 +233,7 @@ export default function RanksPage() {
   const pointsGap = rivalEntry && myEntry ? (rivalEntry.average_score - myEntry.average_score).toFixed(1) : null;
 
   return (
-    <main className="pb-12 w-full min-h-screen bg-transparent relative">
+    <main className="pb-12 w-full min-h-dvh bg-transparent relative">
       <ScrollToTop label="Leaderboard" />
       {/* Header — eyebrow + headline + stat block */}
       <header className="px-5 pb-2 pt-8 max-w-7xl mx-auto">
@@ -257,8 +257,8 @@ export default function RanksPage() {
             <button
               key={t}
               onClick={() => setTimeframe(t)}
-              className={`relative flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                timeframe === t ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              className={`relative flex-1 rounded-full px-3.5 py-2 text-xs font-medium transition-colors touch-target ${
+                timeframe === t ? "text-primary" : "text-muted-foreground hover:text-foreground active:text-foreground"
               }`}
             >
               {timeframe === t && (
@@ -278,8 +278,8 @@ export default function RanksPage() {
             <button
               key={s}
               onClick={() => setScope(s)}
-              className={`relative flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                scope === s ? "text-primary" : "text-muted-foreground hover:text-foreground"
+              className={`relative flex-1 rounded-full px-3.5 py-2 text-sm font-medium transition-colors touch-target ${
+                scope === s ? "text-primary" : "text-muted-foreground hover:text-foreground active:text-foreground"
               }`}
             >
               {scope === s && (
@@ -307,7 +307,7 @@ export default function RanksPage() {
             {circlesLoading ? (
               <Spinner size="sm" />
             ) : userCircles.length === 0 ? (
-              <Link href="/circles" className="text-xs text-primary hover:underline">
+              <Link href="/circles" className="text-xs text-primary hover:underline active:underline">
                 Create or join a circle to see its leaderboard
               </Link>
             ) : (
@@ -316,10 +316,10 @@ export default function RanksPage() {
                   <button
                     key={circle.id}
                     onClick={() => setSelectedCircleId(circle.id)}
-                    className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
+                    className={`flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-medium transition-all touch-target ${
                       selectedCircleId === circle.id
                         ? 'glass-btn'
-                        : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border'
+                        : 'bg-muted/50 text-muted-foreground hover:text-foreground active:text-foreground border border-border'
                     }`}
                   >
                     {circle.emoji} {circle.name}
@@ -349,7 +349,7 @@ export default function RanksPage() {
                 ? "No one in this circle has scored yet."
                 : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
             </p>
-            <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full glass-btn text-sm shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
+            <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full glass-btn text-sm shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] active:scale-[0.98] px-6 py-3">
               Submit a Post
             </Link>
           </div>
@@ -387,7 +387,7 @@ export default function RanksPage() {
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                     key={e.user_id}
                     className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
-                    whileHover={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
+                    whileTap={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
                   >
                     <Link href={`/users/${e.user_id}`} className="flex items-center gap-3 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
                       {/* Rank number */}
@@ -400,9 +400,9 @@ export default function RanksPage() {
                         {/* Partner avatar (back) */}
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
                           {e.top_partner_avatar ? (
-                            <img src={e.top_partner_avatar} alt={e.top_partner_name} className="h-full w-full object-cover" />
+                            <img src={e.top_partner_avatar} alt={e.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
-                            <span className="text-white text-[8px] font-bold">
+                            <span className="text-white text-[10px] font-bold">
                               {(e.top_partner_name?.[0] || '?').toUpperCase()}
                             </span>
                           )}
@@ -410,9 +410,9 @@ export default function RanksPage() {
                         {/* User avatar (front) */}
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
                           {e.avatar_url ? (
-                            <img src={e.avatar_url} alt={e.username} className="h-full w-full object-cover" />
+                            <img src={e.avatar_url} alt={e.username} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
-                            <span className="text-white text-[9px] font-bold">
+                            <span className="text-white text-[10px] font-bold">
                               {(e.username?.[0] || '?').toUpperCase()}
                             </span>
                           )}
@@ -484,7 +484,7 @@ export default function RanksPage() {
                 <span className="text-muted-foreground">
                   <span className="text-gold font-bold">@{rivalEntry.username}</span> is <span className="text-gold font-bold">{pointsGap} pts</span> ahead of you
                 </span>
-                <span className="text-[9px] text-muted-foreground">— one post closes the gap</span>
+                <span className="text-[10px] text-muted-foreground">— one post closes the gap</span>
               </div>
             </motion.div>
           )}
@@ -515,7 +515,7 @@ export default function RanksPage() {
               </div>
               <motion.button
                 whileHover={{ y: -2 }}
-                className="p-2 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 transition-all text-foreground"
+                className="p-2 rounded-full bg-black/5 hover:bg-black/10 dark:bg-white/10 dark:hover:bg-white/20 active:bg-black/20 dark:active:bg-white/30 transition-all text-foreground"
                 onClick={() => {
                   openShare('rank', {
                     username: profile?.username || 'you',

@@ -99,7 +99,7 @@ export default function UserProfilePage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground mb-4">{error || 'User not found'}</p>
-        <button onClick={() => router.back()} className="text-primary hover:underline">Go Back</button>
+        <button onClick={() => router.back()} className="text-primary hover:underline active:underline">Go Back</button>
       </div>
     );
   }
@@ -119,7 +119,7 @@ export default function UserProfilePage() {
       {/* Back button — Fond pill style */}
       <button
         onClick={() => router.back()}
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors mb-6"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back
@@ -134,13 +134,13 @@ export default function UserProfilePage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
 
         {/* Left Panel: Identity */}
-        <div className="md:col-span-1 glass-2 rounded-3xl p-8 flex flex-col items-center text-center gap-5 relative">
+        <div className="md:col-span-1 glass-2 rounded-3xl p-5 sm:p-8 flex flex-col items-center text-center gap-5 relative">
           <p className="text-[10px] uppercase tracking-[0.2em] text-gold font-bold">Public Profile</p>
 
           {/* Avatar */}
           <div className="h-28 w-28 rounded-full glass-2 flex items-center justify-center text-3xl font-bold text-foreground shrink-0 overflow-hidden">
             {profile.avatar_url ? (
-              <img src={profile.avatar_url} alt={profile.username} className="w-full h-full object-cover" />
+              <img src={profile.avatar_url} alt={profile.username} loading="lazy" className="w-full h-full object-cover" />
             ) : (
               profile.username[0]?.toUpperCase() || '?'
             )}
@@ -169,7 +169,7 @@ export default function UserProfilePage() {
         </div>
 
         {/* Right Panel: Bio, Stats & Actions */}
-        <div className="md:col-span-2 glass-2 rounded-3xl p-8 flex flex-col gap-6">
+        <div className="md:col-span-2 glass-2 rounded-3xl p-5 sm:p-8 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-2xl italic text-foreground">Stats & Activity</h3>
             <span className="text-[10px] text-muted-foreground/60">
@@ -178,7 +178,7 @@ export default function UserProfilePage() {
           </div>
 
           {/* Stats cards */}
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
             <div className="p-4 rounded-2xl border border-border bg-elevated/50 text-center">
               <div className="font-score text-2xl text-foreground">{stats.post_count}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1">Posts</div>
@@ -196,7 +196,7 @@ export default function UserProfilePage() {
           </div>
 
           {/* Social stats — bonds + connections */}
-          <div className="grid grid-cols-2 gap-4 mt-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mt-4">
             <div className="p-4 rounded-2xl border border-border bg-elevated/50 text-center">
               <div className="font-score text-xl text-foreground">{bondCount}</div>
               <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1">
@@ -251,7 +251,7 @@ export default function UserProfilePage() {
                   />
                   <button
                     onClick={() => setInviteOpen(true)}
-                    className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-elevated transition-colors"
+                    className="flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 transition-colors touch-target"
                   >
                     <Users className="h-3.5 w-3.5" />
                     Invite to Bond
@@ -260,7 +260,7 @@ export default function UserProfilePage() {
               ) : (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <LogIn className="h-4 w-4" />
-                  <Link href="/auth/login" className="text-primary hover:underline">Sign in</Link>
+                  <Link href="/auth/login" className="text-primary hover:underline active:underline">Sign in</Link>
                   <span>to connect with @{profile.username}</span>
                 </div>
               )}
@@ -294,7 +294,7 @@ export default function UserProfilePage() {
             <Link
               key={post.id}
               href={`/posts/${post.id}`}
-              className="block p-5 rounded-2xl border border-border glass-2 hover:border-primary/30 transition-all"
+              className="block p-5 rounded-2xl border border-border glass-2 hover:border-primary/30 active:border-primary/40 transition-all"
             >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1 min-w-0">

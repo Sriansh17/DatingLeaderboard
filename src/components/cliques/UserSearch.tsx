@@ -93,7 +93,7 @@ export function UserSearch({ onSelect, excludeIds }: UserSearchProps) {
             <p className="text-sm text-muted-foreground">{error}</p>
             <button
               onClick={() => setQuery(prev => prev + ' ')}
-              className="text-xs text-primary hover:underline flex items-center gap-1"
+              className="text-xs text-primary hover:underline active:underline flex items-center gap-1"
             >
               <RefreshCw className="h-3 w-3" /> Retry
             </button>
@@ -121,7 +121,7 @@ export function UserSearch({ onSelect, excludeIds }: UserSearchProps) {
               <button
                 key={user.id}
                 onClick={() => onSelect?.(user)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/30 transition-colors text-left"
+                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/30 active:bg-muted/50 transition-colors text-left"
               >
                 <Avatar src={user.avatar_url} alt={user.username} size="sm" />
                 <div className="flex-1 min-w-0">

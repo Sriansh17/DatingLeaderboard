@@ -183,7 +183,7 @@ export default function PremiumPage() {
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
           Sign in to unlock the full Fond experience — unlimited posts, deeper insights, and more.
         </p>
-        <Link href="/auth/login?redirect=/premium">
+        <Link href="/auth/login?redirect=/premium" className="inline-block touch-target">
           <Button variant="primary" size="lg">
             <LogIn className="h-4 w-4" /> Sign In
           </Button>
@@ -245,7 +245,7 @@ export default function PremiumPage() {
       {/* Back link */}
       <Link
         href="/settings"
-        className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-6"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
       </Link>
@@ -279,7 +279,7 @@ export default function PremiumPage() {
               className={`relative rounded-3xl border p-6 transition-all ${
                 isPopular
                   ? 'border-primary shadow-[0_0_30px_-8px_rgba(209,47,88,0.3)] dark:shadow-[0_0_40px_-12px_rgba(209,47,88,0.2)] bg-card scale-105 md:scale-110 z-10'
-                  : 'border-border bg-card/60 hover:border-primary/30'
+                  : 'border-border bg-card/60 hover:border-primary/30 active:border-primary/40'
               }`}
             >
               {/* Badge */}
@@ -399,7 +399,7 @@ export default function PremiumPage() {
             { q: 'Can I get a refund?', a: 'We offer a 7-day money-back guarantee. If you\'re not satisfied, contact us and we\'ll refund your first payment.' },
           ].map((faq, i) => (
             <details key={i} className="group">
-              <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-foreground py-2 list-none">
+              <summary className="flex items-center justify-between cursor-pointer text-sm font-medium text-foreground py-3 list-none touch-target">
                 {faq.q}
                 <ChevronDown className="h-4 w-4 text-muted-foreground group-open:rotate-180 transition-transform" />
               </summary>

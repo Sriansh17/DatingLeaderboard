@@ -57,7 +57,7 @@ export function ProfileHeader({ profile, postCount = 0, partnerCount = 0, averag
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-8 max-w-md mx-auto">
         <div className="p-3 rounded-xl bg-secondary">
           <p className="text-2xl font-bold text-primary">{postCount}</p>
           <p className="text-xs text-muted-foreground">Posts</p>

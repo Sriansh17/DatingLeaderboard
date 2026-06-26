@@ -53,7 +53,7 @@ export function PostCard({ post }: PostCardProps) {
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-primary to-accent overflow-hidden flex items-center justify-center text-base font-bold text-primary-foreground flex-shrink-0">
             {post.partner && post.partner.avatar_url ? (
-              <img src={post.partner.avatar_url} alt={post.partner.name} className="w-full h-full object-cover" />
+              <img src={post.partner.avatar_url} alt={post.partner.name} loading="lazy" className="w-full h-full object-cover" />
             ) : post.partner?.emoji ? (
               <span>{post.partner.emoji}</span>
             ) : null}
@@ -104,13 +104,13 @@ export function PostCard({ post }: PostCardProps) {
               onClick={handleLike}
               disabled={likePostMutation.isPending || !user}
               className={`flex items-center gap-1.5 transition-colors ${
-                post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+                post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400 active:text-red-500'
               } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <Heart className={`h-4 w-4 sm:h-5 sm:w-5 ${post.has_liked ? 'fill-red-500' : ''}`} />
               <span className="text-xs sm:text-sm">{post.likes_count ?? 0}</span>
             </button>
-            <button data-action onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/posts/${post.id}`); }} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+            <button data-action onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/posts/${post.id}`); }} className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors active:text-foreground">
               <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
               <span className="text-xs sm:text-sm">{post.comments_count ?? 0}</span>
             </button>
@@ -124,14 +124,14 @@ export function PostCard({ post }: PostCardProps) {
                   e.stopPropagation();
                   router.push(`/users/${post.profile?.id || post.user_id}`);
                 }}
-                className="px-4 py-2 rounded-[18px] border border-border text-muted-foreground text-xs sm:text-sm font-medium hover:bg-muted/50 transition-colors"
+                className="px-4 py-2 rounded-[18px] border border-border text-muted-foreground text-xs sm:text-sm font-medium hover:bg-muted/50 active:bg-muted/70 transition-colors"
               >
                 Profile
               </button>
             )}
             <button
               data-action
-              className="glass-btn px-5 py-2 rounded-[18px] font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
+              className="glass-btn px-5 py-2 rounded-[18px] font-semibold border-none flex items-center gap-2 hover:opacity-90 active:opacity-80 transition-opacity text-xs sm:text-sm w-fit"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

@@ -20,7 +20,7 @@ export default function SettingsPage() {
       {/* Back button */}
       <Link
         href="/profile"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors mb-6"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Profile
@@ -94,10 +94,10 @@ export default function SettingsPage() {
           <div className="flex gap-2">
             <button
               onClick={() => setTheme('light')}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium border transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium border transition-all touch-target ${
                 resolvedTheme === 'light'
                   ? 'border-primary/30 bg-primary/10 text-primary'
-                  : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+                  : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground active:text-foreground'
               }`}
             >
               <Sun className="h-4 w-4" />
@@ -105,10 +105,10 @@ export default function SettingsPage() {
             </button>
             <button
               onClick={() => setTheme('dark')}
-              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3 text-sm font-medium border transition-all ${
+              className={`flex-1 flex items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-medium border transition-all touch-target ${
                 resolvedTheme === 'dark'
                   ? 'border-primary/30 bg-primary/10 text-primary'
-                  : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+                  : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground active:text-foreground'
               }`}
             >
               <Moon className="h-4 w-4" />

@@ -79,7 +79,7 @@ export default function PartnersPage() {
   );
 
   return (
-    <main className="min-h-screen bg-transparent py-16 px-6 relative">
+    <main className="min-h-dvh bg-transparent py-16 px-6 relative">
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         {/* Header Section */}
         <div className="w-full flex items-center justify-between mb-4">
@@ -98,26 +98,26 @@ export default function PartnersPage() {
             {partners.map((partner) => (
               <div 
                 key={partner.id}
-                className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl border border-border bg-card/60 hover:bg-card hover:border-primary/20 transition-all duration-300 backdrop-blur-xl cursor-default shadow-sm hover:shadow-md"
+                className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl border border-border bg-card/60 hover:bg-card hover:border-primary/20 active:bg-card/80 active:border-primary/30 transition-all duration-300 backdrop-blur-xl cursor-default shadow-sm hover:shadow-md active:shadow-md"
               >
-                <span className="text-xl group-hover:scale-110 transition-transform">{partner.emoji || '💖'}</span>
+                <span className="text-xl group-hover:scale-110 group-focus-within:scale-110 transition-transform">{partner.emoji || '💖'}</span>
                 <span className="font-medium text-foreground text-lg tracking-wide">{partner.name}</span>
                 
                 {/* Edit & Delete buttons (show on hover) */}
-                <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button 
+                <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-10">
+                  <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingPartner(partner); setShowAddForm(true); }}
-                    className="glass-btn w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    className="glass-btn w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-100 touch-target"
                     title="Edit Partner"
                   >
-                    <Edit3 className="w-3.5 h-3.5" />
+                    <Edit3 className="w-4 h-4" />
                   </button>
-                  <button 
+                  <button
                     onClick={(e) => handleDelete(partner.id, e)}
-                    className="bg-red-500 hover:bg-red-600 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    className="bg-red-500 hover:bg-red-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-100 touch-target"
                     title="Delete Partner"
                   >
-                    &times;
+                    <span className="text-lg font-bold">&times;</span>
                   </button>
                 </div>
               </div>
@@ -131,9 +131,9 @@ export default function PartnersPage() {
 
         {/* Add Partner Button */}
         {!showAddForm && canAddAnotherPartner && (
-          <button 
+          <button
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-8 py-3 rounded-full glass-btn hover:opacity-90 transition-all text-sm font-bold uppercase tracking-[0.2em]"
+            className="flex items-center gap-2 px-8 py-3.5 rounded-full glass-btn hover:opacity-90 active:opacity-80 transition-all text-sm font-bold uppercase tracking-[0.2em] touch-target"
           >
             <Plus className="w-5 h-5" />
             Add Partner
@@ -149,7 +149,7 @@ export default function PartnersPage() {
             <button
               onClick={handleUpgrade}
               disabled={upgrading}
-              className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+              className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-6 py-3 text-xs font-semibold text-black transition-colors disabled:opacity-60 touch-target"
             >
               {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
             </button>
@@ -161,7 +161,7 @@ export default function PartnersPage() {
           <div className="w-full max-w-xl mt-8 p-8 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative shadow-2xl">
             <button
               onClick={() => { setShowAddForm(false); setEditingPartner(null); }}
-              className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+              className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors touch-target"
             >
               Cancel
             </button>

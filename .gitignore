@@ -16,6 +16,12 @@
 # production
 /build
 
+# Agent memory
+.claude/
+
+# audit report
+MOBILE_AUDIT_REPORT.md
+
 # misc
 .DS_Store
 *.pem

@@ -105,14 +105,14 @@ function AtmospherePanel({
         <div className="flex items-center gap-1">
           <button
             onClick={() => setParticlesEnabled(!particlesEnabled)}
-            className={`p-2 rounded-full border transition-colors ${particlesEnabled ? 'text-gold border-gold/30 bg-gold/10' : 'text-muted-foreground border-border bg-card hover:text-foreground'}`}
+            className={`p-2 rounded-full border transition-colors ${particlesEnabled ? 'text-gold border-gold/30 bg-gold/10' : 'text-muted-foreground border-border bg-card hover:text-foreground active:text-foreground'}`}
             title={particlesEnabled ? 'Disable particles' : 'Enable particles'}
           >
             <BubblesIcon className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground transition-colors"
+            className="p-2 rounded-full border border-border bg-card text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
             title={resolvedTheme === 'dark' ? 'Switch to light' : 'Switch to dark'}
           >
             {resolvedTheme === 'dark'
@@ -130,7 +130,7 @@ function AtmospherePanel({
             <button
               key={atm}
               onClick={() => { setAtmosphere(atm); onClose?.(); }}
-              className={`relative aspect-square rounded-full transition-all duration-300 ${getAtmColor(atm)} shadow-lg flex items-center justify-center hover:scale-105`}
+              className={`relative aspect-square rounded-full transition-all duration-300 ${getAtmColor(atm)} shadow-lg flex items-center justify-center hover:scale-105 active:scale-95`}
               title={ATM_NAMES[atm]}
             >
               {isActive && (
@@ -150,14 +150,14 @@ function AtmospherePanel({
           <Link
             href="/settings"
             onClick={onClose}
-            className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
+            className="text-[10px] font-bold text-muted-foreground hover:text-foreground active:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
           >
             <Settings className="h-3 w-3" /> Settings
           </Link>
           <Link
             href="/contact"
             onClick={onClose}
-            className="text-[10px] font-bold text-muted-foreground hover:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
+            className="text-[10px] font-bold text-muted-foreground hover:text-foreground active:text-foreground uppercase tracking-widest flex items-center gap-1 transition-colors"
           >
             <Mail className="h-3 w-3" /> Creators
           </Link>
@@ -211,7 +211,7 @@ export function AppDock() {
       <Link
         key={href}
         href={href}
-        className={`outline-none group relative flex flex-col items-center justify-center transition-all duration-300 rounded-full ${isActive ? "text-primary w-14 sm:w-16 h-12 sm:h-14" : "text-muted-foreground hover:text-primary w-12 sm:w-14 h-12 sm:h-14"}`}
+        className={`outline-none group relative flex flex-col items-center justify-center transition-all duration-300 rounded-full ${isActive ? "text-primary w-14 sm:w-16 h-12 sm:h-14" : "text-muted-foreground hover:text-primary active:text-primary/80 w-12 sm:w-14 h-12 sm:h-14"}`}
       >
         {isActive && (
           <motion.div
@@ -220,8 +220,8 @@ export function AppDock() {
             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
           />
         )}
-        <Icon className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 ${isActive ? 'scale-100 -translate-y-1.5 sm:-translate-y-2' : 'group-hover:scale-110 group-hover:-translate-y-1'}`} />
-        <span className={`absolute bottom-1.5 sm:bottom-2 z-10 text-[8px] sm:text-[9px] font-bold tracking-wide opacity-0 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'group-hover:opacity-100 group-hover:translate-y-0 translate-y-2'}`}>
+        <Icon className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 ${isActive ? 'scale-100 -translate-y-1.5 sm:-translate-y-2' : 'group-hover:scale-110 group-hover:-translate-y-1 group-focus-within:scale-110 group-focus-within:-translate-y-1'}`} />
+        <span className={`absolute bottom-1.5 sm:bottom-2 z-10 text-[10px] sm:text-[11px] font-bold tracking-wide opacity-0 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 translate-y-2'}`}>
           {label}
         </span>
       </Link>
@@ -247,14 +247,13 @@ export function AppDock() {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 32 }}
-              className="fixed bottom-0 inset-x-0 z-50 md:hidden rounded-t-3xl border-t border-border bg-popover px-6 pt-5 pb-10 shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.2)]"
+              className="fixed bottom-0 inset-x-0 z-[60] md:hidden rounded-t-3xl border-t border-border bg-popover px-6 pt-5 pb-10 shadow-[0_-20px_60px_-10px_rgba(0,0,0,0.2)]"
             >
               <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-muted-foreground/30" />
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="font-display italic text-xl text-foreground">Customise</h2>
+              <div className="flex items-center justify-end mb-6">
                 <button
                   onClick={() => setSheetOpen(false)}
-                  className="p-1.5 rounded-full text-muted-foreground hover:text-foreground transition-colors"
+                  className="p-2.5 rounded-full text-muted-foreground hover:text-foreground active:text-foreground transition-colors touch-target"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -273,8 +272,8 @@ export function AppDock() {
       </AnimatePresence>
 
       {/* ── Dock ── */}
-      <div className={`fixed bottom-6 sm:bottom-8 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} w-max max-w-[95vw]`}>
-        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto">
+      <div className={`fixed bottom-6 sm:bottom-8 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} w-max max-w-[95vw] pb-safe`}>
+        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto overflow-x-auto hide-scrollbar">
 
           {/* Brand Icon — tap toggles theme | hover opens atmosphere popover */}
           {isMounted ? (
@@ -289,7 +288,7 @@ export function AppDock() {
                     setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
                   }
                 }}
-                className="relative z-[60] flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full text-gold hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+                className="relative z-[60] flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors cursor-pointer"
                 title="Toggle theme"
                 aria-label="Toggle light/dark mode"
               >
@@ -310,7 +309,7 @@ export function AppDock() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-10 w-10 sm:h-12 sm:w-12 rounded-full text-gold mr-1 sm:mr-2">
+            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold mr-1 sm:mr-2">
               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           )}
@@ -325,14 +324,14 @@ export function AppDock() {
           <div className="px-1 sm:px-2">
             <Link
               href={isAnonymousMode ? "/confessions/new" : "/posts/new"}
-              className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 animate-pulse-glow"
+              className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 active:scale-100 animate-pulse-glow"
               aria-label={isAnonymousMode ? "New confession" : "New post"}
               style={{
                 background: 'linear-gradient(180deg, rgb(var(--primary)), color-mix(in oklab, rgb(var(--primary)) 85%, black))',
                 boxShadow: '0 6px 20px -6px rgba(var(--primary), 0.5), 0 2px 6px -1px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)',
               }}
             >
-              <Plus className="h-5 w-5 sm:h-7 sm:w-7 text-white transition-transform duration-300 group-hover:rotate-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
+              <Plus className="h-5 w-5 sm:h-7 sm:w-7 text-white transition-transform duration-300 group-hover:rotate-90 group-focus-within:rotate-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
             </Link>
           </div>
 

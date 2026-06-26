@@ -125,7 +125,7 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
             <button
               type="button"
               onClick={() => setShowCreate(false)}
-              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
             >
               <ArrowLeft className="h-3 w-3" /> Back
             </button>
@@ -154,7 +154,7 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
                     className={`w-10 h-10 rounded-xl text-lg flex items-center justify-center transition-all ${
                       newEmoji === e
                         ? 'bg-primary/20 border-2 border-primary scale-110'
-                        : 'bg-muted/30 border border-border hover:bg-muted/50'
+                        : 'bg-muted/30 border border-border hover:bg-muted/50 active:bg-muted/70'
                     }`}
                   >
                     {e}
@@ -197,7 +197,7 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
               </p>
               <button
                 onClick={() => setShowCreate(true)}
-                className="text-xs font-medium text-primary hover:text-primary/80 flex items-center gap-1 transition-colors"
+                className="text-xs font-medium text-primary hover:text-primary/80 active:text-primary/60 flex items-center gap-1 transition-colors"
               >
                 <PlusCircle className="h-3 w-3" /> New Bond
               </button>
@@ -208,7 +208,7 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
                 return (
                   <div
                     key={circle.id}
-                    className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/40 hover:bg-card/60 transition-colors"
+                    className="flex items-center justify-between p-4 rounded-xl border border-border bg-card/40 hover:bg-card/60 active:bg-card/80 transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0 flex-1">
                       <span className="text-2xl flex-shrink-0">{circle.emoji}</span>
@@ -222,7 +222,7 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
                     {isInvited ? (
                       <button
                         onClick={() => uninvite(circle.id)}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-success bg-success/10 border border-success/20 flex-shrink-0 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 transition-all"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-medium text-success bg-success/10 border border-success/20 flex-shrink-0 hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 active:bg-destructive/15 active:text-destructive transition-all"
                         title="Click to cancel invite"
                       >
                         <Check className="h-3.5 w-3.5" /> Invited

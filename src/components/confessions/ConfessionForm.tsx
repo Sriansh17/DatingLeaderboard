@@ -102,7 +102,7 @@ export function ConfessionForm() {
           </div>
           <button
             onClick={shufflePrompt}
-            className="p-1.5 rounded-full hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors shrink-0"
+            className="p-1.5 rounded-full hover:bg-primary/10 text-primary/60 hover:text-primary transition-colors active:bg-primary/15 active:text-primary/80 shrink-0"
             aria-label="Shuffle prompt"
           >
             <Sparkles className="h-4 w-4" />
@@ -156,7 +156,7 @@ export function ConfessionForm() {
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed"
+        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {submitMutation.isPending ? 'Posting anonymously...' : (
           <>

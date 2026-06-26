@@ -170,7 +170,7 @@ export default function ProfilePage() {
   }, [posts]);
 
   if (isLoggingOut) return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background">
+    <div className="min-h-dvh w-full flex flex-col items-center justify-center bg-background">
       <Spinner size="lg" text={["SIGNING OUT..."]} />
     </div>
   );
@@ -187,7 +187,7 @@ export default function ProfilePage() {
       return (
         <div className="text-center py-20 text-muted-foreground">
           <p className="mb-4 text-lg font-display italic">Sign in to view your profile.</p>
-          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:bg-primary/90 transition-colors">
+          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:bg-primary/90 active:bg-primary/80 transition-colors">
             Sign In
           </Link>
         </div>
@@ -197,7 +197,7 @@ export default function ProfilePage() {
     return (
       <div className="text-center py-20 text-muted-foreground">
         <p className="mb-4">Profile not found.</p>
-        <Link href="/auth/login" className="text-blush hover:underline">Log in</Link>
+        <Link href="/auth/login" className="text-blush hover:underline active:underline">Log in</Link>
       </div>
     );
   }
@@ -206,7 +206,7 @@ export default function ProfilePage() {
   const bestScore = scoredPosts.length > 0 ? Math.max(...scoredPosts.map((p) => p.ai_score || 0)) : 0;
 
   return (
-    <main className="w-full mx-auto min-h-screen bg-transparent relative pb-12 px-4 sm:px-8">
+    <main className="w-full mx-auto min-h-dvh bg-transparent relative pb-12 px-4 sm:px-8">
       <ScrollToTop label="The Archives" />
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
@@ -229,16 +229,16 @@ export default function ProfilePage() {
         </div>
         <div className="flex items-center gap-2">
           <PageBell />
-          <Link href="/settings" className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          <Link href="/settings" className="p-2.5 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 active:text-foreground active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target inline-flex items-center justify-center">
             <Settings className="h-5 w-5" />
           </Link>
-          <button onClick={() => setIsEditing(true)} className="px-4 py-1.5 rounded-full border border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          <button onClick={() => setIsEditing(true)} className="px-5 py-2.5 rounded-full border border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target">
             Edit
           </button>
           <button onClick={async () => {
             setIsLoggingOut(true);
             await signOut();
-          }} className="p-2 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+          }} className="p-2.5 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 active:text-destructive active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target inline-flex items-center justify-center">
             <LogOut className="h-5 w-5" />
           </button>
         </div>
@@ -249,7 +249,7 @@ export default function ProfilePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
           
           {/* Left Panel: Identity */}
-          <div className="md:col-span-1 rounded-3xl border border-border dark:border-border bg-card/60 p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl gap-5 relative">
+          <div className="md:col-span-1 rounded-3xl border border-border dark:border-border bg-card/60 p-5 sm:p-8 flex flex-col items-center justify-center text-center shadow-lg backdrop-blur-xl gap-5 relative">
 
             {/* Share icon — top right */}
             <button
@@ -268,7 +268,7 @@ export default function ProfilePage() {
                 occupation: (profile as any)?.occupation,
                 country: (profile as any)?.country,
               })}
-              className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground active:bg-elevated/80 active:text-foreground transition-colors"
               aria-label="Share profile"
             >
               <Share2 className="h-4 w-4" />
@@ -276,10 +276,10 @@ export default function ProfilePage() {
             
             {/* Avatar */}
             <div className="relative group cursor-pointer" onClick={() => setIsAvatarModalOpen(true)}>
-              <div className="h-44 w-44 rounded-full border-4 border-elevated shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] bg-transparent flex items-center justify-center font-display text-6xl text-muted-foreground overflow-hidden">
+              <div className="h-32 w-32 sm:h-44 sm:w-44 rounded-full border-4 border-elevated shadow-[0_0_40px_-10px_rgba(255,255,255,0.05)] bg-transparent flex items-center justify-center font-display text-4xl sm:text-6xl text-muted-foreground overflow-hidden">
                 {profile.avatar_url ? (
                   profile.avatar_url.startsWith('http') ? (
-                    <img src={profile.avatar_url} alt="Profile Avatar" className="w-full h-full object-cover" />
+                    <img src={profile.avatar_url} alt="Profile Avatar" loading="lazy" className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-5xl">{profile.avatar_url}</span>
                   )
@@ -287,7 +287,7 @@ export default function ProfilePage() {
                   profile.username[0]?.toUpperCase() || 'U'
                 )}
               </div>
-              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity flex items-center justify-center">
                 <span className="text-xs font-bold uppercase tracking-widest text-white">Edit Photo</span>
               </div>
             </div>
@@ -318,7 +318,7 @@ export default function ProfilePage() {
           </div>
 
           {/* Right Panel: Bio & Details */}
-          <div className="md:col-span-2 rounded-3xl border border-border dark:border-border bg-card/60 p-8 shadow-lg backdrop-blur-xl flex flex-col justify-between">
+          <div className="md:col-span-2 rounded-3xl border border-border dark:border-border bg-card/60 p-5 sm:p-8 shadow-lg backdrop-blur-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-6">
                 <h3 className="font-display text-2xl italic text-foreground">Bio & other details</h3>
@@ -364,17 +364,17 @@ export default function ProfilePage() {
                 {partners.length > 0 ? (
                   <div className="flex flex-wrap gap-2">
                     {partners.map(p => (
-                      <div key={p.id} className="px-4 py-1.5 rounded-full border border-border bg-secondary/30 dark:bg-elevated/50 text-sm flex items-center gap-2">
+                      <div key={p.id} className="px-4 py-2 rounded-full border border-border bg-secondary/30 dark:bg-elevated/50 text-sm flex items-center gap-2">
                         <span>{p.emoji}</span>
                         <span className="font-medium text-foreground">{p.name}</span>
                       </div>
                     ))}
-                    <Link href="/partners/new" className="px-4 py-1.5 rounded-full border border-dashed border-border dark:border-border text-sm flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-muted-foreground">
+                    <Link href="/partners/new" className="px-5 py-2.5 rounded-full border border-dashed border-border dark:border-border text-sm flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors text-muted-foreground touch-target">
                       <PlusCircle className="h-4 w-4" /> Add
                     </Link>
                   </div>
                 ) : (
-                  <Link href="/partners/new" className="inline-flex items-center gap-2 text-sm text-blush hover:text-blush/80 transition-colors">
+                  <Link href="/partners/new" className="inline-flex items-center gap-2 text-sm text-blush hover:text-blush/80 active:text-blush/60 transition-colors">
                     <PlusCircle className="h-4 w-4" /> Add your first partner
                   </Link>
                 )}
@@ -411,12 +411,12 @@ export default function ProfilePage() {
         </div>
 
         {/* Middle Row: Social Media / Actions */}
-        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-5 sm:p-8 mb-6 shadow-lg backdrop-blur-xl flex flex-col sm:flex-row sm:items-center justify-between gap-6 min-w-0">
           <div className="w-full min-w-0 flex-1">
             <h3 className="font-display text-2xl italic text-foreground mb-6">Quick Actions</h3>
-            <div className="flex overflow-x-auto snap-x snap-mandatory pb-4 gap-4 [&::-webkit-scrollbar]:hidden">
+            <div className="flex overflow-x-auto snap-x snap-mandatory pb-4 gap-4 [&::-webkit-scrollbar]:hidden scroll-fade-right">
               <Link href="/partners/new" className="block snap-start min-w-max">
-                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md active:bg-black/10 dark:active:bg-white/15 active:translate-y-0 active:shadow-sm border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
                   <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
                     <Heart className="h-4 w-4 text-primary dark:text-blush" />
                   </div>
@@ -424,7 +424,7 @@ export default function ProfilePage() {
                 </div>
               </Link>
               <Link href="/posts/new" className="block snap-start min-w-max">
-                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
+                <div className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 hover:-translate-y-0.5 hover:shadow-md active:bg-black/10 dark:active:bg-white/15 active:translate-y-0 active:shadow-sm border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group">
                   <div className="h-10 w-10 rounded-full bg-black/10 dark:bg-black/40 grid place-items-center transition-transform">
                     <PlusCircle className="h-4 w-4 text-foreground" />
                   </div>
@@ -432,7 +432,7 @@ export default function ProfilePage() {
                 </div>
               </Link>
               <button 
-                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group snap-start min-w-max"
+                className="flex items-center gap-3 bg-secondary/30 dark:bg-elevated/40 hover:bg-black/5 dark:hover:bg-white/10 active:bg-black/10 dark:active:bg-white/15 border border-border dark:border-border rounded-full pr-5 pl-2 py-2 transition-all duration-300 group snap-start min-w-max"
                 onClick={() => {
                   openShare('profile', {
                     username: profile.username,
@@ -468,7 +468,7 @@ export default function ProfilePage() {
                 {canRestoreStreak && (
                   <button
                     onClick={() => setIsRestoreModalOpen(true)}
-                    className="mt-3 inline-flex items-center rounded-full border border-warning/40 bg-warning/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.15em] text-warning transition-colors hover:bg-warning/20"
+                    className="mt-3 inline-flex items-center rounded-full border border-warning/40 bg-warning/10 px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.15em] text-warning transition-colors hover:bg-warning/20 active:bg-warning/30 touch-target"
                   >
                     Restore Streak
                   </button>
@@ -479,7 +479,7 @@ export default function ProfilePage() {
         </div>
 
         {/* Bottom Panel: My Productions (Verdicts) */}
-        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-8 shadow-lg backdrop-blur-xl">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-5 sm:p-8 shadow-lg backdrop-blur-xl">
           <h3 className="font-display text-2xl italic text-foreground mb-8">My Verdicts</h3>
 
           {isLoading ? (
@@ -515,7 +515,7 @@ export default function ProfilePage() {
               <h3 className="text-lg font-display italic text-foreground mb-2">The archives are empty</h3>
               <p className="text-muted-foreground text-sm mb-6">No verdicts yet. The board is waiting to judge.</p>
               <Link href="/posts/new">
-                <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-border bg-black/5 dark:bg-white/5 px-6 py-2.5 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 transition-colors">
+                <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-border bg-black/5 dark:bg-white/5 px-6 py-3 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 active:bg-black/15 dark:active:bg-white/15 transition-colors touch-target">
                   Claim your first verdict
                 </button>
               </Link>
@@ -526,7 +526,7 @@ export default function ProfilePage() {
 
       {/* Archived Posts Panel */}
       <div className="p-5">
-        <div className="rounded-3xl border border-border dark:border-border bg-card/40 p-8 shadow-lg backdrop-blur-xl">
+        <div className="rounded-3xl border border-border dark:border-border bg-card/40 p-5 sm:p-8 shadow-lg backdrop-blur-xl">
           <div className="flex items-center justify-between mb-8">
             <h3 className="font-display text-2xl italic text-foreground flex items-center gap-3">
               <Archive className="h-5 w-5 text-muted-foreground" />
@@ -570,10 +570,10 @@ export default function ProfilePage() {
                       <button
                         onClick={() => handleUnarchive(post.id)}
                         disabled={unarchivingId === post.id}
-                        className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur px-5 py-2.5 text-xs font-semibold text-foreground hover:bg-elevated shadow-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur px-6 py-3 text-xs font-semibold text-foreground hover:bg-elevated active:bg-elevated/80 shadow-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-target"
                       >
                         <ArchiveRestore className="h-4 w-4" />
-                        {unarchivingId === post.id ? 'Restoring…' : 'Restore Post'}
+                        {unarchivingId === post.id ? 'Restoring...' : 'Restore Post'}
                       </button>
                     </div>
                   </div>
@@ -640,14 +640,14 @@ export default function ProfilePage() {
           <div className="flex gap-3 justify-end">
             <button
               onClick={() => setIsRestoreModalOpen(false)}
-              className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary transition-colors"
+              className="rounded-full border border-border px-5 py-3 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors touch-target"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirmRestoreStreak}
               disabled={isRestoringStreak}
-              className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              className="rounded-full bg-primary px-6 py-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 active:bg-primary/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-target"
             >
               {isRestoringStreak ? 'Restoring...' : 'Pay & Restore (Placeholder)'}
             </button>

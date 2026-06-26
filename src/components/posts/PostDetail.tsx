@@ -149,7 +149,7 @@ export function PostDetail({ post }: PostDetailProps) {
             by{' '}
             <Link
               href={`/users/${post.profile.id || post.user_id}`}
-              className="hover:text-primary transition-colors"
+              className="hover:text-primary active:text-primary/80 transition-colors"
             >
               @{post.profile.username}
             </Link>
@@ -185,7 +185,7 @@ export function PostDetail({ post }: PostDetailProps) {
             onClick={handleLike}
             disabled={liking || !user}
             className={`flex items-center gap-1.5 transition-colors ${
-              liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'
+              liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400 active:text-red-500'
             } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             <Heart className={`h-4 w-4 ${liked ? 'fill-red-500' : ''}`} />
@@ -248,14 +248,14 @@ export function PostDetail({ post }: PostDetailProps) {
             <button
               type="submit"
               disabled={!newComment.trim() || submitting}
-              className="p-2.5 rounded-full glass-btn disabled:opacity-40 transition-opacity hover:opacity-90"
+              className="p-2.5 rounded-full glass-btn disabled:opacity-40 transition-opacity hover:opacity-90 active:opacity-80"
             >
               <Send className="h-4 w-4" />
             </button>
           </form>
         ) : (
           <p className="text-sm text-muted-foreground mb-6">
-            <a href="/auth/login" className="text-primary hover:underline">Sign in</a> to leave a comment.
+            <a href="/auth/login" className="text-primary hover:underline active:underline">Sign in</a> to leave a comment.
           </p>
         )}
 
@@ -275,7 +275,7 @@ export function PostDetail({ post }: PostDetailProps) {
                   className="shrink-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white hover:opacity-80 transition-opacity">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-gold flex items-center justify-center text-xs font-bold text-white hover:opacity-80 active:opacity-70 transition-opacity">
                     {(comment.profile?.username?.[0] || 'U').toUpperCase()}
                   </div>
                 </Link>
@@ -283,7 +283,7 @@ export function PostDetail({ post }: PostDetailProps) {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/users/${comment.user_id}`}
-                      className="text-sm font-medium text-foreground hover:text-primary transition-colors"
+                      className="text-sm font-medium text-foreground hover:text-primary active:text-primary/80 transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       @{comment.profile?.username || 'unknown'}

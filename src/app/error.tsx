@@ -18,13 +18,13 @@ export default function Error({
           Something went wrong
         </h1>
         <div className="bg-elevated/40 border border-border rounded-xl p-4 mb-8 text-left overflow-auto max-h-40">
-          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed">
+          <p className="text-xs font-mono text-muted-foreground/80 leading-relaxed break-words">
             {error.message || 'An unexpected error occurred in the motion system. Please try again.'}
           </p>
         </div>
         <button 
           onClick={reset}
-          className="px-8 py-3 rounded-full bg-foreground text-background hover:scale-105 transition-transform duration-300 font-bold text-sm tracking-widest uppercase shadow-[0_0_20px_rgba(var(--primary),0.15)]"
+          className="px-8 py-3 rounded-full bg-foreground text-background hover:scale-105 active:scale-95 transition-transform duration-300 font-bold text-sm tracking-widest uppercase shadow-[0_0_20px_rgba(var(--primary),0.15)]"
         >
           Try Again
         </button>

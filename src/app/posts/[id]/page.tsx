@@ -114,13 +114,13 @@ export default function PostDetailPage() {
   } catch {}
 
   return (
-    <main className="min-h-screen bg-transparent relative px-4 sm:px-6 lg:px-8 pb-12">
+    <main className="min-h-dvh bg-transparent relative px-4 sm:px-6 lg:px-8 pb-12">
       <div className="fixed top-8 left-6 sm:left-12 z-40">
         <button
           onClick={() => router.back()}
-          className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors flex items-center gap-2 group"
+          className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors flex items-center gap-2 group touch-target"
         >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1" />
+          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 group-focus-within:-translate-x-1" />
           Back to Feed
         </button>
       </div>
@@ -149,7 +149,7 @@ export default function PostDetailPage() {
                 {post.partner && (
                   <Link
                     href={`/users/${post.user_id}`}
-                    className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-background/60 border border-border/60 hover:border-primary/30 transition-colors"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-background/60 border border-border/60 hover:border-primary/30 active:border-primary/40 transition-colors touch-target"
                   >
                     <span className="text-sm font-medium text-foreground">
                       @{post.profile?.username || 'user'}
@@ -168,12 +168,12 @@ export default function PostDetailPage() {
 
                 {/* Likes + Comments */}
                 <div className="flex items-center justify-center gap-6">
-                  <button onClick={handleLike} disabled={likePostMutation.isPending || !user} className={`flex items-center gap-2 text-sm font-medium transition-colors ${post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400'} ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <button onClick={handleLike} disabled={likePostMutation.isPending || !user} className={`flex items-center gap-2 text-sm font-medium transition-colors ${post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400 active:text-red-500'} ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
                     <Heart className={`h-4 w-4 ${post.has_liked ? 'fill-red-500' : ''}`} />
                     <span className="text-xs">{post.likes_count ?? 0} {(post.likes_count ?? 0) === 1 ? 'like' : 'likes'}</span>
                   </button>
                   <span className="text-muted-foreground/20">|</span>
-                  <button onClick={() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                  <button onClick={() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     <span className="text-xs">{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
                   </button>
@@ -192,17 +192,17 @@ export default function PostDetailPage() {
                       city: post.post_city || post.profile?.city || undefined,
                       date: formatRelativeTime(post.created_at),
                       avatarUrl: post.profile?.avatar_url,
-                    })} className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-4 py-2 text-xs font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 transition-all">
+                    })} className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all touch-target">
                       <Share2 className="h-3.5 w-3.5" />
                       <span>Share</span>
                     </button>
                     {user && post.user_id === user.id && (
                       <>
-                        <button onClick={() => setIsEditModalOpen(true)} className="flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-foreground hover:bg-elevated transition-colors">
+                        <button onClick={() => setIsEditModalOpen(true)} className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-medium text-foreground hover:bg-elevated active:bg-elevated/80 transition-colors touch-target">
                           <Pencil className="h-3.5 w-3.5" />
                           <span className="hidden sm:inline">Edit</span>
                         </button>
-                        <button onClick={handleDelete} className="flex items-center justify-center gap-1.5 rounded-full px-3 py-2 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors">
+                        <button onClick={handleDelete} className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 active:text-destructive active:bg-destructive/10 transition-colors touch-target">
                           <Archive className="h-3.5 w-3.5" />
                           <span className="hidden sm:inline">Archive</span>
                         </button>
@@ -319,13 +319,13 @@ export default function PostDetailPage() {
                 <div className="flex rounded-lg border border-border p-0.5 bg-muted/30">
                   <button
                     onClick={() => setSortBy('popular')}
-                    className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sortBy === 'popular' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-3.5 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider transition-all ${sortBy === 'popular' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground active:text-foreground'}`}
                   >
                     Popular
                   </button>
                   <button
                     onClick={() => setSortBy('recent')}
-                    className={`px-3 py-1 rounded-md text-[10px] font-semibold uppercase tracking-wider transition-all ${sortBy === 'recent' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                    className={`px-3.5 py-1.5 rounded-md text-[11px] font-semibold uppercase tracking-wider transition-all ${sortBy === 'recent' ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground active:text-foreground'}`}
                   >
                     Recent
                   </button>
@@ -353,7 +353,7 @@ export default function PostDetailPage() {
               </div>
             ) : (
               <p className="text-sm text-muted-foreground mb-6">
-                <a href="/auth/login" className="text-primary hover:underline">Sign in</a> to leave a love note.
+                <a href="/auth/login" className="text-primary hover:underline active:underline">Sign in</a> to leave a love note.
               </p>
             )}
 
