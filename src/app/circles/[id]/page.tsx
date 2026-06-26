@@ -8,7 +8,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/ConfirmModal';
 import { Spinner } from '@/components/ui/Spinner';
 import { PageBell } from '@/components/ui/PageBell';
-import { ArrowLeft, Copy, Check, Diamond, Crown, Trophy, LogOut, UserMinus, Trash2 } from 'lucide-react';
+import { ArrowLeft, Copy, Check, Diamond, Crown, Trophy, LogOut, UserMinus, Trash2, UserCheck, X } from 'lucide-react';
 import type { Circle, CircleMember } from '@/types/database';
 
 interface LeaderboardEntry {
@@ -50,7 +50,7 @@ export default function CircleDetailPage() {
       const data = await res.json();
       if (data.success) setCircle(data.data);
     } catch {
-      addToast('Failed to load clique', 'error');
+      addToast('Failed to load bond', 'error');
     } finally {
       setLoading(false);
     }
@@ -81,7 +81,7 @@ export default function CircleDetailPage() {
 
   const handleLeave = async () => {
     if (!circle || leaving) return;
-    if (!(await confirm({ title: 'Leave Circle', message: 'Are you sure you want to leave this clique?', confirmLabel: 'Leave', variant: 'warning' }))) return;
+    if (!(await confirm({ title: 'Leave Circle', message: 'Are you sure you want to leave this bond?', confirmLabel: 'Leave', variant: 'warning' }))) return;
     setLeaving(true);
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
@@ -91,15 +91,34 @@ export default function CircleDetailPage() {
       });
       const data = await res.json();
       if (data.success) {
-        addToast('Left the clique', 'success');
+        addToast('Left the bond', 'success');
         router.push('/circles');
       } else {
         addToast(data.error || 'Failed to leave', 'error');
       }
     } catch {
-      addToast('Failed to leave clique', 'error');
+      addToast('Failed to leave bond', 'error');
     } finally {
       setLeaving(false);
+    }
+  };
+
+  const handleInviteResponse = async (action: 'accept' | 'reject') => {
+    try {
+      const res = await fetch(`/api/circles/${circleId}/members`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast(data.message || (action === 'accept' ? 'Joined the bond!' : 'Invitation declined'), 'success');
+        fetchCircle();
+      } else {
+        addToast(data.error || 'Failed to respond', 'error');
+      }
+    } catch {
+      addToast('Something went wrong', 'error');
     }
   };
 
@@ -126,13 +145,13 @@ export default function CircleDetailPage() {
 
   const handleDelete = async () => {
     if (!circle || deleting) return;
-    if (!(await confirm({ title: 'Delete Circle', message: 'Delete this entire clique? This cannot be undone. All members will be removed.', confirmLabel: 'Delete', variant: 'danger' }))) return;
+    if (!(await confirm({ title: 'Delete Circle', message: 'Delete this entire bond? This cannot be undone. All members will be removed.', confirmLabel: 'Delete', variant: 'danger' }))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/circles/${circleId}`, { method: 'DELETE' });
       const data = await res.json();
       if (data.success) {
-        addToast('Clique deleted', 'success');
+        addToast('Bond deleted', 'success');
         router.push('/circles');
       } else {
         addToast(data.error || 'Failed to delete', 'error');
@@ -145,7 +164,11 @@ export default function CircleDetailPage() {
   };
 
   const isCreator = circle?.created_by === user?.id;
-  const isMember = circle?.members?.some(m => m.user_id === user?.id);
+  const myMembership = circle?.members?.find(m => m.user_id === user?.id);
+  const isMember = myMembership?.status === 'active';
+  const isInvited = myMembership?.status === 'invited';
+  const activeMembers = circle?.members?.filter(m => m.status === 'active') || [];
+  const invitedMembers = circle?.members?.filter(m => m.status === 'invited' && m.user_id !== user?.id) || [];
 
   const rankIcon = (rank: number) => {
     if (rank === 1) return <Crown className="h-5 w-5 text-gold" />;
@@ -164,8 +187,8 @@ export default function CircleDetailPage() {
   if (!user) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-muted-foreground">Sign in to view cliques.</p>
-        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground mt-4">
+        <p className="text-muted-foreground">Sign in to view bonds.</p>
+        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 px-6 py-3 text-sm font-semibold mt-4 transition-all">
           Sign In
         </Link>
       </div>
@@ -175,7 +198,7 @@ export default function CircleDetailPage() {
   if (loading) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 flex justify-center">
-        <Spinner size="lg" text={["LOADING CLIQUE..."]} />
+        <Spinner size="lg" text={["LOADING BOND..."]} />
       </div>
     );
   }
@@ -183,22 +206,22 @@ export default function CircleDetailPage() {
   if (!circle) {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
-        <p className="text-muted-foreground mb-4">Clique not found.</p>
-        <Link href="/circles" className="text-primary hover:underline">Back to Cliques</Link>
+        <p className="text-muted-foreground mb-4">Bond not found.</p>
+        <Link href="/circles" className="text-primary hover:underline">Back to Bonds</Link>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8 relative">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8 relative">
       {/* Fond rose glow */}
       <div className="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-primary/[0.05] blur-3xl pointer-events-none" />
       <div className="absolute -bottom-20 -left-20 w-48 h-48 rounded-full bg-blush/20 blur-3xl pointer-events-none" />
 
       {/* Back + Header — aligned with design system */}
       <div className="flex items-start gap-4 mb-10">
-        <Link href="/circles" className="p-2 rounded-full hover:bg-elevated transition-colors mt-1">
-          <ArrowLeft className="h-5 w-5 text-muted-foreground" />
+        <Link href="/circles" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated/40 hover:bg-elevated/60 px-3 py-1.5 text-xs text-foreground backdrop-blur transition-colors mt-1">
+          <ArrowLeft className="h-3.5 w-3.5" /> Bonds
         </Link>
         <div className="flex-1">
           <div className="flex items-start justify-between gap-4">
@@ -229,7 +252,7 @@ export default function CircleDetailPage() {
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm text-destructive hover:bg-destructive/5 hover:border-destructive/30 transition-all"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 backdrop-blur-xl border border-destructive/20 text-sm text-destructive hover:bg-destructive/20 transition-all"
             >
               <Trash2 className="h-4 w-4" />
               {deleting ? 'Deleting...' : 'Delete'}
@@ -238,7 +261,7 @@ export default function CircleDetailPage() {
             <button
               onClick={handleLeave}
               disabled={leaving}
-              className="flex items-center gap-2 px-4 py-2 rounded-full border border-border text-sm text-muted-foreground hover:text-destructive hover:border-destructive/50 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-border/60 text-sm text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-all"
             >
               <LogOut className="h-4 w-4" />
               Leave
@@ -256,7 +279,7 @@ export default function CircleDetailPage() {
           </code>
           <button
             onClick={copyInviteLink}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/25 transition-all"
           >
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? 'Copied!' : 'Copy'}
@@ -280,56 +303,129 @@ export default function CircleDetailPage() {
         </div>
       </div>
 
-      {/* Members */}
-      <div className="mb-6">
-        <h2 className="font-display text-xl italic text-foreground mb-4 flex items-center gap-2">
-          <Diamond className="h-5 w-5" /> Members
-        </h2>
-        <div className="flex flex-wrap gap-2">
-          {circle.members?.map((member) => (
-            <div
-              key={member.id}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/40 text-sm"
+      {/* Invitation banner — shown when user is invited */}
+      {isInvited && (
+        <div className="mb-8 p-6 rounded-2xl border border-primary/30 bg-primary/5 backdrop-blur-xl text-center">
+          <Diamond className="h-8 w-8 text-primary mx-auto mb-3" />
+          <h2 className="font-display text-xl italic text-foreground mb-1">You're invited!</h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            You've been invited to <strong>{circle.name}</strong>
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            <button
+              onClick={() => handleInviteResponse('accept')}
+              className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 px-6 py-2.5 text-sm font-semibold transition-all"
             >
-              <div className="w-6 h-6 rounded-full glass-2 flex items-center justify-center text-[10px] font-bold text-white">
-                {(member.profile as any)?.username?.[0]?.toUpperCase() || '?'}
-              </div>
-              <span className="text-foreground">@{(member.profile as any)?.username || 'unknown'}</span>
-              {member.role === 'creator' && <Crown className="h-3 w-3 text-gold" />}
-              {isCreator && member.role !== 'creator' && member.user_id !== user.id && (
-                <button
-                  onClick={() => handleKick(member.user_id, (member.profile as any)?.username || 'unknown')}
-                  className="p-0.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-                  title="Remove member"
+              <UserCheck className="h-4 w-4" /> Accept Invite
+            </button>
+            <button
+              onClick={() => handleInviteResponse('reject')}
+              className="inline-flex items-center gap-2 rounded-full bg-transparent backdrop-blur-xl border border-border text-muted-foreground hover:text-destructive hover:border-destructive/50 px-6 py-2.5 text-sm transition-all"
+            >
+              <X className="h-4 w-4" /> Decline
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Two-column bento: Members + Leaderboard */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Left column — Members + Pending */}
+        <div className="lg:col-span-1 space-y-6">
+          <div className="rounded-2xl border border-border bg-card/60 p-6 backdrop-blur-xl">
+            <h2 className="font-display text-xl italic text-foreground mb-4 flex items-center gap-2">
+              <Diamond className="h-5 w-5" /> Members
+            </h2>
+            <div className="flex flex-wrap gap-2">
+              {activeMembers.map((member) => (
+                <div
+                  key={member.id}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-card/40 text-sm"
                 >
-                  <UserMinus className="h-3 w-3" />
-                </button>
-              )}
+                  <div className="w-6 h-6 rounded-full glass-2 flex items-center justify-center text-[10px] font-bold text-white">
+                    {(member.profile as any)?.username?.[0]?.toUpperCase() || '?'}
+                  </div>
+                  <span className="text-foreground">@{(member.profile as any)?.username || 'unknown'}</span>
+                  {member.role === 'creator' && <Crown className="h-3 w-3 text-gold" />}
+                  {isCreator && member.role !== 'creator' && member.user_id !== user.id && (
+                    <button
+                      onClick={() => handleKick(member.user_id, (member.profile as any)?.username || 'unknown')}
+                      className="p-0.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Remove member"
+                    >
+                      <UserMinus className="h-3 w-3" />
+                    </button>
+                  )}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* Leaderboard */}
-      <h2 className="font-display text-xl italic text-foreground mb-4 flex items-center gap-2">
-        <Trophy className="h-5 w-5 text-gold" /> Leaderboard
-      </h2>
-
-      {leaderboard.length === 0 ? (
-        <div className="text-center py-12 rounded-2xl border border-border bg-card/40">
-          <p className="text-muted-foreground text-sm">No scores yet. Members need to create posts first.</p>
+          {/* Pending Invites */}
+          {isCreator && invitedMembers.length > 0 && (
+            <div className="rounded-2xl border border-dashed border-muted-foreground/30 bg-card/40 p-6 backdrop-blur-xl">
+              <h2 className="font-display text-lg italic text-foreground mb-3 flex items-center gap-2">
+                <UserCheck className="h-4 w-4 text-muted-foreground" /> Pending Invites
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {invitedMembers.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-dashed border-muted-foreground/30 bg-muted/20 text-sm text-muted-foreground"
+                  >
+                    <div className="w-6 h-6 rounded-full glass-2 flex items-center justify-center text-[10px] font-bold text-white opacity-60">
+                      {(member.profile as any)?.username?.[0]?.toUpperCase() || '?'}
+                    </div>
+                    <Link href={`/users/${member.user_id}`} className="hover:text-foreground transition-colors">
+                      @{(member.profile as any)?.username || 'unknown'}
+                    </Link>
+                    <span className="text-[10px] text-muted-foreground/60 italic">invited</span>
+                    <button
+                      onClick={async () => {
+                        try {
+                          await fetch(`/api/circles/${circleId}/members`, {
+                            method: 'DELETE',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ target_user_id: member.user_id }),
+                          });
+                          addToast('Invite cancelled', 'info');
+                          fetchCircle();
+                        } catch { addToast('Failed to cancel', 'error'); }
+                      }}
+                      className="p-0.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      title="Cancel invite"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      ) : (
-        <div className="rounded-2xl border border-border bg-card/60 overflow-hidden">
-          {leaderboard.map((entry, i) => {
-            const isMe = entry.user_id === user.id;
-            return (
-              <div
-                key={entry.user_id}
-                className={`flex items-center gap-4 px-5 py-4 ${
-                  i > 0 ? 'border-t border-border' : ''
-                } ${isMe ? 'bg-primary/5' : ''} ${entry.rank === 1 ? 'bg-gold/[0.03]' : ''} hover:bg-elevated transition-colors`}
-              >
+
+        {/* Right column — Leaderboard */}
+        <div className="lg:col-span-2">
+          <div className="rounded-2xl border border-border bg-card/60 backdrop-blur-xl overflow-hidden">
+            <div className="px-6 py-5 border-b border-border flex items-center gap-2">
+              <Trophy className="h-5 w-5 text-gold" />
+              <h2 className="font-display text-xl italic text-foreground">Leaderboard</h2>
+            </div>
+            {leaderboard.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-muted-foreground text-sm">No scores yet. Members need to create posts first.</p>
+              </div>
+            ) : (
+              <div>
+                {leaderboard.map((entry, i) => {
+                  const isMe = entry.user_id === user.id;
+                  return (
+                    <div
+                      key={entry.user_id}
+                      className={`flex items-center gap-4 px-6 py-4 ${
+                        i > 0 ? 'border-t border-border' : ''
+                      } ${isMe ? 'bg-primary/5' : ''} ${entry.rank === 1 ? 'bg-gold/[0.03]' : ''} hover:bg-elevated transition-colors`}
+                    >
                 {/* Rank */}
                 <div className="w-10 text-center shrink-0">
                   {entry.rank <= 3 ? (
@@ -345,9 +441,9 @@ export default function CircleDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-medium text-foreground text-sm truncate">
+                    <Link href={`/users/${entry.user_id}`} className="font-medium text-foreground text-sm truncate hover:text-primary transition-colors">
                       @{entry.username}
-                    </span>
+                    </Link>
                     {entry.role === 'creator' && <Crown className="h-3 w-3 text-gold shrink-0" />}
                     {isMe && (
                       <span className="px-1.5 py-0.5 rounded text-[10px] bg-primary/20 text-primary font-semibold">You</span>
@@ -370,5 +466,8 @@ export default function CircleDetailPage() {
         </div>
       )}
     </div>
+      </div>
+      </div>
+      </div>
   );
 }

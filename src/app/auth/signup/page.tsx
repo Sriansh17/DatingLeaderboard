@@ -6,7 +6,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle';
 export default function SignupPage() {
   return (
     <div className="relative min-h-screen w-full flex flex-col overflow-hidden bg-background">
-      {/* Background — matches login, primary-dominant */}
+      {/* Background glow */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-[10%] -left-[10%] w-[70vw] h-[70vw] rounded-full bg-primary opacity-20 mix-blend-screen blur-[120px] animate-pulse-glow" />
         <div className="absolute top-[20%] -right-[20%] w-[60vw] h-[60vw] rounded-full bg-gold opacity-10 mix-blend-screen blur-[120px]" />

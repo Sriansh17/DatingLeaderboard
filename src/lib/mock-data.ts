@@ -1,50 +1,20 @@
-export type Tier =
-  | "Still Dating"
-  | "It's Complicated"
-  | "Officially Exclusive"
-  | "Relationship Goals"
-  | "Certified Partner Material"
-  | "Gold Standard"
-  | "Legendary"
-  | "The Algorithm Has No Words";
+// Scoring types and helpers are now unified in src/lib/scoring.ts.
+// Re-exports keep existing imports from mock-data working during migration.
+export {
+  type Tier,
+  type TierInfo,
+  tierForScore,
+  tierInfoForScore,
+  scoreColor,
+} from '@/lib/scoring';
 
-export interface TierInfo {
-  name: Tier;
-  emoji: string;
-}
+import { TIER_EMOJI } from '@/lib/scoring';
+import type { Tier, TierInfo } from '@/lib/scoring';
 
-export const TIER_MAP: Record<Tier, TierInfo> = {
-  "Still Dating":               { name: "Still Dating",               emoji: "🥉" },
-  "It's Complicated":           { name: "It's Complicated",           emoji: "📉" },
-  "Officially Exclusive":       { name: "Officially Exclusive",       emoji: "📊" },
-  "Relationship Goals":         { name: "Relationship Goals",         emoji: "⭐" },
-  "Certified Partner Material": { name: "Certified Partner Material", emoji: "💎" },
-  "Gold Standard":              { name: "Gold Standard",              emoji: "🏆" },
-  "Legendary":                  { name: "Legendary",                  emoji: "👑" },
-  "The Algorithm Has No Words": { name: "The Algorithm Has No Words", emoji: "🌟" },
-};
-
-export function tierForScore(score: number): Tier {
-  if (score < 40) return "Still Dating";
-  if (score < 55) return "It's Complicated";
-  if (score < 65) return "Officially Exclusive";
-  if (score < 75) return "Relationship Goals";
-  if (score < 85) return "Certified Partner Material";
-  if (score < 92) return "Gold Standard";
-  if (score < 97) return "Legendary";
-  return "The Algorithm Has No Words";
-}
-
-export function tierInfoForScore(score: number): TierInfo {
-  return TIER_MAP[tierForScore(score)];
-}
-
-export function scoreColor(score: number) {
-  if (score < 55) return "rgb(var(--score-low))";
-  if (score < 75) return "rgb(var(--score-mid))";
-  if (score < 92) return "rgb(var(--score-high))";
-  return "rgb(var(--score-legendary))";
-}
+/** @deprecated Use TIER_EMOJI from '@/lib/scoring' instead. */
+export const TIER_MAP: Record<Tier, TierInfo> = Object.fromEntries(
+  Object.entries(TIER_EMOJI).map(([name, emoji]) => [name, { name: name as Tier, emoji }])
+) as Record<Tier, TierInfo>;
 
 export interface Story {
   id: string;

@@ -38,6 +38,11 @@ export const LEADERBOARD_PAGE_SIZE = 50;
 export const LOCAL_RADIUS_KM = 10;
 export const POSTS_PER_PAGE = 20;
 export const SCORE_ANIMATION_DURATION = 1500; // ms
+export const EXPLORE_FEED_LIMIT = 50;
+export const CIRCLE_FEED_LIMIT = 50;
+
+// ─── Notifications ───────────────────────────────────────────────────────────────────
+export const NOTIFICATION_POLL_INTERVAL = 30000; // 30s
 
 // ─── Subscription Plans ────────────────────────────────────────────────────────────
 

@@ -28,8 +28,15 @@ export async function GET(request: Request) {
           ? country || 'unknown'
         : 'world';
 
-    // Skip cache — always fetch fresh data to avoid stale partner names
-    // TODO: Re-enable caching once data stabilizes
+    // Check cache first
+    const cached = await getCachedLeaderboard(type, cacheId);
+    if (cached && Array.isArray(cached)) {
+      // Paginate cached data
+      const start = (page - 1) * limit;
+      const paginated = cached.slice(start, start + limit);
+      console.log(`[Leaderboard] ✅ Cache hit (${cached.length} entries) — ${Date.now() - startTime}ms`);
+      return NextResponse.json({ success: true, data: paginated, cached: true });
+    }
 
     const supabaseStart = Date.now();
     const supabase = createClient(
@@ -158,8 +165,8 @@ export async function GET(request: Request) {
 
     console.log(`[Leaderboard] Entries computed: ${entries.length} qualified`);
 
-    // Cache disabled temporarily — re-enable once data is stable
-    // await setCachedLeaderboard(type, cacheId, entries);
+    // Cache the full (unpaginated) results
+    await setCachedLeaderboard(type, cacheId, entries);
 
     // Paginate
     const start = (page - 1) * limit;

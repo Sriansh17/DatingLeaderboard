@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
+import { CIRCLE_FEED_LIMIT } from '@/lib/utils/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -61,7 +62,7 @@ export async function GET() {
       .in('user_id', memberUserIds)
       .eq('is_public', true)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(CIRCLE_FEED_LIMIT);
 
     if (error) {
       console.error('[Circle Feed API] Error:', error);

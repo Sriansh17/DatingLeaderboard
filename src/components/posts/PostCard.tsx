@@ -131,7 +131,7 @@ export function PostCard({ post }: PostCardProps) {
             )}
             <button
               data-action
-              className="bg-primary px-5 py-2 rounded-[18px] text-primary-foreground font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
+              className="glass-btn px-5 py-2 rounded-[18px] font-semibold border-none flex items-center gap-2 hover:opacity-90 transition-opacity text-xs sm:text-sm w-fit"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();

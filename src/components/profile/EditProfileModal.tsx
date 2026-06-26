@@ -1,15 +1,56 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { Camera, Loader2 } from 'lucide-react';
+import { Camera, Loader2, AlertCircle } from 'lucide-react';
+import { Avatar } from '@/components/ui/Avatar';
 import { createClient } from '@/lib/supabase/client';
-import { AvatarSelectionModal } from './AvatarSelectionModal';
+import type { Profile } from '@/types/database';
 
 interface EditProfileModalProps {
   isOpen: boolean;
   onClose: () => void;
-  currentProfile: any;
+  currentProfile: Profile;
   currentUser?: any;
   onSuccess: () => void;
+}
+
+const MAX_AVATAR_SIZE = 200; // px
+const COMPRESSION_QUALITY = 0.7;
+
+function resizeImage(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (e) => {
+      const img = new Image();
+      img.src = e.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let { width, height } = img;
+
+        if (width > height) {
+          if (width > MAX_AVATAR_SIZE) {
+            height = Math.round((height / width) * MAX_AVATAR_SIZE);
+            width = MAX_AVATAR_SIZE;
+          }
+        } else {
+          if (height > MAX_AVATAR_SIZE) {
+            width = Math.round((width / height) * MAX_AVATAR_SIZE);
+            height = MAX_AVATAR_SIZE;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { reject(new Error('Could not get canvas context')); return; }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        resolve(canvas.toDataURL('image/jpeg', COMPRESSION_QUALITY));
+      };
+      img.onerror = () => reject(new Error('Failed to load image'));
+    };
+    reader.onerror = () => reject(new Error('Failed to read file'));
+  });
 }
 
 export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser, onSuccess }: EditProfileModalProps) {
@@ -21,21 +62,63 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
   const [city, setCity] = useState(currentProfile?.city || '');
   const [occupation, setOccupation] = useState(currentProfile?.occupation || '');
   const [country, setCountry] = useState(currentProfile?.country || '');
-  
+
   const [loading, setLoading] = useState(false);
-  const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [avatarBase64, setAvatarBase64] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setError('Please select an image file');
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Image too large. Max 5MB');
+      return;
+    }
+
+    try {
+      const base64 = await resizeImage(file);
+      setAvatarBase64(base64);
+      setError(null);
+    } catch {
+      setError('Failed to process image');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    
+
     try {
+      setError(null);
       const supabase = createClient();
-      
+
+      const updates: Record<string, unknown> = {
+        username,
+        full_name: fullName,
+        bio,
+        age,
+        gender,
+        city,
+        occupation,
+        country,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (avatarBase64) {
+        updates.avatar_url = avatarBase64;
+      }
+
       // Update all fields in profiles table
       const { error: profileError } = await supabase
         .from('profiles')
-        .update({ username, full_name: fullName, bio, age, gender, city, occupation, country })
+        .update(updates)
         .eq('id', currentProfile.id);
 
       // Update user metadata (age, gender, occupation live here)
@@ -46,9 +129,11 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
       if (!profileError && !metaError) {
         onSuccess();
         onClose();
+      } else {
+        setError(profileError?.message || metaError?.message || 'Failed to save changes');
       }
     } catch (err) {
-      console.error(err);
+      setError('Something went wrong. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -59,31 +144,38 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
       <form onSubmit={handleSubmit} className="mt-4">
         {/* Scrollable fields area */}
         <div className="space-y-6 overflow-y-auto pr-3" style={{maxHeight:'calc(80vh - 160px)'}}>
-          <div className="flex flex-col items-center gap-4 py-2">
-            <div className="relative group cursor-pointer" onClick={() => setAvatarModalOpen(true)}>
-              <div className="w-20 h-20 rounded-full overflow-hidden border border-border flex items-center justify-center transition-all bg-background font-display text-3xl text-muted-foreground shadow-lg group-hover:border-blush/50">
-                {currentProfile?.avatar_url ? (
-                  currentProfile.avatar_url.startsWith('http') ? (
-                    <img src={currentProfile.avatar_url} alt="" className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-2xl">{currentProfile.avatar_url}</span>
-                  )
-                ) : (
-                  username[1]?.toUpperCase() || 'U'
-                )}
-              </div>
-              <div className="absolute inset-0 bg-primary/10 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">
-                <Camera className="w-5 h-5 text-white" />
-              </div>
+          {/* Avatar Upload */}
+          <div className="flex flex-col items-center gap-3 py-2">
+            <div className="relative">
+              <Avatar
+                src={avatarBase64 || currentProfile?.avatar_url}
+                alt={currentProfile?.username}
+                size="lg"
+                className="ring-2 ring-blush/40"
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full glass-btn flex items-center justify-center shadow-md"
+              >
+                <Camera className="h-4 w-4" />
+              </button>
             </div>
-            <p className="text-[10px] text-muted-foreground/60 -mt-1">Tap to change</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-xs text-primary hover:text-primary font-medium"
+            >
+              Change Photo
+            </button>
           </div>
-          <AvatarSelectionModal
-            isOpen={avatarModalOpen}
-            onClose={() => setAvatarModalOpen(false)}
-            currentProfile={currentProfile}
-            onSuccess={() => { setAvatarModalOpen(false); onSuccess(); }}
-          />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-1 group">
@@ -173,6 +265,14 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
           />
         </div>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="flex items-center gap-2 rounded-xl bg-destructive/10 border border-destructive/20 px-4 py-3 mt-4">
+            <AlertCircle className="h-4 w-4 text-destructive flex-shrink-0" />
+            <p className="text-xs font-medium text-destructive">{error}</p>
+          </div>
+        )}
 
         {/* Sticky save button — always visible */}
         <div className="sticky bottom-0 pt-4 mt-2 bg-popover">

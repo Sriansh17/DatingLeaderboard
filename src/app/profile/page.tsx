@@ -33,6 +33,9 @@ export default function ProfilePage() {
   const { data: posts, isLoading } = usePosts(user?.id);
   const { data: archivedPosts, isLoading: archivedLoading, refetch: refetchArchived } = useArchivedPosts(user?.id);
   const [partners, setPartners] = useState<{id: string, name: string, emoji: string}[]>([]);
+  const [bondCount, setBondCount] = useState(0);
+  const [connectionCount, setConnectionCount] = useState(0);
+  const [bondEmojis, setBondEmojis] = useState<string[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -136,6 +139,25 @@ export default function ProfilePage() {
     const supabase = createClient();
     supabase.from('partners').select('id, name, emoji').eq('user_id', user.id)
       .then(({ data }) => setPartners(data || []));
+
+    // Fetch bonds count + emojis
+    fetch('/api/circles')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setBondCount(data.data?.length || 0);
+          setBondEmojis((data.data || []).map((c: any) => c.emoji).filter(Boolean));
+        }
+      })
+      .catch(() => {});
+
+    // Fetch connections count
+    fetch('/api/connections')
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) setConnectionCount(data.data?.length || 0);
+      })
+      .catch(() => {});
   }, [user]);
 
   useEffect(() => {
@@ -165,7 +187,7 @@ export default function ProfilePage() {
       return (
         <div className="text-center py-20 text-muted-foreground">
           <p className="mb-4 text-lg font-display italic">Sign in to view your profile.</p>
-          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary/90 transition-colors">
+          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:bg-primary/90 transition-colors">
             Sign In
           </Link>
         </div>
@@ -359,7 +381,7 @@ export default function ProfilePage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Posts</div>
                 <div className="font-score text-2xl text-foreground">{posts?.length || 0}</div>
@@ -375,6 +397,14 @@ export default function ProfilePage() {
               <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
                 <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Partners</div>
                 <div className="font-score text-2xl text-primary">{partners.length}</div>
+              </div>
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Bonds</div>
+                <div className="font-score text-2xl text-foreground">{bondCount}</div>
+              </div>
+              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
+                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Connections</div>
+                <div className="font-score text-2xl text-gold">{connectionCount}</div>
               </div>
             </div>
           </div>

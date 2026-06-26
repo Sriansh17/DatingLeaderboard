@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { EXPLORE_FEED_LIMIT } from '@/lib/utils/constants';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,7 +26,7 @@ export async function GET() {
       .eq('is_public', true)
       .eq('is_archived', false)
       .order('created_at', { ascending: false })
-      .limit(50);
+      .limit(EXPLORE_FEED_LIMIT);
 
     if (error) {
       console.error('[Explore API] Supabase error:', error);

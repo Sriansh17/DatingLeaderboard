@@ -107,7 +107,7 @@ export default function PartnersPage() {
                 <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button 
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingPartner(partner); setShowAddForm(true); }}
-                    className="bg-primary hover:bg-primary/80 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                    className="glass-btn w-7 h-7 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                     title="Edit Partner"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ export default function PartnersPage() {
         {!showAddForm && canAddAnotherPartner && (
           <button 
             onClick={() => setShowAddForm(true)}
-            className="flex items-center gap-2 px-8 py-3 rounded-full bg-primary text-primary-foreground shadow-glow hover:opacity-90 transition-all text-sm font-bold uppercase tracking-[0.2em]"
+            className="flex items-center gap-2 px-8 py-3 rounded-full glass-btn hover:opacity-90 transition-all text-sm font-bold uppercase tracking-[0.2em]"
           >
             <Plus className="w-5 h-5" />
             Add Partner

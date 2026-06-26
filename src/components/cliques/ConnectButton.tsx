@@ -104,8 +104,8 @@ export function ConnectButton({ targetUserId, initialStatus, requestId, onStatus
 
   if (status === 'pending_sent') {
     return (
-      <Button variant="outline" size="sm" disabled loading={loading}>
-        <Loader2 className="h-4 w-4 animate-spin" /> Invite Sent
+      <Button variant="outline" size="sm" disabled>
+        <UserCheck className="h-4 w-4" /> Invite Sent
       </Button>
     );
   }

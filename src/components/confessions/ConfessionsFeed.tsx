@@ -83,7 +83,7 @@ export function ConfessionsFeed() {
             </p>
             <Link
               href="/confessions/new"
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
             >
               Write your confession
             </Link>
