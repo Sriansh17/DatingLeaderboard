@@ -6,11 +6,123 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { useTheme } from '@/components/providers/ThemeProvider';
-import { Settings, LogOut, Crown, Sparkles, ArrowLeft, User, Sun, Moon, Palette } from 'lucide-react';
+import { useToast } from '@/components/ui/Toast';
+import { Settings, LogOut, Crown, Sparkles, ArrowLeft, User, Sun, Moon, Palette, Bell, BellOff, ShieldCheck } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
   const { profile, user, signOut } = useUser();
   const { resolvedTheme, setTheme } = useTheme();
+  const { addToast } = useToast();
+  const [notifStatus, setNotifStatus] = useState<'default' | 'granted' | 'denied' | 'unsupported'>('default');
+  const [notifLoading, setNotifLoading] = useState(false);
+
+  useEffect(() => {
+    if (
+      typeof window === 'undefined' ||
+      !('Notification' in window) ||
+      !('serviceWorker' in navigator) ||
+      !('PushManager' in window)
+    ) {
+      setNotifStatus('unsupported');
+      return;
+    }
+    setNotifStatus(Notification.permission as 'default' | 'granted' | 'denied');
+  }, []);
+
+  const subscribeUser = async () => {
+    try {
+      setNotifLoading(true);
+
+      if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+        throw new Error('Push notifications are not supported by this browser.');
+      }
+
+      if (!(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || '').trim()) {
+        throw new Error('Push notifications are not configured (missing VAPID public key).');
+      }
+
+      const permission = await Notification.requestPermission();
+      setNotifStatus(permission as 'granted' | 'denied' | 'default');
+      if (permission !== 'granted') {
+        addToast('Notification permission denied.', 'warning');
+        return;
+      }
+
+      const existingRegistration = await navigator.serviceWorker.getRegistration();
+      if (!existingRegistration) {
+        await navigator.serviceWorker.register('/sw.js');
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      const existing = await reg.pushManager.getSubscription();
+      if (existing) {
+        const json = existing.toJSON();
+        const res = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(json),
+        });
+        if (!res.ok) throw new Error('Failed to sync existing subscription');
+        addToast('Notifications already enabled.', 'info');
+        return;
+      }
+
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!),
+      });
+
+      const json = sub.toJSON();
+      const res = await fetch('/api/push/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(json),
+      });
+      if (!res.ok) throw new Error('Failed to save subscription');
+      addToast('Push notifications enabled!', 'success');
+    } catch (err: any) {
+      addToast(err.message || 'Failed to enable notifications.', 'error');
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  const unsubscribeUser = async () => {
+    try {
+      setNotifLoading(true);
+      const registration = await navigator.serviceWorker.getRegistration();
+      if (!registration) {
+        addToast('Already unsubscribed.', 'info');
+        return;
+      }
+
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if (!sub) { addToast('Already unsubscribed.', 'info'); return; }
+      await fetch('/api/push/subscribe', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ endpoint: sub.endpoint }),
+      });
+      await sub.unsubscribe();
+      setNotifStatus('default');
+      addToast('Push notifications disabled.', 'info');
+    } catch (err: any) {
+      addToast(err.message || 'Failed to disable notifications.', 'error');
+    } finally {
+      setNotifLoading(false);
+    }
+  };
+
+  function urlBase64ToUint8Array(base64String: string) {
+    const padding = '='.repeat((4 - (base64String.length % 4)) % 4);
+    const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; i++) outputArray[i] = rawData.charCodeAt(i);
+    return outputArray;
+  }
 
   return (
     <div className="max-w-lg mx-auto px-4 py-8 relative">
@@ -83,6 +195,63 @@ export default function SettingsPage() {
               Sign Out
             </Button>
           </div>
+          {profile?.is_admin && (
+            <div className="mt-3 pt-3 border-t border-border">
+              <Link href="/admin/notifications">
+                <Button variant="outline" className="w-full justify-start">
+                  <ShieldCheck className="h-4 w-4 text-gold" />
+                  Admin — Send Notifications
+                </Button>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Notifications */}
+        <div className="glass-2 rounded-3xl p-6">
+          <div className="flex items-center gap-2 mb-4">
+            <Bell className="h-4 w-4 text-primary" />
+            <h2 className="font-display text-lg italic text-foreground">Notifications</h2>
+          </div>
+          {notifStatus === 'unsupported' ? (
+            <p className="text-sm text-muted-foreground">Push notifications are not supported by your browser.</p>
+          ) : notifStatus === 'denied' ? (
+            <p className="text-sm text-muted-foreground">
+              Notifications are blocked. Enable them in your browser site settings, then reload.
+            </p>
+          ) : notifStatus === 'granted' ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground flex items-center gap-2">
+                  <Bell className="h-4 w-4 text-green-500" /> Push notifications enabled
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">You will receive updates from Fond.</p>
+              </div>
+              <button
+                onClick={unsubscribeUser}
+                disabled={notifLoading}
+                className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-elevated/60 transition-colors disabled:opacity-50"
+              >
+                <BellOff className="h-3.5 w-3.5" />
+                {notifLoading ? 'Disabling…' : 'Disable'}
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-foreground">Stay in the loop</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Get notified about new scores, leaderboard changes and more.</p>
+              </div>
+              <button
+                onClick={subscribeUser}
+                disabled={notifLoading}
+                className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+              >
+                <Bell className="h-3.5 w-3.5" />
+                {notifLoading ? 'Enabling…' : 'Enable'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Appearance */}
