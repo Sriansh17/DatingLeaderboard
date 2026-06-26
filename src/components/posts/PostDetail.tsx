@@ -248,7 +248,7 @@ export function PostDetail({ post }: PostDetailProps) {
             <button
               type="submit"
               disabled={!newComment.trim() || submitting}
-              className="p-2.5 rounded-full bg-primary text-primary-foreground disabled:opacity-40 transition-opacity hover:opacity-90"
+              className="p-2.5 rounded-full glass-btn disabled:opacity-40 transition-opacity hover:opacity-90"
             >
               <Send className="h-4 w-4" />
             </button>

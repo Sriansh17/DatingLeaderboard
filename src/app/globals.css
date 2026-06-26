@@ -5,12 +5,12 @@
 /* ==========================================================================
    FOND — CENTRAL THEME CONTROLLER
    ==========================================================================
-   This file acts as your central control panel. Change the values below 
+   This file acts as your central control panel. Change the values below
    to instantly update the colors, fonts, and aesthetics across the entire app.
-   
+
    HOW TO CHANGE FONTS:
    Fonts are loaded via next/font in `src/app/layout.tsx`.
-   - `--font-sans`: Used for body text (Default: DM Sans)
+   - `--font-sans`: Used for body text (Default: GeistVF — Vercel Geist)
    - `--font-display`: Used for headings and italics (Default: Playfair Display)
    - `--font-score`: Used for the massive numbers (Default: Bebas Neue)
    
@@ -45,7 +45,7 @@
     --secondary: 249 246 244;  /* #F9F6F4 */
     --secondary-foreground: 34 31 32; /* #221F20 */
     --muted: 249 246 244;      /* #F9F6F4 */
-    --accent: 249 246 244;     /* #F9F6F4 */
+    --accent: 255 182 193;     /* #FFB6C1 (blush) */
     --accent-foreground: 34 31 32; /* #221F20 */
     
     /* Unique Accents & Status */
@@ -283,6 +283,32 @@
   }
 
 
+
+  /* ─── Glass button utility ────────────────────────────────────────────
+     Drop-in replacement for bg-primary text-primary-foreground solid buttons.
+     Apply via: className="glass-btn" or merge with cn()                    */
+  .glass-btn {
+    background: rgb(var(--primary) / 0.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgb(var(--primary) / 0.25);
+    color: rgb(var(--primary));
+    box-shadow: 0 4px 24px -4px rgb(var(--primary) / 0.15);
+  }
+  .glass-btn:hover {
+    background: rgb(var(--primary) / 0.25);
+  }
+  .glass-btn-gold {
+    background: rgb(var(--gold) / 0.1);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgb(var(--gold) / 0.3);
+    color: rgb(var(--gold));
+    box-shadow: 0 4px 20px -4px rgb(var(--gold) / 0.15);
+  }
+  .glass-btn-gold:hover {
+    background: rgb(var(--gold) / 0.2);
+  }
 
   .animate-float-up {
     animation: float-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;

@@ -117,6 +117,7 @@ export interface CircleMember {
   circle_id: string;
   user_id: string;
   role: 'creator' | 'admin' | 'member';
+  status: 'active' | 'invited';
   joined_at: string;
   // Joined fields
   profile?: Profile;
@@ -224,7 +225,9 @@ export type NotificationType =
   | 'connection_request'
   | 'connection_accepted'
   | 'clique_invite'
-  | 'clique_joined';
+  | 'clique_joined'
+  | 'post_like'
+  | 'post_comment';
 
 export interface Notification {
   id: string;

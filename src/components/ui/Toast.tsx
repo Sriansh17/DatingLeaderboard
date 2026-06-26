@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, createContext, useContext, useCallback } from 'react';
+import { useState, useEffect, createContext, useContext, useCallback, useRef } from 'react';
 import { cn } from '@/lib/utils/cn';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Toast, ToastVariant } from '@/types/ui';
@@ -33,29 +33,20 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
   return (
     <ToastContext.Provider value={{ addToast }}>
       {children}
-      {/* Centered alert box — shows one at a time */}
-      <AnimatePresence>
-        {toasts.length > 0 && (
-          <motion.div
-            key={toasts[0].id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-0 z-[100] flex items-center justify-center p-6"
-          >
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-              onClick={() => removeToast(toasts[0].id)}
-            />
-            <AlertBox toast={toasts[0]} onDismiss={() => removeToast(toasts[0].id)} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Non-blocking toast stack — centered at top, no backdrop */}
+      <div
+        className="fixed inset-x-0 top-4 z-[200] flex flex-col items-center pointer-events-none"
+        aria-live="polite"
+        aria-label="Notifications"
+      >
+        <div className="flex flex-col gap-3 max-w-sm w-full mx-4">
+        <AnimatePresence mode="popLayout">
+          {toasts.map((toast) => (
+            <ToastItem key={toast.id} toast={toast} onDismiss={() => removeToast(toast.id)} />
+          ))}
+        </AnimatePresence>
+      </div>
+      </div>
     </ToastContext.Provider>
   );
 }
@@ -64,30 +55,30 @@ const variantConfig: Record<ToastVariant, { border: string; bg: string; icon: Re
   success: {
     border: 'border-success/40',
     bg: 'bg-success/10',
-    icon: <CheckCircle2 className="h-6 w-6 text-success" />,
+    icon: <CheckCircle2 className="h-5 w-5 text-success" />,
     label: 'Success',
   },
   error: {
     border: 'border-destructive/40',
     bg: 'bg-destructive/10',
-    icon: <AlertCircle className="h-6 w-6 text-destructive" />,
+    icon: <AlertCircle className="h-5 w-5 text-destructive" />,
     label: 'Error',
   },
   info: {
     border: 'border-primary/30',
     bg: 'bg-primary/10',
-    icon: <Info className="h-6 w-6 text-primary" />,
+    icon: <Info className="h-5 w-5 text-primary" />,
     label: 'Info',
   },
   warning: {
     border: 'border-warning/40',
     bg: 'bg-warning/10',
-    icon: <AlertTriangle className="h-6 w-6 text-warning" />,
+    icon: <AlertTriangle className="h-5 w-5 text-warning" />,
     label: 'Warning',
   },
 };
 
-function AlertBox({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
+function ToastItem({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
   const [progress, setProgress] = useState(100);
   const config = variantConfig[toast.variant];
 
@@ -110,27 +101,28 @@ function AlertBox({ toast, onDismiss }: { toast: Toast; onDismiss: () => void })
 
   return (
     <motion.div
-      initial={{ y: 20 }}
-      animate={{ y: 0 }}
-      exit={{ y: 20 }}
-      transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+      layout
+      initial={{ opacity: 0, x: 80, scale: 0.95 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 80, scale: 0.95 }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
       className={cn(
-        'relative w-full max-w-sm rounded-2xl border shadow-2xl backdrop-blur-xl overflow-hidden',
+        'relative w-full rounded-2xl border shadow-lg backdrop-blur-xl overflow-hidden pointer-events-auto',
         config.border,
         config.bg
       )}
     >
       {/* Progress bar at top */}
       <div
-        className="absolute top-0 left-0 h-1 bg-foreground/20 transition-all duration-100 ease-linear"
-        style={{ width: `${progress}%` }}
+        className="absolute top-0 left-0 right-0 h-0.5 bg-foreground/20"
+        style={{ clipPath: `inset(0 ${100 - progress}% 0 0)` }}
       />
 
-      <div className="p-6">
-        <div className="flex items-start gap-4">
+      <div className="p-4">
+        <div className="flex items-start gap-3">
           <div className="flex-shrink-0 mt-0.5">{config.icon}</div>
           <div className="flex-1 min-w-0">
-            <p className="text-xs font-bold uppercase tracking-wider text-foreground/60 mb-1">
+            <p className="text-[10px] font-bold uppercase tracking-wider text-foreground/60 mb-0.5">
               {config.label}
             </p>
             <p className="text-sm font-medium text-foreground leading-relaxed">
@@ -139,19 +131,12 @@ function AlertBox({ toast, onDismiss }: { toast: Toast; onDismiss: () => void })
           </div>
           <button
             onClick={onDismiss}
-            className="flex-shrink-0 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+            className="flex-shrink-0 p-1 rounded-full text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/10 transition-colors -mr-1 -mt-1"
+            aria-label="Dismiss"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
-
-        {/* Dismiss button */}
-        <button
-          onClick={onDismiss}
-          className="mt-4 w-full rounded-full bg-foreground/10 hover:bg-foreground/20 text-foreground text-sm font-semibold py-2.5 transition-colors"
-        >
-          Dismiss
-        </button>
       </div>
     </motion.div>
   );

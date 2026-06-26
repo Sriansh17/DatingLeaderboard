@@ -192,7 +192,7 @@ export default function PostDetailPage() {
                       city: post.post_city || post.profile?.city || undefined,
                       date: formatRelativeTime(post.created_at),
                       avatarUrl: post.profile?.avatar_url,
-                    })} className="flex items-center justify-center gap-1.5 rounded-full bg-primary text-primary-foreground px-4 py-2 text-xs font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 transition-all">
+                    })} className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-4 py-2 text-xs font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 transition-all">
                       <Share2 className="h-3.5 w-3.5" />
                       <span>Share</span>
                     </button>

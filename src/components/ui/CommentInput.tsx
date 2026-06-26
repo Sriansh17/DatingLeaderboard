@@ -173,7 +173,7 @@ export function CommentInput({
         </div>
 
         {/* Send button */}
-        <button type="submit" disabled={!text.trim()} className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${text.trim() ? 'bg-primary text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90' : 'bg-muted text-muted-foreground/30'}`}>
+        <button type="submit" disabled={!text.trim()} className={`flex items-center justify-center w-8 h-8 rounded-xl transition-all ${text.trim() ? 'glass-btn hover:opacity-90' : 'bg-muted text-muted-foreground/30'}`}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2L11 13"/><path d="M22 2L15 22l-4-9-9-4z"/></svg>
         </button>
       </div>

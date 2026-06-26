@@ -4,29 +4,37 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/components/providers/AuthProvider';
+import { useToast } from '@/components/ui/Toast';
 import { Spinner } from '@/components/ui/Spinner';
-import { Bell, Heart, UserPlus, Users, ChevronRight, CheckCheck, LogIn, ArrowLeft } from 'lucide-react';
+import { Bell, Heart, UserPlus, Users, ChevronRight, ChevronDown, CheckCheck, LogIn, ArrowLeft, Check, X, Send, XCircle, MessageCircle } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
-import type { Notification } from '@/types/database';
+import type { Notification, ConnectionRequest } from '@/types/database';
 
 const NOTIFICATION_MESSAGES: Record<string, { icon: typeof Bell; message: (name: string) => string }> = {
   connection_request: { icon: UserPlus, message: (name) => `${name} wants to connect with you` },
   connection_accepted: { icon: Heart, message: (name) => `${name} accepted your connection request` },
-  clique_invite: { icon: Users, message: (name) => `${name} invited you to a clique` },
-  clique_joined: { icon: UserPlus, message: (name) => `${name} joined your clique` },
+  clique_invite: { icon: Users, message: (name) => `${name} invited you to a bond` },
+  clique_joined: { icon: UserPlus, message: (name) => `${name} joined your bond` },
+  post_like: { icon: Heart, message: (name) => `${name} liked your post` },
+  post_comment: { icon: MessageCircle, message: (name) => `${name} commented on your post` },
 };
 
 export default function NotificationsPage() {
   const { user } = useUser();
   const router = useRouter();
+  const { addToast } = useToast();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(false);
+  const [requestsOpen, setRequestsOpen] = useState(false);
+  const [incomingRequests, setIncomingRequests] = useState<ConnectionRequest[]>([]);
+  const [outgoingRequests, setOutgoingRequests] = useState<ConnectionRequest[]>([]);
 
   useEffect(() => {
     if (!user) return;
     fetchNotifications(1);
+    fetchRequests();
   }, [user]);
 
   const fetchNotifications = async (p: number) => {
@@ -59,6 +67,37 @@ export default function NotificationsPage() {
     }
   };
 
+  const fetchRequests = async () => {
+    try {
+      const res = await fetch('/api/connections/requests');
+      const data = await res.json();
+      if (data.success) {
+        setIncomingRequests(data.data.incoming || []);
+        setOutgoingRequests(data.data.outgoing || []);
+      }
+    } catch {}
+  };
+
+  const respondToRequest = async (requestId: string, action: 'accepted' | 'rejected') => {
+    try {
+      const res = await fetch(`/api/connections/requests/${requestId}`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: action })
+      });
+      const data = await res.json();
+      if (data.success) {
+        addToast(action === 'accepted' ? 'Connected!' : 'Declined', 'success');
+        fetchRequests();
+      } else addToast(data.error || 'Failed', 'error');
+    } catch { addToast('Something went wrong', 'error'); }
+  };
+
+  const cancelRequest = async (requestId: string) => {
+    try {
+      const res = await fetch(`/api/connections/requests/${requestId}`, { method: 'DELETE' });
+      if ((await res.json()).success) { addToast('Request cancelled', 'info'); fetchRequests(); }
+    } catch { addToast('Failed to cancel', 'error'); }
+  };
+
   const handleClick = (notif: Notification) => {
     // Mark as read
     fetch(`/api/notifications/${notif.id}/read`, { method: 'POST' }).catch(() => {});
@@ -76,7 +115,7 @@ export default function NotificationsPage() {
         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl italic text-foreground mb-2">Notifications</h1>
         <p className="text-muted-foreground mb-6">Sign in to see your notifications.</p>
-        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 transition-opacity">
           <LogIn className="h-4 w-4" /> Sign In
         </Link>
       </div>
@@ -114,16 +153,71 @@ export default function NotificationsPage() {
         )}
       </header>
 
+      {/* Requests section — compact, expandable */}
+      {(incomingRequests.length > 0 || outgoingRequests.length > 0) && (
+        <div className="mb-8 rounded-2xl border border-border bg-card/40 backdrop-blur-sm overflow-hidden">
+          <button onClick={() => setRequestsOpen(!requestsOpen)} className="w-full flex items-center justify-between px-5 py-4 hover:bg-card/20 transition-colors">
+            <span className="text-xs text-foreground font-bold flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-primary" /> Pending requests
+            </span>
+            <span className="flex items-center gap-3 text-[10px]">
+              {incomingRequests.length > 0 && <span className="text-primary font-medium">{incomingRequests.length} to accept</span>}
+              {outgoingRequests.length > 0 && <span className="text-warning">{outgoingRequests.length} sent</span>}
+              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${requestsOpen ? 'rotate-180' : ''}`} />
+            </span>
+          </button>
+          {requestsOpen && (
+            <div className="px-5 pb-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <p className="text-[9px] uppercase tracking-wider text-primary font-medium">To Accept</p>
+                  {incomingRequests.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">None</p>
+                  ) : (
+                    incomingRequests.map(req => {
+                      const sender = req.sender as any;
+                      return (
+                        <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-primary/15 bg-primary/[0.03]">
+                          <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">@{sender?.username || 'unknown'}</Link>
+                          <div className="flex gap-1 shrink-0 ml-2">
+                            <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-3 py-1 rounded-full glass-btn text-[9px] font-semibold">Accept</button>
+                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-1 rounded-full border border-border text-muted-foreground hover:text-destructive"><X className="h-3 w-3" /></button>
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[9px] uppercase tracking-wider text-warning font-medium">Pending</p>
+                  {outgoingRequests.length === 0 ? (
+                    <p className="text-xs text-muted-foreground">None</p>
+                  ) : (
+                    outgoingRequests.map(req => {
+                      const receiver = req.receiver as any;
+                      return (
+                        <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-dashed border-warning/20 bg-warning/[0.03]">
+                          <span className="text-sm text-foreground/70 min-w-0 flex-1 truncate">@{receiver?.username || 'unknown'}</span>
+                          <button onClick={() => cancelRequest(req.id)} className="flex items-center gap-1 px-2 py-1 rounded-full border border-border/40 text-[9px] text-muted-foreground hover:text-destructive shrink-0 ml-2"><XCircle className="h-2.5 w-2.5" /> Cancel</button>
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {loading && notifications.length === 0 ? (
         <div className="flex justify-center py-20">
           <Spinner size="lg" text={["LOADING..."]} />
         </div>
       ) : notifications.length === 0 ? (
-        <div className="text-center py-20 rounded-3xl border border-border bg-card/40 relative overflow-hidden">
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-primary/[0.04] blur-3xl pointer-events-none" />
-          <Bell className="h-12 w-12 text-muted-foreground/30 mx-auto mb-4 relative" />
-          <h3 className="font-display text-xl italic text-foreground mb-2 relative">All caught up!</h3>
-          <p className="text-sm text-muted-foreground relative max-w-xs mx-auto">No notifications yet. Connect with people and join cliques to see activity here.</p>
+        <div className="text-center py-16 rounded-3xl border border-dashed border-border/50 bg-card/20 relative">
+          <Bell className="h-10 w-10 text-muted-foreground/20 mx-auto mb-3" />
+          <p className="text-sm text-muted-foreground/60">No notifications yet</p>
         </div>
       ) : (
         <div className="space-y-8">

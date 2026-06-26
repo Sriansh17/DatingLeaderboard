@@ -258,13 +258,13 @@ export default function RanksPage() {
               key={t}
               onClick={() => setTimeframe(t)}
               className={`relative flex-1 rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
-                timeframe === t ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                timeframe === t ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {timeframe === t && (
                 <motion.div
                   layoutId="timeframe-pill"
-                  className="absolute inset-0 bg-gold rounded-full z-0"
+                  className="absolute inset-0 glass-btn-gold rounded-full z-0"
                   transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 />
               )}
@@ -279,13 +279,13 @@ export default function RanksPage() {
               key={s}
               onClick={() => setScope(s)}
               className={`relative flex-1 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${
-                scope === s ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                scope === s ? "text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {scope === s && (
                 <motion.div
                   layoutId="active-pill"
-                  className="absolute inset-0 bg-primary rounded-full z-0"
+                  className="absolute inset-0 glass-btn rounded-full z-0"
                   transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
                 />
               )}
@@ -318,7 +318,7 @@ export default function RanksPage() {
                     onClick={() => setSelectedCircleId(circle.id)}
                     className={`flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
                       selectedCircleId === circle.id
-                        ? 'bg-primary text-primary-foreground'
+                        ? 'glass-btn'
                         : 'bg-muted/50 text-muted-foreground hover:text-foreground border border-border'
                     }`}
                   >
@@ -349,7 +349,7 @@ export default function RanksPage() {
                 ? "No one in this circle has scored yet."
                 : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
             </p>
-            <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full bg-primary px-8 py-3 text-sm font-semibold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
+            <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full glass-btn text-sm shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]">
               Submit a Post
             </Link>
           </div>

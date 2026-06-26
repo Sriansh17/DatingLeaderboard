@@ -15,11 +15,25 @@ export async function PATCH(
     const body = await request.json();
     const admin = createAdminClient();
 
-    // Vote update — frontend sends calculated count directly
+    // Vote update — atomic increment instead of set to avoid race conditions
     if (body.votes !== undefined && typeof body.votes === 'number') {
-      const { error } = await admin.from('comments').update({ votes: Math.max(0, body.votes) }).eq('id', commentId);
-      if (error) throw error;
-      return NextResponse.json({ success: true, data: { votes: Math.max(0, body.votes) } });
+      const delta = body.delta ?? 1;
+      const { data, error } = await admin.rpc('increment_comment_votes', {
+        comment_id: commentId,
+        delta,
+      });
+
+      if (error) {
+        console.error('[Comment PATCH] RPC error:', error);
+        // Fallback: non-atomic increment
+        const { data: comment } = await admin.from('comments').select('votes').eq('id', commentId).single();
+        const newVotes = Math.max(0, ((comment?.votes as number) || 0) + delta);
+        const { error: updateError } = await admin.from('comments').update({ votes: newVotes }).eq('id', commentId);
+        if (updateError) throw updateError;
+        return NextResponse.json({ success: true, data: { votes: newVotes } });
+      }
+
+      return NextResponse.json({ success: true, data: { votes: data } });
     }
 
     // Reaction update

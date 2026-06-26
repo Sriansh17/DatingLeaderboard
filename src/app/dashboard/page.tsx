@@ -24,7 +24,6 @@ async function fetchExplorePosts(): Promise<Post[]> {
   const res = await fetch('/api/posts/explore');
   if (!res.ok) throw new Error('Failed to fetch posts');
   const json = await res.json();
-  console.log('[fetchExplorePosts] Got posts:', json.data?.length, 'first post likes:', json.data?.[0]?.likes_count, 'has_liked:', json.data?.[0]?.has_liked);
   return json.data || [];
 }
 
@@ -204,7 +203,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/posts/new"
-              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-8 py-4 text-sm font-bold text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
             >
               Claim your first verdict
             </Link>
@@ -453,7 +452,7 @@ export default function DashboardPage() {
                 username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
                 partnerNickname: post.partner?.name || 'partner',
                 city: post.post_city || post.profile?.city || '',
-                country: (post.profile as any)?.country || '',
+                country: post.post_city || post.profile?.city || '',
                 headline: post.description || '',
                 score: post.ai_score || 0,
                 verdict: post.ai_feedback || 'No feedback provided.',
@@ -463,7 +462,7 @@ export default function DashboardPage() {
                 sus: 0,
                 postedAt: formatRelativeTime(post.created_at),
                 userAvatarUrl: post.profile?.avatar_url || null,
-                partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
+                partnerAvatarUrl: post.partner?.avatar_url || null,
                 // Add real like data
                 likes_count: post.likes_count || 0,
                 has_liked: post.has_liked || false,
@@ -520,7 +519,7 @@ export default function DashboardPage() {
                     username: post.profile?.username ? `@${post.profile.username}` : '@anonymous',
                     partnerNickname: post.partner?.name || 'partner',
                     city: post.post_city || post.profile?.city || '',
-                    country: (post.profile as any)?.country || '',
+                    country: post.post_city || post.profile?.city || '',
                     headline: post.description || '',
                     score: post.ai_score || 0,
                     verdict: post.ai_feedback || 'No feedback provided.',
@@ -530,7 +529,7 @@ export default function DashboardPage() {
                     sus: 0,
                     postedAt: formatRelativeTime(post.created_at),
                     userAvatarUrl: post.profile?.avatar_url || null,
-                    partnerAvatarUrl: (post.partner as any)?.avatar_url || null,
+                    partnerAvatarUrl: post.partner?.avatar_url || null,
                     likes_count: post.likes_count || 0,
                     has_liked: post.has_liked || false,
                     comments_count: post.comments_count || 0,

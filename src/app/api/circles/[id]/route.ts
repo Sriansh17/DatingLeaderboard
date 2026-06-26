@@ -17,7 +17,7 @@ export async function GET(
         *,
         creator:profiles!created_by(id, username, full_name, avatar_url),
         members:circle_members(
-          id, user_id, role, joined_at,
+          id, user_id, role, status, joined_at,
           profile:profiles(id, username, full_name, avatar_url)
         )
       `)
@@ -33,7 +33,7 @@ export async function GET(
 
     const enriched = {
       ...data,
-      member_count: (data as any).members?.length || 0,
+      member_count: (data as any).members?.filter((m: any) => m.status === 'active').length || 0,
     };
 
     return NextResponse.json({ success: true, data: enriched });

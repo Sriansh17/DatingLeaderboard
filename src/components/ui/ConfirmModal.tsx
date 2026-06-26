@@ -21,19 +21,19 @@ const variantStyles = {
     icon: Trash2,
     bg: 'bg-rose-500/10',
     iconColor: 'text-rose-500',
-    button: 'bg-rose-500 hover:bg-rose-600 text-white shadow-[0_0_20px_-4px_rgba(244,63,94,0.4)]',
+    button: 'bg-rose-500/15 backdrop-blur-xl border border-rose-500/25 text-rose-500 shadow-[0_0_20px_-4px_rgba(244,63,94,0.4)]',
   },
   warning: {
     icon: Archive,
     bg: 'bg-amber-500/10',
     iconColor: 'text-amber-500',
-    button: 'bg-amber-500 hover:bg-amber-600 text-white shadow-[0_0_20px_-4px_rgba(245,158,11,0.4)]',
+    button: 'bg-amber-500/15 backdrop-blur-xl border border-amber-500/25 text-amber-500 shadow-[0_0_20px_-4px_rgba(245,158,11,0.4)]',
   },
   default: {
     icon: AlertTriangle,
     bg: 'bg-primary/10',
     iconColor: 'text-primary',
-    button: 'bg-primary text-primary-foreground shadow-[var(--shadow-glow)]',
+    button: 'glass-btn',
   },
 };
 

@@ -81,7 +81,7 @@ export default function LandingPage() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3.5 text-base font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3.5 text-base font-medium transition-transform hover:scale-[1.02]"
             >
               Get My Score <ArrowRight className="h-4 w-4" />
             </Link>
@@ -235,7 +235,7 @@ export default function LandingPage() {
         </h2>
         <Link
           href="/auth/signup"
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary px-8 py-4 text-lg font-medium text-primary-foreground shadow-[var(--shadow-glow)] transition-transform hover:scale-105"
+          className="mt-8 inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-medium transition-transform hover:scale-105"
         >
           Start For Free <ArrowRight className="h-5 w-5" />
         </Link>

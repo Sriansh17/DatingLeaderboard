@@ -161,9 +161,9 @@ export default function JoinCirclePage() {
             <div className="flex flex-col gap-3 items-center">
               <Link
                 href="/circles"
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 transition-opacity"
               >
-                <Users className="h-4 w-4" /> My Cliques
+                <Users className="h-4 w-4" /> My Bonds
               </Link>
               <button onClick={() => handleJoin()} className="text-sm text-primary hover:underline">
                 Try again

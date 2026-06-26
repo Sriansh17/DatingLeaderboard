@@ -69,7 +69,7 @@ export default function NewPostPage() {
         <h2 className="text-xl font-display italic text-foreground mb-2">Add a Partner First</h2>
         <p className="text-muted-foreground mb-6 text-sm">You need to add a partner before you can create appreciation posts!</p>
         <Link href="/partners/new">
-          <button className="inline-flex items-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02] uppercase tracking-[0.2em]">
+          <button className="inline-flex items-center gap-2 rounded-full glass-btn text-sm shadow-glow transition-transform hover:scale-[1.02] uppercase tracking-[0.2em]">
             Add Your Partner 💕
           </button>
         </Link>
