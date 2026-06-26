@@ -2,13 +2,15 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 // Routes that require authentication
-const PROTECTED_PATHS = ['/dashboard', '/posts', '/partners', '/profile', '/settings', '/leaderboards'];
+const PROTECTED_PATHS = ['/dashboard', '/posts', '/partners', '/profile', '/settings', '/leaderboards', '/unlock'];
 
 // Routes where logged-in users should be redirected away
 const AUTH_PATHS = ['/auth'];
 
 // API routes that need session but shouldn't redirect
 const API_PATHS = ['/api'];
+
+const ACTIVATION_EXEMPT_PATHS = ['/onboarding', '/posts/new', '/partners/new', '/settings', '/unlock'];
 
 export async function updateSession(request: NextRequest) {
   const start = Date.now();
@@ -74,6 +76,47 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone();
     url.pathname = '/dashboard';
     return NextResponse.redirect(url);
+  }
+
+  // First-post activation gate for authenticated users on protected routes.
+  if (isProtected && user) {
+    const isActivationExempt = ACTIVATION_EXEMPT_PATHS.some((path) => pathname.startsWith(path));
+
+    if (!isActivationExempt) {
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('activated_at')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError && (profileError as any).code !== '42703') {
+        console.log(`[Middleware] ${pathname} | activation profile query failed:`, profileError);
+        return supabaseResponse;
+      }
+
+      let isActivated = !!profile?.activated_at;
+
+      // Fallback for environments where the activation migration may not be applied yet.
+      if (!isActivated && (profileError as any)?.code === '42703') {
+        const { count, error: postCountError } = await supabase
+          .from('posts')
+          .select('id', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+
+        if (postCountError) {
+          console.log(`[Middleware] ${pathname} | activation post count failed:`, postCountError);
+        } else {
+          isActivated = (count || 0) > 0;
+        }
+      }
+
+      if (!isActivated) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/unlock';
+        url.searchParams.set('next', pathname);
+        return NextResponse.redirect(url);
+      }
+    }
   }
 
   return supabaseResponse;

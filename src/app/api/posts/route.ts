@@ -129,6 +129,18 @@ export async function POST(request: Request) {
 
     if (error) throw error;
 
+    // First successful post activates the account for gated app access.
+    const activationResult = await supabase
+      .from('profiles')
+      .update({ activated_at: new Date().toISOString() })
+      .eq('id', user.id)
+      .is('activated_at', null);
+
+    // Ignore missing-column deployments gracefully until migration is applied.
+    if (activationResult.error && (activationResult.error as any).code !== '42703') {
+      throw activationResult.error;
+    }
+
     return NextResponse.json({ success: true, data, aiResult }, { status: 201 });
   } catch (error) {
     console.error('Posts POST error:', error);
