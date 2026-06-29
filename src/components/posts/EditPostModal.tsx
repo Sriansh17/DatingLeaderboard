@@ -6,7 +6,7 @@ import { useToast } from '@/components/ui/Toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { Sparkles, Crown } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
+import { PremiumLaunchModal } from '@/components/ui/PremiumLaunchModal';
 import type { Post } from '@/types/database';
 
 interface EditPostModalProps {
@@ -22,23 +22,10 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
   const [phase, setPhase] = useState<'edit' | 'scoring'>('edit');
   const { addToast } = useToast();
   const queryClient = useQueryClient();
-  const router = useRouter();
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
-  const handleUpgrade = async () => {
-    try {
-      const res = await fetch('/api/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_premium: true }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.success) throw new Error(json.error || 'Failed to upgrade');
-      addToast('Premium activated! You can now edit posts.', 'success');
-      router.refresh();
-      onClose();
-    } catch (err: any) {
-      addToast(err.message || 'Upgrade failed. Please try again.', 'error');
-    }
+  const handleUpgrade = () => {
+    setShowPremiumModal(true);
   };
 
   const handleSubmit = async () => {
@@ -127,6 +114,12 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
   }
 
   return (
+    <>
+      <PremiumLaunchModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        source="edit-post"
+      />
     <Modal isOpen={isOpen} onClose={isSubmitting ? () => {} : onClose} title="Edit Post">
       <AnimatePresence mode="wait">
         {phase === 'scoring' ? (
@@ -189,5 +182,6 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
         )}
       </AnimatePresence>
     </Modal>
+    </>
   );
 }

@@ -11,39 +11,23 @@ import type { Partner } from '@/types/database';
 import { Plus, Edit3 } from 'lucide-react';
 import { PageBell } from '@/components/ui/PageBell';
 import { PartnerForm } from '@/components/partners/PartnerForm';
+import { PremiumLaunchModal } from '@/components/ui/PremiumLaunchModal';
 
 export default function PartnersPage() {
-  const { user, profile, refreshProfile } = useUser();
+  const { user, profile } = useUser();
   const { addToast } = useToast();
   const { confirm } = useConfirm();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingPartner, setEditingPartner] = useState<Partner | null>(null);
-  const [upgrading, setUpgrading] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   const isPremium = !!profile?.is_premium;
   const canAddAnotherPartner = isPremium || partners.length === 0;
 
-  const handleUpgrade = async () => {
-    try {
-      setUpgrading(true);
-      const res = await fetch('/api/users', {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_premium: true }),
-      });
-      const json = await res.json().catch(() => ({}));
-      if (!res.ok || !json.success) {
-        throw new Error(json.error || 'Failed to upgrade to premium');
-      }
-      await refreshProfile();
-      addToast('Premium activated. You can now add multiple partners.', 'success');
-    } catch (err: any) {
-      addToast(err.message || 'Upgrade failed. Please try again.', 'error');
-    } finally {
-      setUpgrading(false);
-    }
+  const handleUpgrade = () => {
+    setShowPremiumModal(true);
   };
 
   const loadPartners = async () => {
@@ -148,10 +132,9 @@ export default function PartnersPage() {
             </p>
             <button
               onClick={handleUpgrade}
-              disabled={upgrading}
-              className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+              className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors"
             >
-              {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
+              Upgrade to Premium
             </button>
           </div>
         )}
@@ -181,6 +164,12 @@ export default function PartnersPage() {
           </div>
         )}
       </div>
+
+      <PremiumLaunchModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        source="partners"
+      />
     </main>
   );
 }

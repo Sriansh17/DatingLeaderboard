@@ -9,6 +9,7 @@ import { useTheme } from '@/components/providers/ThemeProvider';
 import { useToast } from '@/components/ui/Toast';
 import { Settings, LogOut, Crown, Sparkles, ArrowLeft, User, Sun, Moon, Palette, Bell, BellOff, ShieldCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { PremiumLaunchModal } from '@/components/ui/PremiumLaunchModal';
 
 export default function SettingsPage() {
   const { profile, user, signOut } = useUser();
@@ -16,6 +17,7 @@ export default function SettingsPage() {
   const { addToast } = useToast();
   const [notifStatus, setNotifStatus] = useState<'default' | 'granted' | 'denied' | 'unsupported'>('default');
   const [notifLoading, setNotifLoading] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
 
   useEffect(() => {
     if (
@@ -178,18 +180,21 @@ export default function SettingsPage() {
             <h2 className="font-display text-lg italic text-foreground">Account</h2>
           </div>
           <div className="space-y-2">
-            <Link href="/premium">
+            {profile?.is_premium ? (
+              <Link href="/premium">
+                <Button variant="outline" className="w-full justify-start">
+                  <Crown className="h-4 w-4 text-gold" /> Manage Premium
+                </Button>
+              </Link>
+            ) : (
               <Button
-                variant={profile?.is_premium ? 'outline' : 'primary'}
+                variant="primary"
                 className="w-full justify-start"
+                onClick={() => setShowPremiumModal(true)}
               >
-                {profile?.is_premium ? (
-                  <><Crown className="h-4 w-4 text-gold" /> Manage Premium</>
-                ) : (
-                  <><Sparkles className="h-4 w-4" /> Unlock Premium</>
-                )}
+                <Sparkles className="h-4 w-4" /> Unlock Premium
               </Button>
-            </Link>
+            )}
             <Button variant="danger" className="w-full justify-start" onClick={signOut}>
               <LogOut className="h-4 w-4" />
               Sign Out
@@ -299,6 +304,12 @@ export default function SettingsPage() {
         </div>
 
       </div>
+
+      <PremiumLaunchModal
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        source="settings"
+      />
     </div>
   );
 }
