@@ -71,6 +71,9 @@ export function PostForm({
   const [showWelcomeCeremony, setShowWelcomeCeremony] = useState(false);
   const [showVerdictCard, setShowVerdictCard] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [newBadges, setNewBadges] = useState<Array<{ id: string; name: string; emoji: string }>>([]);
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [showBadgeReward, setShowBadgeReward] = useState(false);
 
   const router = useRouter();
   const { addToast } = useToast();
@@ -115,6 +118,15 @@ export function PostForm({
 
       setAiResult(result.aiResult);
 
+      // Track streak & badges
+      if (result.streak) {
+        setCurrentStreak(result.streak.current);
+      }
+      if (result.newBadges && result.newBadges.length > 0) {
+        setNewBadges(result.newBadges);
+        setShowBadgeReward(true);
+      }
+
       // Check if this is the user's first post (no `created_at` before this)
       const isFirst = !result.post.created_at || true; // Assume first for ceremony
       setIsFirstPost(isFirst);
@@ -125,7 +137,7 @@ export function PostForm({
       if (isFirst) {
         setTimeout(() => setShowWelcomeCeremony(true), 600);
       } else {
-        setShowVerdictCard(true);
+        setTimeout(() => setShowVerdictCard(true), 600);
       }
     } catch (err: any) {
       setStep("write");
@@ -327,7 +339,17 @@ export function PostForm({
                 partnerNickname={partnerNickname}
               />
 
-              <div className="mt-6 flex flex-col gap-3">
+              {/* Streak info */}
+              {currentStreak > 0 && (
+                <div className="flex items-center justify-center gap-1.5 text-[10px] text-muted-foreground/60 mb-3 mt-4">
+                  <span>🔥</span>
+                  <span className="font-medium">{currentStreak}-day streak</span>
+                  <span className="mx-1">·</span>
+                  <span>+{Math.min(currentStreak, 25)}% score boost</span>
+                </div>
+              )}
+
+              <div className="flex flex-col gap-3">
                 {/* Primary actions — side by side */}
                 <div className="flex gap-3">
                   <button
@@ -625,6 +647,69 @@ export function PostForm({
 
         </div>
       </Modal>
+
+      {/* Badge Reward Modal */}
+      <AnimatePresence>
+        {showBadgeReward && newBadges.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[150] flex items-center justify-center bg-black/50 backdrop-blur-md p-4"
+            onClick={() => setShowBadgeReward(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.85, opacity: 0, filter: 'blur(12px)' }}
+              animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
+              exit={{ scale: 0.85, opacity: 0, filter: 'blur(12px)' }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative max-w-sm w-full rounded-3xl border border-gold/20 bg-background/95 backdrop-blur-2xl p-8 text-center shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)]"
+            >
+              <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-40 h-40 rounded-full bg-gold/[0.06] blur-[60px] pointer-events-none" />
+
+              <motion.div
+                initial={{ scale: 0, rotate: -20 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 250, damping: 15, delay: 0.2 }}
+                className="relative mx-auto mb-4 w-20 h-20 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center text-4xl shadow-[0_0_40px_-10px_rgba(199,169,107,0.3)]"
+              >
+                {newBadges[0]?.emoji || '🏅'}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35 }}
+              >
+                <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-gold/70 mb-1">Badge Unlocked</p>
+                <h3 className="font-display text-2xl italic text-foreground mb-2">
+                  {newBadges[0]?.name || 'New Badge'}
+                </h3>
+                {newBadges.length > 1 && (
+                  <p className="text-xs text-muted-foreground/70">
+                    +{newBadges.length - 1} more badge{newBadges.length > 2 ? 's' : ''} earned
+                  </p>
+                )}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="mt-5"
+              >
+                <button
+                  onClick={() => setShowBadgeReward(false)}
+                  className="rounded-full bg-gold/90 hover:bg-gold px-6 py-2.5 text-xs font-bold text-black transition-all hover:scale-[1.02]"
+                >
+                  Claim Badge
+                </button>
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <PremiumLaunchModal
         isOpen={showPremiumModal}

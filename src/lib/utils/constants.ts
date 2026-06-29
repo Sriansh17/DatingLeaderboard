@@ -107,3 +107,42 @@ export const SUBSCRIPTION_PLANS: Record<string, PlanDefinition> = {
     popular: false,
   },
 } as const;
+
+// ─── Daily Engagement System ─────────────────────────────────────────────────────────
+
+export const STREAK_MULTIPLIER_MAX = 25;   // +25% max score boost
+export const STREAK_MULTIPLIER_PER_DAY = 1; // +1% per consecutive day
+
+export interface BadgeDef {
+  id: string;
+  name: string;
+  emoji: string;
+  desc: string;
+  streakRequired: number;
+}
+
+export const BADGES: BadgeDef[] = [
+  { id: 'budding_rose',    name: 'Budding Rose',    emoji: '🌹', desc: 'Post for 3 days straight',        streakRequired: 3 },
+  { id: 'dedicated',       name: 'Dedicated',       emoji: '💎', desc: 'Post for 7 days straight',        streakRequired: 7 },
+  { id: 'two_weeks_warm',  name: 'Two Weeks Warm',  emoji: '🔥', desc: 'Post for 14 days straight',       streakRequired: 14 },
+  { id: 'monthly_master',  name: 'Monthly Master',  emoji: '👑', desc: 'Post for 30 days straight',       streakRequired: 30 },
+  { id: 'veteran',         name: 'Veteran',         emoji: '⚔️', desc: 'Post for 60 days straight',       streakRequired: 60 },
+  { id: 'fond_legend',     name: 'Fond Legend',     emoji: '🏆', desc: 'Post for 100 days straight',      streakRequired: 100 },
+  { id: 'mystic',          name: 'Mystic',          emoji: '🌀', desc: 'Collect 7 mystery perks',         streakRequired: -1 },
+];
+
+export interface PerkDef {
+  id: string;
+  name: string;
+  emoji: string;
+  desc: string;
+}
+
+export const PERKS: PerkDef[] = [
+  { id: 'golden_frame',    name: 'Golden Frame',    emoji: '🖼️', desc: 'Your post gets a gold border for 24h' },
+  { id: 'pen_boost',       name: 'Pen Boost',       emoji: '✍️',  desc: '+5% score boost on next post' },
+  { id: 'pin_it',          name: 'Pin It',          emoji: '📌',  desc: 'Pin one post to profile top for 24h' },
+  { id: 'moonlight',       name: 'Moonlight',       emoji: '🌙',  desc: 'Profile gets a special dark glow for 24h' },
+  { id: 'reaction_drop',   name: 'Reaction Drop',   emoji: '💬',  desc: 'Unlock a unique emoji reaction for 24h' },
+  { id: 'badge_fragment',  name: 'Badge Fragment',  emoji: '🧩',  desc: 'Collect 7 to unlock the Mystic badge' },
+];

@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 import { scorePost } from '@/lib/ai/scoring';
+import { evaluateStreak, checkNewBadges } from '@/lib/utils/engagement';
+import type { BadgeDef } from '@/lib/utils/constants';
 
 export async function GET() {
   try {
@@ -141,7 +144,63 @@ export async function POST(request: Request) {
       throw activationResult.error;
     }
 
-    return NextResponse.json({ success: true, data, aiResult }, { status: 201 });
+    // ─── Update streak ─────────────────────────────────────────────────────
+    const admin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const { data: profileRow } = await admin
+      .from('profiles')
+      .select('streak_count, longest_streak, last_post_date, badges')
+      .eq('id', user.id)
+      .single();
+
+    let newStreak = 1;
+    let longestStreak = 1;
+    let newBadges: BadgeDef[] = [];
+
+    if (profileRow && typeof profileRow.streak_count === 'number') {
+      const action = evaluateStreak(todayStr, profileRow.last_post_date);
+      if (action === 'increment') {
+        newStreak = (profileRow.streak_count || 0) + 1;
+      } else if (action === 'same-day') {
+        newStreak = profileRow.streak_count || 1;
+      } else {
+        newStreak = 1; // first post or reset
+      }
+
+      longestStreak = Math.max(newStreak, profileRow.longest_streak || 0);
+
+      // Check for new badges
+      const ownedIds: string[] = Array.isArray(profileRow.badges)
+        ? profileRow.badges.map((b: any) => b.id)
+        : [];
+      newBadges = checkNewBadges(newStreak, ownedIds);
+
+      const badgeUpdate = newBadges.length > 0
+        ? [...(profileRow.badges || []), ...newBadges.map((b: any) => ({ id: b.id, name: b.name, emoji: b.emoji, earned_at: new Date().toISOString() }))]
+        : profileRow.badges;
+
+      await admin
+        .from('profiles')
+        .update({
+          streak_count: newStreak,
+          longest_streak: longestStreak,
+          last_post_date: todayStr,
+          badges: badgeUpdate,
+        })
+        .eq('id', user.id);
+    }
+
+    return NextResponse.json({
+      success: true,
+      data,
+      aiResult,
+      streak: { current: newStreak, longest: longestStreak },
+      newBadges: newBadges.map((b) => ({ id: b.id, name: b.name, emoji: b.emoji })),
+    }, { status: 201 });
   } catch (error) {
     console.error('Posts POST error:', error);
     return NextResponse.json({ success: false, error: 'Failed to create post' }, { status: 500 });
