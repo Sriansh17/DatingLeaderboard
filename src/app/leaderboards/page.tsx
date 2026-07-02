@@ -15,7 +15,7 @@ import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Spinner } from "@/components/ui/Spinner";
 import Link from 'next/link';
 
-const scopes = ["Country", "City", "Circle"] as const;
+const scopes = ["Country", "City", "Bond"] as const;
 const timeframes = ["All Time", "This Week"] as const;
 
 interface LeaderboardEntry {
@@ -162,7 +162,7 @@ export default function RanksPage() {
 
   // Fetch user's circles when scope changes to 'Circle'
   useEffect(() => {
-    if (scope === 'Circle') {
+    if (scope === 'Bond') {
       setCirclesLoading(true);
       fetch('/api/circles')
         .then(r => r.json())
@@ -181,10 +181,10 @@ export default function RanksPage() {
 
   // Reset circle selection when scope changes away
   useEffect(() => {
-    if (scope !== 'Circle') setSelectedCircleId(null);
+    if (scope !== 'Bond') setSelectedCircleId(null);
   }, [scope]);
 
-  const isCircle = scope === 'Circle';
+  const isCircle = scope === 'Bond';
 
   const params = isCircle ? {} : {
     type: (scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
@@ -298,17 +298,17 @@ export default function RanksPage() {
             ? (profile as any)?.country ? `Top couples in ${(profile as any).country}` : "Set your country in profile settings"
             : scope === "City"
             ? latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"
-            : "Leaderboard for members of your circle"}
+            : "Leaderboard for members of your bond"}
         </p>
 
         {/* Circle selector */}
-        {scope === 'Circle' && (
+        {scope === 'Bond' && (
           <div className="flex justify-center mt-4">
             {circlesLoading ? (
               <Spinner size="sm" />
             ) : userCircles.length === 0 ? (
               <Link href="/circles" className="text-xs text-primary hover:underline active:underline">
-                Create or join a circle to see its leaderboard
+                Create or join a bond to see its leaderboard
               </Link>
             ) : (
               <div className="flex flex-wrap gap-2 justify-center">
@@ -345,8 +345,8 @@ export default function RanksPage() {
             <p className="text-muted-foreground max-w-sm mb-8 mx-auto text-sm leading-relaxed">
               {scope === 'City' 
                 ? "No one near you has scored yet. The local throne is unclaimed. Fix that."
-                : scope === 'Circle'
-                ? "No one in this circle has scored yet."
+                : scope === 'Bond'
+                ? "No one in this bond has scored yet."
                 : "There aren't any entries on this leaderboard yet. Claim your spot at the top."}
             </p>
             <Link href="/posts/new" className="inline-flex items-center justify-center rounded-full glass-btn text-sm shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] active:scale-[0.98] px-6 py-3">

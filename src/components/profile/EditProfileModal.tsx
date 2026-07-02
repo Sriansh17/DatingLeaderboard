@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { Modal } from '@/components/ui/Modal';
-import { Camera, Loader2, AlertCircle } from 'lucide-react';
+import { Camera, Loader2, AlertCircle, ChevronDown } from 'lucide-react';
 import { Avatar } from '@/components/ui/Avatar';
 import { createClient } from '@/lib/supabase/client';
 import type { Profile } from '@/types/database';
@@ -59,6 +59,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
   const [bio, setBio] = useState(currentProfile?.bio || '');
   const [age, setAge] = useState(currentProfile?.age || '');
   const [gender, setGender] = useState(currentProfile?.gender || '');
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
   const [city, setCity] = useState(currentProfile?.city || '');
   const [occupation, setOccupation] = useState(currentProfile?.occupation || '');
   const [country, setCountry] = useState(currentProfile?.country || '');
@@ -211,24 +212,38 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
             />
           </div>
 
-          <div className="space-y-1 group">
+          <div className="space-y-1 group relative">
             <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">Gender</label>
-            <input
-              type="text"
-              value={gender}
-              onChange={(e) => setGender(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
-            />
+            <button
+              type="button"
+              onClick={() => setShowGenderDropdown(!showGenderDropdown)}
+              onBlur={() => setTimeout(() => setShowGenderDropdown(false), 200)}
+              className="w-full flex items-center justify-between border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors"
+            >
+              <span className={gender ? 'text-foreground' : 'text-muted-foreground/40'}>{gender || 'Select gender'}</span>
+              <ChevronDown className={'h-4 w-4 text-muted-foreground/40 transition-transform ' + (showGenderDropdown ? 'rotate-180' : '')} />
+            </button>
+            {showGenderDropdown && (
+              <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden">
+                {['Male', 'Female', 'Non-binary', 'Gender-fluid', 'Agender', 'Prefer not to say', 'Other'].map((opt) => (
+                  <button
+                    key={opt}
+                    type="button"
+                    onMouseDown={() => { setGender(opt); setShowGenderDropdown(false); }}
+                    className={'w-full text-left px-4 py-3 text-sm transition-colors ' + (gender === opt ? 'text-primary bg-primary/5 font-medium' : 'text-foreground hover:bg-muted active:bg-muted/80')}
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-1 group">
             <label className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold">City</label>
-            <input
-              type="text"
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground outline-none focus:border-primary transition-colors placeholder:text-muted-foreground/30"
-            />
+            <p className="w-full border-b border-border bg-transparent py-2 px-0 text-xl font-display text-foreground/50">
+              {city || 'Not set'}
+            </p>
           </div>
 
           <div className="space-y-1 group">

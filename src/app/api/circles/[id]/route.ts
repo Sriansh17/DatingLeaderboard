@@ -26,7 +26,7 @@ export async function GET(
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return NextResponse.json({ success: false, error: 'Circle not found' }, { status: 404 });
+        return NextResponse.json({ success: false, error: 'Bond not found' }, { status: 404 });
       }
       throw error;
     }
@@ -39,7 +39,7 @@ export async function GET(
     return NextResponse.json({ success: true, data: enriched });
   } catch (error) {
     console.error('Circle GET error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch circle' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to fetch bond' }, { status: 500 });
   }
 }
 
@@ -71,16 +71,16 @@ export async function DELETE(
     }
 
     if (circle.created_by !== user.id) {
-      return NextResponse.json({ success: false, error: 'Only the creator can delete this circle' }, { status: 403 });
+      return NextResponse.json({ success: false, error: 'Only the creator can delete this bond' }, { status: 403 });
     }
 
     // Delete circle (cascade deletes members)
     const { error } = await admin.from('circles').delete().eq('id', id);
     if (error) throw error;
 
-    return NextResponse.json({ success: true, message: 'Circle deleted' });
+    return NextResponse.json({ success: true, message: 'Bond deleted' });
   } catch (error) {
     console.error('Circle DELETE error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to delete circle' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to delete bond' }, { status: 500 });
   }
 }

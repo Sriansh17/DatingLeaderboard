@@ -62,7 +62,7 @@ export async function GET() {
     return NextResponse.json({ success: true, data: enriched });
   } catch (error) {
     console.error('Circles GET error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch circles' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to fetch bonds' }, { status: 500 });
   }
 }
 
@@ -79,7 +79,7 @@ export async function POST(request: Request) {
     const { name, emoji, passcode, expires_in_hours } = await request.json();
 
     if (!name || name.trim().length === 0) {
-      return NextResponse.json({ success: false, error: 'Circle name is required' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Bond name is required' }, { status: 400 });
     }
 
     // Calculate invite expiry (default 24 hours)
@@ -139,6 +139,6 @@ export async function POST(request: Request) {
     }, { status: 201 });
   } catch (error) {
     console.error('Circle POST error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to create circle' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to create bond' }, { status: 500 });
   }
 }

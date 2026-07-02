@@ -32,7 +32,7 @@ export async function POST(
       .single();
 
     if (!circle) {
-      return NextResponse.json({ success: false, error: 'Circle not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Bond not found' }, { status: 404 });
     }
 
     const requesterMember = circle.members?.find((m: any) => m.user_id === user.id);
@@ -49,7 +49,7 @@ export async function POST(
     // Check member limit (only count active members)
     const activeCount = circle.members?.filter((m: any) => m.status !== 'invited').length || 0;
     if (activeCount >= (circle.max_members || 10)) {
-      return NextResponse.json({ success: false, error: 'Circle is full' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Bond is full' }, { status: 400 });
     }
 
     // Add the user with invited status
@@ -154,7 +154,7 @@ export async function DELETE(
       .single();
 
     if (!circle) {
-      return NextResponse.json({ success: false, error: 'Circle not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Bond not found' }, { status: 404 });
     }
 
     if (userIdToRemove !== user.id && circle.created_by !== user.id) {
@@ -162,7 +162,7 @@ export async function DELETE(
     }
 
     if (userIdToRemove === circle.created_by) {
-      return NextResponse.json({ success: false, error: 'Cannot remove the creator. Delete the circle instead.' }, { status: 400 });
+      return NextResponse.json({ success: false, error: 'Cannot remove the creator. Delete the bond instead.' }, { status: 400 });
     }
 
     const { error } = await admin

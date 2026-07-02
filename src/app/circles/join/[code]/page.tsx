@@ -85,7 +85,7 @@ export default function JoinCirclePage() {
         {/* Joining */}
         {status === 'joining' && (
           <div className="space-y-6">
-            <Spinner size="lg" text={['JOINING CIRCLE...']} />
+            <Spinner size="lg" text={['JOINING BOND...']} />
             <p className="text-sm text-muted-foreground">Processing your invite...</p>
           </div>
         )}
@@ -104,7 +104,7 @@ export default function JoinCirclePage() {
                 {circleName ? (
                   <>Enter the passcode to join <span className="font-semibold text-foreground">{circleName}</span></>
                 ) : (
-                  'This circle requires a passcode to join.'
+                  'This bond requires a passcode to join.'
                 )}
               </p>
             </div>
@@ -126,7 +126,7 @@ export default function JoinCirclePage() {
                 disabled={!passcode.trim()}
                 className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 hover:opacity-90 active:opacity-80 transition-opacity"
               >
-                <Lock className="h-4 w-4" /> Join Circle
+                <Lock className="h-4 w-4" /> Join Bond
               </button>
             </form>
           </div>
@@ -144,7 +144,7 @@ export default function JoinCirclePage() {
                 You&apos;ve joined <span className="font-semibold text-foreground">{circleName}</span>
               </p>
             </div>
-            <p className="text-xs text-muted-foreground/60">Redirecting to the circle...</p>
+            <p className="text-xs text-muted-foreground/60">Redirecting to the bond...</p>
           </div>
         )}
 

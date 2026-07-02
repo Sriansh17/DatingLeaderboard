@@ -210,7 +210,7 @@ export default function DashboardPage() {
                   <Users className="h-3.5 w-3.5" />
                 )}
                 <span className="text-[10px] font-bold uppercase tracking-wider">
-                  {feedTab === 'global' ? 'Global' : 'Circles'}
+                  {feedTab === 'global' ? 'Global' : 'Bonds'}
                 </span>
               </button>
             </div>
@@ -622,7 +622,7 @@ export default function DashboardPage() {
           <>
             {circleLoading ? (
               <div className="flex justify-center py-32 min-h-[50vh] items-center">
-                <Spinner size="lg" text={["LOADING CIRCLE FEED...", "FETCHING FROM YOUR CIRCLES..."]} />
+                <Spinner size="lg" text={["LOADING BOND FEED...", "FETCHING FROM YOUR BONDS..."]} />
               </div>
             ) : !circlePosts || circlePosts.length === 0 ? (
               <div className="text-center py-20 rounded-[2rem] border border-border bg-card/40 relative overflow-hidden">
@@ -631,7 +631,7 @@ export default function DashboardPage() {
                   <div className="w-14 h-14 rounded-2xl bg-elevated border border-border flex items-center justify-center mx-auto mb-5">
                     <Users className="h-6 w-6 text-muted-foreground" />
                   </div>
-                  <h3 className="font-display text-2xl italic text-foreground mb-2">Your circles are quiet</h3>
+                  <h3 className="font-display text-2xl italic text-foreground mb-2">Your bonds are quiet</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
                     Join or create a bond to see posts from your group here.
                   </p>
