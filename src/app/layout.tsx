@@ -28,6 +28,7 @@ export const viewport: Viewport = {
   viewportFit: 'cover', // covers iPhone notch area
 };
 
+export const dynamic = 'force-dynamic';
 export default function RootLayout({
   children,
 }: {
