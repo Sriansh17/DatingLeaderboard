@@ -17,6 +17,7 @@ const adminClient = () =>
 
 export async function POST(request: Request) {
   try {
+    initVapid();
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },
