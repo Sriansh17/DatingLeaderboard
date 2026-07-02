@@ -134,8 +134,8 @@ export function ShareStudio() {
 
         {/* Close Button (Top Right) */}
         <button 
-          onClick={closeShare}
-          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 backdrop-blur-md transition-colors"
+          onClick={(e) => { e.stopPropagation(); closeShare(); }}
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 lg:top-8 lg:right-8 z-[60] p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 backdrop-blur-md transition-colors touch-manipulation"
         >
           <X className="w-5 h-5" />
         </button>

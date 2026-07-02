@@ -35,7 +35,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground min-h-dvh`}>
+      <body className={`${dmSans.variable} ${playfair.variable} ${bebas.variable} font-sans antialiased bg-background text-foreground min-h-dvh overflow-x-hidden`}>
         <QueryProvider>
           <ThemeProvider>
             <AtmosphereProvider>

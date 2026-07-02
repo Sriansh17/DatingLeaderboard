@@ -76,6 +76,44 @@ export async function POST(
       .single();
 
     if (error) throw error;
+
+    // Parse @mentions and create notifications
+    const mentions = content.match(/@(\w+)/g);
+    if (mentions && mentions.length > 0) {
+      const usernames = mentions.map((m: string) => m.slice(1).toLowerCase());
+      // Look up mentioned users
+      const { data: mentionedUsers } = await admin
+        .from('profiles')
+        .select('id, username')
+        .in('username', usernames);
+
+      if (mentionedUsers && mentionedUsers.length > 0) {
+        const notifications = mentionedUsers
+          .filter((u: any) => u.id !== user.id) // Don't notify yourself
+          .map((u: any) => ({
+            user_id: u.id,
+            actor_id: user.id,
+            type: 'mention',
+            reference_id: id, // post_id for navigation
+          }));
+
+        if (notifications.length > 0) {
+          await admin.from('notifications').insert(notifications);
+        }
+      }
+    }
+
+    // Also notify post owner about the comment (if commenter isn't the owner)
+    const { data: post } = await admin.from('posts').select('user_id').eq('id', id).single();
+    if (post && post.user_id !== user.id) {
+      await admin.from('notifications').insert({
+        user_id: post.user_id,
+        actor_id: user.id,
+        type: 'post_comment',
+        reference_id: id,
+      });
+    }
+
     return NextResponse.json({ success: true, data }, { status: 201 });
   } catch (error) {
     console.error('Comment POST error:', error);

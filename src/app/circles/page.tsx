@@ -201,7 +201,7 @@ export default function BondsPage() {
   const totalRequests = pendingCount + sentCount;
 
   return (
-    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 relative">
+    <div className="max-w-5xl mx-auto px-4 sm:px-8 py-8 relative overflow-hidden">
       <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-primary/[0.04] blur-3xl pointer-events-none" />
 
       <ScrollToTop label="Bonds" />

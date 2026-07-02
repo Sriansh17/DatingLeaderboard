@@ -83,7 +83,6 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
   const votesRef = useRef(votes);
   votesRef.current = votes;
   const [voted, setVoted] = useState<'up' | 'down' | null>(savedState.voted || null);
-  const [voteFloored, setVoteFloored] = useState(false);
 
   const handleVote = useCallback(async (type: 'up' | 'down') => {
     if (!user) { addToast('Sign in to vote', 'error'); return; }
@@ -91,39 +90,31 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
     let delta = 0;
 
     if (voted === type) {
+      // Undo vote
       newVoted = null;
       delta = type === 'up' ? -1 : 1;
     } else if (voted === null) {
+      // Fresh vote
       newVoted = type;
       delta = type === 'up' ? 1 : -1;
     } else {
+      // Switching vote direction
       newVoted = type;
       delta = type === 'up' ? 2 : -2;
     }
 
-    const rawNew = votesRef.current + delta;
-    const clamped = Math.max(0, rawNew);
-
-    // If the count hit the floor and undo would revive it, keep it at 0
-    if (voteFloored && delta > 0 && clamped > votesRef.current) {
-      setVoted(newVoted);
-      setVoteFloored(false);
-      return;
-    }
-
-    const newVotes = clamped;
+    const newVotes = Math.max(0, votesRef.current + delta);
     setVoted(newVoted);
     setVotes(newVotes);
-    setVoteFloored(rawNew < 0);
 
     try {
       await fetch(`/api/posts/${postId}/comments/${comment.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ votes: newVotes }),
+        body: JSON.stringify({ votes: newVotes, delta }),
       });
     } catch { /* optimistic */ }
-  }, [user, voted, postId, comment.id, voteFloored]);
+  }, [user, voted, postId, comment.id]);
 
   // ─── Reactions with localStorage persistence ─────────────
   const [reactions, setReactions] = useState<Record<string, number>>((comment as any).reactions ?? {});
@@ -334,13 +325,13 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
         {/* Row 3: Actions bar */}
         <div className="flex flex-wrap items-center gap-1.5 sm:gap-3 ml-6 sm:ml-10">
           {/* Vote */}
-          <div className="flex items-center gap-0.5 border border-border/40 rounded-full px-1 sm:px-1.5 py-0.5">
-            <button onClick={() => handleVote('up')} className={`p-1 sm:p-1.5 rounded touch-target transition-colors ${voted === 'up' ? 'text-primary' : 'text-muted-foreground/30 hover:text-muted-foreground active:text-muted-foreground'}`}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill={voted === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5m0 0l-7 7m7-7l7 7"/></svg>
+          <div className="inline-flex items-center border border-border/40 rounded-full overflow-hidden">
+            <button onClick={() => handleVote('up')} className={`flex items-center justify-center w-8 h-8 transition-colors ${voted === 'up' ? 'text-primary bg-primary/10' : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/30 active:text-muted-foreground active:bg-muted/50'}`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={voted === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5m0 0l-7 7m7-7l7 7"/></svg>
             </button>
-            <span className={`text-[10px] font-medium min-w-[14px] sm:min-w-[16px] text-center tabular-nums ${voted === 'up' ? 'text-primary' : 'text-muted-foreground/50'}`}>{votes}</span>
-            <button onClick={() => handleVote('down')} className={`p-1 sm:p-1.5 rounded touch-target transition-colors ${voted === 'down' ? 'text-destructive' : 'text-muted-foreground/30 hover:text-muted-foreground active:text-muted-foreground'}`}>
-              <svg width="11" height="11" viewBox="0 0 24 24" fill={voted === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14m0 0l7-7m-7 7l-7-7"/></svg>
+            <span className={`text-xs font-semibold min-w-[24px] text-center tabular-nums ${voted === 'up' ? 'text-primary' : voted === 'down' ? 'text-destructive' : 'text-muted-foreground/60'}`}>{votes}</span>
+            <button onClick={() => handleVote('down')} className={`flex items-center justify-center w-8 h-8 transition-colors ${voted === 'down' ? 'text-destructive bg-destructive/10' : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/30 active:text-muted-foreground active:bg-muted/50'}`}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill={voted === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14m0 0l7-7m-7 7l-7-7"/></svg>
             </button>
           </div>
 

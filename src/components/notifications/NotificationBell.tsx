@@ -41,6 +41,11 @@ const NOTIFICATION_MESSAGES: Record<string, { icon: typeof Bell; message: (name:
     message: (name) => `${name} commented on your post`,
     color: 'text-primary',
   },
+  mention: {
+    icon: MessageCircle,
+    message: (name) => `${name} mentioned you in a comment`,
+    color: 'text-gold',
+  },
 };
 
 export function NotificationBell() {
@@ -152,14 +157,23 @@ export function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-[min(360px,calc(100vw-16px))] rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl z-50 overflow-hidden"
+            className="fixed left-2 right-2 sm:absolute sm:left-auto sm:right-0 top-16 sm:top-full sm:mt-2 sm:w-[360px] rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl z-[100] overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/80">
               <h3 className="font-display text-sm italic text-foreground">Notifications</h3>
-              {unreadCount > 0 && (
-                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{unreadCount} new</span>
-              )}
+              <div className="flex items-center gap-2">
+                {unreadCount > 0 && (
+                  <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{unreadCount} new</span>
+                )}
+                <button
+                  onClick={() => setOpen(false)}
+                  className="p-1.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-elevated active:bg-elevated/80 transition-colors"
+                  aria-label="Close notifications"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
             </div>
 
             <div className="max-h-[400px] overflow-y-auto">
@@ -281,6 +295,8 @@ export function NotificationBell() {
   function handleNotifClick(notif: NotificationType) {
     if (notif.type === 'clique_invite' && notif.reference_id) {
       router.push(`/circles/${notif.reference_id}`);
+    } else if ((notif.type === 'post_comment' || notif.type === 'post_like' || notif.type === 'mention') && notif.reference_id) {
+      router.push(`/posts/${notif.reference_id}`);
     } else if (notif.actor) {
       router.push(`/users/${notif.actor_id}`);
     }

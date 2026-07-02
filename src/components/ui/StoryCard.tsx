@@ -134,7 +134,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
             e.stopPropagation();
             if (post) setShowComments(true);
           }}
-          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors p-2 -m-2 touch-manipulation"
         >
           <MessageCircle className="h-4 w-4" />
           <span>{post?.comments_count ?? 0}</span>
@@ -296,12 +296,13 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               </button>
               
               <button
+                data-action
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   if (post) setShowComments(true);
                 }}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors p-2 -m-2 touch-manipulation"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{post?.comments_count ?? 0}</span>

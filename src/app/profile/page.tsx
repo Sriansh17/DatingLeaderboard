@@ -210,7 +210,7 @@ export default function ProfilePage() {
 
   return (
     <main className="w-full mx-auto min-h-dvh bg-transparent relative pb-12 px-4 sm:px-8">
-      <ScrollToTop label="The Archives" />
+      <ScrollToTop label="My Profile" />
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <motion.p

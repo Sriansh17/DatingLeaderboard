@@ -78,6 +78,10 @@ export interface Comment {
   user_id: string;
   content: string;
   created_at: string;
+  parent_id?: string | null;
+  votes?: number;
+  reactions?: Record<string, number>;
+  replies?: Comment[];
   // Joined fields
   profile?: Profile;
 }
@@ -227,7 +231,8 @@ export type NotificationType =
   | 'clique_invite'
   | 'clique_joined'
   | 'post_like'
-  | 'post_comment';
+  | 'post_comment'
+  | 'mention';
 
 export interface Notification {
   id: string;

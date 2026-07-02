@@ -27,13 +27,15 @@ export function ConfessionsFeed() {
   return (
     <main className="w-full min-h-dvh bg-transparent">
       {/* Anonymous mode header bar */}
-      <div className="overflow-hidden border-b border-border/50 bg-primary/5 backdrop-blur-md py-3">
-        <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary">
-          <Lock className="h-3 w-3" />
-          <span>Anonymous Mode — Your identity is hidden</span>
+      <div className="border-b border-border/50 bg-primary/5 backdrop-blur-md px-4 py-3">
+        <div className="flex items-center justify-between max-w-[1400px] mx-auto">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-primary">
+            <Lock className="h-3 w-3 shrink-0" />
+            <span>Anonymous Mode — Identity hidden</span>
+          </div>
           <button
             onClick={toggleAnonymousMode}
-            className="rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[11px] font-bold text-primary hover:bg-primary/20 active:bg-primary/30 transition-colors inline-flex items-center gap-1 touch-target"
+            className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary hover:bg-primary/20 active:bg-primary/30 transition-colors inline-flex items-center gap-1 touch-target"
           >
             <EyeOff className="h-3.5 w-3.5" />
             Exit

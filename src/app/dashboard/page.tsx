@@ -5,7 +5,7 @@ import { StoryCard } from '@/components/ui/StoryCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { motion } from 'framer-motion';
 
-import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff, Users, Globe, Crown, Flame, Gift } from 'lucide-react';
+import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff, Users, Globe, Crown, Flame, Gift, PlusCircle } from 'lucide-react';
 import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
@@ -189,40 +189,46 @@ export default function DashboardPage() {
 
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 md:py-12 pb-12">
         
-        <header className="mb-12">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-3">
-              <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-1.5">
-                <Sparkles className="h-4 w-4" /> Feed
-              </p>
-              {/* Golden scope pill — always clickable */}
-              <button
-                onClick={() => setFeedTab((prev: string) => prev === 'global' ? 'circles' : 'global')}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full transition-colors touch-target ${
-                  hasCircles
-                    ? 'bg-gold/10 border border-gold/20 text-gold hover:bg-gold/15 active:bg-gold/20'
-                    : 'bg-gold/5 border border-gold/10 text-gold/60'
-                }`}
-              >
-                {feedTab === 'global' ? (
-                  <Globe className="h-3.5 w-3.5" />
-                ) : (
-                  <Users className="h-3.5 w-3.5" />
-                )}
-                <span className="text-[10px] font-bold uppercase tracking-wider">
-                  {feedTab === 'global' ? 'Global' : 'Bonds'}
-                </span>
-              </button>
-            </div>
-            <div className="flex items-center gap-1.5 sm:gap-2">
+        <header className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4" /> Feed
+            </p>
+            <div className="flex items-center gap-1.5">
               <PageBell />
               <AnonymousToggle />
               <InstallAppButton />
             </div>
           </div>
-          <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
+          <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight mb-5">
             The Timeline
           </h1>
+          {/* Feed scope tabs */}
+          <div className="flex items-center gap-1 p-1 rounded-full bg-muted/40 border border-border/50 w-fit">
+            <button
+              onClick={() => setFeedTab('global')}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                feedTab === 'global'
+                  ? 'bg-card text-foreground shadow-sm border border-border/80'
+                  : 'text-muted-foreground hover:text-foreground active:text-foreground'
+              }`}
+            >
+              <Globe className="h-3.5 w-3.5" /> Global
+            </button>
+            <button
+              onClick={() => setFeedTab('circles')}
+              disabled={!hasCircles}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
+                feedTab === 'circles'
+                  ? 'bg-card text-foreground shadow-sm border border-border/80'
+                  : hasCircles
+                    ? 'text-muted-foreground hover:text-foreground active:text-foreground'
+                    : 'text-muted-foreground/40 cursor-not-allowed'
+              }`}
+            >
+              <Users className="h-3.5 w-3.5" /> Bonds
+            </button>
+          </div>
         </header>
         <ScrollToTop label="The Timeline" />
 
@@ -620,7 +626,30 @@ export default function DashboardPage() {
         {/* Circle Feed */}
         {feedTab === 'circles' && (
           <>
-            {circleLoading ? (
+            {!hasCircles ? (
+              <div className="text-center py-24 rounded-[2rem] border border-border bg-card/40 relative overflow-hidden">
+                <div className="absolute -top-20 -left-20 w-48 h-48 rounded-full bg-gold/[0.03] blur-3xl pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-56 h-56 rounded-full bg-primary/[0.03] blur-3xl pointer-events-none" />
+                <div className="relative z-10">
+                  <div className="w-16 h-16 rounded-2xl bg-elevated border border-border flex items-center justify-center mx-auto mb-6">
+                    <Users className="h-7 w-7 text-muted-foreground" />
+                  </div>
+                  <h3 className="font-display text-3xl italic text-foreground mb-3">No Bonds Yet</h3>
+                  <p className="text-sm text-muted-foreground max-w-sm mx-auto leading-relaxed mb-2">
+                    Bonds are private groups where you and your friends share and compare love stories.
+                  </p>
+                  <p className="text-xs text-muted-foreground/60 max-w-xs mx-auto leading-relaxed">
+                    Create a bond or join one with an invite code to see your friends' posts here.
+                  </p>
+                  <Link
+                    href="/circles"
+                    className="inline-flex items-center gap-2 mt-8 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all uppercase tracking-wider"
+                  >
+                    <PlusCircle className="h-4 w-4" /> Create or Join a Bond
+                  </Link>
+                </div>
+              </div>
+            ) : circleLoading ? (
               <div className="flex justify-center py-32 min-h-[50vh] items-center">
                 <Spinner size="lg" text={["LOADING BOND FEED...", "FETCHING FROM YOUR BONDS..."]} />
               </div>
@@ -633,13 +662,13 @@ export default function DashboardPage() {
                   </div>
                   <h3 className="font-display text-2xl italic text-foreground mb-2">Your bonds are quiet</h3>
                   <p className="text-sm text-muted-foreground max-w-xs mx-auto leading-relaxed">
-                    Join or create a bond to see posts from your group here.
+                    No one in your bonds has posted yet. Be the first to share a story!
                   </p>
                   <Link
-                    href="/circles"
+                    href="/posts/new"
                     className="inline-flex items-center gap-2 mt-6 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all uppercase tracking-wider"
                   >
-                    Manage Bonds
+                    Share a Story
                   </Link>
                 </div>
               </div>
@@ -695,16 +724,17 @@ function AnonymousToggle() {
   return (
     <button
       onClick={toggleAnonymousMode}
-      className={`rounded-full border px-4 py-2 text-xs font-bold uppercase backdrop-blur transition-colors inline-flex items-center gap-1.5 touch-target flex-shrink-0 whitespace-nowrap ${
+      title={isAnonymousMode ? 'Switch to normal mode' : 'Switch to anonymous mode'}
+      className={`rounded-full border p-2.5 sm:px-4 sm:py-2 text-xs font-bold uppercase backdrop-blur transition-colors inline-flex items-center gap-1.5 touch-target flex-shrink-0 whitespace-nowrap ${
         isAnonymousMode
           ? 'border-primary/30 bg-primary/10 text-primary'
           : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/60 active:text-foreground active:bg-elevated/80'
       }`}
     >
       {isAnonymousMode ? (
-        <><Lock className="h-3.5 w-3.5" /> Anonymous</>
+        <><Lock className="h-4 w-4 sm:h-3.5 sm:w-3.5" /><span className="hidden sm:inline">Anonymous</span></>
       ) : (
-        <><EyeOff className="h-3.5 w-3.5" /> Anonymous</>
+        <><EyeOff className="h-4 w-4 sm:h-3.5 sm:w-3.5" /><span className="hidden sm:inline">Anonymous</span></>
       )}
     </button>
   );

@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils/cn';
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -24,28 +25,18 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   useEffect(() => {
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
-      // iOS Safari scroll-lock: need position:fixed + scrollY hack
-      const scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`;
-      document.body.style.width = '100%';
     }
     return () => {
       document.removeEventListener('keydown', handleEsc);
-      const scrollY = parseInt(document.body.style.top || '0', 10) * -1;
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.width = '';
-      if (scrollY) window.scrollTo(0, scrollY);
     };
   }, [isOpen, handleEsc]);
 
-  return (
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overscroll-contain touch-manipulation">
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -79,6 +70,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
