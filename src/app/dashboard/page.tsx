@@ -5,15 +5,18 @@ import { StoryCard } from '@/components/ui/StoryCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { motion } from 'framer-motion';
 
-import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff, Users, Globe } from 'lucide-react';
+import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff, Users, Globe, Crown, Flame, Gift } from 'lucide-react';
 import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
+import { useStreak, useClaimPerk } from '@/lib/hooks/useStreak';
+import type { StreakData } from '@/lib/hooks/useStreak';
 import { useUser } from '@/components/providers/AuthProvider';
 import { useAnonymousMode } from '@/components/providers/AnonymousModeProvider';
 import { ConfessionsFeed } from '@/components/confessions/ConfessionsFeed';
 import { useRouter } from 'next/navigation';
+import { useToast } from '@/components/ui/Toast';
 
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { PageBell } from '@/components/ui/PageBell';
@@ -101,7 +104,42 @@ export default function DashboardPage() {
   const topScorer = globalEntries?.[0];
   const displayUsername = topScorer?.username ? `@${topScorer.username}` : '@anonymous';
   const displayInitial = (topScorer?.full_name?.[0] || topScorer?.username?.[0] || 'A').toUpperCase();
-  
+
+  // ─── Daily Engagement ──────────────────────────────────────────────────────
+  const { data: streakData } = useStreak();
+  const claimPerk = useClaimPerk();
+  const { addToast } = useToast();
+
+  const { data: dailyTop } = useQuery({
+    queryKey: ['daily-leaderboard'],
+    queryFn: async () => {
+      const res = await fetch('/api/leaderboards/daily');
+      const json = await res.json();
+      if (!json.success) throw new Error(json.error || 'Failed');
+      return json.data as Array<{
+        rank: number; id: string; score: number; rawScore: number;
+        description: string; user: { username: string; avatar_url: string | null };
+        partner: { name: string; emoji: string; avatar_url: string | null };
+      }>;
+    },
+    staleTime: 30000,
+    refetchInterval: 60000,
+  });
+
+  const handleClaimPerk = () => {
+    claimPerk.mutate(undefined, {
+      onSuccess: (data) => {
+        addToast(`🎁 You got: ${data.perk.emoji} ${data.perk.name}!`, 'success');
+        if (data.mysticUnlocked) {
+          addToast('🌀 Mystic badge unlocked! Collect all 7 fragments!', 'success');
+        }
+      },
+      onError: (err: any) => {
+        addToast(err.message || 'Post today first to claim your perk', 'warning');
+      },
+    });
+  };
+
   // Dynamic Ticker
   const dynamicTicker = globalEntries?.length 
     ? globalEntries.map(e => `${e.username || 'Someone'} secured ${e.average_score} pts`) 
@@ -187,6 +225,99 @@ export default function DashboardPage() {
           </h1>
         </header>
         <ScrollToTop label="The Timeline" />
+
+        {/* Streak & Perk Bar */}
+        {streakData && (
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-5 py-3">
+            <div className="flex items-center gap-4">
+              {/* Streak */}
+              <div className="flex items-center gap-1.5">
+                <Flame className={`h-4 w-4 ${streakData.streak > 0 ? 'text-amber-500' : 'text-muted-foreground/40'}`} />
+                <span className="text-sm font-medium text-foreground">{streakData.streak}d</span>
+                {streakData.multiplierPercent > 0 && (
+                  <span className="text-[10px] text-gold font-medium">+{streakData.multiplierPercent}%</span>
+                )}
+              </div>
+              {/* Next badge progress */}
+              {streakData.nextBadge && (
+                <div className="hidden sm:flex items-center gap-2 text-[10px] text-muted-foreground/60">
+                  <span className="text-xs opacity-40">|</span>
+                  <span>{streakData.nextBadge.emoji}</span>
+                  <span>{streakData.nextBadge.name} in {streakData.nextBadge.streakRequired - streakData.streak}d</span>
+                  <div className="w-16 h-1.5 rounded-full bg-elevated overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gold/60 transition-all"
+                      style={{ width: `${Math.round(streakData.nextBadge.progress * 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+            {/* Claim Perk Button */}
+            {streakData.canClaimPerk ? (
+              <button
+                onClick={handleClaimPerk}
+                disabled={claimPerk.isPending}
+                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold/80 to-gold/60 px-3.5 py-1.5 text-[10px] font-bold text-black transition-all hover:scale-[1.02] disabled:opacity-60"
+              >
+                <Gift className="h-3 w-3" />
+                {claimPerk.isPending ? 'Claiming...' : 'Daily Perk'}
+              </button>
+            ) : streakData.streak > 0 && (
+              <button
+                disabled
+                className="inline-flex items-center gap-1.5 rounded-full border border-border/50 px-3.5 py-1.5 text-[10px] font-medium text-muted-foreground/50 cursor-not-allowed"
+              >
+                <Gift className="h-3 w-3" />
+                Post to unlock
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Today's Best — Daily Leaderboard (shown for both tabs when data exists) */}
+        {dailyTop && dailyTop.length > 0 && feedTab === 'global' && (
+          <div className="mb-8 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <Crown className="h-4 w-4 text-gold" />
+                <span className="text-xs uppercase tracking-[0.2em] font-bold text-gold">Today&apos;s Best</span>
+              </div>
+              <Link
+                href="/leaderboards"
+                className="text-[9px] uppercase tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors"
+              >
+                Full Board →
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {dailyTop.slice(0, 6).map((entry) => (
+                <div
+                  key={entry.id}
+                  className="flex items-center gap-3 rounded-xl border border-border/40 bg-elevated/30 px-3.5 py-2.5"
+                >
+                  <span className="font-score text-sm text-muted-foreground/50 w-4 text-center shrink-0">
+                    {entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">
+                      {entry.user.username || 'anonymous'}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground/60 truncate leading-tight">
+                      {entry.partner.emoji} {entry.description?.slice(0, 50)}...
+                    </p>
+                  </div>
+                  <div className="text-right shrink-0">
+                    <span className="font-score text-sm text-gold">{entry.score}</span>
+                    {entry.score > entry.rawScore && (
+                      <span className="text-[8px] text-success/60 ml-0.5">+{entry.score - entry.rawScore}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {feedTab === 'global' ? (isLoading ? (
           <div className="flex justify-center py-32 min-h-[50vh] items-center">
@@ -445,6 +576,7 @@ export default function DashboardPage() {
               </Link>
             </div>
 
+            {/* Today's Best — Daily Leaderboard */}
             <div className="columns-1 md:columns-2 xl:columns-3 gap-8 space-y-8">
             {posts.map((post) => {
               const story = {

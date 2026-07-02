@@ -12,7 +12,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { PageBell } from '@/components/ui/PageBell';
-import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2 } from 'lucide-react';
+import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2, Sparkles as SparklesIcon } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -24,6 +24,8 @@ import { useToast } from '@/components/ui/Toast';
 import { motion } from 'framer-motion';
 import { AnimatedNumber } from '@/components/ui/AnimatedNumber';
 import { Spinner } from '@/components/ui/Spinner';
+import { useStreak } from '@/lib/hooks/useStreak';
+import { BADGES } from '@/lib/utils/constants';
 
 export default function ProfilePage() {
   const RESTORE_STREAK_AMOUNT = 49;
@@ -43,6 +45,7 @@ export default function ProfilePage() {
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [unarchivingId, setUnarchivingId] = useState<string | null>(null);
+  const { data: streakBadges } = useStreak();
 
   const handleUnarchive = useCallback(async (postId: string) => {
     try {
@@ -314,6 +317,22 @@ export default function ProfilePage() {
               )}
             </div>
 
+            {/* Badges showcase */}
+            {streakBadges?.badges && streakBadges.badges.length > 0 && (
+              <div className="mt-4">
+                <div className="flex items-center justify-center flex-wrap gap-2">
+                  {streakBadges.badges.map((badge) => (
+                    <span
+                      key={badge.id}
+                      className="inline-flex items-center gap-1 rounded-full border border-gold/20 bg-gold/5 px-2.5 py-1 text-[10px] font-medium text-foreground/80"
+                      title={badge.name}
+                    >
+                      {badge.emoji} {badge.name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
           </div>
 
