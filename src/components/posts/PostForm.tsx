@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/Toast';
 import { Modal } from '@/components/ui/Modal';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from '@/components/ui/Button';
+import { Textarea } from '@/components/ui/Textarea';
 import { useCreatePost } from '@/lib/hooks/usePosts';
 import type { Partner } from '@/types/database';
 import type { AIScoreResult } from '@/types/api';
@@ -457,7 +459,7 @@ export function PostForm({
             />
           ))}
         </div>
-        <textarea
+        <Textarea
           value={description}
           onChange={(e) => setDescription(e.target.value)}
           rows={8}

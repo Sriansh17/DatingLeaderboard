@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       if (!passcode) {
         return NextResponse.json({
           success: false,
-          error: 'This circle requires a passcode to join.',
+          error: 'This bond requires a passcode to join.',
           needs_passcode: true,
           circle_name: circle.name,
         }, { status: 400 });
@@ -72,7 +72,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (existing) {
-      return NextResponse.json({ success: false, error: 'You are already a member of this circle' }, { status: 409 });
+      return NextResponse.json({ success: false, error: 'You are already a member of this bond' }, { status: 409 });
     }
 
     // Check member count
@@ -82,7 +82,7 @@ export async function POST(request: Request) {
       .eq('circle_id', circle.id);
 
     if (count && count >= circle.max_members) {
-      return NextResponse.json({ success: false, error: `Circle is full (max ${circle.max_members} members)` }, { status: 400 });
+      return NextResponse.json({ success: false, error: `Bond is full (max ${circle.max_members} members)` }, { status: 400 });
     }
 
     // Add member
@@ -106,6 +106,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, data: circle });
   } catch (error) {
     console.error('Circle join error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to join circle' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to join bond' }, { status: 500 });
   }
 }

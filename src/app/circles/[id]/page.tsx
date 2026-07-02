@@ -81,7 +81,7 @@ export default function CircleDetailPage() {
 
   const handleLeave = async () => {
     if (!circle || leaving) return;
-    if (!(await confirm({ title: 'Leave Circle', message: 'Are you sure you want to leave this bond?', confirmLabel: 'Leave', variant: 'warning' }))) return;
+    if (!(await confirm({ title: 'Leave Bond', message: 'Are you sure you want to leave this bond?', confirmLabel: 'Leave', variant: 'warning' }))) return;
     setLeaving(true);
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
@@ -123,7 +123,7 @@ export default function CircleDetailPage() {
   };
 
   const handleKick = async (userId: string, username: string) => {
-    if (!(await confirm({ title: 'Remove Member', message: `Remove @${username} from this circle?`, confirmLabel: 'Remove', variant: 'danger' }))) return;
+    if (!(await confirm({ title: 'Remove Member', message: `Remove @${username} from this bond?`, confirmLabel: 'Remove', variant: 'danger' }))) return;
     try {
       const res = await fetch(`/api/circles/${circleId}/members`, {
         method: 'DELETE',
@@ -145,7 +145,7 @@ export default function CircleDetailPage() {
 
   const handleDelete = async () => {
     if (!circle || deleting) return;
-    if (!(await confirm({ title: 'Delete Circle', message: 'Delete this entire bond? This cannot be undone. All members will be removed.', confirmLabel: 'Delete', variant: 'danger' }))) return;
+    if (!(await confirm({ title: 'Delete Bond', message: 'Delete this entire bond? This cannot be undone. All members will be removed.', confirmLabel: 'Delete', variant: 'danger' }))) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/circles/${circleId}`, { method: 'DELETE' });
@@ -157,7 +157,7 @@ export default function CircleDetailPage() {
         addToast(data.error || 'Failed to delete', 'error');
       }
     } catch {
-      addToast('Failed to delete circle', 'error');
+      addToast('Failed to delete bond', 'error');
     } finally {
       setDeleting(false);
     }

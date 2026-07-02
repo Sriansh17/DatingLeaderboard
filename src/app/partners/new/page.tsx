@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/Button';
 import { PremiumLaunchModal } from '@/components/ui/PremiumLaunchModal';
 import { createClient } from '@/lib/supabase/client';
 
@@ -57,12 +58,14 @@ export default function NewPartnerPage() {
           <p className="text-sm text-foreground/90 mb-5">
             Free plan supports one partner. Upgrade to premium to add multiple partners.
           </p>
-          <button
+          <Button
             onClick={handleUpgrade}
-            className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-6 py-3 text-xs font-semibold text-black transition-colors touch-target"
+            variant="primary"
+            size="md"
+            className="bg-gold/90 hover:bg-gold active:bg-gold/80 text-black touch-target"
           >
             Upgrade to Premium
-          </button>
+          </Button>
         </div>
         <PremiumLaunchModal
           isOpen={showPremiumModal}

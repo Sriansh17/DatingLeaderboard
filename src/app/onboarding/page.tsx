@@ -764,7 +764,7 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(3)}
                     disabled={!displayName.trim() || !age || !gender || !occupation || !city || !country}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
@@ -860,7 +860,7 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(6)}
                     disabled={selectedGoals.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
@@ -903,7 +903,7 @@ export default function OnboardingFlow() {
                   <button
                     onClick={() => goTo(7)}
                     disabled={selectedLanguages.length === 0}
-                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
+                    className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-35 uppercase tracking-[0.2em] text-[10px]"
                   >
                     Continue <ArrowRight className="h-4 w-4" />
                   </button>
@@ -1046,7 +1046,7 @@ export default function OnboardingFlow() {
 
                 <button
                   onClick={() => goTo(8)}
-                  className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3\.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] mt-auto uppercase tracking-[0.2em] text-[10px]"
+                  className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] mt-auto uppercase tracking-[0.2em] text-[10px]"
                 >
                   Continue <ArrowRight className="h-4 w-4" />
                 </button>

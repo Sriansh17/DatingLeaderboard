@@ -95,6 +95,6 @@ export async function GET() {
     });
   } catch (error) {
     console.error('[Circle Feed API] Error:', error);
-    return NextResponse.json({ success: false, error: 'Failed to fetch circle feed' }, { status: 500 });
+    return NextResponse.json({ success: false, error: 'Failed to fetch bond feed' }, { status: 500 });
   }
 }
