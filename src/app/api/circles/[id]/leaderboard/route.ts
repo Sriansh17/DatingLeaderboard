@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/circles/[id]/leaderboard — get leaderboard for a circle
 export async function GET(
   _request: Request,

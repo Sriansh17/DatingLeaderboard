@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/circles/[id]/members — invite a user to the circle (creator/admin only)
 // Creates with status='invited' — user must accept via PATCH
 export async function POST(

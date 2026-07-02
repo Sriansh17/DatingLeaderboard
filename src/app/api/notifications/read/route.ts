@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/notifications/read — mark all notifications as read
 export async function POST() {
   try {

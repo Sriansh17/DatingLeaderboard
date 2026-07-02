@@ -3,6 +3,8 @@ import webpush from 'web-push';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
+export const dynamic = 'force-dynamic';
+
 webpush.setVapidDetails(
   process.env.VAPID_EMAIL!,
   process.env.VAPID_PUBLIC_KEY!,

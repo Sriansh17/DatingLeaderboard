@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/notifications/unread-count — get count of unread notifications
 export async function GET() {
   try {

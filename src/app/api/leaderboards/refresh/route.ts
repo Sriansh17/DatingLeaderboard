@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { invalidateLeaderboardCache } from '@/lib/redis/client';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST() {
   try {
     await invalidateLeaderboardCache();

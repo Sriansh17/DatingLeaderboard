@@ -5,6 +5,8 @@ import { scorePost } from '@/lib/ai/scoring';
 import { evaluateStreak, checkNewBadges } from '@/lib/utils/engagement';
 import type { BadgeDef } from '@/lib/utils/constants';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();

@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // PATCH /api/connections/requests/[id] — accept or reject a request
 export async function PATCH(
   request: Request,

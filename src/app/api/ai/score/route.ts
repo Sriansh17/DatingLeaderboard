@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { scorePost } from '@/lib/ai/scoring';
 import type { AIScoreResult } from '@/types/api';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const { description } = await request.json();

@@ -3,6 +3,8 @@ import { createRazorpayOrder } from '@/lib/payments/razorpay';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { SUBSCRIPTION_PLANS } from '@/lib/utils/constants';
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/payments/razorpay/order — create a payment order for a subscription plan
 export async function POST(request: Request) {
   try {

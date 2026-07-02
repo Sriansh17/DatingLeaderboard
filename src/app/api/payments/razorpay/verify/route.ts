@@ -3,6 +3,8 @@ import { verifyPaymentSignature } from '@/lib/payments/razorpay';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // POST /api/payments/razorpay/verify — verify payment and activate subscription
 export async function POST(request: Request) {
   try {

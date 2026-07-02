@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/users/search?q=<query> — search users by username or full_name
 export async function GET(request: Request) {
   try {
