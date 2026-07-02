@@ -489,18 +489,18 @@ export default function RanksPage() {
             </motion.div>
           )}
 
-          <div className="pointer-events-auto w-fit min-w-[320px] max-w-full rounded-3xl glass-dock p-4 flex items-center justify-between gap-4">
-            <div className="font-score text-2xl text-blush shrink-0" style={{ width: 44 }}>
+          <div className="pointer-events-auto w-[calc(100vw-32px)] sm:w-fit sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4">
+            <div className="font-score text-xl sm:text-2xl text-blush shrink-0" style={{ width: 32, sm: { width: 44 } }}>
               #{myRank}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-foreground">You · {myEntry.top_partner_name || profile?.username}</div>
-              <div className="text-xs text-muted-foreground truncate">
+              <div className="text-xs sm:text-sm font-medium text-foreground truncate">You · {myEntry.top_partner_name || profile?.username}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
               </div>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="font-score text-2xl relative overflow-hidden h-[24px]" style={{ color: scoreColor(myEntry.average_score) }}>
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              <div className="font-score text-xl sm:text-2xl relative overflow-hidden h-[20px] sm:h-[24px]" style={{ color: scoreColor(myEntry.average_score) }}>
                 <AnimatePresence mode="popLayout">
                   <motion.div
                     key={myEntry.average_score}

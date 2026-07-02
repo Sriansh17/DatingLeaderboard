@@ -219,7 +219,7 @@ export default function ProfilePage() {
             transition={{ duration: 0.4 }}
             className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-2"
           >
-            The Archives
+            The Profile
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 8 }}

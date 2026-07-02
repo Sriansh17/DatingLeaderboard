@@ -215,22 +215,22 @@ export default function BondsPage() {
         <NotificationBell />
       </div>
 
-      {/* Stats row — 3 columns */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
-        <div className="p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center">
-          <div className="font-score text-3xl text-foreground">{circles.length}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5 flex items-center justify-center gap-1.5"><Diamond className="h-3 w-3" /> Bonds</div>
+      {/* Stats row — 3 columns, always 3 cols on mobile too */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">
+        <div className="p-3 sm:p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center">
+          <div className="font-score text-2xl sm:text-3xl text-foreground">{circles.length}</div>
+          <div className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1"><Diamond className="h-2.5 w-2.5 sm:h-3 sm:w-3 hidden sm:inline" /> Bonds</div>
         </div>
-        <div className="p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center">
-          <div className="font-score text-3xl text-gold">{connections.length}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5 flex items-center justify-center gap-1.5"><Users className="h-3 w-3" /> Connected</div>
+        <div className="p-3 sm:p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center">
+          <div className="font-score text-2xl sm:text-3xl text-gold">{connections.length}</div>
+          <div className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1"><Users className="h-2.5 w-2.5 sm:h-3 sm:w-3 hidden sm:inline" /> Connected</div>
         </div>
-        <Link href="#requests" className="p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center hover:border-primary/30 active:border-primary/40 transition-all block">
-          <div className="font-score text-3xl text-primary">{totalRequests}</div>
-          <div className="text-[10px] uppercase tracking-widest text-muted-foreground mt-1.5 flex items-center justify-center gap-1.5"><UserPlus className="h-3 w-3" /> Requests</div>
-          <div className="flex items-center justify-center gap-2 mt-1">
-            <span className="text-[10px] text-primary font-medium bg-primary/10 px-1.5 py-0.5 rounded-full">{pendingCount} pending</span>
-            <span className="text-[10px] text-warning bg-warning/10 px-1.5 py-0.5 rounded-full">{sentCount} sent</span>
+        <Link href="#requests" className="p-3 sm:p-5 rounded-2xl border border-border bg-card/50 backdrop-blur-sm text-center hover:border-primary/30 active:border-primary/40 transition-all block">
+          <div className="font-score text-2xl sm:text-3xl text-primary">{totalRequests}</div>
+          <div className="text-[8px] sm:text-[10px] uppercase tracking-widest text-muted-foreground mt-1 flex items-center justify-center gap-1"><UserPlus className="h-2.5 w-2.5 sm:h-3 sm:w-3 hidden sm:inline" /> Requests</div>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-2 mt-0.5 sm:mt-1">
+            <span className="text-[7px] sm:text-[10px] text-primary font-medium bg-primary/10 px-1 sm:px-1.5 py-0.5 rounded-full whitespace-nowrap">{pendingCount} pending</span>
+            <span className="text-[7px] sm:text-[10px] text-warning bg-warning/10 px-1 sm:px-1.5 py-0.5 rounded-full whitespace-nowrap">{sentCount} sent</span>
           </div>
         </Link>
       </div>
@@ -246,23 +246,23 @@ export default function BondsPage() {
             <Link
               key={circle.id}
               href={`/circles/${circle.id}`}
-              className="p-6 rounded-2xl border border-border bg-card/60 backdrop-blur-sm text-center transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-sm"
+              className="p-4 sm:p-6 rounded-2xl border border-border bg-card/60 backdrop-blur-sm text-center transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-md active:translate-y-0 active:shadow-sm"
             >
-              <span className="text-5xl block mb-3">{circle.emoji}</span>
-              <p className="font-display text-base italic text-foreground leading-tight mb-1">{circle.name}</p>
-              <p className="text-[10px] text-muted-foreground">{circle.member_count ?? 0}/{circle.max_members} members</p>
+              <span className="text-3xl sm:text-5xl block mb-2 sm:mb-3">{circle.emoji}</span>
+              <p className="font-display text-sm sm:text-base italic text-foreground leading-tight mb-1 truncate">{circle.name}</p>
+              <p className="text-[9px] sm:text-[10px] text-muted-foreground">{circle.member_count ?? 0}/{circle.max_members} members</p>
               {circle.created_by === user.id && (
                 <span className="inline-block mt-2 px-2 py-0.5 rounded-full bg-gold/10 text-gold text-[10px] font-semibold">✦ Creator</span>
               )}
             </Link>
           ))}
           {/* Create Bond card */}
-          <div className="p-6 rounded-2xl border border-dashed border-border/50 bg-card/30 text-center transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-primary/30 active:translate-y-0 active:shadow-sm active:border-primary/40">
-            <span className="text-5xl block mb-3">✨</span>
-            <p className="font-display text-base italic text-foreground leading-tight mb-3">Create Bond</p>
-            <div className="flex items-center justify-center gap-2">
-              <button onClick={() => setShowCreateModal(true)} className="inline-flex items-center gap-1 px-4 py-2 rounded-full glass-btn text-[11px] font-semibold touch-target"><PlusCircle className="h-3.5 w-3.5" /> Create</button>
-              <button onClick={() => setShowJoinModal(true)} className="inline-flex items-center gap-1 px-4 py-2 rounded-full border border-border/60 text-[11px] text-muted-foreground touch-target"><LogIn className="h-3.5 w-3.5" /> Join</button>
+          <div className="p-4 sm:p-6 rounded-2xl border border-dashed border-border/50 bg-card/30 text-center transition-all cursor-pointer hover:-translate-y-0.5 hover:shadow-md hover:border-primary/30 active:translate-y-0 active:shadow-sm active:border-primary/40">
+            <span className="text-3xl sm:text-5xl block mb-2 sm:mb-3">✨</span>
+            <p className="font-display text-sm sm:text-base italic text-foreground leading-tight mb-3">Create Bond</p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-2">
+              <button onClick={() => setShowCreateModal(true)} className="inline-flex items-center gap-1 px-4 py-2 rounded-full glass-btn text-[11px] font-semibold touch-target w-full sm:w-auto"><PlusCircle className="h-3.5 w-3.5" /> Create</button>
+              <button onClick={() => setShowJoinModal(true)} className="inline-flex items-center gap-1 px-4 py-2 rounded-full border border-border/60 text-[11px] text-muted-foreground touch-target w-full sm:w-auto"><LogIn className="h-3.5 w-3.5" /> Join</button>
             </div>
           </div>
         </div>
@@ -342,9 +342,9 @@ export default function BondsPage() {
                           <div className="w-6 h-6 rounded-full bg-muted/30 flex items-center justify-center text-[10px] font-bold shrink-0">{u.username?.[0]?.toUpperCase() || '?'}</div>
                         )}
                         <span className="font-medium truncate">@{u.username}</span>
-                        {u.city && <span className="text-xs text-muted-foreground truncate">· {u.city}</span>}
+                        {u.city && <span className="text-[10px] sm:text-xs text-muted-foreground truncate hidden sm:inline">· {u.city}</span>}
                       </Link>
-                      <span className={`px-3 py-1 rounded-full text-[10px] font-semibold shrink-0 ml-2 ${
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-[9px] sm:text-[10px] font-semibold shrink-0 ml-1 sm:ml-2 whitespace-nowrap ${
                         status === 'connected' ? 'bg-success/10 text-success border border-success/20' :
                         status === 'sent' ? 'bg-warning/10 text-warning border border-warning/20' :
                         'glass-btn'

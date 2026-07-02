@@ -95,7 +95,7 @@ export default function LandingPage() {
         </div>
 
         {/* Auto-cycling VerdictCard */}
-        <div className="lg:pl-6 relative">
+        <div className="lg:pl-6 relative w-full max-w-sm mx-auto lg:max-w-none lg:mx-0">
           <AnimatePresence mode="wait">
             <motion.div
               key={heroIndex}

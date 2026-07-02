@@ -128,8 +128,9 @@ export function ShareStudio() {
   return (
     <div 
       className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+      onClick={closeShare}
     >
-      <div className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-background rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col lg:flex-row border border-border">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-background rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col lg:flex-row border border-border">
 
         {/* Close Button (Top Right) */}
         <button 
