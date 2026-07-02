@@ -24,7 +24,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#FCFAF8',  // matches --background in globals.css :root
+  themeColor: '#FCFAF8',
+  viewportFit: 'cover', // covers iPhone notch area
 };
 
 export default function RootLayout({

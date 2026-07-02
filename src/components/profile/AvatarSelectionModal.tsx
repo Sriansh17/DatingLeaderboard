@@ -50,10 +50,10 @@ export function AvatarSelectionModal({ isOpen, onClose, currentProfile, onSucces
           <button
             disabled={loading}
             onClick={() => alert('Custom photo upload coming soon!')}
-            className="w-full p-4 rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 transition-all group flex items-center justify-center gap-3"
+            className="w-full p-4 rounded-2xl border-2 border-dashed border-white/20 hover:border-primary hover:bg-white/5 active:border-primary/80 active:bg-white/10 transition-all group flex items-center justify-center gap-3"
           >
-            <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
-            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-white transition-colors">Upload Custom Photo</span>
+            <Upload className="w-5 h-5 text-muted-foreground group-hover:text-primary group-focus-within:text-primary transition-colors" />
+            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-white group-focus-within:text-white transition-colors">Upload Custom Photo</span>
           </button>
         </div>
 

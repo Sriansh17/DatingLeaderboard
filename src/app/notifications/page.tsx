@@ -115,7 +115,7 @@ export default function NotificationsPage() {
         <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
         <h1 className="font-display text-3xl italic text-foreground mb-2">Notifications</h1>
         <p className="text-muted-foreground mb-6">Sign in to see your notifications.</p>
-        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 transition-opacity">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 active:opacity-80 transition-opacity">
           <LogIn className="h-4 w-4" /> Sign In
         </Link>
       </div>
@@ -127,7 +127,7 @@ export default function NotificationsPage() {
       {/* Back button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors mb-6"
+        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Feed
@@ -146,7 +146,7 @@ export default function NotificationsPage() {
         {notifications.some(n => !n.read) && (
           <button
             onClick={markAllRead}
-            className="flex items-center gap-1.5 text-xs text-primary hover:underline mt-2 shrink-0"
+            className="flex items-center gap-1.5 text-xs text-primary hover:underline active:underline mt-2 shrink-0 py-2"
           >
             <CheckCheck className="h-3.5 w-3.5" /> Mark all read
           </button>
@@ -156,7 +156,7 @@ export default function NotificationsPage() {
       {/* Requests section — compact, expandable */}
       {(incomingRequests.length > 0 || outgoingRequests.length > 0) && (
         <div className="mb-8 rounded-2xl border border-border bg-card/40 backdrop-blur-sm overflow-hidden">
-          <button onClick={() => setRequestsOpen(!requestsOpen)} className="w-full flex items-center justify-between px-5 py-4 hover:bg-card/20 transition-colors">
+          <button onClick={() => setRequestsOpen(!requestsOpen)} className="w-full flex items-center justify-between px-5 py-4 hover:bg-card/20 active:bg-card/30 transition-colors">
             <span className="text-xs text-foreground font-bold flex items-center gap-2">
               <UserPlus className="h-4 w-4 text-primary" /> Pending requests
             </span>
@@ -170,7 +170,7 @@ export default function NotificationsPage() {
             <div className="px-5 pb-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <p className="text-[9px] uppercase tracking-wider text-primary font-medium">To Accept</p>
+                  <p className="text-[10px] uppercase tracking-wider text-primary font-medium">To Accept</p>
                   {incomingRequests.length === 0 ? (
                     <p className="text-xs text-muted-foreground">None</p>
                   ) : (
@@ -178,10 +178,10 @@ export default function NotificationsPage() {
                       const sender = req.sender as any;
                       return (
                         <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-primary/15 bg-primary/[0.03]">
-                          <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">@{sender?.username || 'unknown'}</Link>
-                          <div className="flex gap-1 shrink-0 ml-2">
-                            <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-3 py-1 rounded-full glass-btn text-[9px] font-semibold">Accept</button>
-                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-1 rounded-full border border-border text-muted-foreground hover:text-destructive"><X className="h-3 w-3" /></button>
+                          <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary active:text-primary/80 underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">@{sender?.username || 'unknown'}</Link>
+                          <div className="flex gap-1.5 shrink-0 ml-2">
+                            <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-4 py-2 rounded-full glass-btn text-[10px] font-semibold touch-target">Accept</button>
+                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full border border-border text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
                           </div>
                         </div>
                       );
@@ -189,7 +189,7 @@ export default function NotificationsPage() {
                   )}
                 </div>
                 <div className="space-y-2">
-                  <p className="text-[9px] uppercase tracking-wider text-warning font-medium">Pending</p>
+                  <p className="text-[10px] uppercase tracking-wider text-warning font-medium">Pending</p>
                   {outgoingRequests.length === 0 ? (
                     <p className="text-xs text-muted-foreground">None</p>
                   ) : (
@@ -198,7 +198,7 @@ export default function NotificationsPage() {
                       return (
                         <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-dashed border-warning/20 bg-warning/[0.03]">
                           <span className="text-sm text-foreground/70 min-w-0 flex-1 truncate">@{receiver?.username || 'unknown'}</span>
-                          <button onClick={() => cancelRequest(req.id)} className="flex items-center gap-1 px-2 py-1 rounded-full border border-border/40 text-[9px] text-muted-foreground hover:text-destructive shrink-0 ml-2"><XCircle className="h-2.5 w-2.5" /> Cancel</button>
+                          <button onClick={() => cancelRequest(req.id)} className="flex items-center gap-1 px-3.5 py-2 rounded-full border border-border/40 text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 shrink-0 ml-2 touch-target"><XCircle className="h-3 w-3" /> Cancel</button>
                         </div>
                       );
                     })
@@ -252,7 +252,7 @@ export default function NotificationsPage() {
             <button
               onClick={() => fetchNotifications(page + 1)}
               disabled={loading}
-              className="w-full py-3 text-xs font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 transition-colors text-center"
+              className="w-full py-3.5 text-xs font-bold uppercase tracking-[0.15em] text-primary hover:text-primary/80 active:text-primary/60 transition-colors text-center touch-target"
             >
               {loading ? 'Loading...' : 'Load More'}
             </button>
@@ -272,8 +272,8 @@ export default function NotificationsPage() {
         onClick={() => handleClick(notif)}
         className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
           notif.read
-            ? 'border-border bg-card/40 hover:bg-card/60 hover:shadow-sm'
-            : 'border-primary/15 bg-primary/[0.03] shadow-sm hover:shadow-md'
+            ? 'border-border bg-card/40 hover:bg-card/60 hover:shadow-sm active:bg-card/80 active:shadow-sm'
+            : 'border-primary/15 bg-primary/[0.03] shadow-sm hover:shadow-md active:shadow-md'
         }`}
       >
         <div className="shrink-0">

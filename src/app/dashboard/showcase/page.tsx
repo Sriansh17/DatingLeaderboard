@@ -40,11 +40,11 @@ export default function ShowcasePage() {
   };
 
   return (
-    <main className="w-full min-h-screen bg-transparent py-16 px-4">
+    <main className="w-full min-h-dvh bg-transparent py-16 px-4">
       <div className="max-w-7xl mx-auto">
         <Link
           href="/dashboard"
-          className="mb-8 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
+          className="mb-8 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Dashboard

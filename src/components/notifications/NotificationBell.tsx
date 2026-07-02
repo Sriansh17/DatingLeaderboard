@@ -134,12 +134,12 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={openDropdown}
-        className="relative flex items-center justify-center h-10 w-10 rounded-full border border-border bg-card/80 backdrop-blur-xl shadow-sm hover:shadow-md hover:bg-card transition-all"
+        className="relative flex items-center justify-center h-11 w-11 rounded-full border border-border bg-card/80 backdrop-blur-xl shadow-sm hover:shadow-md hover:bg-card active:shadow-md active:bg-card/80 transition-all"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5 text-primary" />
         {(unreadCount > 0 || incomingRequests.length > 0) && (
-          <span className="absolute -top-1 -right-1 h-4 min-w-[16px] flex items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white px-1 shadow-sm ring-2 ring-background">
+          <span className="absolute -top-1 -right-1 h-4 min-w-[16px] flex items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white px-1 shadow-sm ring-2 ring-background">
             {unreadCount + incomingRequests.length > 9 ? '9+' : unreadCount + incomingRequests.length}
           </span>
         )}
@@ -152,7 +152,7 @@ export function NotificationBell() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.96 }}
             transition={{ duration: 0.15 }}
-            className="absolute right-0 top-full mt-2 w-[360px] rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 top-full mt-2 w-[min(360px,calc(100vw-16px))] rounded-2xl border border-border bg-card/80 backdrop-blur-2xl shadow-2xl z-50 overflow-hidden"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/80">
@@ -168,7 +168,7 @@ export function NotificationBell() {
                 <div className="border-b border-border/50">
                   <button
                     onClick={() => setRequestsExpanded(!requestsExpanded)}
-                    className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-elevated/50 transition-colors"
+                    className="w-full flex items-center justify-between px-4 py-2.5 hover:bg-elevated/50 active:bg-elevated/70 transition-colors"
                   >
                     <span className="text-xs text-foreground font-medium flex items-center gap-2">
                       <UserPlus className="h-3.5 w-3.5 text-primary" /> Pending requests
@@ -185,12 +185,12 @@ export function NotificationBell() {
                         const sender = req.sender as any;
                         return (
                           <div key={req.id} className="flex items-center justify-between py-1.5 px-2 rounded-xl bg-primary/5">
-                            <Link href={`/users/${sender?.id}`} onClick={() => setOpen(false)} className="text-xs text-foreground font-medium hover:text-primary underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">
+                            <Link href={`/users/${sender?.id}`} onClick={() => setOpen(false)} className="text-xs text-foreground font-medium hover:text-primary active:text-primary/80 underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">
                               @{sender?.username || 'Someone'}
                             </Link>
                             <div className="flex gap-0.5 shrink-0 ml-1">
-                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="p-1 rounded-full glass-btn"><Check className="h-3 w-3" /></button>
-                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-1 rounded-full border border-border text-muted-foreground hover:text-destructive"><X className="h-3 w-3" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="p-2 rounded-full glass-btn touch-target"><Check className="h-4 w-4" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full border border-border text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-4 w-4" /></button>
                             </div>
                           </div>
                         );
@@ -202,7 +202,7 @@ export function NotificationBell() {
                             <span className="text-xs text-muted-foreground min-w-0 flex-1 truncate">
                               @{receiver?.username || 'Someone'} <span className="text-warning">· sent</span>
                             </span>
-                            <button onClick={() => cancelRequest(req.id)} className="p-1 rounded-full border border-border/40 text-muted-foreground hover:text-destructive shrink-0 ml-1">
+                            <button onClick={() => cancelRequest(req.id)} className="p-1 rounded-full border border-border/40 text-muted-foreground hover:text-destructive active:text-destructive/80 shrink-0 ml-1">
                               <XCircle className="h-3 w-3" />
                             </button>
                           </div>
@@ -212,7 +212,7 @@ export function NotificationBell() {
                         <Link
                           href="/circles#requests"
                           onClick={() => setOpen(false)}
-                          className="block text-center text-[10px] text-primary font-medium py-1.5 hover:underline"
+                          className="block text-center text-[10px] text-primary font-medium py-1.5 hover:underline active:underline"
                         >
                           View all {(incomingRequests.length + outgoingRequests.length) - 5} more →
                         </Link>
@@ -243,7 +243,7 @@ export function NotificationBell() {
                       <button
                         key={notif.id}
                         onClick={() => { setOpen(false); handleNotifClick(notif); }}
-                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-elevated transition-colors text-left border-b border-border/50 last:border-b-0"
+                        className="w-full flex items-center gap-3 px-4 py-3 hover:bg-elevated active:bg-elevated/80 transition-colors text-left border-b border-border/50 last:border-b-0"
                       >
                         <div className={`shrink-0 ${config?.color || 'text-muted-foreground'}`}>
                           <Icon className="h-5 w-5" />
@@ -268,7 +268,7 @@ export function NotificationBell() {
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
-              className="block text-center py-3 text-xs font-bold uppercase tracking-[0.15em] text-primary hover:bg-elevated border-t border-border/80 transition-colors"
+              className="block text-center py-3 text-xs font-bold uppercase tracking-[0.15em] text-primary hover:bg-elevated active:bg-elevated/80 border-t border-border/80 transition-colors"
             >
               View All Notifications
             </Link>

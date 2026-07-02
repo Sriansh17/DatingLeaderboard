@@ -169,14 +169,14 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
       <div className={`relative rounded-[2rem] overflow-hidden transition-all duration-500 p-6 sm:p-8 bg-card border ${
         confession.is_confession_of_day
           ? 'border-gold/40 shadow-[0_0_30px_-8px_rgba(212,175,55,0.3)]'
-          : 'border-border hover:border-primary/20 hover:shadow-[0_8px_30px_-8px_rgba(232,69,107,0.1)]'
+          : 'border-border hover:border-primary/20 hover:shadow-[0_8px_30px_-8px_rgba(232,69,107,0.1)] active:border-primary/30'
       }`}>
         {/* Confession of the Day Crown */}
         {confession.is_confession_of_day && (
           <div className="absolute top-0 right-0">
             <div className="bg-gradient-to-br from-gold to-amber-600 text-white px-4 py-1.5 rounded-bl-2xl flex items-center gap-1.5 shadow-lg">
               <Trophy className="h-3.5 w-3.5" />
-              <span className="text-[9px] font-bold uppercase tracking-wider">Confession of the Day</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider">Confession of the Day</span>
             </div>
           </div>
         )}
@@ -185,7 +185,7 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
         <div className="flex items-center gap-2 mb-4">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/5 border border-primary/10">
             <Lock className="h-3 w-3 text-primary/60" />
-            <span className="text-[9px] font-bold uppercase tracking-wider text-primary/60">Anonymous</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-primary/60">Anonymous</span>
           </div>
           <span className="text-[10px] text-muted-foreground flex items-center gap-1">
             <Clock className="h-3 w-3" />
@@ -215,7 +215,7 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
                 className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all border ${
                   isActive
                     ? 'bg-primary/10 border-primary/30 text-primary shadow-sm scale-105'
-                    : 'bg-muted/30 border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground hover:border-border'
+                    : 'bg-muted/30 border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground hover:border-border active:bg-muted/80'
                 } ${!user ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
               >
                 <span className="text-base leading-none">{REACTION_EMOJIS[reaction]}</span>
@@ -236,13 +236,13 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
         <div className="mt-4 pt-4 border-t border-border flex items-center justify-between">
           <button
             onClick={toggleReplies}
-            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+            className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors active:text-foreground"
           >
             <MessageCircle className="h-4 w-4" />
             <span>{repliesCount > 0 ? `${repliesCount} repl${repliesCount === 1 ? 'y' : 'ies'}` : 'Reply'}</span>
             {showReplies && <ChevronDown className="h-3 w-3 ml-1" />}
           </button>
-          <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/50 font-medium">
+          <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground/50 font-medium">
             Confession
           </span>
         </div>
@@ -308,7 +308,7 @@ export function ConfessionCard({ confession }: ConfessionCardProps) {
                   <button
                     onClick={submitReply}
                     disabled={!replyText.trim() || replyPending || !user}
-                    className="flex items-center justify-center h-9 w-9 rounded-full glass-btn disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 transition-all flex-shrink-0"
+                    className="flex items-center justify-center h-9 w-9 rounded-full glass-btn disabled:opacity-40 disabled:cursor-not-allowed hover:scale-105 active:scale-95 transition-all flex-shrink-0"
                   >
                     <Send className="h-4 w-4" />
                   </button>

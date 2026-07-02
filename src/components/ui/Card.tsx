@@ -11,7 +11,7 @@ export function Card({ children, className, hover = false }: CardProps) {
     <div
       className={cn(
         'glass p-4 sm:p-6 lg:p-8',
-        hover && 'hover:-translate-y-1 transition-transform duration-300',
+        hover && 'hover:-translate-y-1 active:translate-y-0 transition-transform duration-300',
         className
       )}
     >

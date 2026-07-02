@@ -68,7 +68,7 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-xs text-muted-foreground hover:text-destructive transition-colors flex items-center gap-1"
+        className="text-xs text-muted-foreground hover:text-destructive active:text-destructive/80 transition-colors flex items-center gap-1"
         title="Flag this post"
       >
         <Flag className="h-3 w-3" />
@@ -88,7 +88,7 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
               className={`w-full text-left px-5 py-3 rounded-2xl text-sm font-medium border transition-all ${
                 selectedReason === reason.value
                   ? 'border-destructive bg-destructive/10 text-destructive shadow-[0_0_15px_rgba(var(--destructive-rgb),0.2)]'
-                  : 'border-white/10 bg-white/5 text-foreground hover:border-white/20 hover:bg-white/10'
+                  : 'border-white/10 bg-white/5 text-foreground hover:border-white/20 hover:bg-white/10 active:border-white/30 active:bg-white/15'
               }`}
             >
               {reason.label}
@@ -96,13 +96,13 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
           ))}
           <div className="flex gap-3 pt-4">
             <button
-              className="flex-1 py-3 rounded-xl border border-border bg-elevated/40 text-foreground hover:bg-elevated/60 transition-colors font-medium text-sm"
+              className="flex-1 py-3 rounded-xl border border-border bg-elevated/40 text-foreground hover:bg-elevated/60 active:bg-elevated transition-colors font-medium text-sm"
               onClick={() => setOpen(false)}
             >
               Cancel
             </button>
             <button
-              className="flex-1 py-3 rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 disabled:opacity-50 transition-opacity font-medium text-sm shadow-[0_0_30px_-5px_var(--destructive)]"
+              className="flex-1 py-3 rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 active:opacity-80 disabled:opacity-50 transition-opacity font-medium text-sm shadow-[0_0_30px_-5px_var(--destructive)]"
               onClick={handleFlag}
               disabled={!selectedReason || submitting}
             >

@@ -95,13 +95,13 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleCancel}
-              className="flex-1 rounded-full border border-border bg-muted/50 text-foreground text-sm font-semibold py-3 hover:bg-muted transition-all hover:scale-[1.02]"
+              className="flex-1 rounded-full border border-border bg-muted/50 text-foreground text-sm font-semibold py-3 hover:bg-muted transition-all hover:scale-[1.02] active:bg-muted/80 active:scale-[0.98]"
             >
               {options.cancelLabel || 'Cancel'}
             </button>
             <button
               onClick={handleConfirm}
-              className={`flex-1 rounded-full text-sm font-semibold py-3 transition-all hover:scale-[1.02] ${variant.button}`}
+              className={`flex-1 rounded-full text-sm font-semibold py-3 transition-all hover:scale-[1.02] active:scale-[0.98] ${variant.button}`}
             >
               {options.confirmLabel || 'Confirm'}
             </button>

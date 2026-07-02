@@ -24,10 +24,10 @@ export function LeaderboardCard({ entry }: LeaderboardCardProps) {
         {entry.top_partner_avatar ? (
           <Avatar src={entry.top_partner_avatar} alt={entry.top_partner_name} size="md" />
         ) : (
-          <span className="text-2xl group-hover:scale-110 transition-transform">{entry.top_partner_emoji}</span>
+          <span className="text-2xl group-hover:scale-110 group-focus-within:scale-110 transition-transform">{entry.top_partner_emoji}</span>
         )}
         <div className="min-w-0">
-          <p className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+          <p className="font-semibold text-foreground truncate group-hover:text-primary group-focus-within:text-primary transition-colors">
             {entry.top_partner_name}
           </p>
           <p className="text-xs text-muted-foreground truncate">

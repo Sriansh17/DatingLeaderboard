@@ -73,7 +73,7 @@ export default function JoinCirclePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-dvh flex items-center justify-center px-4">
       <div className="max-w-sm w-full text-center">
         {/* Loading auth */}
         {status === 'loading' && (
@@ -124,7 +124,7 @@ export default function JoinCirclePage() {
               <button
                 type="submit"
                 disabled={!passcode.trim()}
-                className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 hover:opacity-90 transition-opacity"
+                className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 hover:opacity-90 active:opacity-80 transition-opacity"
               >
                 <Lock className="h-4 w-4" /> Join Circle
               </button>
@@ -161,11 +161,11 @@ export default function JoinCirclePage() {
             <div className="flex flex-col gap-3 items-center">
               <Link
                 href="/circles"
-                className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 transition-opacity"
+                className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:opacity-90 active:opacity-80 transition-opacity"
               >
                 <Users className="h-4 w-4" /> My Bonds
               </Link>
-              <button onClick={() => handleJoin()} className="text-sm text-primary hover:underline">
+              <button onClick={() => handleJoin()} className="text-sm text-primary hover:underline active:underline">
                 Try again
               </button>
             </div>

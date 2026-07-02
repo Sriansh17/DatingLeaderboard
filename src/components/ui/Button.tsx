@@ -12,15 +12,15 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 shadow-[var(--shadow-glow)]',
+    'bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 active:bg-primary/35 shadow-[var(--shadow-glow)]',
   secondary:
-    'bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-border/60 text-foreground hover:bg-white/20 dark:hover:bg-white/10',
+    'bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-border/60 text-foreground hover:bg-white/20 dark:hover:bg-white/10 active:bg-white/30 dark:active:bg-white/20',
   outline:
-    'bg-transparent backdrop-blur-xl border border-border text-foreground hover:bg-white/10 dark:hover:bg-white/5',
+    'bg-transparent backdrop-blur-xl border border-border text-foreground hover:bg-white/10 dark:hover:bg-white/5 active:bg-white/20 dark:active:bg-white/10',
   ghost:
-    'bg-transparent text-muted-foreground hover:bg-white/10 dark:hover:bg-white/5',
+    'bg-transparent text-muted-foreground hover:bg-white/10 dark:hover:bg-white/5 active:bg-white/20 dark:active:bg-white/10',
   danger:
-    'bg-destructive/15 backdrop-blur-xl border border-destructive/25 text-destructive hover:bg-destructive/25',
+    'bg-destructive/15 backdrop-blur-xl border border-destructive/25 text-destructive hover:bg-destructive/25 active:bg-destructive/35',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

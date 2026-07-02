@@ -42,10 +42,10 @@ export default function NewPartnerPage() {
 
   if (blockedByPlan) {
     return (
-      <main className="max-w-2xl mx-auto px-5 py-6 min-h-screen">
+      <main className="max-w-2xl mx-auto px-5 py-6 min-h-dvh">
         <Link
           href="/profile"
-          className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
+          className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Profile
@@ -59,7 +59,7 @@ export default function NewPartnerPage() {
           </p>
           <button
             onClick={handleUpgrade}
-            className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors"
+            className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-6 py-3 text-xs font-semibold text-black transition-colors touch-target"
           >
             Upgrade to Premium
           </button>
@@ -74,10 +74,10 @@ export default function NewPartnerPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-5 py-6 min-h-screen">
+    <main className="max-w-2xl mx-auto px-5 py-6 min-h-dvh">
       <Link
         href="/profile"
-        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors inline-flex items-center gap-2"
+        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Profile

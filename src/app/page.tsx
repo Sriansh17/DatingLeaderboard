@@ -22,7 +22,7 @@ export default function LandingPage() {
   const hero = stories[heroIndex];
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-dvh bg-transparent">
       {/* Nav */}
       <header className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5">
         <span className="font-display text-lg italic text-gold flex items-center gap-2">
@@ -31,14 +31,14 @@ export default function LandingPage() {
         <div className="flex items-center gap-4">
           <Link
             href="/contact"
-            className="hidden sm:inline-flex text-xs font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground transition-colors"
+            className="hidden sm:inline-flex text-xs font-medium uppercase tracking-widest text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
           >
             Creators
           </Link>
           <ThemeToggle />
           <Link
             href="/auth/login"
-            className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+            className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors touch-target inline-flex items-center"
           >
             Open the App →
           </Link>
@@ -55,7 +55,7 @@ export default function LandingPage() {
           <span className="block text-[10px] uppercase tracking-[0.3em] text-gold font-bold mb-3">
             The world&apos;s first relationship leaderboard
           </span>
-          <h1 className="font-display text-5xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
+          <h1 className="font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
             Your relationship<br />
             has a{" "}
             <span className="text-gradient-crimson italic">score.</span>
@@ -81,13 +81,13 @@ export default function LandingPage() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3.5 text-base font-medium transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3.5 text-base font-medium transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Get My Score <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/leaderboards"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-6 py-3.5 text-base text-foreground backdrop-blur hover:bg-elevated/60 transition-colors"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-6 py-3.5 text-base text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors"
             >
               See the Leaderboard
             </Link>
@@ -121,7 +121,7 @@ export default function LandingPage() {
               <button
                 key={i}
                 onClick={() => setHeroIndex(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${heroIndex === i ? 'w-5 bg-primary' : 'w-1.5 bg-border hover:bg-muted-foreground'}`}
+                className={`h-1.5 rounded-full transition-all duration-300 ${heroIndex === i ? 'w-5 bg-primary' : 'w-1.5 bg-border hover:bg-muted-foreground active:bg-muted-foreground'}`}
                 aria-label={`View verdict ${i + 1}`}
               />
             ))}
@@ -151,7 +151,7 @@ export default function LandingPage() {
             { n: "02", t: "AI scores and roasts", d: "Out of 100. The verdict is one line. It will sting or sing." },
             { n: "03", t: "Share. Climb. Repeat.", d: "Share the card. Watch your rank move. Try to dethrone someone." },
           ].map((s) => (
-            <div key={s.n} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/20 transition-colors">
+            <div key={s.n} className="rounded-2xl border border-border bg-card p-6 hover:border-primary/20 active:border-primary/30 transition-colors">
               <div className="font-score text-5xl text-primary">{s.n}</div>
               <h3 className="mt-3 font-display text-xl text-foreground">{s.t}</h3>
               <p className="mt-1 text-sm text-muted-foreground">{s.d}</p>
@@ -188,7 +188,7 @@ export default function LandingPage() {
             <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">This week</p>
             <h2 className="mt-2 font-display text-4xl italic text-foreground">Top of the world.</h2>
           </div>
-          <Link href="/leaderboards" className="text-sm text-primary hover:underline">
+          <Link href="/leaderboards" className="text-sm text-primary hover:underline active:underline">
             View all →
           </Link>
         </div>
@@ -201,9 +201,9 @@ export default function LandingPage() {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
-              className={`flex items-center gap-4 px-5 py-4 ${i !== 0 ? "border-t border-border" : ""} hover:bg-elevated/40 transition-colors`}
+              className={`flex items-center gap-4 px-5 py-4 ${i !== 0 ? "border-t border-border" : ""} hover:bg-elevated/40 active:bg-elevated/60 transition-colors`}
             >
-              <div className="font-score text-3xl shrink-0" style={{ color: e.rank <= 3 ? "rgb(var(--gold))" : "rgb(var(--muted-foreground))", width: 44 }}>
+              <div className="font-score text-3xl shrink-0 w-12" style={{ color: e.rank <= 3 ? "rgb(var(--gold))" : "rgb(var(--muted-foreground))" }}>
                 {e.rank}
               </div>
               <div className="flex-1 min-w-0">
@@ -235,7 +235,7 @@ export default function LandingPage() {
         </h2>
         <Link
           href="/auth/signup"
-          className="mt-8 inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-medium transition-transform hover:scale-105"
+          className="mt-8 inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-medium transition-transform hover:scale-105 active:scale-95"
         >
           Start For Free <ArrowRight className="h-5 w-5" />
         </Link>
@@ -250,7 +250,7 @@ export default function LandingPage() {
             <Sparkles className="h-3.5 w-3.5" /> Fond
           </span>
         </div>
-        <Link href="/contact" className="text-muted-foreground hover:text-foreground transition-colors underline underline-offset-4 decoration-border">
+        <Link href="/contact" className="text-muted-foreground hover:text-foreground active:text-foreground transition-colors underline underline-offset-4 decoration-border">
           Meet the Creators
         </Link>
       </footer>

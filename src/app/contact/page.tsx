@@ -42,20 +42,20 @@ export default function ContactPage() {
   ];
 
   return (
-    <div className="relative min-h-screen w-full flex flex-col pb-12">
+    <div className="relative min-h-dvh w-full flex flex-col pb-12">
 
       {/* Nav */}
       <header className="relative z-10 mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-5">
-        <Link href="/" className="font-display text-lg italic text-gold flex items-center gap-2 hover:opacity-80 transition-opacity">
+        <Link href="/" className="font-display text-lg italic text-gold flex items-center gap-2 hover:opacity-80 active:opacity-70 transition-opacity">
           <Sparkles className="h-4 w-4" /> Fond
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />
           <button
             onClick={() => router.back()}
-            className="rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors flex items-center gap-2"
+            className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors flex items-center gap-2 touch-target"
           >
-            <ArrowLeft className="h-3 w-3" /> Back
+            <ArrowLeft className="h-3.5 w-3.5" /> Back
           </button>
         </div>
       </header>
@@ -75,7 +75,7 @@ export default function ContactPage() {
           {developers.map((dev, i) => (
             <div 
               key={i} 
-              className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 transition-all hover:border-gold/30 hover:shadow-glow"
+              className="group relative overflow-hidden rounded-3xl border border-border bg-card p-8 transition-all hover:border-gold/30 hover:shadow-glow active:border-gold/40 active:shadow-glow"
             >
               {/* Decorative gradient orb */}
               <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-primary/10 blur-3xl transition-all group-hover:bg-primary/20" />
@@ -90,7 +90,7 @@ export default function ContactPage() {
                       href={dev.instagram}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-4 text-muted-foreground hover:text-primary transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                      className="flex items-center gap-4 text-muted-foreground hover:text-primary active:text-primary/80 transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated active:bg-elevated/80"
                     >
                       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
                         <InstagramIcon className="h-4 w-4" />
@@ -103,7 +103,7 @@ export default function ContactPage() {
                     href={dev.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-4 text-muted-foreground hover:text-[#0a66c2] transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                    className="flex items-center gap-4 text-muted-foreground hover:text-[#0a66c2] active:text-[#0a66c2] transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated active:bg-elevated/80"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
                       <LinkedinIcon className="h-4 w-4" />
@@ -113,7 +113,7 @@ export default function ContactPage() {
 
                   <a 
                     href={dev.email}
-                    className="flex items-center gap-4 text-muted-foreground hover:text-gold transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated"
+                    className="flex items-center gap-4 text-muted-foreground hover:text-gold active:text-gold/80 transition-colors p-3 -mx-3 rounded-xl hover:bg-elevated active:bg-elevated/80"
                   >
                     <div className="flex h-10 w-10 items-center justify-center rounded-full bg-elevated border border-border">
                       <Mail className="h-4 w-4" />

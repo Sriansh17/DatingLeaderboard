@@ -11,7 +11,7 @@ export function Footer() {
             <span>Fond — Your Relationship Has a Score</span>
           </div>
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <Link href="/contact" className="hover:text-primary transition-colors flex items-center gap-1">
+            <Link href="/contact" className="hover:text-primary transition-colors active:text-primary/80 flex items-center gap-1">
               <Mail className="h-3.5 w-3.5" />
               Contact
             </Link>

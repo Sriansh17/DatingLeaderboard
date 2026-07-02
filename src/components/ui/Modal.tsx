@@ -24,11 +24,21 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   useEffect(() => {
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
+      // iOS Safari scroll-lock: need position:fixed + scrollY hack
+      const scrollY = window.scrollY;
       document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
     }
     return () => {
       document.removeEventListener('keydown', handleEsc);
+      const scrollY = parseInt(document.body.style.top || '0', 10) * -1;
       document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) window.scrollTo(0, scrollY);
     };
   }, [isOpen, handleEsc]);
 
@@ -58,7 +68,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
               {title && <h2 className="text-2xl font-display italic font-bold text-foreground">{title}</h2>}
               <button
                 onClick={onClose}
-                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors border border-border"
+                className="p-2 rounded-full text-muted-foreground hover:text-foreground hover:bg-secondary active:text-foreground active:bg-secondary/80 transition-colors border border-border"
               >
                 <X className="h-5 w-5" />
               </button>

@@ -32,7 +32,7 @@ export function LeaderboardTabs({ activeTab, onTabChange, className }: Leaderboa
             'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex-1 justify-center',
             activeTab === tab.id
               ? 'bg-surface text-primary dark:text-primary shadow-sm'
-              : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300'
+              : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300 active:text-gray-900 dark:active:text-gray-100'
           )}
         >
           {tab.icon}

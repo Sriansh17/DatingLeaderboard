@@ -312,7 +312,7 @@ function FondRatingTemplate({content}:TP){const s=content.score||0;const t=tier(
 // ═══════════════════════════════════════════════════════════════
 function AvatarOrb({url,name,size,color,border}:{url?:string|null;name:string;size:string;color:string;border:string}){return(
 <div className={`${size} rounded-full overflow-hidden flex items-center justify-center font-display text-7xl text-white/80 shrink-0`} style={{border,borderColor:`${color}30`,background:`radial-gradient(circle at 40% 35%,${color}15,transparent 70%)`,boxShadow:`0 0 80px -30px ${color}20`}}>
-  {url?<img src={url} alt={name} className="w-full h-full object-cover"/>:<span>{(name.replace('@','')||'U')[0].toUpperCase()}</span>}
+  {url?<img src={url} alt={name} loading="lazy" className="w-full h-full object-cover"/>:<span>{(name.replace('@','')||'U')[0].toUpperCase()}</span>}
 </div>)}
 
 function MembershipTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
@@ -352,7 +352,7 @@ function PlayerStatsTemplate({content}:TP){const s=content.score||0;const t=tier
     <div className="flex-1 flex flex-col justify-center">
       {/* Player header */}
       <div className="flex items-center gap-6 mb-12">
-        <div className="w-24 h-24 rounded-full border border-white/[0.06] bg-white/[0.02] flex items-center justify-center font-display text-4xl text-white/70 overflow-hidden">{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace('@','')||'U')[0].toUpperCase()}</span>}</div>
+        <div className="w-24 h-24 rounded-full border border-white/[0.06] bg-white/[0.02] flex items-center justify-center font-display text-4xl text-white/70 overflow-hidden">{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span>{(content.username.replace('@','')||'U')[0].toUpperCase()}</span>}</div>
         <div><h2 className="font-display italic text-3xl text-white/90">@{content.username.replace('@','')}</h2><p className="text-white/30 text-sm mt-1">{t.name} · {content.city||'Unlisted'}</p></div>
       </div>
       {/* Stat bars */}
@@ -377,7 +377,7 @@ function ProfileCardTemplate({content}:TP){const s=content.score||0;const t=tier
   <div className="relative z-10 flex flex-col h-full px-14">
     <div className="pt-14 flex items-center justify-center"><div className="flex items-center gap-2 px-5 py-2 rounded-full bg-white/[0.03] border border-white/[0.06]"><Sparkles className="h-3.5 w-3.5 text-gold"/><span className="text-[10px] uppercase tracking-[0.25em] font-bold text-gold/80">Fond Member</span></div></div>
     <div className="flex-1 flex flex-col items-center justify-center">
-      <div className="w-44 h-44 rounded-full border-2 flex items-center justify-center mb-8 font-display text-6xl text-white/80 overflow-hidden" style={{borderColor:`${t.color}30`,background:`radial-gradient(circle at 40% 35%,${t.color}15,transparent 70%)`,boxShadow:`0 0 60px -15px ${t.color}30`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
+      <div className="w-44 h-44 rounded-full border-2 flex items-center justify-center mb-8 font-display text-6xl text-white/80 overflow-hidden" style={{borderColor:`${t.color}30`,background:`radial-gradient(circle at 40% 35%,${t.color}15,transparent 70%)`,boxShadow:`0 0 60px -15px ${t.color}30`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
       <h2 className="font-display italic text-3xl text-white/90 mb-1">@{content.username.replace('@','')}</h2>
       <div className="flex items-center gap-2 mt-2 mb-8"><span className="text-white/50 text-sm font-medium">{t.name}</span></div>
       <div className="grid grid-cols-2 gap-3 w-full max-w-[320px]">
@@ -402,7 +402,7 @@ function ProfilePageTemplate({content}:TP){const s=content.score||0;const t=tier
   <div className="relative z-10 flex flex-col items-center justify-center h-full px-16 py-16 text-center">
 
     {/* Avatar — large centered circle */}
-    <div className="w-52 h-52 rounded-full border-[3px] border-border flex items-center justify-center font-display text-7xl text-muted-foreground mb-6 overflow-hidden" style={{boxShadow:`0 0 80px -20px ${t.color}20`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
+    <div className="w-52 h-52 rounded-full border-[3px] border-border flex items-center justify-center font-display text-7xl text-muted-foreground mb-6 overflow-hidden" style={{boxShadow:`0 0 80px -20px ${t.color}20`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
 
     {/* Username */}
     <h2 className="font-display italic text-[3rem] text-foreground leading-tight">@{content.username.replace('@','')}</h2>
@@ -480,7 +480,7 @@ function LeaderboardCardTemplate({content}:TP){const r=content.rank||1;const s=c
           <span className="text-white text-[9px] font-bold">{(content.partnerName||'P')[0].toUpperCase()}</span>
         </div>
         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
-          {content.avatarUrl?<img src={content.avatarUrl} alt={content.username} className="w-full h-full object-cover"/>:<span className="text-white text-[9px] font-bold">{init}</span>}
+          {content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span className="text-white text-[9px] font-bold">{init}</span>}
         </div>
       </div>
       {/* Names */}

@@ -14,7 +14,7 @@ export function ProfileStats({
   bestScore,
 }: ProfileStatsProps) {
   return (
-    <div className="grid grid-cols-3 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
       <div className="p-4 rounded-xl bg-surface border border-border text-center">
         <p className="text-2xl font-bold text-primary">{postCount}</p>
         <p className="text-xs text-gray-500 mt-1">Posts</p>

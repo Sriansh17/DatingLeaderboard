@@ -132,7 +132,7 @@ export function ConnectButton({ targetUserId, initialStatus, requestId, onStatus
       <button
         onClick={removeConnection}
         disabled={loading}
-        className="text-[10px] text-muted-foreground hover:text-destructive underline transition-colors"
+        className="text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 underline transition-colors"
       >
         Remove
       </button>

@@ -25,7 +25,7 @@ export function ConfessionsFeed() {
   });
 
   return (
-    <main className="w-full min-h-screen bg-transparent">
+    <main className="w-full min-h-dvh bg-transparent">
       {/* Anonymous mode header bar */}
       <div className="overflow-hidden border-b border-border/50 bg-primary/5 backdrop-blur-md py-3">
         <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary">
@@ -33,9 +33,9 @@ export function ConfessionsFeed() {
           <span>Anonymous Mode — Your identity is hidden</span>
           <button
             onClick={toggleAnonymousMode}
-            className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[9px] font-bold text-primary hover:bg-primary/20 transition-colors inline-flex items-center gap-1"
+            className="rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[11px] font-bold text-primary hover:bg-primary/20 active:bg-primary/30 transition-colors inline-flex items-center gap-1 touch-target"
           >
-            <EyeOff className="h-3 w-3" />
+            <EyeOff className="h-3.5 w-3.5" />
             Exit
           </button>
         </div>
@@ -54,7 +54,7 @@ export function ConfessionsFeed() {
         </header>
 
         {isError ? (
-          <div className="text-center py-32 rounded-3xl border border-destructive/20 bg-destructive/5 backdrop-blur-xl">
+          <div className="text-center py-16 sm:py-32 rounded-3xl border border-destructive/20 bg-destructive/5 backdrop-blur-xl">
             <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
               <Lock className="h-8 w-8 text-destructive/60" />
             </div>
@@ -83,7 +83,7 @@ export function ConfessionsFeed() {
             </p>
             <Link
               href="/confessions/new"
-              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] active:scale-[0.98] px-6 py-3"
             >
               Write your confession
             </Link>

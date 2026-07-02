@@ -171,7 +171,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className="w-full min-h-screen bg-transparent">
+    <main className="w-full min-h-dvh bg-transparent">
       {/* Ticker at the very top */}
       <div className="overflow-hidden border-b border-border/50 bg-background/40 backdrop-blur-md py-3">
         <div className="flex w-max gap-12 whitespace-nowrap animate-marquee text-[10px] uppercase tracking-[0.2em] font-bold text-foreground/70">
@@ -198,23 +198,23 @@ export default function DashboardPage() {
               {/* Golden scope pill — always clickable */}
               <button
                 onClick={() => setFeedTab((prev: string) => prev === 'global' ? 'circles' : 'global')}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full transition-colors ${
+                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full transition-colors touch-target ${
                   hasCircles
-                    ? 'bg-gold/10 border border-gold/20 text-gold hover:bg-gold/15'
+                    ? 'bg-gold/10 border border-gold/20 text-gold hover:bg-gold/15 active:bg-gold/20'
                     : 'bg-gold/5 border border-gold/10 text-gold/60'
                 }`}
               >
                 {feedTab === 'global' ? (
-                  <Globe className="h-3 w-3" />
+                  <Globe className="h-3.5 w-3.5" />
                 ) : (
-                  <Users className="h-3 w-3" />
+                  <Users className="h-3.5 w-3.5" />
                 )}
-                <span className="text-[9px] font-bold uppercase tracking-wider">
+                <span className="text-[10px] font-bold uppercase tracking-wider">
                   {feedTab === 'global' ? 'Global' : 'Circles'}
                 </span>
               </button>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <PageBell />
               <AnonymousToggle />
               <InstallAppButton />
@@ -324,7 +324,7 @@ export default function DashboardPage() {
             <Spinner size="lg" text={["SYNCING TIMELINE...", "INITIALIZING FOND...", "LOADING ARCHIVES..."]} />
           </div>
         ) : !posts || posts.length === 0 ? (
-          <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
+          <div className="text-center py-16 sm:py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
             <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
             <h3 className="text-3xl font-display italic text-foreground mb-4">
               The board is bare.
@@ -334,7 +334,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/posts/new"
-              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               Claim your first verdict
             </Link>
@@ -348,12 +348,12 @@ export default function DashboardPage() {
                 <div>
                   <div className="flex items-center gap-2 mb-4">
                     <Sparkles className="h-3 w-3 text-primary" />
-                    <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-primary">Daily Prompt</span>
+                    <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-primary">Daily Prompt</span>
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">{dailyPrompt}</p>
                 </div>
-                <Link href="/posts/new" className="inline-flex w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-border bg-primary/5 dark:bg-white/5 px-4 py-2 text-[9px] font-bold uppercase tracking-[0.2em] text-primary dark:text-foreground transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20">
-                  Answer Now <TrendingUp className="w-2.5 h-2.5 text-primary" />
+                <Link href="/posts/new" className="inline-flex w-full sm:w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-border bg-primary/5 dark:bg-white/5 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-primary dark:text-foreground transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20 active:bg-primary/15 dark:active:bg-white/15 dark:active:border-white/30 touch-target">
+                  Answer Now <TrendingUp className="w-3 h-3 text-primary" />
                 </Link>
               </div>
 
@@ -368,7 +368,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-3 w-3 text-primary" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-primary">Insight</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-primary">Insight</span>
                       </div>
                     </div>
                     <p className="font-display text-lg md:text-xl italic text-foreground/90 leading-snug font-light">
@@ -383,7 +383,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-red-500">System Warning</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-red-500">System Warning</span>
                       </div>
                     </div>
                     <div>
@@ -416,7 +416,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <Sparkles className="h-3 w-3 text-fuchsia-500 dark:text-fuchsia-400" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-medium text-fuchsia-500 dark:text-fuchsia-400">AI Oracle</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-fuchsia-500 dark:text-fuchsia-400">AI Oracle</span>
                       </div>
                     </div>
                     <div className="relative mt-auto">
@@ -442,12 +442,12 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <TrendingUp className="h-3 w-3 text-blue-500 dark:text-blue-400" />
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-blue-500 dark:text-blue-400">Head-to-Head</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-blue-500 dark:text-blue-400">Head-to-Head</span>
                       </div>
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-muted-foreground mb-1.5">
+                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
                           <span>Your Average Score</span>
                           <span className="text-blue-500 dark:text-blue-400 font-bold">{userScore !== '0' ? userScore : '--'}</span>
                         </div>
@@ -456,7 +456,7 @@ export default function DashboardPage() {
                         </div>
                       </div>
                       <div>
-                        <div className="flex justify-between text-[9px] uppercase tracking-widest text-muted-foreground mb-1.5">
+                        <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
                           <span>Global Top 10 Average</span>
                           <span>{globalAverage}</span>
                         </div>
@@ -472,7 +472,7 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span className="text-amber-500 dark:text-amber-400 text-[10px]">⛅</span>
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-amber-500 dark:text-amber-400">Forecast</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-amber-500 dark:text-amber-400">Forecast</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-auto">
@@ -493,7 +493,7 @@ export default function DashboardPage() {
                             return trend > 5 ? 'Strong upward trend' : trend > 0 ? 'Steady improvement' : trend > -5 ? 'Minor dip detected' : 'Sharp decline — act now';
                           })()}
                         </p>
-                        <p className="text-[9px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
                           {posts?.filter(p => p.ai_score).length || 0} scored posts analyzed
                         </p>
                       </div>
@@ -508,7 +508,7 @@ export default function DashboardPage() {
                           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
                           <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
                         </span>
-                        <span className="tracking-[0.2em] uppercase text-[9px] font-bold text-red-500">LIVE</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-red-500">LIVE</span>
                       </div>
                     </div>
                     <p className="font-display text-base md:text-lg italic text-foreground/90 leading-snug font-light">
@@ -522,15 +522,15 @@ export default function DashboardPage() {
                     <div className="flex items-center gap-4 mt-4 pt-3 border-t border-border">
                       <div className="text-center">
                         <div className="font-score text-lg text-foreground">{posts?.length || 0}</div>
-                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Posts</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Posts</div>
                       </div>
                       <div className="text-center">
                         <div className="font-score text-lg text-gold">{globalEntries?.length || 0}</div>
-                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Ranked</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Ranked</div>
                       </div>
                       <div className="text-center">
                         <div className="font-score text-lg text-primary">{globalAverage}</div>
-                        <div className="text-[8px] uppercase tracking-widest text-muted-foreground">Avg Score</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Avg Score</div>
                       </div>
                     </div>
                   </div>
@@ -552,21 +552,21 @@ export default function DashboardPage() {
                 <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518599904199-0ca897819ddb?q=80&w=600&auto=format&fit=crop')] bg-cover bg-center opacity-40 dark:opacity-30 group-hover:opacity-50 transition-opacity duration-700" />
                 <div className="absolute inset-0 bg-gradient-to-t from-card via-card/80 dark:from-background dark:via-background/80 to-transparent" />
 
-                <div className="absolute top-4 right-4 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 transition-all duration-300 z-20">
-                  <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[9px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full flex items-center gap-1 shadow-xl">
-                    View <ArrowRight className="w-3 h-3" />
+                <div className="absolute top-4 right-4 translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-100 group-focus-within:translate-x-0 group-focus-within:opacity-100 transition-all duration-300 z-20">
+                  <span className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2 rounded-full flex items-center gap-1 shadow-xl touch-target">
+                    View <ArrowRight className="w-3.5 h-3.5" />
                   </span>
                 </div>
 
                 <div className="relative z-10 w-full">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="tracking-[0.3em] uppercase text-[8px] font-bold text-amber-600 dark:text-gold drop-shadow-md">The Spotlight</span>
+                    <span className="tracking-[0.3em] uppercase text-[10px] font-bold text-amber-600 dark:text-gold drop-shadow-md">The Spotlight</span>
                     <Trophy className="h-3 w-3 text-amber-600 dark:text-gold drop-shadow-md" />
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
-                      <p className="font-display text-3xl text-black dark:text-foreground font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
-                      <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 drop-shadow-sm dark:drop-shadow-md">
+                      <p className="font-display text-3xl text-black dark:text-foreground font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] group-focus-within:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 drop-shadow-sm dark:drop-shadow-md">
                         {topScorer ? `Secured ${topScorer.average_score} Points` : 'Taking the Lead'}
                       </p>
                     </div>
@@ -637,7 +637,7 @@ export default function DashboardPage() {
                   </p>
                   <Link
                     href="/circles"
-                    className="inline-flex items-center gap-2 mt-6 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90 transition-all uppercase tracking-wider"
+                    className="inline-flex items-center gap-2 mt-6 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all uppercase tracking-wider"
                   >
                     Manage Bonds
                   </Link>
@@ -695,14 +695,14 @@ function AnonymousToggle() {
   return (
     <button
       onClick={toggleAnonymousMode}
-      className={`rounded-full border px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest backdrop-blur transition-colors inline-flex items-center gap-1.5 ${
+      className={`rounded-full border px-4 py-2 text-xs font-bold uppercase backdrop-blur transition-colors inline-flex items-center gap-1.5 touch-target flex-shrink-0 whitespace-nowrap ${
         isAnonymousMode
           ? 'border-primary/30 bg-primary/10 text-primary'
-          : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/60'
+          : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/60 active:text-foreground active:bg-elevated/80'
       }`}
     >
       {isAnonymousMode ? (
-        <><Lock className="h-3 w-3" /> Anonymous</>
+        <><Lock className="h-3.5 w-3.5" /> Anonymous</>
       ) : (
         <><EyeOff className="h-3.5 w-3.5" /> Anonymous</>
       )}

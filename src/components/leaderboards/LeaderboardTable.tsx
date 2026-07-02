@@ -35,7 +35,7 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
       {entries.map((entry) => (
         <div
           key={entry.user_id}
-          className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-border hover:shadow-md transition-shadow"
+          className="flex items-center gap-4 p-4 rounded-xl bg-surface border border-border hover:shadow-md active:shadow-md transition-shadow"
         >
           {/* Rank */}
           <div className="w-10 text-center">
@@ -47,14 +47,14 @@ export function LeaderboardTable({ entries, loading, emptyMessage = 'No entries 
             {entry.top_partner_avatar ? (
               <Avatar src={entry.top_partner_avatar} alt={entry.top_partner_name} size="md" />
             ) : (
-              <span className="text-2xl group-hover:scale-110 transition-transform">{entry.top_partner_emoji}</span>
+              <span className="text-2xl group-hover:scale-110 group-focus-within:scale-110 transition-transform">{entry.top_partner_emoji}</span>
             )}
             <div className="min-w-0">
-              <p className="font-semibold text-foreground truncate group-hover:text-primary transition-colors">
+              <p className="font-semibold text-foreground truncate group-hover:text-primary group-focus-within:text-primary transition-colors">
                 {entry.top_partner_name}
               </p>
               <p className="text-xs text-muted-foreground truncate">
-                by <span className="hover:text-primary transition-colors">{entry.full_name || entry.username}</span>
+                by <span className="hover:text-primary active:text-primary/80 transition-colors">{entry.full_name || entry.username}</span>
               </p>
             </div>
           </Link>

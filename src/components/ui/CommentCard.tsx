@@ -272,16 +272,16 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
         {/* Row 1: Avatar + name + time + more */}
         <div className="flex items-start justify-between gap-2 mb-2">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-elevated border border-border flex items-center justify-center text-[9px] font-bold text-muted-foreground">
+            <div className="w-8 h-8 rounded-full shrink-0 overflow-hidden bg-elevated border border-border flex items-center justify-center text-[10px] font-bold text-muted-foreground">
               {(comment.profile as any)?.avatar_url ? (
-                <img src={(comment.profile as any).avatar_url} alt="" className="w-full h-full object-cover" />
+                <img src={(comment.profile as any).avatar_url} alt="" loading="lazy" className="w-full h-full object-cover" />
               ) : (
                 (comment.profile?.username?.[0] || 'U').toUpperCase()
               )}
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <Link href={`/users/${comment.user_id}`} className="text-sm font-semibold text-foreground hover:text-primary transition-colors" onClick={() => onClose?.()}>
+                <Link href={`/users/${comment.user_id}`} className="text-sm font-semibold text-foreground hover:text-primary active:text-primary/80 transition-colors" onClick={() => onClose?.()}>
                   @{comment.profile?.username || 'unknown'}
                 </Link>
                 <span className="text-[10px] text-muted-foreground/40">{formatRelativeTime(comment.created_at)}</span>
@@ -291,7 +291,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
 
           {/* More actions */}
           <div className="relative shrink-0">
-            <button onClick={() => setShowActions(!showActions)} className="p-1 rounded-lg text-muted-foreground/30 hover:text-muted-foreground hover:bg-elevated transition-colors">
+            <button onClick={() => setShowActions(!showActions)} className="p-2.5 rounded-lg touch-target text-muted-foreground/30 hover:text-muted-foreground hover:bg-elevated active:text-muted-foreground active:bg-elevated/80 transition-colors">
               <MoreHorizontal className="h-4 w-4" />
             </button>
             {showActions && (
@@ -300,15 +300,15 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
                 <div className="absolute right-0 top-full mt-1 z-50 min-w-[120px] rounded-xl border border-border bg-popover shadow-lg py-1 overflow-hidden">
                   {isOwner ? (
                     <>
-                      <button onClick={() => { setShowEdit(!showEdit); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors">
+                      <button onClick={() => { setShowEdit(!showEdit); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted active:bg-muted/80 transition-colors">
                         <Edit3 className="h-3 w-3" /> Edit
                       </button>
-                      <button onClick={handleDelete} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-destructive hover:bg-destructive/5 transition-colors">
+                      <button onClick={handleDelete} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-destructive hover:bg-destructive/5 active:bg-destructive/10 transition-colors">
                         <Trash2 className="h-3 w-3" /> Delete
                       </button>
                     </>
                   ) : (
-                    <button onClick={() => { addToast('Comment reported', 'info'); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted transition-colors">
+                    <button onClick={() => { addToast('Comment reported', 'info'); setShowActions(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-foreground hover:bg-muted active:bg-muted/80 transition-colors">
                       <Flag className="h-3 w-3" /> Report
                     </button>
                   )}
@@ -321,7 +321,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
         {/* Row 2: Comment body */}
         {showEdit ? (
           <div className="mb-2 ml-10">
-            <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm text-foreground outline-none focus:border-primary/40 transition-colors resize-none" rows={2} />
+            <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full rounded-xl border border-border bg-muted/30 px-3 py-2 text-base text-foreground outline-none focus:border-primary/40 transition-colors resize-none" rows={2} />
             <div className="flex gap-2 mt-2">
               <button onClick={submitEdit} disabled={saving || !editText.trim()} className="px-3 py-1 rounded-full glass-btn text-xs font-semibold disabled:opacity-40">Save</button>
               <button onClick={() => setShowEdit(false)} className="px-3 py-1 rounded-full border border-border text-xs text-muted-foreground">Cancel</button>
@@ -335,11 +335,11 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
         <div className="flex items-center gap-3 ml-10">
           {/* Vote */}
           <div className="flex items-center gap-0.5 border border-border/40 rounded-full px-1.5 py-0.5">
-            <button onClick={() => handleVote('up')} className={`p-0.5 rounded transition-colors ${voted === 'up' ? 'text-primary' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}>
+            <button onClick={() => handleVote('up')} className={`p-1.5 rounded touch-target transition-colors ${voted === 'up' ? 'text-primary' : 'text-muted-foreground/30 hover:text-muted-foreground active:text-muted-foreground'}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill={voted === 'up' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5m0 0l-7 7m7-7l7 7"/></svg>
             </button>
             <span className={`text-[10px] font-medium min-w-[16px] text-center tabular-nums ${voted === 'up' ? 'text-primary' : 'text-muted-foreground/50'}`}>{votes}</span>
-            <button onClick={() => handleVote('down')} className={`p-0.5 rounded transition-colors ${voted === 'down' ? 'text-destructive' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}>
+            <button onClick={() => handleVote('down')} className={`p-1.5 rounded touch-target transition-colors ${voted === 'down' ? 'text-destructive' : 'text-muted-foreground/30 hover:text-muted-foreground active:text-muted-foreground'}`}>
               <svg width="11" height="11" viewBox="0 0 24 24" fill={voted === 'down' ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><path d="M12 5v14m0 0l7-7m-7 7l-7-7"/></svg>
             </button>
           </div>
@@ -350,14 +350,14 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
               <button
                 key={emoji}
                 onClick={() => addReaction(emoji)}
-                className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-xs hover:bg-muted transition-colors ${userReactions.has(emoji) ? 'bg-primary/10 border-primary/30' : 'bg-elevated/70 border-border/50'}`}
+                className={`inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full border text-xs hover:bg-muted active:bg-muted/80 transition-colors ${userReactions.has(emoji) ? 'bg-primary/10 border-primary/30' : 'bg-elevated/70 border-border/50'}`}
               >
                 <span className="text-[10px]">{emoji}</span>
-                <span className="text-muted-foreground/50 text-[9px] tabular-nums">{count}</span>
+                <span className="text-muted-foreground/50 text-[10px] tabular-nums">{count}</span>
               </button>
             ))}
             <div className="relative">
-              <button onClick={() => setShowReactions(!showReactions)} className="p-0.5 rounded text-muted-foreground/30 hover:text-muted-foreground hover:bg-elevated transition-colors">
+              <button onClick={() => setShowReactions(!showReactions)} className="p-0.5 rounded text-muted-foreground/30 hover:text-muted-foreground hover:bg-elevated active:text-muted-foreground active:bg-elevated/80 transition-colors">
                 <SmilePlus className="h-3.5 w-3.5" />
               </button>
               {showReactions && (
@@ -365,7 +365,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
                   <div className="fixed inset-0 z-40" onClick={() => setShowReactions(false)} />
                   <div className="absolute bottom-full left-0 mb-1 z-50 flex gap-1 rounded-full border border-border bg-popover shadow-lg px-2.5 py-1.5">
                     {REACTION_EMOJIS.map(e => (
-                      <button key={e} onClick={() => addReaction(e)} className="text-base hover:scale-125 transition-transform">{e}</button>
+                      <button key={e} onClick={() => addReaction(e)} className="text-base hover:scale-125 active:scale-110 transition-transform">{e}</button>
                     ))}
                   </div>
                 </>
@@ -374,7 +374,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
           </div>
 
           {/* Reply */}
-          <button onClick={() => { setShowReply(!showReply); setTimeout(() => replyInputRef.current?.focus(), 50); }} className="text-muted-foreground/50 hover:text-foreground transition-colors text-[11px] font-medium">
+          <button onClick={() => { setShowReply(!showReply); setTimeout(() => replyInputRef.current?.focus(), 50); }} className="text-muted-foreground/50 hover:text-foreground active:text-foreground transition-colors text-[11px] font-medium">
             Reply
           </button>
         </div>
@@ -405,7 +405,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
                   <button
                     key={u.id}
                     onClick={() => selectMention(u.username)}
-                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-muted transition-colors"
+                    className="w-full flex items-center gap-2 px-3 py-1.5 text-xs text-foreground hover:bg-muted active:bg-muted/80 transition-colors"
                   >
                     <div className="w-5 h-5 rounded-full bg-elevated border border-border flex items-center justify-center text-[7px] font-bold text-muted-foreground">
                       {u.username[0].toUpperCase()}
@@ -428,7 +428,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
           {!expandedReplies && allReplies.length > 1 && (
             <button
               onClick={() => setExpandedReplies(true)}
-              className="ml-10 mt-1 flex items-center gap-2 text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+              className="ml-10 mt-1 flex items-center gap-2 text-xs text-muted-foreground/60 hover:text-foreground active:text-foreground transition-colors"
             >
               <span className="flex items-center gap-1">
                 {allReplies.slice(0, 3).map((r, i) => (

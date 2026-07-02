@@ -14,7 +14,7 @@ export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const showDock = pathname !== '/' && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding');
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-dvh flex flex-col relative">
       <div className={`flex-1 w-full mx-auto ${showDock ? 'pb-28 md:pb-32' : ''}`}>
         {children}
       </div>

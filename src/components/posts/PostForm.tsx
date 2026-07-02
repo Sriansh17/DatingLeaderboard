@@ -127,8 +127,8 @@ export function PostForm({
         setShowBadgeReward(true);
       }
 
-      // Check if this is the user's first post (no `created_at` before this)
-      const isFirst = !result.post.created_at || true; // Assume first for ceremony
+      // Check if this is the user's first post
+      const isFirst = !result.post.created_at;
       setIsFirstPost(isFirst);
       setShowVerdictCard(false);
 
@@ -307,7 +307,7 @@ export function PostForm({
                 >
                   <button
                     onClick={() => { setShowWelcomeCeremony(false); setShowVerdictCard(true); }}
-                    className="relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md px-10 py-4 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/18 hover:shadow-[0_0_40px_-4px_rgba(199,169,107,0.35)]"
+                    className="relative overflow-hidden flex items-center justify-center gap-3 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-md px-10 py-4 text-sm font-bold text-gold shadow-[0_0_28px_-4px_rgba(199,169,107,0.2)] transition-all hover:scale-[1.02] hover:bg-gold/18 hover:shadow-[0_0_40px_-4px_rgba(199,169,107,0.35)] active:scale-[0.98] active:bg-gold/25"
                   >
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent animate-shimmer pointer-events-none" />
                     <span className="relative z-10">See My Verdict</span>
@@ -362,14 +362,14 @@ export function PostForm({
                       city: '',
                       date: new Date().toLocaleDateString(),
                     })}
-                    className="flex-1 flex items-center justify-center gap-2.5 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-xl py-3.5 font-bold text-gold text-sm transition-all hover:bg-gold/20 hover:scale-[1.02]"
+                    className="flex-1 flex items-center justify-center gap-2.5 rounded-full border border-gold/30 bg-gold/10 backdrop-blur-xl py-3.5 font-bold text-gold text-sm transition-all hover:bg-gold/20 hover:scale-[1.02] active:bg-gold/25 active:scale-[0.98]"
                   >
                     <Share2 className="h-4 w-4" />
                     Share
                   </button>
                   <button
                     onClick={() => router.push('/leaderboards')}
-                    className="flex-1 flex items-center justify-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary py-3.5 font-bold text-sm transition-all hover:bg-primary/25 hover:scale-[1.02]"
+                    className="flex-1 flex items-center justify-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary py-3.5 font-bold text-sm transition-all hover:bg-primary/25 hover:scale-[1.02] active:bg-primary/35 active:scale-[0.98]"
                   >
                     My Rank ↑
                   </button>
@@ -377,7 +377,7 @@ export function PostForm({
                 {/* Secondary — subtle link */}
                 <button
                   onClick={() => router.push("/dashboard")}
-                  className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors underline underline-offset-2 decoration-dotted"
+                  className="text-xs text-muted-foreground/60 hover:text-foreground transition-colors active:text-foreground underline underline-offset-2 decoration-dotted"
                 >
                   Back to feed
                 </button>
@@ -408,7 +408,7 @@ export function PostForm({
             className={`px-4 py-1.5 rounded-full text-sm font-medium border transition-colors ${
               partnerId === p.id
                 ? 'border-blush bg-blush/10 text-blush'
-                : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+                : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground active:text-foreground'
             }`}
           >
             {p.emoji} {p.name}
@@ -434,7 +434,7 @@ export function PostForm({
           </div>
           <button
             onClick={shufflePrompt}
-            className="p-1.5 rounded-full hover:bg-gold/10 text-gold/60 hover:text-gold transition-colors shrink-0"
+            className="p-1.5 rounded-full hover:bg-gold/10 text-gold/60 hover:text-gold transition-colors active:bg-gold/15 active:text-gold shrink-0"
             aria-label="Shuffle prompt"
           >
             <Shuffle className="h-4 w-4" />
@@ -507,13 +507,13 @@ export function PostForm({
           className={`flex-1 flex items-center gap-3 rounded-2xl py-3 px-4 text-sm font-medium transition-all ${
             isPublic
               ? 'bg-primary/10 border border-primary/30 text-primary shadow-[0_0_12px_-2px_rgba(var(--primary),0.2)]'
-              : 'border border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+              : 'border border-border bg-elevated/40 text-muted-foreground hover:text-foreground active:text-foreground'
           }`}
         >
           <Globe className="h-4 w-4 shrink-0 self-center" />
           <div className="text-left">
             <div className="font-semibold text-xs">Public</div>
-            <div className="text-[9px] opacity-60">Appears on leaderboard</div>
+            <div className="text-[10px] opacity-60">Appears on leaderboard</div>
           </div>
         </button>
         <button
@@ -521,13 +521,13 @@ export function PostForm({
           className={`flex-1 flex items-center gap-3 rounded-2xl py-3 px-4 text-sm font-medium transition-all ${
             !isPublic
               ? 'bg-muted-foreground/10 border border-muted-foreground/30 text-muted-foreground'
-              : 'border border-border bg-elevated/40 text-muted-foreground hover:text-foreground'
+              : 'border border-border bg-elevated/40 text-muted-foreground hover:text-foreground active:text-foreground'
           }`}
         >
           <Lock className="h-4 w-4 shrink-0 self-center" />
           <div className="text-left">
             <div className="font-semibold text-xs">Private</div>
-            <div className="text-[9px] opacity-60">Just for you</div>
+            <div className="text-[10px] opacity-60">Just for you</div>
           </div>
         </button>
       </div>
@@ -551,7 +551,7 @@ export function PostForm({
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-[0.2em] text-[10px]"
+        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-[0.2em] text-[10px]"
       >
         {createPost.isPending ? 'Submitting...' : (
           <>
@@ -620,7 +620,7 @@ export function PostForm({
             {/* Stamped label */}
             <div className="flex items-center gap-2 px-4 pt-4 pb-2 border-b border-destructive/15">
               <div className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
-              <span className="text-[9px] font-black uppercase tracking-[0.25em] text-destructive">
+              <span className="text-[10px] font-black uppercase tracking-[0.25em] text-destructive">
                 Exhibit A — AI Detector
               </span>
             </div>
@@ -639,7 +639,7 @@ export function PostForm({
           >
             <button
               onClick={() => setShowFlaggedModal(false)}
-              className="w-full py-4 rounded-full bg-foreground/10 backdrop-blur-xl border border-foreground/20 text-foreground text-sm font-bold hover:bg-foreground/20 transition-all hover:scale-[1.02] shadow-lg"
+              className="w-full py-4 rounded-full bg-foreground/10 backdrop-blur-xl border border-foreground/20 text-foreground text-sm font-bold hover:bg-foreground/20 transition-all hover:scale-[1.02] shadow-lg active:bg-foreground/30 active:scale-[0.98]"
             >
               My bad, let me tell the truth
             </button>

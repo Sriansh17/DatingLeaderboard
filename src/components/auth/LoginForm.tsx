@@ -46,7 +46,8 @@ export function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm"
+            autoComplete="email"
+            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base"
           />
         </div>
         <div className="relative">
@@ -57,7 +58,8 @@ export function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-sm"
+            autoComplete="current-password"
+            className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base"
           />
         </div>
       </div>
@@ -74,7 +76,7 @@ export function LoginForm() {
             await supabase.auth.resetPasswordForEmail(email);
             addToast('Password reset link sent — check your inbox.', 'success');
           }}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors active:text-foreground"
         >
           Forgot password?
         </button>
@@ -83,7 +85,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={loading}
-        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
+        className="group mt-6 flex w-full items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]"
       >
         <span>{loading ? 'Signing in...' : 'Sign In'}</span>
         {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}

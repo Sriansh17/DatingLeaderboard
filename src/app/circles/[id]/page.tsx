@@ -188,7 +188,7 @@ export default function CircleDetailPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground">Sign in to view bonds.</p>
-        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 px-6 py-3 text-sm font-semibold mt-4 transition-all">
+        <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 active:bg-primary/35 px-6 py-3 text-sm font-semibold mt-4 transition-all">
           Sign In
         </Link>
       </div>
@@ -207,7 +207,7 @@ export default function CircleDetailPage() {
     return (
       <div className="max-w-2xl mx-auto px-4 py-20 text-center">
         <p className="text-muted-foreground mb-4">Bond not found.</p>
-        <Link href="/circles" className="text-primary hover:underline">Back to Bonds</Link>
+        <Link href="/circles" className="text-primary hover:underline active:underline">Back to Bonds</Link>
       </div>
     );
   }
@@ -220,7 +220,7 @@ export default function CircleDetailPage() {
 
       {/* Back + Header — aligned with design system */}
       <div className="flex items-start gap-4 mb-10">
-        <Link href="/circles" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated/40 hover:bg-elevated/60 px-3 py-1.5 text-xs text-foreground backdrop-blur transition-colors mt-1">
+        <Link href="/circles" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-elevated/40 hover:bg-elevated/60 active:bg-elevated px-4 py-2.5 text-xs text-foreground backdrop-blur transition-colors mt-1 touch-target">
           <ArrowLeft className="h-3.5 w-3.5" /> Bonds
         </Link>
         <div className="flex-1">
@@ -252,7 +252,7 @@ export default function CircleDetailPage() {
             <button
               onClick={handleDelete}
               disabled={deleting}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-destructive/10 backdrop-blur-xl border border-destructive/20 text-sm text-destructive hover:bg-destructive/20 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-destructive/10 backdrop-blur-xl border border-destructive/20 text-sm text-destructive hover:bg-destructive/20 active:bg-destructive/30 transition-all touch-target"
             >
               <Trash2 className="h-4 w-4" />
               {deleting ? 'Deleting...' : 'Delete'}
@@ -261,7 +261,7 @@ export default function CircleDetailPage() {
             <button
               onClick={handleLeave}
               disabled={leaving}
-              className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-border/60 text-sm text-foreground hover:bg-white/20 dark:hover:bg-white/10 transition-all"
+              className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-border/60 text-sm text-foreground hover:bg-white/20 dark:hover:bg-white/10 active:bg-white/30 dark:active:bg-white/15 transition-all touch-target"
             >
               <LogOut className="h-4 w-4" />
               Leave
@@ -279,7 +279,7 @@ export default function CircleDetailPage() {
           </code>
           <button
             onClick={copyInviteLink}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/25 transition-all"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary text-sm font-semibold hover:bg-primary/25 active:bg-primary/35 transition-all touch-target"
           >
             {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
             {copied ? 'Copied!' : 'Copy'}
@@ -314,13 +314,13 @@ export default function CircleDetailPage() {
           <div className="flex items-center justify-center gap-3">
             <button
               onClick={() => handleInviteResponse('accept')}
-              className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 px-6 py-2.5 text-sm font-semibold transition-all"
+              className="inline-flex items-center gap-2 rounded-full bg-primary/15 backdrop-blur-xl border border-primary/25 text-primary hover:bg-primary/25 active:bg-primary/35 px-6 py-3 text-sm font-semibold transition-all touch-target"
             >
               <UserCheck className="h-4 w-4" /> Accept Invite
             </button>
             <button
               onClick={() => handleInviteResponse('reject')}
-              className="inline-flex items-center gap-2 rounded-full bg-transparent backdrop-blur-xl border border-border text-muted-foreground hover:text-destructive hover:border-destructive/50 px-6 py-2.5 text-sm transition-all"
+              className="inline-flex items-center gap-2 rounded-full bg-transparent backdrop-blur-xl border border-border text-muted-foreground hover:text-destructive hover:border-destructive/50 active:text-destructive/80 active:border-destructive/60 px-6 py-3 text-sm transition-all touch-target"
             >
               <X className="h-4 w-4" /> Decline
             </button>
@@ -350,10 +350,10 @@ export default function CircleDetailPage() {
                   {isCreator && member.role !== 'creator' && member.user_id !== user.id && (
                     <button
                       onClick={() => handleKick(member.user_id, (member.profile as any)?.username || 'unknown')}
-                      className="p-0.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      className="p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive active:bg-destructive/15 active:text-destructive transition-colors"
                       title="Remove member"
                     >
-                      <UserMinus className="h-3 w-3" />
+                      <UserMinus className="h-3.5 w-3.5" />
                     </button>
                   )}
                 </div>
@@ -376,7 +376,7 @@ export default function CircleDetailPage() {
                     <div className="w-6 h-6 rounded-full glass-2 flex items-center justify-center text-[10px] font-bold text-white opacity-60">
                       {(member.profile as any)?.username?.[0]?.toUpperCase() || '?'}
                     </div>
-                    <Link href={`/users/${member.user_id}`} className="hover:text-foreground transition-colors">
+                    <Link href={`/users/${member.user_id}`} className="hover:text-foreground active:text-foreground transition-colors">
                       @{(member.profile as any)?.username || 'unknown'}
                     </Link>
                     <span className="text-[10px] text-muted-foreground/60 italic">invited</span>
@@ -392,10 +392,10 @@ export default function CircleDetailPage() {
                           fetchCircle();
                         } catch { addToast('Failed to cancel', 'error'); }
                       }}
-                      className="p-0.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                      className="p-1.5 rounded-full hover:bg-destructive/10 text-muted-foreground hover:text-destructive active:bg-destructive/15 active:text-destructive transition-colors"
                       title="Cancel invite"
                     >
-                      <X className="h-3 w-3" />
+                      <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ))}
@@ -424,7 +424,7 @@ export default function CircleDetailPage() {
                       key={entry.user_id}
                       className={`flex items-center gap-4 px-6 py-4 ${
                         i > 0 ? 'border-t border-border' : ''
-                      } ${isMe ? 'bg-primary/5' : ''} ${entry.rank === 1 ? 'bg-gold/[0.03]' : ''} hover:bg-elevated transition-colors`}
+                      } ${isMe ? 'bg-primary/5' : ''} ${entry.rank === 1 ? 'bg-gold/[0.03]' : ''} hover:bg-elevated active:bg-elevated/80 transition-colors`}
                     >
                 {/* Rank */}
                 <div className="w-10 text-center shrink-0">
@@ -441,7 +441,7 @@ export default function CircleDetailPage() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <Link href={`/users/${entry.user_id}`} className="font-medium text-foreground text-sm truncate hover:text-primary transition-colors">
+                    <Link href={`/users/${entry.user_id}`} className="font-medium text-foreground text-sm truncate hover:text-primary active:text-primary/80 transition-colors">
                       @{entry.username}
                     </Link>
                     {entry.role === 'creator' && <Crown className="h-3 w-3 text-gold shrink-0" />}

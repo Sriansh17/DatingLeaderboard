@@ -278,7 +278,7 @@ export function ShareCard({ post, rank }: ShareCardProps) {
 
       <button
         onClick={handleShare}
-        className="flex items-center justify-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 transition-all"
+        className="flex items-center justify-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all"
       >
         <Sparkles className="h-4 w-4" />
         Share Score Card

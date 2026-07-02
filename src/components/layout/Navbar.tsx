@@ -31,25 +31,25 @@ export function Navbar() {
               <>
                 <Link
                   href="/dashboard"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors active:text-primary/80"
                 >
                   Dashboard
                 </Link>
                 <Link
                   href="/leaderboards"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors active:text-primary/80"
                 >
                   Leaderboards
                 </Link>
                 <Link
                   href="/posts/new"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors active:text-primary/80"
                 >
                   New Post
                 </Link>
                 <Link
                   href="/contact"
-                  className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                  className="text-sm text-muted-foreground hover:text-primary transition-colors active:text-primary/80"
                 >
                   <Mail className="h-4 w-4 inline mr-1" />
                   Contact
@@ -82,8 +82,10 @@ export function Navbar() {
           <div className="flex items-center gap-1">
             {user && <NotificationBell />}
             <button
-              className="md:hidden p-2 rounded-lg text-muted-foreground hover:bg-elevated"
+              className="md:hidden p-2.5 rounded-lg touch-target text-muted-foreground hover:bg-elevated active:bg-elevated/80"
               onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label={mobileOpen ? 'Close navigation' : 'Open navigation'}
+              aria-expanded={mobileOpen}
             >
               {mobileOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </button>
@@ -101,20 +103,20 @@ export function Navbar() {
         <div className="px-4 py-3 space-y-2 border-t border-border">
           {user ? (
             <>
-              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Dashboard</Link>
-              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
-              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>New Post</Link>
-              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Partners</Link>
-              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Contact</Link>
-              <Link href="/notifications" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Notifications</Link>
-              <Link href="/circles" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Bonds</Link>
-              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Profile</Link>
-              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10">Sign Out</button>
+              <Link href="/dashboard" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Dashboard</Link>
+              <Link href="/leaderboards" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Leaderboards</Link>
+              <Link href="/posts/new" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>New Post</Link>
+              <Link href="/partners" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Partners</Link>
+              <Link href="/contact" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Contact</Link>
+              <Link href="/notifications" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Notifications</Link>
+              <Link href="/circles" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Bonds</Link>
+              <Link href="/profile" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Profile</Link>
+              <button onClick={() => { signOut(); setMobileOpen(false); }} className="block w-full text-left px-3 py-2 rounded-lg text-sm text-destructive hover:bg-destructive/10 active:bg-destructive/15">Sign Out</button>
             </>
           ) : (
             <>
-              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated" onClick={() => setMobileOpen(false)}>Sign In</Link>
-              <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/15" onClick={() => setMobileOpen(false)}>Get Started</Link>
+              <Link href="/auth/login" className="block px-3 py-2 rounded-lg text-sm hover:bg-elevated active:bg-elevated/80" onClick={() => setMobileOpen(false)}>Sign In</Link>
+              <Link href="/auth/signup" className="block px-3 py-2 rounded-lg text-sm font-medium text-primary hover:bg-primary/10 dark:hover:bg-primary/15 active:bg-primary/15 dark:active:bg-primary/20" onClick={() => setMobileOpen(false)}>Get Started</Link>
             </>
           )}
         </div>

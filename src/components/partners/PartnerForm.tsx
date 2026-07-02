@@ -189,7 +189,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
         <div className="relative group">
           <div className="w-28 h-28 rounded-full overflow-hidden bg-black/40 border border-white/10 flex items-center justify-center transition-all group-hover:border-blush/50">
             {avatarPreview ? (
-              <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
+              <img src={avatarPreview} alt="Preview" loading="lazy" className="w-full h-full object-cover" />
             ) : (
               <span className="text-5xl">{emoji}</span>
             )}
@@ -197,7 +197,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-elevated border border-border text-foreground flex items-center justify-center hover:bg-card hover:text-blush transition-colors shadow-xl"
+            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-elevated border border-border text-foreground flex items-center justify-center hover:bg-card hover:text-blush active:bg-card/80 active:text-blush/80 transition-colors shadow-xl"
             title="Upload custom photo"
           >
             <Camera className="h-4 w-4" />
@@ -222,7 +222,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
                   className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all capitalize ${
                     gender === g
                       ? 'border-primary/50 bg-primary/10 text-primary shadow-glow'
-                      : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
+                      : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground active:bg-elevated/80 active:text-foreground'
                   }`}
                 >
                   {g}
@@ -266,7 +266,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
                 className={`px-5 py-2.5 rounded-full text-sm font-medium border transition-all ${
                   relationship === rel.value
                     ? 'border-blush/30 bg-blush/10 text-blush shadow-glow'
-                    : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground'
+                    : 'border-border bg-elevated/40 text-muted-foreground hover:bg-elevated hover:text-foreground active:bg-elevated/80 active:text-foreground'
                 }`}
               >
                 {rel.label}
@@ -290,7 +290,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
               className={`text-2xl h-10 w-10 rounded-full border flex items-center justify-center transition-all ${
                 emoji === e
                   ? 'border-blush/30 bg-blush/10 scale-110 shadow-glow'
-                  : 'border-border bg-elevated/40 hover:bg-elevated'
+                  : 'border-border bg-elevated/40 hover:bg-elevated active:bg-elevated/80'
               }`}
             >
               {e}
@@ -309,7 +309,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
             type="button"
             onClick={handleUpgrade}
             disabled={upgrading}
-            className="rounded-full bg-gold/90 hover:bg-gold px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+            className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
           >
             {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
           </button>
@@ -320,7 +320,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
         <button
           type="submit"
           disabled={loading || !name.trim()}
-          className="w-full flex items-center justify-center rounded-full glass-btn py-3.5 font-bold transition-transform enabled:hover:scale-[1.02] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+          className="w-full flex items-center justify-center rounded-full glass-btn py-3.5 font-bold transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
         >
           {partner ? 'Save Changes' : 'Add Partner 💖'}
         </button>

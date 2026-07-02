@@ -124,7 +124,7 @@ export function VerdictCard({
           <div
             className="font-score leading-none drop-shadow-[0_4px_12px_rgba(0,0,0,0.08)] dark:drop-shadow-none [text-shadow:none] dark:[text-shadow:0_0_15px_var(--glow-color)] relative z-10"
             style={{
-              fontSize: compact ? 80 : 112,
+              fontSize: compact ? 64 : 'clamp(4rem, 15vw, 7rem)',
               color,
               "--glow-color": `color-mix(in oklab, ${color} ${score >= 90 ? '35%' : '20%'}, transparent)`
             } as React.CSSProperties}

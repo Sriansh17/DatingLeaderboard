@@ -51,7 +51,7 @@ export function Sidebar() {
   return (
     <aside
       className={cn(
-        'hidden md:flex flex-col h-screen sticky top-0 self-start bg-gradient-to-b from-background via-primary/5 to-background border-r border-primary/15 dark:border-primary/15 transition-all duration-300 ease-in-out relative group/sidebar',
+        'hidden md:flex flex-col min-h-dvh sticky top-0 self-start bg-gradient-to-b from-background via-primary/5 to-background border-r border-primary/15 dark:border-primary/15 transition-all duration-300 ease-in-out relative group/sidebar',
         isCollapsed ? 'w-20' : 'w-64'
       )}
     >
@@ -64,7 +64,7 @@ export function Sidebar() {
         <button
           onClick={toggleCollapse}
           className={cn(
-            'absolute top-12 -right-3 z-50 w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-muted-foreground hover:text-primary shadow-md hover:scale-115 transition-all cursor-pointer',
+            'absolute top-12 -right-3 z-50 w-6 h-6 rounded-full bg-surface border border-border flex items-center justify-center text-muted-foreground hover:text-primary shadow-md hover:scale-115 active:text-primary/80 active:scale-105 transition-all cursor-pointer',
             'opacity-0 group-hover/sidebar:opacity-100 focus:opacity-100'
           )}
         >
@@ -111,7 +111,7 @@ export function Sidebar() {
                 'flex items-center rounded-2xl text-sm font-medium transition-all duration-300 relative group',
                 isActive
                   ? 'text-primary dark:text-primary'
-                  : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300',
+                  : 'text-muted-foreground hover:text-gray-700 dark:hover:text-gray-300 active:text-gray-900 dark:active:text-gray-100',
                 isCollapsed ? 'justify-center p-3' : 'px-4 py-2.5 gap-3'
               )}
             >
@@ -122,7 +122,7 @@ export function Sidebar() {
 
               {/* Hover glow */}
               {!isActive && (
-                <span className="absolute inset-0 rounded-2xl bg-gray-100/50 dark:bg-gray-800/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                <span className="absolute inset-0 rounded-2xl bg-gray-100/50 dark:bg-gray-800/30 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-200" />
               )}
 
               {/* Active indicator dot */}
