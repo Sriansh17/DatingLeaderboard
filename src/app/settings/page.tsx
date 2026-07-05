@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Avatar } from '@/components/ui/Avatar';
 import { useTheme } from '@/components/providers/ThemeProvider';
@@ -127,14 +126,14 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-8 relative">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-8 relative">
       {/* Fond rose glow */}
       <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-primary/[0.05] blur-3xl pointer-events-none" />
 
       {/* Back button */}
       <Link
         href="/profile"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
+        className="mb-6 inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Profile
@@ -145,7 +144,7 @@ export default function SettingsPage() {
         <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-2 flex items-center gap-2">
           <Settings className="h-3.5 w-3.5" /> Configuration
         </p>
-        <h1 className="font-display text-5xl italic text-foreground tracking-tight leading-none">
+        <h1 className="font-display text-5xl sm:text-6xl italic text-foreground tracking-tight leading-none">
           Settings
         </h1>
       </header>
@@ -181,32 +180,24 @@ export default function SettingsPage() {
           </div>
           <div className="space-y-2">
             {profile?.is_premium ? (
-              <Link href="/premium">
-                <Button variant="outline" className="w-full justify-start">
-                  <Crown className="h-4 w-4 text-gold" /> Manage Premium
-                </Button>
+              <Link href="/premium" className="flex items-center justify-start gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold w-full">
+                <Crown className="h-4 w-4 text-gold" /> Manage Premium
               </Link>
             ) : (
-              <Button
-                variant="primary"
-                className="w-full justify-start"
-                onClick={() => setShowPremiumModal(true)}
-              >
+              <button onClick={() => setShowPremiumModal(true)} className="flex items-center justify-start gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold w-full">
                 <Sparkles className="h-4 w-4" /> Unlock Premium
-              </Button>
+              </button>
             )}
-            <Button variant="danger" className="w-full justify-start" onClick={signOut}>
+            <button onClick={signOut} className="flex items-center justify-start gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold w-full">
               <LogOut className="h-4 w-4" />
               Sign Out
-            </Button>
+            </button>
           </div>
           {profile?.is_admin && (
             <div className="mt-3 pt-3 border-t border-border">
-              <Link href="/admin/notifications">
-                <Button variant="outline" className="w-full justify-start">
-                  <ShieldCheck className="h-4 w-4 text-gold" />
-                  Admin — Send Notifications
-                </Button>
+              <Link href="/admin/notifications" className="flex items-center justify-start gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold w-full">
+                <ShieldCheck className="h-4 w-4 text-gold" />
+                Admin — Send Notifications
               </Link>
             </div>
           )}
@@ -235,7 +226,7 @@ export default function SettingsPage() {
               <button
                 onClick={unsubscribeUser}
                 disabled={notifLoading}
-                className="flex items-center gap-1.5 rounded-full border border-border px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-elevated/60 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-full glass-btn px-4 py-2 text-xs font-semibold disabled:opacity-50"
               >
                 <BellOff className="h-3.5 w-3.5" />
                 {notifLoading ? 'Disabling…' : 'Disable'}
@@ -250,7 +241,7 @@ export default function SettingsPage() {
               <button
                 onClick={subscribeUser}
                 disabled={notifLoading}
-                className="flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="flex items-center gap-1.5 rounded-full glass-btn px-4 py-2 text-xs font-semibold disabled:opacity-50"
               >
                 <Bell className="h-3.5 w-3.5" />
                 {notifLoading ? 'Enabling…' : 'Enable'}
@@ -300,7 +291,12 @@ export default function SettingsPage() {
           <p className="text-sm text-muted-foreground leading-relaxed">
             The world&apos;s first relationship leaderboard. Post one story. AI judges it. Couples compete in your city — and on the planet.
           </p>
-          <p className="text-xs text-muted-foreground/60 mt-3">Version 1.0.0 · Made with ❤️</p>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">🍷 AI that roasts</span>
+            <span className="px-2.5 py-1 rounded-full bg-gold/10 text-gold text-[10px] font-semibold">🏆 12k+ couples</span>
+            <span className="px-2.5 py-1 rounded-full bg-primary/10 text-primary text-[10px] font-semibold">💅 Verdicts are final</span>
+          </div>
+          <p className="text-xs text-muted-foreground/60 mt-4">Version 1.0.0 · Made with ❤️</p>
         </div>
 
       </div>

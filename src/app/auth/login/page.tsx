@@ -55,7 +55,7 @@ export default function LoginPage() {
       <div className="absolute top-6 left-6 z-50">
         <Link
           href="/"
-          className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2 touch-target"
+          className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 touch-target"
         >
           <ArrowLeft className="h-3.5 w-3.5" /> Back
         </Link>

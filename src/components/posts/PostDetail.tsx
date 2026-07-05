@@ -243,7 +243,7 @@ export function PostDetail({ post }: PostDetailProps) {
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Write a comment..."
               maxLength={500}
-              className="flex-1 rounded-full border border-border bg-muted/30 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+              className="flex-1 rounded-full border border-border bg-muted/30 px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
             />
             <button
               type="submit"

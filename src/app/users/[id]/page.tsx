@@ -119,7 +119,7 @@ export default function UserProfilePage() {
       {/* Back button — Fond pill style */}
       <button
         onClick={() => router.back()}
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
+        className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back
@@ -251,7 +251,7 @@ export default function UserProfilePage() {
                   />
                   <button
                     onClick={() => setInviteOpen(true)}
-                    className="flex items-center justify-center gap-1.5 rounded-full px-5 py-2.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 transition-colors touch-target"
+                    className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold touch-target"
                   >
                     <Users className="h-3.5 w-3.5" />
                     Invite to Bond

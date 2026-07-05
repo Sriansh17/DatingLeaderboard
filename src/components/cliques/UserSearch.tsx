@@ -74,7 +74,7 @@ export function UserSearch({ onSelect, excludeIds }: UserSearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Find someone by name or username…"
-          className="w-full rounded-xl border border-border bg-muted/30 pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-colors"
+          className="w-full rounded-xl border border-border bg-muted/30 pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
           autoFocus
         />
       </div>

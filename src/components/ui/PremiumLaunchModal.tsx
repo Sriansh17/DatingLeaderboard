@@ -32,7 +32,7 @@ export function PremiumLaunchModal({ isOpen, onClose, source }: PremiumLaunchMod
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative mx-auto w-16 h-16"
           >
-            <div className="absolute inset-0 rounded-full bg-gold/10 animate-ping" style={{ animationDuration: '3s' }} />
+            <div className="absolute inset-0 rounded-full glass-btn-gold animate-ping" style={{ animationDuration: '3s' }} />
             <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-gold/20 to-gold/5 border border-gold/30 flex items-center justify-center shadow-[0_0_30px_-8px_rgba(199,169,107,0.3)]">
               <Crown className="h-7 w-7 text-gold" />
             </div>
@@ -87,7 +87,7 @@ export function PremiumLaunchModal({ isOpen, onClose, source }: PremiumLaunchMod
           >
             <button
               onClick={onClose}
-              className="group relative w-full overflow-hidden rounded-full bg-gradient-to-r from-gold/90 to-gold/70 px-6 py-3.5 text-sm font-bold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-6px_rgba(199,169,107,0.4)]"
+              className="group relative w-full overflow-hidden rounded-full glass-btn-gold px-6 py-3.5 text-sm font-bold text-black transition-all hover:scale-[1.02] hover:shadow-[0_0_30px_-6px_rgba(199,169,107,0.4)]"
             >
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-in-out" />
               <span className="relative z-10 flex items-center justify-center gap-2">

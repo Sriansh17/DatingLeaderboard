@@ -32,14 +32,14 @@ export default function UnlockPage() {
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <Link
               href={`/posts/new?first=1&next=${encodeURIComponent(nextPath)}`}
-              className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-glow transition-transform hover:scale-[1.02]"
+              className="inline-flex items-center justify-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-bold"
             >
               <PenLine className="h-4 w-4" /> Create First Post
             </Link>
 
             <Link
               href="/explore"
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-elevated/40 px-6 py-3 text-sm font-semibold text-foreground hover:bg-elevated/60 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold"
             >
               <Compass className="h-4 w-4" /> Explore Public Feed
             </Link>

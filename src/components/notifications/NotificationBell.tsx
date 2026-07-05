@@ -134,12 +134,12 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={openDropdown}
-        className="relative flex items-center justify-center h-11 w-11 rounded-full border border-border bg-card/80 backdrop-blur-xl shadow-sm hover:shadow-md hover:bg-card active:shadow-md active:bg-card/80 transition-all"
+        className="rounded-full border border-border bg-card/80 backdrop-blur text-muted-foreground hover:text-foreground hover:bg-card active:text-foreground transition-colors px-4 py-2"
         aria-label="Notifications"
       >
         <Bell className="h-5 w-5 text-primary" />
         {(unreadCount > 0 || incomingRequests.length > 0) && (
-          <span className="absolute -top-1 -right-1 h-4 min-w-[16px] flex items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white px-1 shadow-sm ring-2 ring-background">
+          <span className="rounded-full glass-btn px-4 py-2 font-bold">
             {unreadCount + incomingRequests.length > 9 ? '9+' : unreadCount + incomingRequests.length}
           </span>
         )}
@@ -158,7 +158,7 @@ export function NotificationBell() {
             <div className="flex items-center justify-between px-4 py-3 border-b border-border/80">
               <h3 className="font-display text-sm italic text-foreground">Notifications</h3>
               {unreadCount > 0 && (
-                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{unreadCount} new</span>
+                <span className="rounded-full glass-btn px-2 py-0.5 font-bold">{unreadCount} new</span>
               )}
             </div>
 
@@ -190,7 +190,7 @@ export function NotificationBell() {
                             </Link>
                             <div className="flex gap-0.5 shrink-0 ml-1">
                               <button onClick={() => respondToRequest(req.id, 'accepted')} className="p-2 rounded-full glass-btn touch-target"><Check className="h-4 w-4" /></button>
-                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full border border-border text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-4 w-4" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-4 w-4" /></button>
                             </div>
                           </div>
                         );
@@ -202,7 +202,7 @@ export function NotificationBell() {
                             <span className="text-xs text-muted-foreground min-w-0 flex-1 truncate">
                               @{receiver?.username || 'Someone'} <span className="text-warning">· sent</span>
                             </span>
-                            <button onClick={() => cancelRequest(req.id)} className="p-1 rounded-full border border-border/40 text-muted-foreground hover:text-destructive active:text-destructive/80 shrink-0 ml-1">
+                            <button onClick={() => cancelRequest(req.id)} className="p-1 rounded-full glass-btn text-muted-foreground hover:text-destructive shrink-0 ml-1">
                               <XCircle className="h-3 w-3" />
                             </button>
                           </div>
@@ -225,7 +225,7 @@ export function NotificationBell() {
               {/* Notifications list */}
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <div className="h-5 w-5 rounded-full border-2 border-border border-t-primary animate-spin" />
+                  <div className="rounded-full glass-btn px-4 py-2" />
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="text-center py-10 px-4">

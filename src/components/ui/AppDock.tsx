@@ -273,11 +273,11 @@ export function AppDock() {
 
       {/* ── Dock ── */}
       <div className={`fixed bottom-6 sm:bottom-8 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} w-max max-w-[95vw] pb-safe`}>
-        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto overflow-x-auto hide-scrollbar">
+        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto overflow-visible">
 
           {/* Brand Icon — tap toggles theme | hover opens atmosphere popover */}
           {isMounted ? (
-            <div className="relative group/sparkle mr-1 sm:mr-2">
+            <div className="relative group/sparkle">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -297,7 +297,7 @@ export function AppDock() {
 
               {/* Desktop hover popover — hidden on mobile */}
               <div className="hidden md:block absolute bottom-[calc(100%+24px)] left-0 opacity-0 scale-95 pointer-events-none group-hover/sparkle:opacity-100 group-hover/sparkle:scale-100 group-hover/sparkle:pointer-events-auto transition-all duration-300 origin-bottom-left z-50">
-                <div className="absolute inset-0 -bottom-14" />
+                <div className="absolute inset-0 -bottom-48" />
                 <div className="bg-popover border border-border rounded-2xl p-5 shadow-2xl relative z-10 w-[300px]">
                   <AtmospherePanel
                     atmosphere={atmosphere}
@@ -309,7 +309,7 @@ export function AppDock() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold mr-1 sm:mr-2">
+            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold">
               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           )}
@@ -321,7 +321,7 @@ export function AppDock() {
           }
 
           {/* FAB */}
-          <div className="px-1 sm:px-2">
+          <div>
             <Link
               href={isAnonymousMode ? "/confessions/new" : "/posts/new"}
               className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 active:scale-100 animate-pulse-glow"

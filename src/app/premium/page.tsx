@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useUser } from '@/components/providers/AuthProvider';
 import { Card } from '@/components/ui/Card';
-import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Spinner } from '@/components/ui/Spinner';
 import { useToast } from '@/components/ui/Toast';
@@ -183,10 +182,8 @@ export default function PremiumPage() {
         <p className="text-muted-foreground mb-8 max-w-md mx-auto">
           Sign in to unlock the full Fond experience — unlimited posts, deeper insights, and more.
         </p>
-        <Link href="/auth/login?redirect=/premium" className="inline-block touch-target">
-          <Button variant="primary" size="lg">
-            <LogIn className="h-4 w-4" /> Sign In
-          </Button>
+        <Link href="/auth/login?redirect=/premium" className="inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-semibold touch-target">
+          <LogIn className="h-4 w-4" /> Sign In
         </Link>
       </div>
     );
@@ -227,11 +224,11 @@ export default function PremiumPage() {
         </Card>
 
         <div className="flex justify-center gap-3">
-          <Link href="/dashboard">
-            <Button variant="primary">Go to Dashboard</Button>
+          <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold">
+            Go to Dashboard
           </Link>
-          <Link href="/settings">
-            <Button variant="outline">Manage Subscription</Button>
+          <Link href="/settings" className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-semibold">
+            Manage Subscription
           </Link>
         </div>
       </div>
@@ -239,13 +236,13 @@ export default function PremiumPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-8 py-8">
       <Confetti active={showConfetti} />
 
       {/* Back link */}
       <Link
         href="/settings"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
+        className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Settings
       </Link>
@@ -335,16 +332,13 @@ export default function PremiumPage() {
 
               {/* CTA */}
               {!isFree && (
-                <Button
-                  variant={isPopular ? 'primary' : 'outline'}
-                  size="lg"
-                  className="w-full"
+                <button
                   onClick={() => handleSubscribe(plan.id)}
-                  loading={loadingPlan === plan.id}
-                  disabled={paymentState === 'processing'}
+                  disabled={loadingPlan === plan.id || paymentState === 'processing'}
+                  className="w-full flex items-center justify-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-semibold disabled:opacity-50"
                 >
                   {loadingPlan === plan.id ? 'Processing…' : `Subscribe ${plan.period}`}
-                </Button>
+                </button>
               )}
             </motion.div>
           );

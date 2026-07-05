@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { scorePost } from '@/lib/ai/scoring';
 import { evaluateStreak, checkNewBadges } from '@/lib/utils/engagement';
+import { invalidateLeaderboardCache } from '@/lib/redis/client';
 import type { BadgeDef } from '@/lib/utils/constants';
 
 export async function GET() {
@@ -193,6 +194,9 @@ export async function POST(request: Request) {
         })
         .eq('id', user.id);
     }
+
+    // Invalidate leaderboard cache since new post affects scores
+    await invalidateLeaderboardCache();
 
     return NextResponse.json({
       success: true,

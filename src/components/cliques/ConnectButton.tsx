@@ -126,7 +126,7 @@ export function ConnectButton({ targetUserId, initialStatus, requestId, onStatus
   // connected
   return (
     <div className="flex items-center gap-2">
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-green-600 dark:text-green-400 bg-green-100 dark:bg-green-900/30 px-3 py-1.5 rounded-full">
+      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success bg-success/15 px-3 py-1.5 rounded-full">
         <UserCheck className="h-3.5 w-3.5" /> In Your Circle
       </span>
       <button

@@ -129,18 +129,16 @@ export function PostForm({
         setShowBadgeReward(true);
       }
 
-      // Check if this is the user's first post
-      const isFirst = !result.post.created_at;
+      // Every post gets the celebration treatment — confetti + score reveal
+      const isFirst = result.streak?.current === 1 && !result.streak?.longest;
       setIsFirstPost(isFirst);
       setShowVerdictCard(false);
 
       setStep("verdict");
       setShowConfetti(true);
-      if (isFirst) {
-        setTimeout(() => setShowWelcomeCeremony(true), 600);
-      } else {
-        setTimeout(() => setShowVerdictCard(true), 600);
-      }
+      // Show the full welcome ceremony for every post (score reveal + tier + confetti)
+      // The "See My Verdict" button inside the ceremony transitions to the verdict card
+      setTimeout(() => setShowWelcomeCeremony(true), 600);
     } catch (err: any) {
       setStep("write");
       if (err.flagged) {
@@ -183,7 +181,7 @@ export function PostForm({
       >
         <div className="text-center relative space-y-8 w-full max-w-sm mx-auto">
           {/* Sparkle Spinner */}
-          <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-gold/10 shadow-[0_0_40px_-10px_var(--gold)]">
+          <div className="relative mx-auto flex h-20 w-20 items-center justify-center rounded-full glass-btn-gold shadow-[0_0_40px_-10px_var(--gold)]">
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 border border-white/10 rounded-full animate-ping" style={{ animationDuration: '3.5s' }} />
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 border border-white/20 rounded-full animate-ping" style={{ animationDuration: '2.2s' }} />
             <Sparkles className="h-8 w-8 text-gold animate-pulse relative z-10" />
@@ -265,7 +263,7 @@ export function PostForm({
               <motion.div
                 animate={{ scale: [1, 1.1, 1], opacity: [0.06, 0.16, 0.06] }}
                 transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
-                className="absolute w-[35vw] h-[35vw] max-w-[280px] max-h-[280px] rounded-full bg-gold/20 blur-[80px]"
+                className="absolute w-[35vw] h-[35vw] max-w-[280px] max-h-[280px] rounded-full glass-btn-gold blur-[80px]"
               />
 
               <div className="relative z-10 text-center space-y-8">
@@ -553,7 +551,7 @@ export function PostForm({
           repeat: Infinity,
           ease: "easeInOut"
         }}
-        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed uppercase tracking-[0.2em] text-[10px]"
+        className="mt-5 w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold uppercase tracking-[0.2em] text-[10px] transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
       >
         {createPost.isPending ? 'Submitting...' : (
           <>
@@ -703,7 +701,7 @@ export function PostForm({
               >
                 <button
                   onClick={() => setShowBadgeReward(false)}
-                  className="rounded-full bg-gold/90 hover:bg-gold px-6 py-2.5 text-xs font-bold text-black transition-all hover:scale-[1.02]"
+                  className="rounded-full glass-btn-gold hover:bg-gold px-6 py-2.5 text-xs font-bold text-black transition-all hover:scale-[1.02]"
                 >
                   Claim Badge
                 </button>

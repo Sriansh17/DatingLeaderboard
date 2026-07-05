@@ -33,7 +33,7 @@ export function ConfessionsFeed() {
           <span>Anonymous Mode — Your identity is hidden</span>
           <button
             onClick={toggleAnonymousMode}
-            className="rounded-full border border-primary/30 bg-primary/10 px-4 py-2 text-[11px] font-bold text-primary hover:bg-primary/20 active:bg-primary/30 transition-colors inline-flex items-center gap-1 touch-target"
+            className="rounded-full glass-btn px-4 py-2 font-bold touch-target"
           >
             <EyeOff className="h-3.5 w-3.5" />
             Exit
@@ -55,7 +55,7 @@ export function ConfessionsFeed() {
 
         {isError ? (
           <div className="text-center py-16 sm:py-32 rounded-3xl border border-destructive/20 bg-destructive/5 backdrop-blur-xl">
-            <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
+            <div className="rounded-full glass-btn px-4 py-2">
               <Lock className="h-8 w-8 text-destructive/60" />
             </div>
             <h3 className="text-2xl font-display italic text-foreground mb-3">

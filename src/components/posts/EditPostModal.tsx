@@ -97,13 +97,13 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
           <div className="flex gap-3 justify-end">
             <button
               onClick={onClose}
-              className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors"
+              className="rounded-full glass-btn px-4 py-2 font-semibold"
             >
               Cancel
             </button>
             <button
               onClick={handleUpgrade}
-              className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-5 py-2 text-xs font-semibold text-black transition-colors"
+              className="rounded-full glass-btn-gold px-5 py-2 text-xs font-semibold"
             >
               Upgrade to Premium
             </button>
@@ -130,8 +130,8 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center py-10 gap-4"
           >
-            <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gold/10">
-              <div className="absolute inset-0 rounded-full border border-white/10 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="rounded-full glass-btn-gold px-4 py-2">
+              <div className="rounded-full glass-btn px-4 py-2" style={{ animationDuration: '2s' }} />
               <Sparkles className="h-7 w-7 text-gold animate-pulse" />
             </div>
             <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground font-medium">Re-scoring your post…</p>
@@ -162,7 +162,7 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
               <button
                 onClick={onClose}
                 disabled={isSubmitting}
-                className="rounded-full border border-border px-4 py-2 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors disabled:opacity-50"
+                className="rounded-full glass-btn px-4 py-2 font-semibold"
               >
                 Cancel
               </button>
@@ -173,7 +173,7 @@ export function EditPostModal({ post, isOpen, onClose, isPremium }: EditPostModa
                   description.trim().length < 30 ||
                   description.trim() === post.description
                 }
-                className="rounded-full bg-primary px-5 py-2 text-xs font-semibold text-primary-foreground hover:bg-primary/90 active:bg-primary/80 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-full glass-btn px-5 py-2 font-semibold"
               >
                 {isSubmitting ? 'Saving…' : 'Save & Re-score'}
               </button>

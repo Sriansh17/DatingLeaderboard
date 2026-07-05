@@ -73,13 +73,15 @@ export function evaluateStreak(
 ): 'increment' | 'reset' | 'same-day' | 'first' {
   if (!lastPostStr) return 'first';
 
-  const today = new Date(todayStr);
-  const last = new Date(lastPostStr);
+  // Compare YYYY-MM-DD strings directly for same-day check (avoids timezone pitfalls)
+  if (todayStr === lastPostStr) return 'same-day';
 
+  // Parse at noon UTC to avoid time-of-day drift
+  const today = new Date(todayStr + 'T12:00:00Z');
+  const last = new Date(lastPostStr + 'T12:00:00Z');
   const diffMs = today.getTime() - last.getTime();
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return 'same-day';   // Already posted today
-  if (diffDays === 1) return 'increment';   // Consecutive day
-  return 'reset';                           // Streak broken
+  if (diffDays === 1) return 'increment';
+  return 'reset';
 }

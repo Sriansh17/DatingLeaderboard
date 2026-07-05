@@ -193,14 +193,18 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
             ) : (
               <span className="text-5xl">{emoji}</span>
             )}
+            {/* Camera overlay on hover */}
+            <div className="absolute inset-0 bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+              <Camera className="h-6 w-6 text-white" />
+            </div>
           </div>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute bottom-0 right-0 w-10 h-10 rounded-full bg-elevated border border-border text-foreground flex items-center justify-center hover:bg-card hover:text-blush active:bg-card/80 active:text-blush/80 transition-colors shadow-xl"
+            className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-elevated/90 backdrop-blur border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-elevated transition-colors shadow-sm"
             title="Upload custom photo"
           >
-            <Camera className="h-4 w-4" />
+            <Camera className="h-3.5 w-3.5" />
           </button>
         </div>
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} className="hidden" />
@@ -309,7 +313,7 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
             type="button"
             onClick={handleUpgrade}
             disabled={upgrading}
-            className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-5 py-2 text-xs font-semibold text-black transition-colors disabled:opacity-60"
+            className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-5 py-2 text-xs font-semibold text-black transition-colors"
           >
             {upgrading ? 'Upgrading...' : 'Upgrade to Premium'}
           </button>
@@ -322,7 +326,12 @@ export function PartnerForm({ userId, partner, onSuccess, compact = false }: Par
           disabled={loading || !name.trim()}
           className="w-full flex items-center justify-center rounded-full glass-btn py-3.5 font-bold transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
         >
-          {partner ? 'Save Changes' : 'Add Partner 💖'}
+          {loading ? (
+            <span className="inline-flex items-center gap-2">
+              <span className="rounded-full glass-btn px-4 py-2" />
+              {partner ? 'Saving...' : 'Adding...'}
+            </span>
+          ) : (partner ? 'Save Changes' : 'Add Partner 💖')}
         </button>
       </div>
     </form>

@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
@@ -13,6 +14,7 @@ import { useLeaderboard } from "@/lib/hooks/useLeaderboard";
 import { useUser } from "@/components/providers/AuthProvider";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import Link from 'next/link';
 
 const scopes = ["Country", "City", "Bond"] as const;
@@ -76,20 +78,20 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
     isFirst
       ? 'text-gold'
       : rank === 2
-      ? 'text-slate-400 dark:text-slate-300'
-      : 'text-amber-700 dark:text-amber-500';
+      ? 'text-muted-foreground'
+      : 'text-warning';
   const borderClass =
     isFirst
       ? 'border-gold'
       : rank === 2
-      ? 'border-slate-400 dark:border-slate-300'
-      : 'border-amber-700 dark:border-amber-500';
+      ? 'border-border'
+      : 'border-warning/50';
   const bgGradient =
     isFirst
       ? 'from-gold/20 to-gold/5 border-gold/30'
       : rank === 2
-      ? 'from-slate-400/20 to-slate-400/5 border-slate-400/30 dark:from-slate-300/15 dark:to-slate-300/5 dark:border-slate-300/25'
-      : 'from-amber-700/20 to-amber-700/5 border-amber-700/30 dark:from-amber-500/15 dark:to-amber-500/5 dark:border-amber-500/25';
+      ? 'from-muted-foreground/10 to-muted-foreground/5 border-muted-foreground/20'
+      : 'from-warning/20 to-warning/5 border-warning/20';
 
   // Stagger: 3rd rises first (delay 0), 2nd (delay 0.08), 1st last (delay 0.18)
   const delay = isFirst ? 0.18 : rank === 2 ? 0.08 : 0;
@@ -107,7 +109,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
         {/* Dual avatar lockup */}
         <div className="relative mb-3 flex items-end justify-center">
           {/* Partner avatar (small, offset back-right) */}
-          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center z-0">
+          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center z-0">
             {entry.top_partner_avatar ? (
               <img src={entry.top_partner_avatar} alt={entry.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
             ) : (
@@ -154,6 +156,7 @@ export default function RanksPage() {
   const [scope, setScope] = useState<(typeof scopes)[number]>("Country");
   const [timeframe, setTimeframe] = useState<(typeof timeframes)[number]>("All Time");
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
+  const [parentRef] = useAutoAnimate({ duration: 300 });
   const [userCircles, setUserCircles] = useState<any[]>([]);
   const [circlesLoading, setCirclesLoading] = useState(false);
   const { openShare } = useShare();
@@ -333,8 +336,9 @@ export default function RanksPage() {
 
       <div className="max-w-7xl mx-auto">
         {isLoading ? (
-          <div className="flex justify-center py-20 min-h-[50vh] items-center">
-            <Spinner size="lg" text={["TALLYING STANDINGS...", "INITIALIZING FOND...", "CALCULATING SCORES..."]} />
+          <div className="py-8 space-y-6">
+            <Skeleton variant="podium" count={3} />
+            <Skeleton variant="row" count={8} />
           </div>
         ) : !entries || entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center px-4">
@@ -377,7 +381,7 @@ export default function RanksPage() {
 
             {/* List — shows all entries after the podium */}
             {entries.length > 3 && (
-              <motion.ol className="space-y-2 px-4 pb-4 pt-2">
+              <motion.ol ref={parentRef} className="space-y-2 px-4 pb-4 pt-2">
                 {entries.slice(3).map((e, index) => (
                   <motion.li
                     layout
@@ -398,7 +402,7 @@ export default function RanksPage() {
                       {/* Dual mini avatar */}
                       <div className="relative h-7 w-10 shrink-0">
                         {/* Partner avatar (back) */}
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center">
                           {e.top_partner_avatar ? (
                             <img src={e.top_partner_avatar} alt={e.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
@@ -447,7 +451,7 @@ export default function RanksPage() {
 
                     {/* Rank change indicator */}
                     {typeof (e as any).rank_change === 'number' && (e as any).rank_change !== 0 && (
-                      <div className={`flex items-center gap-0.5 text-[10px] font-bold shrink-0 ${(e as any).rank_change > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      <div className={`flex items-center gap-0.5 text-[10px] font-bold shrink-0 ${(e as any).rank_change > 0 ? 'text-success' : 'text-destructive'}`}>
                         {(e as any).rank_change > 0
                           ? <TrendingUp className="h-3 w-3" />
                           : <TrendingDown className="h-3 w-3" />
@@ -469,7 +473,7 @@ export default function RanksPage() {
           initial={{ y: 30, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-          className="fixed inset-x-0 bottom-[100px] sm:bottom-[120px] z-30 flex flex-col items-center gap-2 px-4 pointer-events-none"
+          className="fixed inset-x-0 bottom-28 md:bottom-32 z-30 flex flex-col items-center gap-2 px-4 pointer-events-none"
         >
           {/* Rival callout — appears just above the self bar */}
           {rivalEntry && pointsGap && (
@@ -489,7 +493,7 @@ export default function RanksPage() {
             </motion.div>
           )}
 
-          <div className="pointer-events-auto w-fit min-w-[320px] max-w-full rounded-3xl glass-dock p-4 flex items-center justify-between gap-4">
+          <div className="pointer-events-auto w-full sm:w-fit min-w-0 sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-4 flex items-center justify-between gap-4">
             <div className="font-score text-2xl text-blush shrink-0" style={{ width: 44 }}>
               #{myRank}
             </div>

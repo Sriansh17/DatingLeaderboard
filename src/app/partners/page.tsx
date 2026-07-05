@@ -98,7 +98,7 @@ export default function PartnersPage() {
                   </button>
                   <button
                     onClick={(e) => handleDelete(partner.id, e)}
-                    className="bg-red-500 hover:bg-red-600 text-white w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-100 touch-target"
+                    className="bg-destructive/15 backdrop-blur-xl border border-destructive/25 text-destructive hover:bg-destructive/25 active:bg-destructive/35 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-100 touch-target"
                     title="Delete Partner"
                   >
                     <span className="text-lg font-bold">&times;</span>
@@ -132,7 +132,7 @@ export default function PartnersPage() {
             </p>
             <button
               onClick={handleUpgrade}
-              className="rounded-full bg-gold/90 hover:bg-gold active:bg-gold/80 px-6 py-3 text-xs font-semibold text-black transition-colors touch-target"
+              className="rounded-full glass-btn-gold px-6 py-3 text-xs font-semibold touch-target"
             >
               Upgrade to Premium
             </button>
@@ -144,7 +144,7 @@ export default function PartnersPage() {
           <div className="w-full max-w-xl mt-8 p-8 rounded-3xl border border-border bg-card/60 backdrop-blur-2xl relative shadow-2xl">
             <button
               onClick={() => { setShowAddForm(false); setEditingPartner(null); }}
-              className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors touch-target"
+              className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold touch-target"
             >
               Cancel
             </button>

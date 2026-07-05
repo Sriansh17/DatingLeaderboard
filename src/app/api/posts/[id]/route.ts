@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { scorePost } from '@/lib/ai/scoring';
+import { invalidateLeaderboardCache } from '@/lib/redis/client';
 
 export async function GET(
   _request: Request,
@@ -141,6 +142,12 @@ export async function PATCH(
       .single();
 
     if (error) throw error;
+
+    // Invalidate leaderboard cache since scores may have changed
+    if (body.description) {
+      await invalidateLeaderboardCache();
+    }
+
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error('Post PATCH error:', error);
@@ -169,6 +176,7 @@ export async function DELETE(
       .eq('user_id', user.id);
 
     if (error) throw error;
+    await invalidateLeaderboardCache();
     return NextResponse.json({ success: true, message: 'Post archived' });
   } catch (error) {
     console.error('Post archive error:', error);

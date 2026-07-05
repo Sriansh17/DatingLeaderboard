@@ -3,6 +3,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { StoryCard } from '@/components/ui/StoryCard';
 import { Spinner } from '@/components/ui/Spinner';
+import { Skeleton } from '@/components/ui/Skeleton';
 import { motion } from 'framer-motion';
 
 import { Heart, Sparkles, TrendingUp, Trophy, ArrowRight, Lock, EyeOff, Users, Globe, Crown, Flame, Gift } from 'lucide-react';
@@ -10,6 +11,7 @@ import { InstallAppButton } from '@/components/ui/InstallAppButton';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
+import { usePosts } from '@/lib/hooks/usePosts';
 import { useStreak, useClaimPerk } from '@/lib/hooks/useStreak';
 import type { StreakData } from '@/lib/hooks/useStreak';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -19,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/ui/Toast';
 
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { EmptyState } from '@/components/ui/EmptyState';
 import { PageBell } from '@/components/ui/PageBell';
 import { formatRelativeTime } from '@/lib/utils/format';
 import type { Post } from '@/types/database';
@@ -76,7 +79,7 @@ export default function DashboardPage() {
       .catch(() => {});
   }, []);
 
-  const { profile, loading: authLoading } = useUser();
+  const { user, profile, loading: authLoading } = useUser();
   const router = useRouter();
 
   // Redirect to onboarding only for users who explicitly haven't onboarded
@@ -101,6 +104,7 @@ export default function DashboardPage() {
   };
 
   const { data: globalEntries } = useLeaderboard({ type: 'global', limit: 10 });
+  const { data: myPosts } = usePosts(user?.id);
   const topScorer = globalEntries?.[0];
   const displayUsername = topScorer?.username ? `@${topScorer.username}` : '@anonymous';
   const displayInitial = (topScorer?.full_name?.[0] || topScorer?.username?.[0] || 'A').toUpperCase();
@@ -140,8 +144,26 @@ export default function DashboardPage() {
     });
   };
 
+  // ─── Streak at risk — subtle evening reminder ─────────────────────────
+  useEffect(() => {
+    if (!streakData || streakData.streak <= 0) return;
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const hour = new Date().getHours();
+    // Only show after 6pm if user hasn't posted today
+    if (hour >= 18 && (!streakData.lastPostDate || streakData.lastPostDate !== todayStr)) {
+      const timer = setTimeout(() => {
+        addToast(
+          `🔥 Your ${streakData.streak}-day streak is almost over. One post saves it.`,
+          'warning',
+          8000
+        );
+      }, 5000); // Delay so it doesn't compete with initial page load
+      return () => clearTimeout(timer);
+    }
+  }, [streakData?.lastPostDate, streakData?.streak]);
+
   // Dynamic Ticker
-  const dynamicTicker = globalEntries?.length 
+  const dynamicTicker = globalEntries?.length
     ? globalEntries.map(e => `${e.username || 'Someone'} secured ${e.average_score} pts`) 
     : ['Loading global rankings...', 'Couples competing worldwide...'];
 
@@ -161,8 +183,9 @@ export default function DashboardPage() {
   const globalAverage = globalEntries?.length 
     ? (globalEntries.reduce((acc, curr) => acc + curr.average_score, 0) / globalEntries.length).toFixed(1)
     : "0";
-  const userScore = posts?.length
-    ? (posts.filter(p => p.ai_score).reduce((acc, p) => acc + (p.ai_score || 0), 0) / posts.filter(p => p.ai_score).length).toFixed(1)
+  const myScoredPosts = myPosts?.filter(p => p.ai_score) || [];
+  const userScore = myScoredPosts.length > 0
+    ? String(Math.round(myScoredPosts.reduce((acc, p) => acc + (p.ai_score || 0), 0) / myScoredPosts.length))
     : "0";
 
   // In anonymous mode, show the confessions feed instead (all hooks above are universal)
@@ -192,7 +215,7 @@ export default function DashboardPage() {
         <header className="mb-12">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-3">
-              <p className="text-sm uppercase tracking-[0.25em] text-gold flex items-center gap-1.5">
+              <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold flex items-center gap-1.5">
                 <Sparkles className="h-4 w-4" /> Feed
               </p>
               {/* Golden scope pill — always clickable */}
@@ -201,7 +224,7 @@ export default function DashboardPage() {
                 className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-full transition-colors touch-target ${
                   hasCircles
                     ? 'bg-gold/10 border border-gold/20 text-gold hover:bg-gold/15 active:bg-gold/20'
-                    : 'bg-gold/5 border border-gold/10 text-gold/60'
+                    : 'bg-gold/5 border border-gold/10 text-gold/50'
                 }`}
               >
                 {feedTab === 'global' ? (
@@ -226,13 +249,40 @@ export default function DashboardPage() {
         </header>
         <ScrollToTop label="The Timeline" />
 
+        {/* Your Score — compact personal summary */}
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-5 py-3">
+          <div className="flex items-center gap-4">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary mb-0.5">Your Score</p>
+              <div className="flex items-baseline gap-2">
+                <span className="font-score text-3xl leading-none" style={{ color: `rgb(var(--${parseFloat(userScore) >= 90 ? 'score-legendary' : parseFloat(userScore) >= 75 ? 'score-high' : parseFloat(userScore) >= 55 ? 'score-mid' : 'score-low'}))` }}>
+                  {userScore !== '0' ? userScore : '--'}
+                </span>
+                <span className="text-[11px] text-muted-foreground">
+                  avg · {myScoredPosts.length || 0} posts
+                </span>
+              </div>
+            </div>
+          </div>
+          {globalEntries && globalEntries.length > 0 && (
+            <div className="text-right">
+              <div className="font-score text-lg text-muted-foreground/50">
+                vs {globalAverage} avg
+              </div>
+              <p className="text-[10px] text-muted-foreground/40 mt-0.5">
+                {parseFloat(userScore) > parseFloat(globalAverage) ? 'Above average ↑' : 'Below average ↓'}
+              </p>
+            </div>
+          )}
+        </div>
+
         {/* Streak & Perk Bar */}
         {streakData && (
           <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-5 py-3">
             <div className="flex items-center gap-4">
               {/* Streak */}
               <div className="flex items-center gap-1.5">
-                <Flame className={`h-4 w-4 ${streakData.streak > 0 ? 'text-amber-500' : 'text-muted-foreground/40'}`} />
+                <Flame className={`h-4 w-4 ${streakData.streak > 0 ? 'text-warning' : 'text-muted-foreground/40'}`} />
                 <span className="text-sm font-medium text-foreground">{streakData.streak}d</span>
                 {streakData.multiplierPercent > 0 && (
                   <span className="text-[10px] text-gold font-medium">+{streakData.multiplierPercent}%</span>
@@ -258,7 +308,7 @@ export default function DashboardPage() {
               <button
                 onClick={handleClaimPerk}
                 disabled={claimPerk.isPending}
-                className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-gold/80 to-gold/60 px-3.5 py-1.5 text-[10px] font-bold text-black transition-all hover:scale-[1.02] disabled:opacity-60"
+                className="inline-flex items-center gap-1.5 rounded-full glass-btn-gold px-3.5 py-1.5 text-[10px] font-bold text-black transition-all hover:scale-[1.02] disabled:opacity-60"
               >
                 <Gift className="h-3 w-3" />
                 {claimPerk.isPending ? 'Claiming...' : 'Daily Perk'}
@@ -275,7 +325,31 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Today's Best — Daily Leaderboard (shown for both tabs when data exists) */}
+        {/* Daily Winner — top post badge */}
+        {dailyTop && dailyTop.length > 0 && feedTab === 'global' && (
+          <div className="mb-4 rounded-2xl border border-gold/20 bg-gold/[0.03] backdrop-blur-sm p-4 flex items-center justify-between">
+            <div className="flex items-center gap-3 min-w-0">
+              <span className="text-2xl shrink-0">🏆</span>
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-gold mb-0.5">Daily Winner</p>
+                <p className="text-sm font-medium text-foreground truncate">
+                  {dailyTop[0]?.user?.username || 'Anonymous'} · <span className="text-gold font-score text-base">{dailyTop[0]?.score}</span>
+                </p>
+                <p className="text-[10px] text-muted-foreground/60 truncate">
+                  &ldquo;{dailyTop[0]?.description?.slice(0, 60)}&rdquo;
+                </p>
+              </div>
+            </div>
+            <Link
+              href={`/posts/${dailyTop[0]?.id}`}
+              className="shrink-0 text-[9px] uppercase tracking-widest text-gold/60 hover:text-gold transition-colors ml-3"
+            >
+              View →
+            </Link>
+          </div>
+        )}
+
+        {/* Today's Best — Daily Leaderboard */}
         {dailyTop && dailyTop.length > 0 && feedTab === 'global' && (
           <div className="mb-8 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
             <div className="flex items-center justify-between mb-4">
@@ -320,25 +394,16 @@ export default function DashboardPage() {
         )}
 
         {feedTab === 'global' ? (isLoading ? (
-          <div className="flex justify-center py-32 min-h-[50vh] items-center">
-            <Spinner size="lg" text={["SYNCING TIMELINE...", "INITIALIZING FOND...", "LOADING ARCHIVES..."]} />
+          <div className="py-8">
+            <Skeleton variant="card" count={3} />
           </div>
         ) : !posts || posts.length === 0 ? (
-          <div className="text-center py-16 sm:py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
-            <Heart className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
-            <h3 className="text-3xl font-display italic text-foreground mb-4">
-              The board is bare.
-            </h3>
-            <p className="text-muted-foreground text-lg mb-8 max-w-sm mx-auto">
-              Someone has to set the standard. Make it you.
-            </p>
-            <Link
-              href="/posts/new"
-              className="inline-flex items-center gap-2 rounded-2xl glass-btn text-sm font-bold shadow-[var(--shadow-glow)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              Claim your first verdict
-            </Link>
-          </div>
+          <EmptyState
+            icon="🏆"
+            title="The board is bare."
+            description="Someone has to set the standard. Make it you."
+            action={{ label: 'Claim your first verdict', href: '/posts/new' }}
+          />
         ) : (
           <>
             {/* Editorial Widgets Row 1 */}
@@ -352,8 +417,11 @@ export default function DashboardPage() {
                   </div>
                   <p className="font-display text-lg md:text-xl italic text-foreground mb-6 leading-snug font-light">{dailyPrompt}</p>
                 </div>
-                <Link href="/posts/new" className="inline-flex w-full sm:w-max items-center justify-center gap-1.5 rounded-full border border-primary/20 dark:border-border bg-primary/5 dark:bg-white/5 px-5 py-3 text-[10px] font-bold uppercase tracking-[0.2em] text-primary dark:text-foreground transition-all hover:bg-primary/10 dark:hover:bg-white/10 dark:hover:border-white/20 active:bg-primary/15 dark:active:bg-white/15 dark:active:border-white/30 touch-target">
-                  Answer Now <TrendingUp className="w-3 h-3 text-primary" />
+                <Link
+                  href="/posts/new"
+                  className="inline-flex w-full sm:w-max items-center justify-center gap-1.5 rounded-full glass-btn px-5 py-3 text-[10px] font-bold uppercase tracking-[0.2em] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Answer Now <TrendingUp className="w-3 h-3" />
                 </Link>
               </div>
 
@@ -382,12 +450,12 @@ export default function DashboardPage() {
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-destructive/5 dark:bg-destructive/10">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-red-500">System Warning</span>
+                        <div className="h-1.5 w-1.5 rounded-full bg-destructive animate-pulse" />
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-destructive">System Warning</span>
                       </div>
                     </div>
                     <div>
-                      <div className="font-score text-4xl text-red-500 mb-1 leading-none drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
+                      <div className="font-score text-4xl text-destructive mb-1 leading-none drop-shadow-[0_0_10px_rgba(239,68,68,0.3)]">
                         {posts && posts.length > 0 && globalEntries && globalEntries.length > 0
                           ? (() => {
                               const userRank = globalEntries.findIndex(e => e.user_id === (posts[0]?.user_id || ''));
@@ -412,16 +480,16 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Card 3: AI Oracle — dynamic prediction */}
-                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-fuchsia-100/50 via-purple-100/30 to-blue-100/50 dark:from-fuchsia-900/30 dark:via-purple-900/20 dark:to-blue-900/20">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-primary/5 via-primary/[0.03] to-gold/5">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <Sparkles className="h-3 w-3 text-fuchsia-500 dark:text-fuchsia-400" />
-                        <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-fuchsia-500 dark:text-fuchsia-400">AI Oracle</span>
+                        <Sparkles className="h-3 w-3 text-primary/70" />
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-primary/70">AI Oracle</span>
                       </div>
                     </div>
                     <div className="relative mt-auto">
-                      <div className="absolute -left-2 -top-3 text-5xl text-fuchsia-500/20 font-serif">&quot;</div>
-                      <p className="font-display text-lg text-foreground dark:text-foreground font-light italic leading-snug pl-4">
+                      <div className="absolute -left-2 -top-3 text-5xl text-primary/20 font-serif">&quot;</div>
+                      <p className="font-display text-lg text-foreground font-light italic leading-snug pl-4">
                         {(() => {
                           const recentPostCount = posts?.filter(p => {
                             const d = new Date(p.created_at);
@@ -430,7 +498,7 @@ export default function DashboardPage() {
                           }).length || 0;
                           const prob = recentPostCount >= 5 ? 87 : recentPostCount >= 3 ? 62 : recentPostCount >= 1 ? 41 : 12;
                           return (
-                            <>Based on sentiment, there is an <span className="text-fuchsia-600 dark:text-fuchsia-400 font-bold not-italic">{prob}% probability</span> of a romantic gesture {recentPostCount > 0 ? 'tonight' : 'this week'}.</>
+                            <>Based on sentiment, there is an <span className="text-primary font-bold not-italic">{prob}% probability</span> of a romantic gesture {recentPostCount > 0 ? 'tonight' : 'this week'}.</>
                           );
                         })()}
                       </p>
@@ -441,18 +509,18 @@ export default function DashboardPage() {
                   <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-center border-r border-border relative bg-card">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <TrendingUp className="h-3 w-3 text-blue-500 dark:text-blue-400" />
-                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-blue-500 dark:text-blue-400">Head-to-Head</span>
+                        <TrendingUp className="h-3 w-3 text-primary" />
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-primary">Head-to-Head</span>
                       </div>
                     </div>
                     <div className="space-y-4">
                       <div>
                         <div className="flex justify-between text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">
                           <span>Your Average Score</span>
-                          <span className="text-blue-500 dark:text-blue-400 font-bold">{userScore !== '0' ? userScore : '--'}</span>
+                          <span className="text-primary font-bold">{userScore !== '0' ? userScore : '--'}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.3)] dark:shadow-[0_0_10px_rgba(96,165,250,0.5)] transition-all" style={{ width: `${Math.min(100, (parseFloat(userScore || '0') / 100) * 100)}%` }} />
+                        <div className="h-1.5 w-full bg-border/50 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary transition-all" style={{ width: `${Math.min(100, (parseFloat(userScore || '0') / 100) * 100)}%` }} />
                         </div>
                       </div>
                       <div>
@@ -460,19 +528,19 @@ export default function DashboardPage() {
                           <span>Global Top 10 Average</span>
                           <span>{globalAverage}</span>
                         </div>
-                        <div className="h-1.5 w-full bg-black/5 dark:bg-white/5 rounded-full overflow-hidden">
-                          <div className="h-full bg-black/20 dark:bg-white/20 transition-all" style={{ width: `${Math.min(100, (parseFloat(globalAverage || '0') / 100) * 100)}%` }} />
+                        <div className="h-1.5 w-full bg-border/50 rounded-full overflow-hidden">
+                          <div className="h-full bg-muted-foreground/20 transition-all" style={{ width: `${Math.min(100, (parseFloat(globalAverage || '0') / 100) * 100)}%` }} />
                         </div>
                       </div>
                     </div>
                   </div>
 
                   {/* Card 5: Forecast — dynamic based on score trend */}
-                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-slate-200 via-slate-100 to-amber-100 dark:from-slate-900 dark:via-slate-800 dark:to-amber-900/40">
+                  <div className="min-w-full snap-center p-5 pb-10 flex flex-col justify-between border-r border-border relative bg-gradient-to-br from-elevated via-card to-warning/5">
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
-                        <span className="text-amber-500 dark:text-amber-400 text-[10px]">⛅</span>
-                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-amber-500 dark:text-amber-400">Forecast</span>
+                        <span className="text-warning text-[10px]">⛅</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-warning">Forecast</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 mt-auto">
@@ -493,7 +561,7 @@ export default function DashboardPage() {
                             return trend > 5 ? 'Strong upward trend' : trend > 0 ? 'Steady improvement' : trend > -5 ? 'Minor dip detected' : 'Sharp decline — act now';
                           })()}
                         </p>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-warning">
                           {posts?.filter(p => p.ai_score).length || 0} scored posts analyzed
                         </p>
                       </div>
@@ -505,10 +573,10 @@ export default function DashboardPage() {
                     <div className="flex items-center justify-between mb-4">
                       <div className="flex items-center gap-2">
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-destructive"></span>
                         </span>
-                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-red-500">LIVE</span>
+                        <span className="tracking-[0.2em] uppercase text-[10px] font-bold text-destructive">LIVE</span>
                       </div>
                     </div>
                     <p className="font-display text-base md:text-lg italic text-foreground/90 leading-snug font-light">
@@ -560,17 +628,17 @@ export default function DashboardPage() {
 
                 <div className="relative z-10 w-full">
                   <div className="flex items-center justify-between mb-3">
-                    <span className="tracking-[0.3em] uppercase text-[10px] font-bold text-amber-600 dark:text-gold drop-shadow-md">The Spotlight</span>
-                    <Trophy className="h-3 w-3 text-amber-600 dark:text-gold drop-shadow-md" />
+                    <span className="tracking-[0.3em] uppercase text-[10px] font-bold text-warning drop-shadow-md">The Spotlight</span>
+                    <Trophy className="h-3 w-3 text-warning drop-shadow-md" />
                   </div>
                   <div className="flex items-end justify-between">
                     <div>
                       <p className="font-display text-3xl text-black dark:text-foreground font-light italic leading-none mb-1.5 drop-shadow-sm dark:drop-shadow-lg group-hover:scale-[1.02] group-focus-within:scale-[1.02] transition-transform origin-left">{displayUsername}</p>
-                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-600 dark:text-emerald-400 drop-shadow-sm dark:drop-shadow-md">
+                      <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-success drop-shadow-sm dark:drop-shadow-md">
                         {topScorer ? `Secured ${topScorer.average_score} Points` : 'Taking the Lead'}
                       </p>
                     </div>
-                    <div className="h-10 w-10 rounded-full border-2 border-amber-600/50 dark:border-gold/50 bg-black/5 dark:bg-black/50 backdrop-blur-md grid place-items-center font-display text-lg text-amber-600 dark:text-gold shadow-[0_0_15px_rgba(217,119,6,0.3)] dark:shadow-[0_0_15px_rgba(233,200,106,0.4)]">{displayInitial}</div>
+                    <div className="h-10 w-10 rounded-full border-2 border-warning/50 bg-black/5 dark:bg-black/50 backdrop-blur-md grid place-items-center font-display text-lg text-warning">{displayInitial}</div>
                   </div>
                 </div>
               </Link>
@@ -625,7 +693,7 @@ export default function DashboardPage() {
                 <Spinner size="lg" text={["LOADING BOND FEED...", "FETCHING FROM YOUR BONDS..."]} />
               </div>
             ) : !circlePosts || circlePosts.length === 0 ? (
-              <div className="text-center py-20 rounded-[2rem] border border-border bg-card/40 relative overflow-hidden">
+              <div className="text-center py-20 rounded-3xl border border-border bg-card/40 relative overflow-hidden">
                 <div className="absolute -top-20 -right-20 w-48 h-48 rounded-full bg-primary/[0.04] blur-3xl pointer-events-none" />
                 <div className="relative z-10">
                   <div className="w-14 h-14 rounded-2xl bg-elevated border border-border flex items-center justify-center mx-auto mb-5">
@@ -637,7 +705,7 @@ export default function DashboardPage() {
                   </p>
                   <Link
                     href="/circles"
-                    className="inline-flex items-center gap-2 mt-6 rounded-full bg-primary px-6 py-3 text-xs font-bold text-primary-foreground shadow-[var(--shadow-glow)] hover:opacity-90 active:opacity-80 transition-all uppercase tracking-wider"
+                    className="inline-flex items-center gap-2 mt-6 rounded-full glass-btn px-6 py-3 text-xs font-bold uppercase tracking-wider"
                   >
                     Manage Bonds
                   </Link>
@@ -695,16 +763,16 @@ function AnonymousToggle() {
   return (
     <button
       onClick={toggleAnonymousMode}
-      className={`rounded-full border px-4 py-2 text-xs font-bold uppercase backdrop-blur transition-colors inline-flex items-center gap-1.5 touch-target flex-shrink-0 whitespace-nowrap ${
+      className={`rounded-full border px-2.5 sm:px-4 py-2 text-xs font-bold uppercase backdrop-blur transition-colors inline-flex items-center gap-1.5 touch-target flex-shrink-0 whitespace-nowrap ${
         isAnonymousMode
           ? 'border-primary/30 bg-primary/10 text-primary'
           : 'border-border bg-elevated/40 text-muted-foreground hover:text-foreground hover:bg-elevated/60 active:text-foreground active:bg-elevated/80'
       }`}
     >
       {isAnonymousMode ? (
-        <><Lock className="h-3.5 w-3.5" /> Anonymous</>
+        <><Lock className="h-3.5 w-3.5" /><span className="hidden sm:inline">Anonymous</span></>
       ) : (
-        <><EyeOff className="h-3.5 w-3.5" /> Anonymous</>
+        <><EyeOff className="h-3.5 w-3.5" /><span className="hidden sm:inline">Anonymous</span></>
       )}
     </button>
   );
