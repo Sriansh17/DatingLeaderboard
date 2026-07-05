@@ -490,7 +490,7 @@ export default function RanksPage() {
           )}
 
           <div className="pointer-events-auto w-[calc(100vw-32px)] sm:w-fit sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4">
-            <div className="font-score text-xl sm:text-2xl text-blush shrink-0" style={{ width: 32, sm: { width: 44 } }}>
+            <div className="font-score text-xl sm:text-2xl text-blush shrink-0 w-8 sm:w-11">
               #{myRank}
             </div>
             <div className="min-w-0 flex-1">
