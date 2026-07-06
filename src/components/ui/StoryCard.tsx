@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScoreRing } from "./ScoreRing";
 import { CommentModal } from "./CommentModal";
 import type { Story } from "@/lib/mock-data";
@@ -41,6 +41,17 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     { emoji: '👀', label: 'Peek' },
     { emoji: '💀', label: 'Dead' },
   ] as const;
+
+  // Load existing reactions when post mounts
+  useEffect(() => {
+    if (!post || !user) return;
+    fetch(`/api/posts/${post.id}/react`)
+      .then(r => r.json())
+      .then(json => {
+        if (json.success && json.data) setEmojiReactions(json.data);
+      })
+      .catch(() => {});
+  }, [post?.id, user?.id]);
 
   const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
