@@ -7,7 +7,7 @@ import { useToast } from '@/components/ui/Toast';
 import { Send, Users, PlusCircle, Sparkles, ArrowLeft, Check } from 'lucide-react';
 import type { Circle } from '@/types/database';
 
-interface InviteToCliqueModalProps {
+interface InviteToBondModalProps {
   isOpen: boolean;
   onClose: () => void;
   targetUserId: string;
@@ -16,7 +16,7 @@ interface InviteToCliqueModalProps {
 
 const emojiOptions = ['💫', '🌟', '✨', '🔥', '💕', '👑', '🎯', '🏆', '🌈', '🎉', '🦋', '🌙'];
 
-export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsername }: InviteToCliqueModalProps) {
+export function InviteToBondModal({ isOpen, onClose, targetUserId, targetUsername }: InviteToBondModalProps) {
   const [circles, setCircles] = useState<Circle[]>([]);
   const [loading, setLoading] = useState(true);
   const [invitingId, setInvitingId] = useState<string | null>(null);
@@ -254,3 +254,6 @@ export function InviteToCliqueModal({ isOpen, onClose, targetUserId, targetUsern
     </Modal>
   );
 }
+
+// Backward-compatible alias while old imports are being migrated.
+export const InviteToCliqueModal = InviteToBondModal;

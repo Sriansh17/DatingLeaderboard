@@ -69,7 +69,7 @@ export async function DELETE(
       .single();
 
     if (!circle) {
-      return NextResponse.json({ success: false, error: 'Circle not found' }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Bond not found' }, { status: 404 });
     }
 
     if (circle.created_by !== user.id) {

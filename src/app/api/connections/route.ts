@@ -4,8 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 
 export const dynamic = 'force-dynamic';
 
-// GET /api/connections — list current user's connections
-export async function GET() {
+// GET /api/connections — list connections for current user or an optional target user
+export async function GET(request: Request) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -14,15 +14,26 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const requestedUserId = searchParams.get('userId');
+    const targetUserId = requestedUserId || user.id;
+
     const admin = createAdminClient();
 
     // Fetch connections where user is either side
     const { data: connections, error } = await admin
       .from('connections')
       .select('id, user_id, connected_user_id, created_at, profile:connected_user_id(id, username, full_name, avatar_url, city)')
-      .eq('user_id', user.id);
+      .eq('user_id', targetUserId);
 
     if (error) throw error;
+
+    if (targetUserId !== user.id) {
+      return NextResponse.json({
+        success: true,
+        data: (connections || []).map((c) => ({ id: c.id })),
+      });
+    }
 
     return NextResponse.json({
       success: true,

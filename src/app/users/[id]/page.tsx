@@ -8,7 +8,7 @@ import { ArrowLeft, Heart, Trophy, MapPin, Sparkles, MessageCircle, LogIn, Users
 import { Spinner } from '@/components/ui/Spinner';
 import { Button } from '@/components/ui/Button';
 import { ConnectButton } from '@/components/cliques/ConnectButton';
-import { InviteToCliqueModal } from '@/components/cliques/InviteToCliqueModal';
+import { InviteToBondModal } from '@/components/cliques/InviteToCliqueModal';
 import { formatRelativeTime } from '@/lib/utils/format';
 import { useUser } from '@/components/providers/AuthProvider';
 import type { Post, Profile, ConnectionStatus } from '@/types/database';
@@ -270,7 +270,7 @@ export default function UserProfilePage() {
       </div>
 
       {/* Invite modal */}
-      <InviteToCliqueModal
+      <InviteToBondModal
         isOpen={inviteOpen}
         onClose={() => setInviteOpen(false)}
         targetUserId={profile.id}
