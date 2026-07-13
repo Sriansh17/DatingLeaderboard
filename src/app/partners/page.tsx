@@ -109,7 +109,7 @@ export default function PartnersPage() {
           </div>
         ) : (
           <div className="text-center py-8 mb-8 text-muted-foreground italic font-display text-xl">
-            Your circle is currently empty.
+            Your partner list is currently empty.
           </div>
         )}
 

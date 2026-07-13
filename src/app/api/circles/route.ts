@@ -15,8 +15,8 @@ function generateCode(): string {
   return code;
 }
 
-// GET /api/circles — list circles the current user belongs to
-export async function GET() {
+// GET /api/circles — list bonds for the current user or an optional target user
+export async function GET(request: Request) {
   try {
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
@@ -25,13 +25,17 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
+    const { searchParams } = new URL(request.url);
+    const requestedUserId = searchParams.get('userId');
+    const targetUserId = requestedUserId || user.id;
+
     // Use admin client to bypass RLS
     const admin = createAdminClient();
 
     const { data: memberships, error: membershipError } = await admin
       .from('circle_members')
       .select('circle_id')
-      .eq('user_id', user.id);
+      .eq('user_id', targetUserId);
 
     if (membershipError) throw membershipError;
 
@@ -39,6 +43,14 @@ export async function GET() {
 
     if (circleIds.length === 0) {
       return NextResponse.json({ success: true, data: [] });
+    }
+
+    // Public profile count use-case: do not expose full bond details for other users.
+    if (targetUserId !== user.id) {
+      return NextResponse.json({
+        success: true,
+        data: circleIds.map((id) => ({ id })),
+      });
     }
 
     const { data, error } = await admin
