@@ -75,7 +75,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
     <ConfirmContext.Provider value={{ confirm }}>
       {children}
       <Modal isOpen={isOpen} onClose={handleCancel} className="max-w-sm">
-        <div className="text-center py-4 px-2">
+        <div className="text-center">
           {/* Icon */}
           <div className={`w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center ${variant.bg}`}>
             <IconComponent className={`h-7 w-7 ${variant.iconColor}`} />
@@ -95,7 +95,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleCancel}
-              className="flex-1 rounded-full glass-btn text-sm font-semibold py-3"
+              className="flex-1 rounded-full glass-btn text-sm font-semibold py-3 transition-all hover:scale-[1.02] active:scale-[0.98]"
             >
               {options.cancelLabel || 'Cancel'}
             </button>

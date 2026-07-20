@@ -249,149 +249,141 @@ export default function DashboardPage() {
         </header>
         <ScrollToTop label="The Timeline" />
 
-        {/* Your Score — compact personal summary */}
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-5 py-3">
-          <div className="flex items-center gap-4">
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.2em] font-bold text-primary mb-0.5">Your Score</p>
-              <div className="flex items-baseline gap-2">
-                <span className="font-score text-3xl leading-none" style={{ color: `rgb(var(--${parseFloat(userScore) >= 90 ? 'score-legendary' : parseFloat(userScore) >= 75 ? 'score-high' : parseFloat(userScore) >= 55 ? 'score-mid' : 'score-low'}))` }}>
-                  {userScore !== '0' ? userScore : '--'}
-                </span>
-                <span className="text-[11px] text-muted-foreground">
-                  avg · {myScoredPosts.length || 0} posts
-                </span>
-              </div>
-            </div>
-          </div>
-          {globalEntries && globalEntries.length > 0 && (
-            <div className="text-right">
-              <div className="font-score text-lg text-muted-foreground/50">
-                vs {globalAverage} avg
-              </div>
-              <p className="text-[10px] text-muted-foreground/40 mt-0.5">
-                {parseFloat(userScore) > parseFloat(globalAverage) ? 'Above average ↑' : 'Below average ↓'}
-              </p>
-            </div>
-          )}
-        </div>
+        {/* Dashboard Stats Row — 4 glass widgets */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
 
-        {/* Streak & Perk Bar */}
-        {streakData && (
-          <div className="mb-6 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-5 py-3">
-            <div className="flex items-center gap-4">
-              {/* Streak */}
-              <div className="flex items-center gap-1.5">
-                <Flame className={`h-4 w-4 ${streakData.streak > 0 ? 'text-warning' : 'text-muted-foreground/40'}`} />
-                <span className="text-sm font-medium text-foreground">{streakData.streak}d</span>
+          {/* Widget 1: Your Score — linked to /profile */}
+          <Link
+            href="/profile"
+            className="group rounded-2xl border border-border/70 bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent bg-card/40 backdrop-blur-sm p-5 flex flex-col hover:bg-card/60 active:bg-card/80 transition-all shadow-sm h-full"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="h-3 w-3 text-primary shrink-0" />
+              <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-primary">Your Score</span>
+            </div>
+            <div className="flex items-baseline gap-2.5">
+              <span className="font-score text-3xl leading-none group-hover:scale-105 transition-transform origin-left" style={{ color: `rgb(var(--${parseFloat(userScore) >= 90 ? 'score-legendary' : parseFloat(userScore) >= 75 ? 'score-high' : parseFloat(userScore) >= 55 ? 'score-mid' : 'score-low'}))` }}>
+                {userScore !== '0' ? userScore : '--'}
+              </span>
+              <span className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">
+                avg · {myScoredPosts.length || 0} posts
+              </span>
+            </div>
+            {globalEntries && globalEntries.length > 0 && (
+              <div className="mt-auto pt-1.5 flex items-center justify-between text-[10px] border-t border-border/70">
+                <span className="text-muted-foreground/85">vs {globalAverage} avg</span>
+                <span className={`font-medium ${parseFloat(userScore) > parseFloat(globalAverage) ? 'text-success' : 'text-destructive'}`}>
+                  {parseFloat(userScore) > parseFloat(globalAverage) ? '↑ Above' : '↓ Below'}
+                </span>
+              </div>
+            )}
+          </Link>
+
+          {/* Widget 2: Streak & Perk */}
+          {streakData ? (
+            <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-warning/[0.08] via-transparent to-transparent bg-card/40 backdrop-blur-sm p-5 flex flex-col transition-all shadow-sm h-full">
+              <div className="flex items-center gap-2 mb-2">
+                <Flame className={`h-3 w-3 shrink-0 ${streakData.streak > 0 ? 'text-warning' : 'text-muted-foreground/40'}`} />
+                <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-warning">Streak</span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <span className="font-score text-3xl leading-none text-foreground">{streakData.streak}d</span>
                 {streakData.multiplierPercent > 0 && (
-                  <span className="text-[10px] text-gold font-medium">+{streakData.multiplierPercent}%</span>
+                  <span className="text-[10px] font-medium text-gold bg-gold/10 px-2 py-0.5 rounded-full">+{streakData.multiplierPercent}%</span>
                 )}
               </div>
-              {/* Next badge progress */}
               {streakData.nextBadge && (
-                <div className="hidden sm:flex items-center gap-2 text-[10px] text-muted-foreground/60">
-                  <span className="text-xs opacity-40">|</span>
+                <div className="text-[10px] text-muted-foreground/85 flex items-center gap-1.5 mt-1">
                   <span>{streakData.nextBadge.emoji}</span>
-                  <span>{streakData.nextBadge.name} in {streakData.nextBadge.streakRequired - streakData.streak}d</span>
-                  <div className="w-16 h-1.5 rounded-full bg-elevated overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gold/60 transition-all"
-                      style={{ width: `${Math.round(streakData.nextBadge.progress * 100)}%` }}
-                    />
-                  </div>
+                  <span className="truncate">{streakData.nextBadge.name} — {streakData.nextBadge.streakRequired - streakData.streak}d away</span>
                 </div>
               )}
-            </div>
-            {/* Claim Perk Button */}
-            {streakData.canClaimPerk ? (
-              <button
-                onClick={handleClaimPerk}
-                disabled={claimPerk.isPending}
-                className="inline-flex items-center gap-1.5 rounded-full glass-btn-gold px-3.5 py-1.5 text-[10px] font-bold text-black transition-all hover:scale-[1.02] disabled:opacity-60"
-              >
-                <Gift className="h-3 w-3" />
-                {claimPerk.isPending ? 'Claiming...' : 'Daily Perk'}
-              </button>
-            ) : streakData.streak > 0 && (
-              <button
-                disabled
-                className="inline-flex items-center gap-1.5 rounded-full border border-border/50 px-3.5 py-1.5 text-[10px] font-medium text-muted-foreground/50 cursor-not-allowed"
-              >
-                <Gift className="h-3 w-3" />
-                Post to unlock
-              </button>
-            )}
-          </div>
-        )}
-
-        {/* Daily Winner — top post badge */}
-        {dailyTop && dailyTop.length > 0 && feedTab === 'global' && (
-          <div className="mb-4 rounded-2xl border border-gold/20 bg-gold/[0.03] backdrop-blur-sm p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 min-w-0">
-              <span className="text-2xl shrink-0">🏆</span>
-              <div className="min-w-0">
-                <p className="text-[10px] uppercase tracking-widest font-bold text-gold mb-0.5">Daily Winner</p>
-                <p className="text-sm font-medium text-foreground truncate">
-                  {dailyTop[0]?.user?.username || 'Anonymous'} · <span className="text-gold font-score text-base">{dailyTop[0]?.score}</span>
-                </p>
-                <p className="text-[10px] text-muted-foreground/60 truncate">
-                  &ldquo;{dailyTop[0]?.description?.slice(0, 60)}&rdquo;
-                </p>
+              <div className="mt-auto pt-1.5">
+                {streakData.canClaimPerk ? (
+                  <button
+                    onClick={handleClaimPerk}
+                    disabled={claimPerk.isPending}
+                    className="w-full rounded-full glass-btn-gold px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:scale-[1.02] active:scale-[0.98] hover:shadow-[0_0_20px_-4px_rgb(var(--gold)/0.4)] disabled:opacity-60"
+                  >
+                    <Gift className="h-3 w-3 inline mr-1" />
+                    {claimPerk.isPending ? 'Claiming...' : '🎁 Daily Perk'}
+                  </button>
+                ) : (
+                  <Link
+                    href="/posts/new"
+                    className="block text-[10px] text-muted-foreground/70 hover:text-muted-foreground/85 text-center py-1.5 border border-dashed border-border/70 hover:border-border/80 rounded-full uppercase tracking-[0.15em] transition-colors"
+                  >
+                    Post today to unlock →
+                  </Link>
+                )}
               </div>
             </div>
+          ) : (
+            <div className="rounded-2xl border border-border/70 bg-gradient-to-br from-warning/[0.08] via-transparent to-transparent bg-card/40 backdrop-blur-sm p-5 flex items-center justify-center shadow-sm h-full">
+              <span className="text-[10px] text-muted-foreground/75 uppercase tracking-[0.2em]">Loading streak...</span>
+            </div>
+          )}
+
+          {/* Widget 3: Daily Winner — linked to winning post */}
+          {dailyTop && dailyTop.length > 0 && (
             <Link
               href={`/posts/${dailyTop[0]?.id}`}
-              className="shrink-0 text-[9px] uppercase tracking-widest text-gold/60 hover:text-gold transition-colors ml-3"
+              className="group rounded-2xl border border-border/70 bg-gradient-to-br from-gold/[0.08] via-transparent to-transparent bg-card/40 backdrop-blur-sm p-5 flex flex-col hover:bg-card/60 active:bg-card/80 transition-all shadow-sm h-full"
             >
-              View →
-            </Link>
-          </div>
-        )}
-
-        {/* Today's Best — Daily Leaderboard */}
-        {dailyTop && dailyTop.length > 0 && feedTab === 'global' && (
-          <div className="mb-8 rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm p-5">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <Crown className="h-4 w-4 text-gold" />
-                <span className="text-xs uppercase tracking-[0.2em] font-bold text-gold">Today&apos;s Best</span>
+              <div className="flex items-center gap-2 mb-2">
+                <Trophy className="h-3 w-3 text-gold shrink-0" />
+                <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-gold">Daily Winner</span>
               </div>
-              <Link
-                href="/leaderboards"
-                className="text-[9px] uppercase tracking-widest text-muted-foreground/60 hover:text-foreground transition-colors"
-              >
-                Full Board →
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-              {dailyTop.slice(0, 6).map((entry) => (
-                <div
-                  key={entry.id}
-                  className="flex items-center gap-3 rounded-xl border border-border/40 bg-elevated/30 px-3.5 py-2.5"
-                >
-                  <span className="font-score text-sm text-muted-foreground/50 w-4 text-center shrink-0">
-                    {entry.rank <= 3 ? ['🥇', '🥈', '🥉'][entry.rank - 1] : entry.rank}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-foreground truncate">
-                      {entry.user.username || 'anonymous'}
-                    </p>
-                    <p className="text-[10px] text-muted-foreground/60 truncate leading-tight">
-                      {entry.partner.emoji} {entry.description?.slice(0, 50)}...
-                    </p>
-                  </div>
-                  <div className="text-right shrink-0">
-                    <span className="font-score text-sm text-gold">{entry.score}</span>
-                    {entry.score > entry.rawScore && (
-                      <span className="text-[8px] text-success/60 ml-0.5">+{entry.score - entry.rawScore}</span>
-                    )}
-                  </div>
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="text-xl shrink-0 leading-none">🏆</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-medium text-foreground truncate leading-tight">
+                    {dailyTop[0]?.user?.username || 'Anonymous'}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground/85 truncate leading-tight">
+                    &ldquo;{dailyTop[0]?.description?.slice(0, 35)}&rdquo;
+                  </p>
                 </div>
-              ))}
+                <span className="font-score text-xl text-gold shrink-0 tabular-nums">{dailyTop[0]?.score}</span>
+              </div>
+              <div className="mt-auto pt-1.5 border-t border-border/70 flex justify-end">
+                <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/75 group-hover:text-gold/70 transition-colors font-medium">
+                  View post →
+                </span>
+              </div>
+            </Link>
+          )}
+
+          {/* Widget 4: Today's Pulse — linked to /leaderboards */}
+          <Link
+            href="/leaderboards"
+            className="group rounded-2xl border border-border/70 bg-gradient-to-br from-success/[0.08] via-transparent to-transparent bg-card/40 backdrop-blur-sm p-5 flex flex-col hover:bg-card/60 active:bg-card/80 transition-all shadow-sm h-full"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <TrendingUp className="h-3 w-3 text-success shrink-0" />
+              <span className="tracking-[0.2em] uppercase text-[10px] font-medium text-success">Today&apos;s Pulse</span>
             </div>
-          </div>
-        )}
+            <div className="flex items-center gap-3">
+              <span className="font-score text-3xl leading-none text-foreground tabular-nums">
+                {dailyTop?.length || globalEntries?.length || '--'}
+              </span>
+              <div className="flex flex-col">
+                <span className="text-[10px] text-muted-foreground uppercase tracking-[0.2em]">stories today</span>
+                {dailyTop && dailyTop.length > 0 && (
+                  <span className="text-[10px] text-muted-foreground/75 uppercase tracking-[0.15em]">
+                    avg {dailyTop.reduce((s, e) => s + (e.score || 0), 0) / dailyTop.length}
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="mt-auto pt-1.5 border-t border-border/70 flex justify-end">
+              <span className="text-[9px] uppercase tracking-[0.2em] text-muted-foreground/75 group-hover:text-success/70 transition-colors font-medium">
+                Full Board →
+              </span>
+            </div>
+          </Link>
+
+        </div>
 
         {feedTab === 'global' ? (isLoading ? (
           <div className="py-8">

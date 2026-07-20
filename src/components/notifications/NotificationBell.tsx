@@ -120,7 +120,7 @@ export function NotificationBell() {
       const data = await res.json();
       if (data.success) {
         addToast(action === 'accepted' ? 'Connected!' : 'Declined', 'success');
-        fetchRequests();
+        await Promise.all([fetchRequests(), fetchUnreadCount()]);
       } else addToast(data.error || 'Failed', 'error');
     } catch { addToast('Something went wrong', 'error'); }
   };
@@ -128,7 +128,10 @@ export function NotificationBell() {
   const cancelRequest = async (requestId: string) => {
     try {
       const res = await fetch(`/api/connections/requests/${requestId}`, { method: 'DELETE' });
-      if ((await res.json()).success) { addToast('Request cancelled', 'info'); fetchRequests(); }
+      if ((await res.json()).success) {
+        addToast('Request cancelled', 'info');
+        await Promise.all([fetchRequests(), fetchUnreadCount()]);
+      }
     } catch { addToast('Failed to cancel', 'error'); }
   };
 
@@ -139,12 +142,12 @@ export function NotificationBell() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={openDropdown}
-        className="rounded-full border border-border bg-card/80 backdrop-blur text-muted-foreground hover:text-foreground hover:bg-card active:text-foreground transition-colors px-4 py-2"
+        className="relative p-2 rounded-full border border-border bg-card/80 backdrop-blur text-muted-foreground hover:text-foreground hover:bg-card active:text-foreground transition-colors"
         aria-label="Notifications"
       >
-        <Bell className="h-5 w-5 text-primary" />
+        <Bell className="h-5 w-5" />
         {(unreadCount > 0 || incomingRequests.length > 0) && (
-          <span className="rounded-full glass-btn px-4 py-2 font-bold">
+          <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[22px] h-[22px] rounded-full bg-destructive/15 backdrop-blur-[16px] border border-destructive/30 text-[10px] font-bold text-destructive px-1.5 leading-none shadow-[0_4px_12px_-4px_rgb(230,90,90,0.25)] ring-2 ring-background">
             {unreadCount + incomingRequests.length > 9 ? '9+' : unreadCount + incomingRequests.length}
           </span>
         )}
@@ -199,12 +202,12 @@ export function NotificationBell() {
                         const sender = req.sender as any;
                         return (
                           <div key={req.id} className="flex items-center justify-between py-1.5 px-2 rounded-xl bg-primary/5">
-                            <Link href={`/users/${sender?.id}`} onClick={() => setOpen(false)} className="text-xs text-foreground font-medium hover:text-primary active:text-primary/80 underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">
-                              @{sender?.username || 'Someone'}
+                            <Link href={`/users/${sender?.id}`} onClick={() => setOpen(false)} className="text-xs text-foreground font-medium hover:text-primary active:text-primary/80 transition-colors min-w-0 flex-1 truncate">
+                              <span className="no-underline">@</span><span className="underline decoration-dotted decoration-muted-foreground/30">{sender?.username || 'Someone'}</span>
                             </Link>
                             <div className="flex gap-0.5 shrink-0 ml-1">
-                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="p-2 rounded-full glass-btn touch-target"><Check className="h-4 w-4" /></button>
-                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-4 w-4" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn touch-target"><Check className="h-3.5 w-3.5" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-3.5 w-3.5" /></button>
                             </div>
                           </div>
                         );
@@ -238,21 +241,47 @@ export function NotificationBell() {
 
               {/* Notifications list */}
               {loading ? (
-                <div className="flex justify-center py-8">
-                  <div className="rounded-full glass-btn px-4 py-2" />
+                <div className="flex justify-center items-center py-12">
+                  <div className="h-8 w-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                 </div>
-              ) : notifications.length === 0 ? (
-                <div className="text-center py-10 px-4">
-                  <Bell className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
-                  <p className="text-sm text-muted-foreground">No notifications yet</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">Likes, comments, connections, and bond invites will show up here</p>
+              ) : notifications.length === 0 && !hasRequests ? (
+                <div className="text-center py-12 px-6">
+                  <div className="w-14 h-14 rounded-2xl bg-elevated border border-border flex items-center justify-center mx-auto mb-4">
+                    <Bell className="h-6 w-6 text-muted-foreground/40" />
+                  </div>
+                  <p className="text-sm font-medium text-foreground mb-1">All quiet here</p>
+                  <p className="text-xs text-muted-foreground/60 leading-relaxed max-w-[240px] mx-auto">
+                    Likes, comments, connection requests, and bond invites will show up here.
+                  </p>
                 </div>
               ) : (
                 <div>
                   {notifications.map((notif) => {
                     const config = NOTIFICATION_MESSAGES[notif.type];
                     const Icon = config?.icon || Bell;
-                    const actorName = notif.actor?.username || 'Someone';
+
+                    // Build the display message — support grouped notifications
+                    const grouped = (notif as any)._groupedActors as Array<{ id: string; username: string }> | undefined;
+                    let displayMessage: string;
+                    if (grouped && grouped.length > 0) {
+                      const names = grouped.map(a => a.username || 'Someone');
+                      if (names.length === 1) {
+                        displayMessage = config ? config.message(names[0]) : `${names[0]} interacted with you`;
+                      } else if (names.length === 2) {
+                        displayMessage = config
+                          ? config.message(`${names[0]} and ${names[1]}`)
+                          : `${names[0]} and ${names[1]} interacted with you`;
+                      } else {
+                        const others = names.length - 2;
+                        displayMessage = config
+                          ? config.message(`${names[0]}, ${names[1]} and ${others} other${others > 1 ? 's' : ''}`)
+                          : `${names[0]}, ${names[1]} and ${others} other${others > 1 ? 's' : ''} interacted with you`;
+                      }
+                    } else {
+                      const actorName = notif.actor?.username || 'Someone';
+                      displayMessage = config ? config.message(actorName) : `${actorName} interacted with you`;
+                    }
+
                     return (
                       <button
                         key={notif.id}
@@ -263,9 +292,7 @@ export function NotificationBell() {
                           <Icon className="h-5 w-5" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm text-foreground leading-snug">
-                            {config ? config.message(actorName) : `${actorName} interacted with you`}
-                          </p>
+                          <p className="text-sm text-foreground leading-snug">{displayMessage}</p>
                           <p className="text-[10px] text-muted-foreground mt-0.5">
                             {formatRelativeTime(notif.created_at)}
                           </p>
