@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils/cn';
 import { X } from 'lucide-react';
@@ -15,6 +15,12 @@ interface ModalProps {
 }
 
 export function Modal({ isOpen, onClose, title, children, className }: ModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleEsc = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -23,6 +29,7 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
   );
 
   useEffect(() => {
+    if (!mounted) return;
     if (isOpen) {
       document.addEventListener('keydown', handleEsc);
       document.body.style.overflow = 'hidden';
@@ -31,18 +38,20 @@ export function Modal({ isOpen, onClose, title, children, className }: ModalProp
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = '';
     };
-  }, [isOpen, handleEsc]);
+  }, [isOpen, handleEsc, mounted]);
+
+  if (!mounted) return null;
 
   return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 overscroll-contain touch-manipulation">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-lg"
-            onClick={onClose} 
+            onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, filter: "blur(20px)", scale: 0.98 }}
