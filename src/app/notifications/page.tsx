@@ -134,19 +134,19 @@ export default function NotificationsPage() {
       </Link>
 
       {/* Header — Fond pattern */}
-      <header className="flex items-start justify-between mb-8">
+      <header className="flex flex-col sm:flex-row items-start justify-between gap-3 mb-8">
         <div>
           <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-2 flex items-center gap-2">
             <Bell className="h-3.5 w-3.5" /> Updates
           </p>
-          <h1 className="font-display text-5xl italic text-foreground tracking-tight leading-none">
+          <h1 className="font-display text-4xl sm:text-5xl italic text-foreground tracking-tight leading-none">
             Notifications
           </h1>
         </div>
         {notifications.some(n => !n.read) && (
           <button
             onClick={markAllRead}
-            className="flex items-center gap-1.5 text-xs text-primary hover:underline active:underline mt-2 shrink-0 py-2"
+            className="flex items-center gap-1.5 text-xs text-primary hover:underline active:underline shrink-0 py-2 touch-target"
           >
             <CheckCheck className="h-3.5 w-3.5" /> Mark all read
           </button>
@@ -160,10 +160,10 @@ export default function NotificationsPage() {
             <span className="text-xs text-foreground font-bold flex items-center gap-2">
               <UserPlus className="h-4 w-4 text-primary" /> Pending requests
             </span>
-            <span className="flex items-center gap-3 text-[10px]">
-              {incomingRequests.length > 0 && <span className="text-primary font-medium">{incomingRequests.length} to accept</span>}
-              {outgoingRequests.length > 0 && <span className="text-warning">{outgoingRequests.length} sent</span>}
-              <ChevronDown className={`h-3.5 w-3.5 text-muted-foreground transition-transform ${requestsOpen ? 'rotate-180' : ''}`} />
+            <span className="flex items-center gap-1.5 sm:gap-3 text-[9px] sm:text-[10px]">
+              {incomingRequests.length > 0 && <span className="text-primary font-medium whitespace-nowrap">{incomingRequests.length} to accept</span>}
+              {outgoingRequests.length > 0 && <span className="text-warning whitespace-nowrap">{outgoingRequests.length} sent</span>}
+              <ChevronDown className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-muted-foreground transition-transform shrink-0 ${requestsOpen ? 'rotate-180' : ''}`} />
             </span>
           </button>
           {requestsOpen && (
@@ -270,7 +270,7 @@ export default function NotificationsPage() {
       <button
         key={notif.id}
         onClick={() => handleClick(notif)}
-        className={`w-full flex items-center gap-4 p-4 rounded-2xl border transition-all text-left ${
+        className={`w-full flex items-center gap-2 sm:gap-4 p-3 sm:p-4 rounded-2xl border transition-all text-left ${
           notif.read
             ? 'border-border bg-card/40 hover:bg-card/60 hover:shadow-sm active:bg-card/80 active:shadow-sm'
             : 'border-primary/15 bg-primary/[0.03] shadow-sm hover:shadow-md active:shadow-md'

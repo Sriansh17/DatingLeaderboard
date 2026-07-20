@@ -56,11 +56,14 @@ export function CommentModal({ postId, isOpen, onClose, commentsCount }: Comment
     }
   };
 
-  const sorted = [...comments].sort((a, b) =>
-    sort === 'popular'
-      ? ((b as any).votes || 0) - ((a as any).votes || 0)
-      : new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-  );
+  const sorted = [...comments].sort((a, b) => {
+    if (sort === 'popular') {
+      const aScore = (a.votes || 0) + (a.replies?.length || 0);
+      const bScore = (b.votes || 0) + (b.replies?.length || 0);
+      return bScore - aScore;
+    }
+    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+  });
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} className="sm:max-w-md">

@@ -211,7 +211,7 @@ export function AppDock() {
       <Link
         key={href}
         href={href}
-        className={`outline-none group relative flex flex-col items-center justify-center transition-all duration-300 rounded-full ${isActive ? "text-primary w-14 sm:w-16 h-12 sm:h-14" : "text-muted-foreground hover:text-primary active:text-primary/80 w-12 sm:w-14 h-12 sm:h-14"}`}
+        className={`outline-none group relative flex flex-col items-center justify-center transition-all duration-300 rounded-full ${isActive ? "text-primary w-12 sm:w-14 lg:w-16 h-10 sm:h-12 lg:h-14" : "text-muted-foreground hover:text-primary active:text-primary/80 w-10 sm:w-12 lg:w-14 h-10 sm:h-12 lg:h-14"}`}
       >
         {isActive && (
           <motion.div
@@ -220,8 +220,8 @@ export function AppDock() {
             transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
           />
         )}
-        <Icon className={`relative z-10 h-5 w-5 sm:h-6 sm:w-6 transition-transform duration-300 ${isActive ? 'scale-100 -translate-y-1.5 sm:-translate-y-2' : 'group-hover:scale-110 group-hover:-translate-y-1 group-focus-within:scale-110 group-focus-within:-translate-y-1'}`} />
-        <span className={`absolute bottom-1.5 sm:bottom-2 z-10 text-[10px] sm:text-[11px] font-bold tracking-wide opacity-0 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 translate-y-2'}`}>
+        <Icon className={`relative z-10 h-4 w-4 sm:h-5 sm:w-5 lg:h-6 lg:w-6 transition-transform duration-300 ${isActive ? 'scale-100 -translate-y-1.5 sm:-translate-y-2' : 'group-hover:scale-110 group-hover:-translate-y-1 group-focus-within:scale-110 group-focus-within:-translate-y-1'}`} />
+        <span className={`absolute bottom-1 sm:bottom-1.5 lg:bottom-2 z-10 text-[8px] sm:text-[10px] lg:text-[11px] font-bold tracking-wide opacity-0 transition-all duration-300 ${isActive ? 'opacity-100 translate-y-0' : 'group-hover:opacity-100 group-hover:translate-y-0 group-focus-within:opacity-100 group-focus-within:translate-y-0 translate-y-2'}`}>
           {label}
         </span>
       </Link>
@@ -272,8 +272,8 @@ export function AppDock() {
       </AnimatePresence>
 
       {/* ── Dock ── */}
-      <div className={`fixed bottom-6 sm:bottom-8 left-1/2 z-50 -translate-x-1/2 transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} w-max max-w-[95vw] pb-safe`}>
-        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] max-w-[95vw] sm:max-w-none mx-auto overflow-visible">
+      <div className={`fixed bottom-6 sm:bottom-8 left-0 right-0 z-50 flex justify-center transition-all duration-700 ease-out ${isVisible ? 'translate-y-0 opacity-100' : 'translate-y-12 opacity-0'} pb-safe`}>
+        <nav className="flex items-center gap-1 sm:gap-2 rounded-full border border-border dark:border-border bg-white/80 dark:bg-black/40 px-2.5 sm:px-4 py-2 sm:py-3 backdrop-blur-2xl shadow-[0_8px_30px_-8px_rgba(232,69,107,0.15),0_2px_8px_-2px_rgba(0,0,0,0.05)] dark:shadow-[0_20px_40px_-10px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.1)] mx-auto">
 
           {/* Brand Icon — tap toggles theme | hover opens atmosphere popover */}
           {isMounted ? (
@@ -324,14 +324,14 @@ export function AppDock() {
           <div>
             <Link
               href={isAnonymousMode ? "/confessions/new" : "/posts/new"}
-              className="outline-none group relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 active:scale-100 animate-pulse-glow"
+              className="outline-none group relative flex h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 active:scale-100 animate-pulse-glow"
               aria-label={isAnonymousMode ? "New confession" : "New post"}
               style={{
                 background: 'linear-gradient(180deg, rgb(var(--primary)), color-mix(in oklab, rgb(var(--primary)) 85%, black))',
                 boxShadow: '0 6px 20px -6px rgba(var(--primary), 0.5), 0 2px 6px -1px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.2)',
               }}
             >
-              <Plus className="h-5 w-5 sm:h-7 sm:w-7 text-white transition-transform duration-300 group-hover:rotate-90 group-focus-within:rotate-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
+              <Plus className="h-4 w-4 sm:h-5 sm:w-5 lg:h-7 lg:w-7 text-white transition-transform duration-300 group-hover:rotate-90 group-focus-within:rotate-90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.15)]" />
             </Link>
           </div>
 

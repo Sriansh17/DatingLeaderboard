@@ -6,6 +6,8 @@ import { evaluateStreak, checkNewBadges } from '@/lib/utils/engagement';
 import { invalidateLeaderboardCache } from '@/lib/redis/client';
 import type { BadgeDef } from '@/lib/utils/constants';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = await createServerSupabaseClient();
@@ -204,6 +206,7 @@ export async function POST(request: Request) {
       aiResult,
       streak: { current: newStreak, longest: longestStreak },
       newBadges: newBadges.map((b) => ({ id: b.id, name: b.name, emoji: b.emoji })),
+      isFirstPost: !profileRow || !profileRow.streak_count,
     }, { status: 201 });
   } catch (error) {
     console.error('Posts POST error:', error);

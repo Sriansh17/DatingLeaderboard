@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 
+export const dynamic = 'force-dynamic';
+
 // GET /api/users/[id] — public profile for any user
 export async function GET(
   _request: Request,
@@ -112,6 +114,30 @@ export async function GET(
       comments: undefined,
     }));
 
+    // Calculate global rank
+    let rank = null;
+    if (avgScore > 0) {
+      const { data: allScores } = await admin
+        .from('posts')
+        .select('user_id, ai_score')
+        .not('ai_score', 'is', null);
+
+      if (allScores) {
+        const userAvgs: Record<string, number[]> = {};
+        allScores.forEach(p => {
+          if (!userAvgs[p.user_id]) userAvgs[p.user_id] = [];
+          userAvgs[p.user_id].push(p.ai_score!);
+        });
+        const avgMap: Record<string, number> = {};
+        Object.entries(userAvgs).forEach(([uid, scores]) => {
+          avgMap[uid] = scores.reduce((a, b) => a + b, 0) / scores.length;
+        });
+        const sorted = Object.entries(avgMap).sort(([, a], [, b]) => b - a);
+        const pos = sorted.findIndex(([uid]) => uid === id);
+        rank = pos >= 0 ? pos + 1 : null;
+      }
+    }
+
     return NextResponse.json({
       success: true,
       data: {
@@ -129,6 +155,7 @@ export async function GET(
           average_score: avgScore,
           top_partner_name: topPartner?.name || null,
           top_partner_emoji: topPartner?.emoji || null,
+          rank,
         },
         posts: enrichedPosts,
         connection_status: user ? connectionStatus : undefined,

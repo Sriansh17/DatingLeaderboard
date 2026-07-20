@@ -130,14 +130,13 @@ export function PostForm({
       }
 
       // Every post gets the celebration treatment — confetti + score reveal
-      const isFirst = result.streak?.current === 1 && !result.streak?.longest;
-      setIsFirstPost(isFirst);
+      const firstPost = result.isFirstPost === true;
+      setIsFirstPost(firstPost);
       setShowVerdictCard(false);
 
       setStep("verdict");
       setShowConfetti(true);
-      // Show the full welcome ceremony for every post (score reveal + tier + confetti)
-      // The "See My Verdict" button inside the ceremony transitions to the verdict card
+      // Celebration ceremony for every post — shows score, tier, and "See My Verdict" button
       setTimeout(() => setShowWelcomeCeremony(true), 600);
     } catch (err: any) {
       setStep("write");
@@ -246,7 +245,7 @@ export function PostForm({
 
         {/* Welcome Ceremony Overlay — first post only */}
         <AnimatePresence>
-          {showWelcomeCeremony && isFirstPost && (
+          {showWelcomeCeremony && (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

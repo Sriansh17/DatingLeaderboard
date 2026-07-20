@@ -59,7 +59,7 @@ async function createPost(payload: CreatePostPayload & { user_id: string }) {
     throw error;
   }
 
-  return { post: json.data, aiResult: json.aiResult, streak: json.streak, newBadges: json.newBadges };
+  return { post: json.data, aiResult: json.aiResult, streak: json.streak, newBadges: json.newBadges, isFirstPost: json.isFirstPost };
 }
 
 export function usePosts(userId?: string) {

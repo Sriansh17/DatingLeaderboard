@@ -6,14 +6,15 @@ import { Modal } from '@/components/ui/Modal';
 import { usePosts, useArchivedPosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { tierForScore } from '@/lib/mock-data';
+import { tierForScore, scoreColor } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { Tooltip } from '@/components/ui/Tooltip';
+import { RankCarousel } from '@/components/ui/RankCarousel';
 import { PageBell } from '@/components/ui/PageBell';
-import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2, Sparkles as SparklesIcon } from 'lucide-react';
+import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2, Sparkles as SparklesIcon, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -39,6 +40,7 @@ export default function ProfilePage() {
   const [bondCount, setBondCount] = useState(0);
   const [connectionCount, setConnectionCount] = useState(0);
   const [bondEmojis, setBondEmojis] = useState<string[]>([]);
+  const [bondIds, setBondIds] = useState<string[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -151,6 +153,7 @@ export default function ProfilePage() {
         if (data.success) {
           setBondCount(data.data?.length || 0);
           setBondEmojis((data.data || []).map((c: any) => c.emoji).filter(Boolean));
+          setBondIds((data.data || []).map((c: any) => c.id).filter(Boolean));
         }
       })
       .catch(() => {});
@@ -162,6 +165,7 @@ export default function ProfilePage() {
         if (data.success) setConnectionCount(data.data?.length || 0);
       })
       .catch(() => {});
+
   }, [user]);
 
   useEffect(() => {
@@ -180,8 +184,8 @@ export default function ProfilePage() {
   );
 
   if (authLoading) return (
-    <div className="py-20 text-center animate-pulse">
-      <div className="h-8 w-48 bg-elevated rounded-full mx-auto mb-4" />
+    <div className="min-h-dvh w-full flex items-center justify-center">
+      <div className="h-8 w-48 bg-elevated rounded-full mx-auto animate-pulse" />
     </div>
   );
 
@@ -211,7 +215,7 @@ export default function ProfilePage() {
 
   return (
     <main className="w-full mx-auto min-h-dvh bg-transparent relative pb-12 px-4 sm:px-8">
-      <ScrollToTop label="The Archives" />
+      <ScrollToTop label="My Profile" />
       <header className="px-5 pb-8 pt-12 flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <motion.p
@@ -220,7 +224,7 @@ export default function ProfilePage() {
             transition={{ duration: 0.4 }}
             className="text-xs font-bold uppercase tracking-[0.25em] text-gold mb-2"
           >
-            The Archives
+            The Profile
           </motion.p>
           <motion.h1
             initial={{ opacity: 0, y: 8 }}
@@ -405,34 +409,37 @@ export default function ProfilePage() {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-              {/* Avg Score — dominant */}
-              <div className="col-span-2 p-5 rounded-2xl border border-primary/20 bg-primary/[0.04] backdrop-blur-md flex flex-col items-center justify-center">
-                <div className="text-[10px] uppercase tracking-widest text-primary font-bold mb-1">Avg Score</div>
-                <div className="font-score text-4xl sm:text-5xl text-primary leading-none"><AnimatedNumber value={avgScore} delay={0.2} /></div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Avg Score — with inline score ring feel */}
+              <div className="col-span-1 p-3 rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/[0.06] to-primary/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-primary/[0.04] blur-xl pointer-events-none" />
+                <div className="text-[9px] uppercase tracking-widest font-bold mb-1" style={{ color: scoreColor(avgScore) }}>Avg Score</div>
+                <div className="font-score text-2xl sm:text-3xl leading-none" style={{ color: scoreColor(avgScore) }}><AnimatedNumber value={avgScore} delay={0.2} /></div>
+                <div className="text-[8px] font-medium mt-1" style={{ color: scoreColor(avgScore) }}>{tierForScore(avgScore)}</div>
               </div>
-              {/* Best Score — dominant */}
-              <div className="col-span-2 p-5 rounded-2xl border border-gold/20 bg-gold/[0.04] backdrop-blur-md flex flex-col items-center justify-center">
-                <div className="text-[10px] uppercase tracking-widest text-gold font-bold mb-1">Best Score</div>
-                <div className="font-score text-4xl sm:text-5xl text-gold leading-none"><AnimatedNumber value={bestScore} delay={0.4} /></div>
+              {/* Best Score — with glow */}
+              <div className="col-span-1 p-3 rounded-2xl border border-gold/20 bg-gradient-to-b from-gold/[0.06] to-gold/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-gold/[0.04] blur-xl pointer-events-none" />
+                <div className="text-[9px] uppercase tracking-widest font-bold mb-1" style={{ color: scoreColor(bestScore) }}>Best Score</div>
+                <div className="font-score text-2xl sm:text-3xl leading-none" style={{ color: scoreColor(bestScore) }}><AnimatedNumber value={bestScore} delay={0.4} /></div>
+                <div className="text-[8px] font-medium mt-1" style={{ color: scoreColor(bestScore) }}>{tierForScore(bestScore)}</div>
               </div>
-              {/* Posts */}
-              <div className="col-span-1 p-3 rounded-2xl border border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md flex flex-col items-center justify-center">
-                <div className="font-score text-xl text-foreground">{posts?.length || 0}</div>
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">Posts</div>
-              </div>
-              {/* Partners */}
-              <div className="col-span-1 p-3 rounded-2xl border border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md flex flex-col items-center justify-center">
-                <div className="font-score text-xl text-primary">{partners.length}</div>
-                <div className="text-[9px] uppercase tracking-widest text-muted-foreground mt-0.5">Partners</div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2 mt-3">
-              <div className="px-3 py-1.5 rounded-full border border-border/50 bg-secondary/20 text-[10px] text-muted-foreground font-medium">
-                {bondCount} Bonds
-              </div>
-              <div className="px-3 py-1.5 rounded-full border border-border/50 bg-secondary/20 text-[10px] text-muted-foreground font-medium">
-                {connectionCount} Connections
+              {/* Rank Carousel */}
+              <div className="col-span-1 flex">{user && <RankCarousel userId={user.id} city={profile.city} bondIds={bondIds} />}</div>
+              {/* Partners + Bonds + Connections — stacked vertically */}
+              <div className="col-span-1 flex flex-col gap-1.5">
+                <div className="flex-1 p-2.5 rounded-2xl border border-primary/20 bg-primary/[0.04] backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-primary">{partners.length}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Partners</div>
+                </div>
+                <div className="flex-1 p-2.5 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-foreground">{bondCount}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Bonds</div>
+                </div>
+                <div className="flex-1 p-2.5 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-gold">{connectionCount}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Connections</div>
+                </div>
               </div>
             </div>
           </div>
@@ -496,7 +503,7 @@ export default function ProfilePage() {
                 {canRestoreStreak && (
                   <button
                     onClick={() => setIsRestoreModalOpen(true)}
-                    className="mt-3 inline-flex items-center rounded-full glass-btn px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.15em] touch-target"
+                    className="mt-3 inline-flex items-center rounded-full glass-btn-gold px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.15em] touch-target"
                   >
                     Restore Streak
                   </button>
@@ -527,7 +534,9 @@ export default function ProfilePage() {
                 const story = {
                   id: post.id,
                   username: profile?.username ? `@${profile.username}` : '@you',
+                  userAvatarUrl: profile?.avatar_url || null,
                   partnerNickname: post.partner?.name || 'partner',
+                  partnerAvatarUrl: post.partner?.avatar_url || null,
                   city: post.post_city || profile?.city || 'Unknown',
                   country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
@@ -582,7 +591,9 @@ export default function ProfilePage() {
                 const story = {
                   id: post.id,
                   username: profile?.username ? `@${profile.username}` : '@you',
+                  userAvatarUrl: profile?.avatar_url || null,
                   partnerNickname: post.partner?.name || 'partner',
+                  partnerAvatarUrl: post.partner?.avatar_url || null,
                   city: post.post_city || profile?.city || 'Unknown',
                   country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',

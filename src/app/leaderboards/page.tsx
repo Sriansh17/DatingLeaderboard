@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +17,7 @@ import { Spinner } from "@/components/ui/Spinner";
 import { Skeleton } from "@/components/ui/Skeleton";
 import Link from 'next/link';
 
-const scopes = ["Country", "City", "Bond"] as const;
+const scopes = ["Global", "Country", "City", "Bond"] as const;
 const timeframes = ["All Time", "This Week"] as const;
 
 interface LeaderboardEntry {
@@ -109,7 +109,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
         {/* Dual avatar lockup */}
         <div className="relative mb-3 flex items-end justify-center">
           {/* Partner avatar (small, offset back-right) */}
-          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center z-0">
+          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-card/80 backdrop-blur-sm border border-border/20 flex items-center justify-center z-0">
             {entry.top_partner_avatar ? (
               <img src={entry.top_partner_avatar} alt={entry.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
             ) : (
@@ -132,9 +132,11 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
         {/* Label */}
         <div className="text-center mb-3 w-full px-1">
           <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-            {entry.top_partner_name || entry.username}
+            @{entry.username}
           </div>
-          <div className="text-[10px] text-muted-foreground truncate">@{entry.username}</div>
+          {entry.top_partner_name && (
+            <div className="text-[10px] text-muted-foreground/60 truncate">{entry.top_partner_emoji || '❤️'} {entry.top_partner_name}</div>
+          )}
           <div className={`text-xl font-score mt-0.5 ${colorClass}`}>{entry.average_score}</div>
         </div>
       </Link>
@@ -153,7 +155,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
 }
 
 export default function RanksPage() {
-  const [scope, setScope] = useState<(typeof scopes)[number]>("Country");
+  const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
   const [timeframe, setTimeframe] = useState<(typeof timeframes)[number]>("All Time");
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
   const [parentRef] = useAutoAnimate({ duration: 300 });
@@ -189,15 +191,14 @@ export default function RanksPage() {
 
   const isCircle = scope === 'Bond';
 
-  const params = isCircle ? {} : {
-    type: (scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
+  const params = useMemo(() => isCircle ? {} : {
+    type: (scope === 'Global' ? 'country' : scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
     country: scope === 'Country' ? (profile as any)?.country || undefined : undefined,
     city: scope === 'City' ? profile?.city || undefined : undefined,
     latitude: scope === 'City' ? latitude || undefined : undefined,
     longitude: scope === 'City' ? longitude || undefined : undefined,
     limit: 50,
-    enabled: scope !== 'City' || !geoLoading,
-  };
+  }, [isCircle, scope, (profile as any)?.country, profile?.city, latitude, longitude]);
 
   // Fetch leaderboard data (uses different query for circle vs country/city)
   const { data: entries, isLoading } = useQuery<LeaderboardEntry[]>({
@@ -210,7 +211,7 @@ export default function RanksPage() {
         return json.data || [];
       }
       // For country/city, use the leaderboard API
-      const type = scope === 'Country' ? 'country' : 'city';
+      const type = scope === 'Global' ? 'country' : scope === 'Country' ? 'country' : 'city';
       const searchParams = new URLSearchParams({ type, limit: '50' });
       if (scope === 'Country' && (profile as any)?.country) searchParams.set('country', (profile as any).country);
       if (scope === 'City' && profile?.city) searchParams.set('city', profile.city);
@@ -221,7 +222,8 @@ export default function RanksPage() {
       return json.data || [];
     },
     enabled: isCircle ? !!selectedCircleId : true,
-    staleTime: 30000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const top3 = entries?.slice(0, 3) || [];
@@ -261,7 +263,7 @@ export default function RanksPage() {
               key={t}
               onClick={() => setTimeframe(t)}
               className={`relative flex-1 rounded-full px-3.5 py-2 text-xs font-medium transition-colors touch-target ${
-                timeframe === t ? "text-primary" : "text-muted-foreground hover:text-foreground active:text-foreground"
+                timeframe === t ? "text-foreground" : "text-muted-foreground hover:text-foreground active:text-foreground"
               }`}
             >
               {timeframe === t && (
@@ -297,7 +299,9 @@ export default function RanksPage() {
           ))}
         </div>
         <p className="mt-2 text-center text-xs text-muted-foreground max-w-7xl mx-auto">
-          {scope === "Country"
+          {scope === "Global"
+            ? "Top couples worldwide"
+            : scope === "Country"
             ? (profile as any)?.country ? `Top couples in ${(profile as any).country}` : "Set your country in profile settings"
             : scope === "City"
             ? latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"
@@ -390,6 +394,7 @@ export default function RanksPage() {
                     viewport={{ once: true, margin: "-10px" }}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                     key={e.user_id}
+                    id={`leaderboard-row-${e.user_id}`}
                     className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
                     whileTap={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
                   >
@@ -402,7 +407,7 @@ export default function RanksPage() {
                       {/* Dual mini avatar */}
                       <div className="relative h-7 w-10 shrink-0">
                         {/* Partner avatar (back) */}
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-card/80 backdrop-blur-sm border border-border/20 flex items-center justify-center">
                           {e.top_partner_avatar ? (
                             <img src={e.top_partner_avatar} alt={e.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
@@ -412,7 +417,7 @@ export default function RanksPage() {
                           )}
                         </div>
                         {/* User avatar (front) */}
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-card/90 backdrop-blur-sm border border-border/30 flex items-center justify-center z-10">
                           {e.avatar_url ? (
                             <img src={e.avatar_url} alt={e.username} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
@@ -426,10 +431,13 @@ export default function RanksPage() {
                       {/* Names */}
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-foreground">
-                          {e.top_partner_name || e.username}
+                          @{e.username}
                         </div>
-                        <div className="truncate text-[10px] text-muted-foreground">
-                          @{e.username} · {e.total_posts} posts
+                        <div className="truncate text-[10px] text-muted-foreground flex items-center gap-1">
+                          {e.top_partner_emoji && <span>{e.top_partner_emoji}</span>}
+                          <span>{e.top_partner_name || 'Unknown'}</span>
+                          <span className="text-muted-foreground/30">·</span>
+                          <span>{e.total_posts} posts</span>
                       </div>
                     </div>
                     </Link>
@@ -493,18 +501,18 @@ export default function RanksPage() {
             </motion.div>
           )}
 
-          <div className="pointer-events-auto w-full sm:w-fit min-w-0 sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-4 flex items-center justify-between gap-4">
-            <div className="font-score text-2xl text-blush shrink-0" style={{ width: 44 }}>
+          <div className="pointer-events-auto w-[calc(100vw-32px)] sm:w-fit sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4 cursor-pointer" onClick={() => document.getElementById(`leaderboard-row-${myEntry.user_id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
+            <div className="font-score text-xl sm:text-2xl text-blush shrink-0 w-8 sm:w-11">
               #{myRank}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-sm font-medium text-foreground">You · {myEntry.top_partner_name || profile?.username}</div>
-              <div className="text-xs text-muted-foreground truncate">
-                {myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
+              <div className="text-xs sm:text-sm font-medium text-foreground truncate">You · @{profile?.username}</div>
+              <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
+                {myEntry.top_partner_name ? `${myEntry.top_partner_emoji || '❤️'} ${myEntry.top_partner_name} · ` : ''}{myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
               </div>
             </div>
-            <div className="flex items-center gap-4 shrink-0">
-              <div className="font-score text-2xl relative overflow-hidden h-[24px]" style={{ color: scoreColor(myEntry.average_score) }}>
+            <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+              <div className="font-score text-xl sm:text-2xl relative overflow-hidden h-[20px] sm:h-[24px]" style={{ color: scoreColor(myEntry.average_score) }}>
                 <AnimatePresence mode="popLayout">
                   <motion.div
                     key={myEntry.average_score}

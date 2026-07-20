@@ -4,6 +4,8 @@ import { createClient } from '@supabase/supabase-js';
 import { streakMultiplier, pickDailyPerk, checkNewBadges } from '@/lib/utils/engagement';
 import { BADGES, PERKS } from '@/lib/utils/constants';
 
+export const dynamic = 'force-dynamic';
+
 // ─── GET /api/streak — Return current streak info
 export async function GET() {
   try {

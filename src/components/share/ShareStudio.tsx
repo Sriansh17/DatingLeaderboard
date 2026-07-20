@@ -28,6 +28,7 @@ const RANK_THEMES: ThemeDef[] = [
 
 const PROFILE_THEMES: ThemeDef[] = [
   { id: 'profile-page',  label: 'Profile Page',       description: 'Your actual Fond profile. Avatar, details, stats, and bio.' },
+  { id: 'fond-identity', label: 'Fond Identity',      description: 'Apple-inspired premium identity card. Your score, elevated.' },
   { id: 'membership',    label: 'Membership Card',   description: 'Like an Amex Centurion. Your Fond identity, in gold.' },
   { id: 'player-stats',  label: 'Player Stats',       description: 'ESPN meets romance. Your numbers, visualized.' },
   { id: 'profile-card',  label: 'Fond ID',            description: 'Clean identity card. Who you are on Fond.' },
@@ -128,13 +129,14 @@ export function ShareStudio() {
   return (
     <div 
       className={`fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 sm:p-6 lg:p-12 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+      onClick={closeShare}
     >
-      <div className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-background rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col lg:flex-row border border-border">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-[1100px] h-full max-h-[850px] bg-background rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.1)] dark:shadow-[0_0_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col lg:flex-row border border-border">
 
         {/* Close Button (Top Right) */}
         <button 
-          onClick={closeShare}
-          className="absolute top-6 right-6 lg:top-8 lg:right-8 z-50 p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 backdrop-blur-md transition-colors"
+          onClick={(e) => { e.stopPropagation(); closeShare(); }}
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 lg:top-8 lg:right-8 z-[60] p-3 rounded-full border border-border bg-muted text-muted-foreground hover:text-foreground hover:bg-elevated active:text-foreground active:bg-elevated/80 backdrop-blur-md transition-colors touch-manipulation"
         >
           <X className="w-5 h-5" />
         </button>

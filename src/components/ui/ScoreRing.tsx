@@ -13,7 +13,7 @@ export function ScoreRing({ score, size = 64 }: { score: number; size?: number }
       {/* Background ring */}
       <svg className="absolute -rotate-90" width={size} height={size} overflow="visible">
         <circle
-          className="text-elevated transition-all duration-1000 ease-in-out"
+          className="text-border/50 transition-all duration-1000 ease-in-out"
           strokeWidth={strokeWidth}
           stroke="currentColor"
           fill="transparent"

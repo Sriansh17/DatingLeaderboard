@@ -32,26 +32,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
   const [isLiked, setIsLiked] = useState(post?.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
   const [showComments, setShowComments] = useState(false);
-  const [emojiReactions, setEmojiReactions] = useState<Record<string, boolean>>({});
   const [heartBounceKey, setHeartBounceKey] = useState(0);
-
-  const EMOJI_REACTIONS = [
-    { emoji: '🔥', label: 'Fire' },
-    { emoji: '😭', label: 'Cry' },
-    { emoji: '👀', label: 'Peek' },
-    { emoji: '💀', label: 'Dead' },
-  ] as const;
-
-  // Load existing reactions when post mounts
-  useEffect(() => {
-    if (!post || !user) return;
-    fetch(`/api/posts/${post.id}/react`)
-      .then(r => r.json())
-      .then(json => {
-        if (json.success && json.data) setEmojiReactions(json.data);
-      })
-      .catch(() => {});
-  }, [post?.id, user?.id]);
 
   const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
@@ -86,22 +67,6 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     }
   };
 
-  const toggleEmojiReaction = async (emoji: string) => {
-    if (!post || !user) return;
-    // Optimistic update
-    setEmojiReactions(prev => ({ ...prev, [emoji]: !prev[emoji] }));
-    try {
-      await fetch(`/api/posts/${post.id}/react`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emoji }),
-      });
-    } catch {
-      // Revert on error
-      setEmojiReactions(prev => ({ ...prev, [emoji]: !prev[emoji] }));
-    }
-  };
-
   // Single click handler — routes based on data-* attributes, no nested interactive elements
   const handleCardClick = (e: React.MouseEvent) => {
     if (showComments) return; // don't navigate when modal is open
@@ -125,7 +90,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           {post ? (
             <span
               data-profile
-              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/30 underline-offset-2`}
+              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/60 underline-offset-4`}
             >
               {story.username}
             </span>
@@ -175,26 +140,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           <span>{post && heartCount > 0 ? heartCount : 0}</span>
         </button>
 
-        {/* Emoji reactions */}
-        {post && EMOJI_REACTIONS.map(({ emoji }) => (
-          <button
-            key={emoji}
-            data-action
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              toggleEmojiReaction(emoji);
-            }}
-            className={`text-xs sm:text-sm transition-all duration-200 shrink-0 px-1.5 py-1 rounded-full ${
-              emojiReactions[emoji]
-                ? 'scale-110 bg-primary/10 ring-1 ring-primary/30'
-                : 'opacity-50 hover:opacity-100 hover:bg-muted/30'
-            }`}
-            aria-label={`React with ${emoji}`}
-          >
-            {emoji}
-          </button>
-        ))}
+
       </div>
 
       {/* Right: Comment + Edit + Share — fixed, never pushed */}
@@ -205,7 +151,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
             e.stopPropagation();
             if (post) setShowComments(true);
           }}
-          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors shrink-0"
+          className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors p-2 -m-2 touch-manipulation"
         >
           <MessageCircle className="h-4 w-4" />
           <span>{post?.comments_count ?? 0}</span>
@@ -290,7 +236,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               {/* Overlapping avatar pair — vertically centered in container */}
               <div className="relative flex-shrink-0 h-[36px] w-[48px]">
                 {/* Partner avatar (back) */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/60 to-primary flex items-center justify-center">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-card/80 backdrop-blur-sm border border-border/30 flex items-center justify-center">
                   {story.partnerAvatarUrl ? (
                     <img src={story.partnerAvatarUrl} alt={story.partnerNickname} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
@@ -300,7 +246,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   )}
                 </div>
                 {/* User avatar (front) */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-card/90 backdrop-blur-sm border border-border/40 flex items-center justify-center z-10">
                   {story.userAvatarUrl ? (
                     <img src={story.userAvatarUrl} alt={story.username} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
@@ -317,7 +263,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   {post ? (
                     <button
                       data-profile
-                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/30 underline-offset-2 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
+                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/60 underline-offset-4 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
                     >
                       {story.username}
                     </button>
@@ -374,37 +320,19 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 <span>{post ? likesCount : 0}</span>
               </button>
 
-              {/* Emoji reactions */}
-              {post && EMOJI_REACTIONS.map(({ emoji }) => (
-                <button
-                  key={emoji}
-                  data-action
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    toggleEmojiReaction(emoji);
-                  }}
-                  className={`text-xs sm:text-sm transition-all duration-200 shrink-0 px-1.5 py-1 rounded-full ${
-                    emojiReactions[emoji]
-                      ? 'scale-110 bg-primary/10 ring-1 ring-primary/30'
-                      : 'opacity-50 hover:opacity-100 hover:bg-muted/30'
-                  }`}
-                  aria-label={`React with ${emoji}`}
-                >
-                  {emoji}
-                </button>
-              ))}
+
             </div>
 
             {/* Right: Comment + Edit + Share — fixed, never pushed */}
             <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <button
+                data-action
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
                   if (post) setShowComments(true);
                 }}
-                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors shrink-0 touch-target"
+                className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors p-2 -m-2 touch-manipulation"
               >
                 <MessageCircle className="h-4 w-4" />
                 <span>{post?.comments_count ?? 0}</span>

@@ -26,14 +26,16 @@ export function ConfessionsFeed() {
 
   return (
     <main className="w-full min-h-dvh bg-transparent">
-      {/* Anonymous mode header bar */}
-      <div className="overflow-hidden border-b border-border/50 bg-primary/5 backdrop-blur-md py-3">
-        <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-[0.2em] font-bold text-primary">
-          <Lock className="h-3 w-3" />
-          <span>Anonymous Mode — Your identity is hidden</span>
+      {/* Anonymous mode header bar — glass system */}
+      <div className="border-b border-border/50 glass-1 backdrop-blur-md px-4 py-3">
+        <div className="flex items-center justify-between max-w-[1400px] mx-auto">
+          <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-primary">
+            <Lock className="h-3 w-3 shrink-0" />
+            <span>Anonymous Mode — Identity hidden</span>
+          </div>
           <button
             onClick={toggleAnonymousMode}
-            className="rounded-full glass-btn px-4 py-2 font-bold touch-target"
+            className="shrink-0 rounded-full glass-btn px-4 py-2 text-[11px] font-bold inline-flex items-center gap-1 touch-target"
           >
             <EyeOff className="h-3.5 w-3.5" />
             Exit
@@ -73,7 +75,7 @@ export function ConfessionsFeed() {
             <Spinner size="lg" text={["LOADING CONFESSIONS...", "ANONYMOUS MODE ACTIVE..."]} />
           </div>
         ) : !confessions || confessions.length === 0 ? (
-          <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
+          <div className="text-center py-32 rounded-3xl border border-border bg-elevated/50 backdrop-blur-xl">
             <Lock className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
             <h3 className="text-3xl font-display italic text-foreground mb-4">
               No confessions yet.

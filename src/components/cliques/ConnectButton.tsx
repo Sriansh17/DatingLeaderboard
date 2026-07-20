@@ -16,6 +16,7 @@ interface ConnectButtonProps {
 export function ConnectButton({ targetUserId, initialStatus, requestId, onStatusChange }: ConnectButtonProps) {
   const [status, setStatus] = useState<ConnectionStatus>(initialStatus);
   const [loading, setLoading] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState(false);
   const { addToast } = useToast();
 
   const sendRequest = async () => {
@@ -123,19 +124,29 @@ export function ConnectButton({ targetUserId, initialStatus, requestId, onStatus
     );
   }
 
-  // connected
+  // connected — badge with integrated X button and inline confirmation
   return (
-    <div className="flex items-center gap-2">
-      <span className="inline-flex items-center gap-1.5 text-xs font-medium text-success bg-success/15 px-3 py-1.5 rounded-full">
-        <UserCheck className="h-3.5 w-3.5" /> In Your Circle
-      </span>
-      <button
-        onClick={removeConnection}
-        disabled={loading}
-        className="text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 underline transition-colors"
-      >
-        Remove
-      </button>
+    <div className="flex items-center">
+      {confirmRemove ? (
+        <div className="inline-flex items-center gap-2 rounded-full bg-destructive/15 border border-destructive/30 text-sm font-semibold px-4 py-2">
+          <span className="text-destructive text-xs font-bold uppercase tracking-wider">Remove?</span>
+          <button onClick={() => { setConfirmRemove(false); removeConnection(); }} disabled={loading}
+            className="text-xs text-destructive/80 hover:text-destructive underline underline-offset-2">
+            {loading ? '...' : 'Yes'}
+          </button>
+          <button onClick={() => setConfirmRemove(false)}>
+            <X className="h-3 w-3 text-muted-foreground/50 hover:text-muted-foreground" />
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => setConfirmRemove(true)}
+          className="inline-flex items-center gap-1.5 rounded-full bg-success/15 border border-success/30 text-success text-sm font-semibold px-4 py-2 transition-all">
+          <UserCheck className="h-4 w-4" /> In Your Circle
+          <span className="flex items-center justify-center h-5 w-5 rounded-full border border-success/40 bg-success/10 ml-1">
+            <X className="h-3 w-3 text-success/80" />
+          </span>
+        </button>
+      )}
     </div>
   );
 }

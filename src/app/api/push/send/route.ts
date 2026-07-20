@@ -3,11 +3,7 @@ import webpush from 'web-push';
 import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 
-webpush.setVapidDetails(
-  process.env.VAPID_EMAIL!,
-  process.env.VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-);
+export const dynamic = 'force-dynamic';
 
 const adminClient = () =>
   createClient(
@@ -15,8 +11,17 @@ const adminClient = () =>
     process.env.SUPABASE_SERVICE_ROLE_KEY!
   );
 
+function initVapid() {
+  webpush.setVapidDetails(
+    process.env.VAPID_EMAIL!,
+    process.env.VAPID_PUBLIC_KEY!,
+    process.env.VAPID_PRIVATE_KEY!
+  );
+}
+
 export async function POST(request: Request) {
   try {
+    initVapid();
     const supabase = await createServerSupabaseClient();
     const {
       data: { user },

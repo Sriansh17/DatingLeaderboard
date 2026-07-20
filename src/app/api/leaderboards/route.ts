@@ -4,6 +4,7 @@ import { getCachedLeaderboard, setCachedLeaderboard } from '@/lib/redis/client';
 import { MIN_POSTS_FOR_LEADERBOARD, LEADERBOARD_PAGE_SIZE } from '@/lib/utils/constants';
 import type { LeaderboardEntry } from '@/types/database';
 
+export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
   const startTime = Date.now();
   console.log(`[Leaderboard] ⏱️ Request started`);

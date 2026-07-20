@@ -15,7 +15,7 @@ import { useShare } from '@/components/providers/ShareProvider';
 import { useLeaderboard } from '@/lib/hooks/useLeaderboard';
 import { useToast } from '@/components/ui/Toast';
 import { useConfirm } from '@/components/ui/ConfirmModal';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { CommentCard } from '@/components/ui/CommentCard';
 import { CommentInput } from '@/components/ui/CommentInput';
@@ -61,46 +61,7 @@ export default function PostDetailPage() {
     fetchComments();
   }, [post?.id]);
 
-  const [emojiReactions, setEmojiReactions] = useState<Record<string, boolean>>({});
-  const [showReactionPicker, setShowReactionPicker] = useState(false);
-  const reactionRef = useRef<HTMLDivElement>(null);
-  const EMOJI_REACTIONS = ['🔥', '😭', '👀', '💀'];
 
-  // Load existing reactions
-  useEffect(() => {
-    if (!post || !user) return;
-    fetch(`/api/posts/${post.id}/react`)
-      .then(r => r.json())
-      .then(json => {
-        if (json.success && json.data) setEmojiReactions(json.data);
-      })
-      .catch(() => {});
-  }, [post?.id, user?.id]);
-
-  const toggleEmojiReaction = async (emoji: string) => {
-    if (!post || !user) return;
-    setEmojiReactions(prev => ({ ...prev, [emoji]: !prev[emoji] }));
-    try {
-      await fetch(`/api/posts/${post.id}/react`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ emoji }),
-      });
-    } catch {
-      setEmojiReactions(prev => ({ ...prev, [emoji]: !prev[emoji] }));
-    }
-  };
-
-  useEffect(() => {
-    if (!showReactionPicker) return;
-    const handler = (e: MouseEvent) => {
-      if (reactionRef.current && !reactionRef.current.contains(e.target as Node)) {
-        setShowReactionPicker(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, [showReactionPicker]);
 
   const handleLike = async () => {
     if (!user || likePostMutation.isPending || !post) return;
@@ -255,25 +216,7 @@ export default function PostDetailPage() {
             </div>
             </div>
 
-            {/* Reactions bar */}
-            <div className="flex items-center gap-2 p-3 rounded-2xl border border-border bg-card/40 backdrop-blur-sm">
-              <span className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mr-1">Reactions</span>
-              {Object.entries(emojiReactions).filter(([,v]) => v).map(([emoji]) => (
-                <button key={emoji} onClick={() => toggleEmojiReaction(emoji)} className="text-sm px-1.5 py-0.5 rounded-full bg-primary/10 ring-1 ring-primary/30 hover:opacity-80 transition-opacity">{emoji}</button>
-              ))}
-              <div className="relative" ref={reactionRef}>
-                <button onClick={() => setShowReactionPicker(!showReactionPicker)} className="flex items-center gap-1 rounded-full glass-btn px-3 py-1.5 text-xs font-semibold" aria-label="Add reaction">
-                  <SmilePlus className="h-3.5 w-3.5" /> React
-                </button>
-                {showReactionPicker && (
-                  <div className="absolute bottom-full mb-2 left-0 flex gap-0.5 p-1.5 rounded-xl border border-border bg-popover shadow-lg z-30" onClick={(e) => e.stopPropagation()}>
-                    {EMOJI_REACTIONS.map((emoji) => (
-                      <button key={emoji} onClick={() => { toggleEmojiReaction(emoji); setShowReactionPicker(false); }} className={`text-lg transition-all duration-200 p-1 rounded-lg hover:bg-muted active:bg-muted/80 ${emojiReactions[emoji] ? 'scale-110 bg-primary/10 ring-1 ring-primary/30' : ''}`}>{emoji}</button>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
+
 
             {/* Post details card */}
             <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
