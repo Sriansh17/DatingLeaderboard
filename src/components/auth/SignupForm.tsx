@@ -182,9 +182,9 @@ export function SignupForm() {
 
       {/* Name */}
       <div className="relative">
-        <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+        <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
         <input type="text" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required autoComplete="name"
-          className="w-full rounded-2xl border border-border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
+          className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
       </div>
 
       {/* Username */}
@@ -234,18 +234,18 @@ export function SignupForm() {
 
       {/* Email */}
       <div className="relative">
-        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
         <input type="email" placeholder="Email Address *" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
-          className="w-full rounded-2xl border border-border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
+          className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
       </div>
 
       {/* Password */}
       <div className="relative">
-        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
         <input type="password" placeholder="Password *" value={password}
           onChange={e => setPassword(e.target.value)}
           autoComplete="new-password"
-          className={`w-full rounded-2xl border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${password && !PASSWORD_REGEX.test(password) ? 'border-rose-500/50 focus:border-rose-500/50' : 'border-border focus:border-primary/50'}`} />
+          className={`w-full rounded-2xl border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${password && !PASSWORD_REGEX.test(password) ? 'border-rose-500/50 focus:border-rose-500/50' : 'border-border focus:border-primary/50'}`} />
       </div>
       {password && (
         <div className="space-y-1.5 -mt-1">
@@ -273,11 +273,11 @@ export function SignupForm() {
 
       {/* Confirm Password */}
       <div className="relative">
-        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10" />
+        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
         <input type="password" placeholder="Confirm Password *" value={confirmPassword}
           onChange={e => setConfirmPassword(e.target.value)}
           autoComplete="new-password"
-          className={`w-full rounded-2xl border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${confirmPassword && password !== confirmPassword ? 'border-rose-500/50 focus:border-rose-500/50' : confirmPassword && password === confirmPassword ? 'border-emerald-500/50' : 'border-border focus:border-primary/50'}`} />
+          className={`w-full rounded-2xl border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${confirmPassword && password !== confirmPassword ? 'border-rose-500/50 focus:border-rose-500/50' : confirmPassword && password === confirmPassword ? 'border-emerald-500/50' : 'border-border focus:border-primary/50'}`} />
       </div>
       {confirmPassword && password !== confirmPassword && (
         <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
@@ -304,7 +304,7 @@ export function SignupForm() {
           )}
         </div>
         <div className="relative flex-1">
-          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+          <Phone className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
           <input type="tel" placeholder="Phone number" value={phoneNum} onChange={e => setPhoneNum(e.target.value.replace(/\D/g, '').slice(0, 15))} autoComplete="tel"
             className="w-full rounded-2xl border border-border bg-muted/30 pl-11 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
         </div>
@@ -315,7 +315,7 @@ export function SignupForm() {
         <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
         <input type="text" inputMode="numeric" placeholder="DD/MM/YYYY" value={dobText}
           onChange={e => handleDobText(e.target.value)} onBlur={handleDobBlur}
-          className="w-full rounded-2xl border border-border bg-muted/30 pl-12 pr-4 py-4 text-base text-foreground placeholder:text-muted-foreground/35 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all" />
+          className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-base text-foreground placeholder:text-muted-foreground/35 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all" />
       </div>
       {dobIso && <p className="text-[11px] text-muted-foreground/70 -mt-1">Born {fmt(dobIso)} &middot; <span className="text-foreground/80 font-medium">{age} years</span></p>}
       {dobError && <p className="text-[10px] text-destructive/80 font-medium -mt-1">{dobError}</p>}
@@ -344,7 +344,7 @@ export function SignupForm() {
             onFocus={() => setShowStateList(true)} onBlur={() => setTimeout(() => setShowStateList(false), 200)}
             disabled={!country}
             autoComplete="address-level1"
-            className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-4 pr-8 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base disabled:opacity-40 disabled:cursor-not-allowed" />
+            className="w-full rounded-2xl border border-border bg-muted/30 px-4 pr-8 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base disabled:opacity-40 disabled:cursor-not-allowed" />
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none" />
           {showStateList && country && stateName && filteredStates.length > 0 && (
             <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden max-h-36 overflow-y-auto">
@@ -361,7 +361,7 @@ export function SignupForm() {
             onFocus={() => setShowCityList(true)} onBlur={() => setTimeout(() => setShowCityList(false), 200)}
             disabled={!stateName}
             autoComplete="address-level2"
-            className="w-full rounded-2xl border border-border bg-muted/30 px-4 py-4 pr-8 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base disabled:opacity-40 disabled:cursor-not-allowed" />
+            className="w-full rounded-2xl border border-border bg-muted/30 px-4 pr-8 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base disabled:opacity-40 disabled:cursor-not-allowed" />
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50 pointer-events-none" />
           {showCityList && stateName && city && filteredCities.length > 0 && (
             <div className="absolute z-20 top-full mt-1 left-0 right-0 bg-popover border border-border rounded-2xl shadow-lg overflow-hidden max-h-36 overflow-y-auto">

@@ -44,8 +44,10 @@ export function useStreak() {
   return useQuery({
     queryKey: ['streak'],
     queryFn: fetchStreak,
-    staleTime: 60000,
+    staleTime: 30000,
     refetchOnMount: true,
+    refetchInterval: 60000,
+    refetchIntervalInBackground: false,
   });
 }
 

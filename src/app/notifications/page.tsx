@@ -178,10 +178,10 @@ export default function NotificationsPage() {
                       const sender = req.sender as any;
                       return (
                         <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-primary/15 bg-primary/[0.03]">
-                          <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary active:text-primary/80 underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">@{sender?.username || 'unknown'}</Link>
-                          <div className="flex gap-1.5 shrink-0 ml-2">
-                            <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-4 py-2 rounded-full glass-btn text-[10px] font-semibold touch-target">Accept</button>
-                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-3.5 w-3.5" /></button>
+                          <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary active:text-primary/80 transition-colors min-w-0 flex-1 truncate"><span className="no-underline">@</span><span className="underline decoration-dotted decoration-muted-foreground/30">{sender?.username || 'unknown'}</span></Link>
+                          <div className="flex gap-1 shrink-0 ml-2">
+                            <button onClick={() => respondToRequest(req.id, 'accepted')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn touch-target"><Check className="h-3.5 w-3.5" /></button>
+                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-3.5 w-3.5" /></button>
                           </div>
                         </div>
                       );

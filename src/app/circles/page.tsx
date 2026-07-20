@@ -281,14 +281,22 @@ export default function BondsPage() {
               <p className="text-xs text-muted-foreground">No connections yet</p>
             ) : (
               connections.map(conn => (
-                <Link
-                  key={conn.id}
-                  href={`/users/${conn.connected_user_id}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border bg-card/30 text-xs text-foreground hover:bg-card/50 active:bg-card/70 transition-colors"
-                >
-                  <Avatar src={conn.profile?.avatar_url} alt={conn.profile?.username || ''} size="sm" />
-                  @{conn.profile?.username || 'unknown'}
-                </Link>
+                <div key={conn.id} className="group inline-flex items-center rounded-full border border-border bg-card/30 hover:bg-card/50 active:bg-card/70 transition-colors">
+                  <Link
+                    href={`/users/${conn.connected_user_id}`}
+                    className="inline-flex items-center gap-1.5 pl-3 pr-0.5 py-1.5 text-xs text-foreground leading-none"
+                  >
+                    <Avatar src={conn.profile?.avatar_url} alt={conn.profile?.username || ''} size="sm" />
+                    <span>@{conn.profile?.username || 'unknown'}</span>
+                  </Link>
+                  <button
+                    onClick={() => handleRemoveConnection(conn.connected_user_id, conn.profile?.username || 'unknown')}
+                    className="inline-flex items-center justify-center w-5 h-5 mr-1.5 rounded-full text-muted-foreground/30 opacity-0 group-hover:opacity-100 hover:opacity-100 hover:text-destructive hover:bg-destructive/10 active:text-destructive/80 transition-all shrink-0"
+                    aria-label={`Remove @${conn.profile?.username || 'unknown'}`}
+                  >
+                    <X className="h-2.5 w-2.5" />
+                  </button>
+                </div>
               ))
             )}
           </div>
@@ -400,8 +408,8 @@ export default function BondsPage() {
                               <span className="font-medium truncate">@{sender?.username || 'unknown'}</span>
                             </Link>
                             <div className="flex gap-1.5 shrink-0 ml-2">
-                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-4 py-2 rounded-full glass-btn text-[10px] font-semibold touch-target">Accept</button>
-                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'accepted')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn touch-target"><Check className="h-3.5 w-3.5" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="inline-flex items-center justify-center w-7 h-7 rounded-full glass-btn text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
                             </div>
                           </div>
                         );
