@@ -38,7 +38,7 @@ export default function LandingPage() {
           <ThemeToggle />
           <Link
             href="/auth/login"
-            className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors touch-target inline-flex items-center"
+            className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 touch-target"
           >
             Open the App →
           </Link>
@@ -52,7 +52,7 @@ export default function LandingPage() {
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs text-primary font-medium mb-4">
             Romance meets reality TV
           </span>
-          <span className="block text-[10px] uppercase tracking-[0.3em] text-gold font-bold mb-3">
+          <span className="block text-xs uppercase tracking-[0.25em] text-gold font-bold mb-3">
             The world&apos;s first relationship leaderboard
           </span>
           <h1 className="font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
@@ -81,13 +81,13 @@ export default function LandingPage() {
           <div className="mt-7 flex flex-wrap gap-3">
             <Link
               href="/auth/signup"
-              className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3.5 text-base font-medium transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              className="rounded-full glass-btn px-6 py-3.5 text-base font-medium inline-flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               Get My Score <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/leaderboards"
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-6 py-3.5 text-base text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors"
+              className="rounded-full glass-btn px-6 py-3.5 text-base font-medium inline-flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-transform"
             >
               See the Leaderboard
             </Link>
@@ -129,20 +129,21 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* Ticker */}
-      <section className="overflow-hidden border-y border-border bg-elevated/40 py-3">
-        <div className="flex w-max gap-10 whitespace-nowrap animate-marquee text-sm text-muted-foreground">
-          {[...tickerItems, ...tickerItems].map((t, i) => (
-            <span key={i} className="flex items-center gap-3">
-              <span className="h-1.5 w-1.5 rounded-full bg-primary" /> {t}
-            </span>
-          ))}
+      {/* Social proof bar */}
+      <section className="border-y border-border bg-elevated/40 py-4">
+        <div className="mx-auto max-w-[1400px] px-6 flex items-center justify-center gap-8 sm:gap-12 text-xs text-muted-foreground flex-wrap">
+          <span className="flex items-center gap-2"><span className="font-bold text-foreground">12,402</span> couples ranked</span>
+          <span className="hidden sm:flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-primary" /></span>
+          <span className="flex items-center gap-2"><span className="font-bold text-foreground">45,892</span> stories scored</span>
+          <span className="hidden sm:flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-primary" /></span>
+          <span className="flex items-center gap-2"><span className="font-bold text-foreground">189</span> cities</span>
         </div>
       </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-[1400px] px-6 py-20">
-        <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">How it works</p>
+      {/* How it works — elevated background */}
+      <section className="bg-elevated/20">
+        <div className="mx-auto max-w-[1400px] px-6 py-20">
+        <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold">How it works</p>
         <h2 className="mt-2 font-display text-4xl italic text-foreground">Three steps to a verdict.</h2>
 
         <div className="mt-10 grid gap-5 md:grid-cols-3">
@@ -158,10 +159,12 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+        </div>
       </section>
 
-      {/* AI humor showcase */}
-      <section className="mx-auto max-w-[1400px] px-6 pb-20">
+      {/* AI humor showcase — elevated background */}
+      <section className="bg-elevated/20">
+        <div className="mx-auto max-w-[1400px] px-6 py-20">
         <p className="text-xs uppercase tracking-[0.3em] text-gold font-bold">Receipts</p>
         <h2 className="mt-2 font-display text-4xl italic text-foreground">The verdicts heard &apos;round the world.</h2>
 
@@ -178,6 +181,7 @@ export default function LandingPage() {
               compact
             />
           ))}
+        </div>
         </div>
       </section>
 
@@ -235,7 +239,7 @@ export default function LandingPage() {
         </h2>
         <Link
           href="/auth/signup"
-          className="mt-8 inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-medium transition-transform hover:scale-105 active:scale-95"
+          className="mt-8 inline-flex items-center gap-2 rounded-full glass-btn px-8 py-4 text-lg font-medium hover:scale-105 active:scale-95 transition-transform"
         >
           Start For Free <ArrowRight className="h-5 w-5" />
         </Link>

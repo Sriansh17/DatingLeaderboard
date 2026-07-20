@@ -26,8 +26,8 @@ export function ConfessionsFeed() {
 
   return (
     <main className="w-full min-h-dvh bg-transparent">
-      {/* Anonymous mode header bar */}
-      <div className="border-b border-border/50 bg-primary/5 backdrop-blur-md px-4 py-3">
+      {/* Anonymous mode header bar — glass system */}
+      <div className="border-b border-border/50 glass-1 backdrop-blur-md px-4 py-3">
         <div className="flex items-center justify-between max-w-[1400px] mx-auto">
           <div className="flex items-center gap-2 text-[10px] uppercase tracking-[0.15em] font-bold text-primary">
             <Lock className="h-3 w-3 shrink-0" />
@@ -35,7 +35,7 @@ export function ConfessionsFeed() {
           </div>
           <button
             onClick={toggleAnonymousMode}
-            className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-[11px] font-bold text-primary hover:bg-primary/20 active:bg-primary/30 transition-colors inline-flex items-center gap-1 touch-target"
+            className="shrink-0 rounded-full glass-btn px-4 py-2 text-[11px] font-bold inline-flex items-center gap-1 touch-target"
           >
             <EyeOff className="h-3.5 w-3.5" />
             Exit
@@ -57,7 +57,7 @@ export function ConfessionsFeed() {
 
         {isError ? (
           <div className="text-center py-16 sm:py-32 rounded-3xl border border-destructive/20 bg-destructive/5 backdrop-blur-xl">
-            <div className="h-16 w-16 rounded-full bg-destructive/10 flex items-center justify-center mx-auto mb-6">
+            <div className="rounded-full glass-btn px-4 py-2">
               <Lock className="h-8 w-8 text-destructive/60" />
             </div>
             <h3 className="text-2xl font-display italic text-foreground mb-3">
@@ -75,7 +75,7 @@ export function ConfessionsFeed() {
             <Spinner size="lg" text={["LOADING CONFESSIONS...", "ANONYMOUS MODE ACTIVE..."]} />
           </div>
         ) : !confessions || confessions.length === 0 ? (
-          <div className="text-center py-32 rounded-3xl border border-white/5 bg-white/5 backdrop-blur-xl">
+          <div className="text-center py-32 rounded-3xl border border-border bg-elevated/50 backdrop-blur-xl">
             <Lock className="h-16 w-16 text-muted-foreground mx-auto mb-6 opacity-50" />
             <h3 className="text-3xl font-display italic text-foreground mb-4">
               No confessions yet.

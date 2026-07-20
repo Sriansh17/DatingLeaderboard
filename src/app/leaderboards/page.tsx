@@ -1,6 +1,7 @@
 'use client';
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
+import { useAutoAnimate } from '@formkit/auto-animate/react';
 import { useQuery } from '@tanstack/react-query';
 import { motion, AnimatePresence } from "framer-motion";
 import { scoreColor } from "@/lib/mock-data";
@@ -13,9 +14,10 @@ import { useLeaderboard } from "@/lib/hooks/useLeaderboard";
 import { useUser } from "@/components/providers/AuthProvider";
 import { useGeolocation } from "@/lib/hooks/useGeolocation";
 import { Spinner } from "@/components/ui/Spinner";
+import { Skeleton } from "@/components/ui/Skeleton";
 import Link from 'next/link';
 
-const scopes = ["Country", "City", "Bond"] as const;
+const scopes = ["Global", "Country", "City", "Bond"] as const;
 const timeframes = ["All Time", "This Week"] as const;
 
 interface LeaderboardEntry {
@@ -76,20 +78,20 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
     isFirst
       ? 'text-gold'
       : rank === 2
-      ? 'text-slate-400 dark:text-slate-300'
-      : 'text-amber-700 dark:text-amber-500';
+      ? 'text-muted-foreground'
+      : 'text-warning';
   const borderClass =
     isFirst
       ? 'border-gold'
       : rank === 2
-      ? 'border-slate-400 dark:border-slate-300'
-      : 'border-amber-700 dark:border-amber-500';
+      ? 'border-border'
+      : 'border-warning/50';
   const bgGradient =
     isFirst
       ? 'from-gold/20 to-gold/5 border-gold/30'
       : rank === 2
-      ? 'from-slate-400/20 to-slate-400/5 border-slate-400/30 dark:from-slate-300/15 dark:to-slate-300/5 dark:border-slate-300/25'
-      : 'from-amber-700/20 to-amber-700/5 border-amber-700/30 dark:from-amber-500/15 dark:to-amber-500/5 dark:border-amber-500/25';
+      ? 'from-muted-foreground/10 to-muted-foreground/5 border-muted-foreground/20'
+      : 'from-warning/20 to-warning/5 border-warning/20';
 
   // Stagger: 3rd rises first (delay 0), 2nd (delay 0.08), 1st last (delay 0.18)
   const delay = isFirst ? 0.18 : rank === 2 ? 0.08 : 0;
@@ -107,7 +109,7 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
         {/* Dual avatar lockup */}
         <div className="relative mb-3 flex items-end justify-center">
           {/* Partner avatar (small, offset back-right) */}
-          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center z-0">
+          <div className="absolute -right-2 bottom-0 h-7 w-7 rounded-full ring-2 ring-background overflow-hidden bg-card/80 backdrop-blur-sm border border-border/20 flex items-center justify-center z-0">
             {entry.top_partner_avatar ? (
               <img src={entry.top_partner_avatar} alt={entry.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
             ) : (
@@ -130,9 +132,11 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
         {/* Label */}
         <div className="text-center mb-3 w-full px-1">
           <div className="text-xs sm:text-sm font-semibold text-foreground truncate">
-            {entry.top_partner_name || entry.username}
+            @{entry.username}
           </div>
-          <div className="text-[10px] text-muted-foreground truncate">@{entry.username}</div>
+          {entry.top_partner_name && (
+            <div className="text-[10px] text-muted-foreground/60 truncate">{entry.top_partner_emoji || '❤️'} {entry.top_partner_name}</div>
+          )}
           <div className={`text-xl font-score mt-0.5 ${colorClass}`}>{entry.average_score}</div>
         </div>
       </Link>
@@ -151,9 +155,10 @@ function PodiumItem({ entry, rank }: { entry: LeaderboardEntry; rank: number }) 
 }
 
 export default function RanksPage() {
-  const [scope, setScope] = useState<(typeof scopes)[number]>("Country");
+  const [scope, setScope] = useState<(typeof scopes)[number]>("Global");
   const [timeframe, setTimeframe] = useState<(typeof timeframes)[number]>("All Time");
   const [selectedCircleId, setSelectedCircleId] = useState<string | null>(null);
+  const [parentRef] = useAutoAnimate({ duration: 300 });
   const [userCircles, setUserCircles] = useState<any[]>([]);
   const [circlesLoading, setCirclesLoading] = useState(false);
   const { openShare } = useShare();
@@ -186,15 +191,14 @@ export default function RanksPage() {
 
   const isCircle = scope === 'Bond';
 
-  const params = isCircle ? {} : {
-    type: (scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
+  const params = useMemo(() => isCircle ? {} : {
+    type: (scope === 'Global' ? 'country' : scope === 'Country' ? 'country' : 'city') as 'country' | 'city',
     country: scope === 'Country' ? (profile as any)?.country || undefined : undefined,
     city: scope === 'City' ? profile?.city || undefined : undefined,
     latitude: scope === 'City' ? latitude || undefined : undefined,
     longitude: scope === 'City' ? longitude || undefined : undefined,
     limit: 50,
-    enabled: scope !== 'City' || !geoLoading,
-  };
+  }, [isCircle, scope, (profile as any)?.country, profile?.city, latitude, longitude]);
 
   // Fetch leaderboard data (uses different query for circle vs country/city)
   const { data: entries, isLoading } = useQuery<LeaderboardEntry[]>({
@@ -207,7 +211,7 @@ export default function RanksPage() {
         return json.data || [];
       }
       // For country/city, use the leaderboard API
-      const type = scope === 'Country' ? 'country' : 'city';
+      const type = scope === 'Global' ? 'country' : scope === 'Country' ? 'country' : 'city';
       const searchParams = new URLSearchParams({ type, limit: '50' });
       if (scope === 'Country' && (profile as any)?.country) searchParams.set('country', (profile as any).country);
       if (scope === 'City' && profile?.city) searchParams.set('city', profile.city);
@@ -218,7 +222,8 @@ export default function RanksPage() {
       return json.data || [];
     },
     enabled: isCircle ? !!selectedCircleId : true,
-    staleTime: 30000,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const top3 = entries?.slice(0, 3) || [];
@@ -258,7 +263,7 @@ export default function RanksPage() {
               key={t}
               onClick={() => setTimeframe(t)}
               className={`relative flex-1 rounded-full px-3.5 py-2 text-xs font-medium transition-colors touch-target ${
-                timeframe === t ? "text-primary" : "text-muted-foreground hover:text-foreground active:text-foreground"
+                timeframe === t ? "text-foreground" : "text-muted-foreground hover:text-foreground active:text-foreground"
               }`}
             >
               {timeframe === t && (
@@ -294,7 +299,9 @@ export default function RanksPage() {
           ))}
         </div>
         <p className="mt-2 text-center text-xs text-muted-foreground max-w-7xl mx-auto">
-          {scope === "Country"
+          {scope === "Global"
+            ? "Top couples worldwide"
+            : scope === "Country"
             ? (profile as any)?.country ? `Top couples in ${(profile as any).country}` : "Set your country in profile settings"
             : scope === "City"
             ? latitude && longitude ? "Couples near your exact location" : profile?.city ? `Top near ${profile.city}` : "Enable location for local rankings"
@@ -333,8 +340,9 @@ export default function RanksPage() {
 
       <div className="max-w-7xl mx-auto">
         {isLoading ? (
-          <div className="flex justify-center py-20 min-h-[50vh] items-center">
-            <Spinner size="lg" text={["TALLYING STANDINGS...", "INITIALIZING FOND...", "CALCULATING SCORES..."]} />
+          <div className="py-8 space-y-6">
+            <Skeleton variant="podium" count={3} />
+            <Skeleton variant="row" count={8} />
           </div>
         ) : !entries || entries.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-32 text-center px-4">
@@ -377,7 +385,7 @@ export default function RanksPage() {
 
             {/* List — shows all entries after the podium */}
             {entries.length > 3 && (
-              <motion.ol className="space-y-2 px-4 pb-4 pt-2">
+              <motion.ol ref={parentRef} className="space-y-2 px-4 pb-4 pt-2">
                 {entries.slice(3).map((e, index) => (
                   <motion.li
                     layout
@@ -386,6 +394,7 @@ export default function RanksPage() {
                     viewport={{ once: true, margin: "-10px" }}
                     transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
                     key={e.user_id}
+                    id={`leaderboard-row-${e.user_id}`}
                     className="flex items-center gap-3 rounded-2xl border border-border bg-card p-3 relative overflow-hidden"
                     whileTap={{ y: -2, boxShadow: "0px 10px 30px -10px rgba(0,0,0,0.1)" }}
                   >
@@ -398,7 +407,7 @@ export default function RanksPage() {
                       {/* Dual mini avatar */}
                       <div className="relative h-7 w-10 shrink-0">
                         {/* Partner avatar (back) */}
-                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                        <div className="absolute right-0 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full ring-[1.5px] ring-card overflow-hidden bg-card/80 backdrop-blur-sm border border-border/20 flex items-center justify-center">
                           {e.top_partner_avatar ? (
                             <img src={e.top_partner_avatar} alt={e.top_partner_name} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
@@ -408,7 +417,7 @@ export default function RanksPage() {
                           )}
                         </div>
                         {/* User avatar (front) */}
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center z-10">
+                        <div className="absolute left-0 top-1/2 -translate-y-1/2 h-7 w-7 rounded-full ring-[1.5px] ring-card overflow-hidden bg-card/90 backdrop-blur-sm border border-border/30 flex items-center justify-center z-10">
                           {e.avatar_url ? (
                             <img src={e.avatar_url} alt={e.username} loading="lazy" className="h-full w-full object-cover" />
                           ) : (
@@ -422,10 +431,13 @@ export default function RanksPage() {
                       {/* Names */}
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-foreground">
-                          {e.top_partner_name || e.username}
+                          @{e.username}
                         </div>
-                        <div className="truncate text-[10px] text-muted-foreground">
-                          @{e.username} · {e.total_posts} posts
+                        <div className="truncate text-[10px] text-muted-foreground flex items-center gap-1">
+                          {e.top_partner_emoji && <span>{e.top_partner_emoji}</span>}
+                          <span>{e.top_partner_name || 'Unknown'}</span>
+                          <span className="text-muted-foreground/30">·</span>
+                          <span>{e.total_posts} posts</span>
                       </div>
                     </div>
                     </Link>
@@ -447,7 +459,7 @@ export default function RanksPage() {
 
                     {/* Rank change indicator */}
                     {typeof (e as any).rank_change === 'number' && (e as any).rank_change !== 0 && (
-                      <div className={`flex items-center gap-0.5 text-[10px] font-bold shrink-0 ${(e as any).rank_change > 0 ? 'text-emerald-500' : 'text-rose-500'}`}>
+                      <div className={`flex items-center gap-0.5 text-[10px] font-bold shrink-0 ${(e as any).rank_change > 0 ? 'text-success' : 'text-destructive'}`}>
                         {(e as any).rank_change > 0
                           ? <TrendingUp className="h-3 w-3" />
                           : <TrendingDown className="h-3 w-3" />
@@ -469,7 +481,7 @@ export default function RanksPage() {
           initial={{ y: 30, opacity: 0, scale: 0.98 }}
           animate={{ y: 0, opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-          className="fixed inset-x-0 bottom-[100px] sm:bottom-[120px] z-30 flex flex-col items-center gap-2 px-4 pointer-events-none"
+          className="fixed inset-x-0 bottom-28 md:bottom-32 z-30 flex flex-col items-center gap-2 px-4 pointer-events-none"
         >
           {/* Rival callout — appears just above the self bar */}
           {rivalEntry && pointsGap && (
@@ -489,14 +501,14 @@ export default function RanksPage() {
             </motion.div>
           )}
 
-          <div className="pointer-events-auto w-[calc(100vw-32px)] sm:w-fit sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4">
+          <div className="pointer-events-auto w-[calc(100vw-32px)] sm:w-fit sm:min-w-[320px] max-w-full rounded-3xl glass-dock p-3 sm:p-4 flex items-center justify-between gap-2 sm:gap-4 cursor-pointer" onClick={() => document.getElementById(`leaderboard-row-${myEntry.user_id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}>
             <div className="font-score text-xl sm:text-2xl text-blush shrink-0 w-8 sm:w-11">
               #{myRank}
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-xs sm:text-sm font-medium text-foreground truncate">You · {myEntry.top_partner_name || profile?.username}</div>
+              <div className="text-xs sm:text-sm font-medium text-foreground truncate">You · @{profile?.username}</div>
               <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
-                {myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
+                {myEntry.top_partner_name ? `${myEntry.top_partner_emoji || '❤️'} ${myEntry.top_partner_name} · ` : ''}{myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
               </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">

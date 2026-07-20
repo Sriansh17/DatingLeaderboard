@@ -79,10 +79,10 @@ export default function AdminNotificationsPage() {
   if (!profile.is_admin) return null;
 
   return (
-    <main className="max-w-2xl mx-auto px-5 py-8 min-h-screen">
+    <main className="max-w-2xl mx-auto px-4 sm:px-8 py-8 min-h-screen">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 transition-colors mb-6"
+        className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold mb-6"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back
       </Link>
@@ -184,7 +184,7 @@ export default function AdminNotificationsPage() {
         <button
           onClick={handleSend}
           disabled={isSending || !title.trim() || !body.trim()}
-          className="w-full flex items-center justify-center gap-2 rounded-full bg-primary py-4 text-sm font-bold text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          className="rounded-full glass-btn px-4 py-2 w-full font-bold gap-2"
         >
           {isSending ? (
             <><Loader2 className="h-4 w-4 animate-spin" /> Sending…</>

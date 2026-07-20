@@ -294,7 +294,7 @@ export function EditProfileModal({ isOpen, onClose, currentProfile, currentUser,
           <button
             type="submit"
             disabled={loading || !username.trim()}
-            className="w-full flex items-center justify-center rounded-full bg-primary py-3.5 font-bold text-primary-foreground shadow-glow transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
+            className="w-full flex items-center justify-center rounded-full glass-btn py-3.5 font-bold shadow-glow transition-transform enabled:hover:scale-[1.02] enabled:active:scale-[0.98] disabled:opacity-40 uppercase tracking-[0.2em] text-[10px]"
           >
             {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "Save Changes"}
           </button>

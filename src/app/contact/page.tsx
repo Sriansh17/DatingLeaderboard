@@ -53,7 +53,7 @@ export default function ContactPage() {
           <ThemeToggle />
           <button
             onClick={() => router.back()}
-            className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors flex items-center gap-2 touch-target"
+            className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 touch-target"
           >
             <ArrowLeft className="h-3.5 w-3.5" /> Back
           </button>
@@ -62,7 +62,7 @@ export default function ContactPage() {
 
       <main className="relative z-10 mx-auto w-full max-w-4xl px-6 pt-12 sm:pt-20">
         <div className="text-center mb-16 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-          <p className="text-xs uppercase tracking-[0.3em] text-gold mb-4">Get in Touch</p>
+          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-4">Get in Touch</p>
           <h1 className="font-display text-5xl md:text-6xl italic text-foreground tracking-tight">
             Meet the creators
           </h1>

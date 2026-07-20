@@ -123,11 +123,11 @@ export default function NotificationsPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
+    <div className="max-w-2xl mx-auto px-4 sm:px-8 py-8">
       {/* Back button */}
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-2 rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors mb-6 touch-target"
+        className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold mb-6 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Feed
@@ -181,7 +181,7 @@ export default function NotificationsPage() {
                           <Link href={`/users/${sender?.id}`} className="text-sm text-foreground font-medium hover:text-primary active:text-primary/80 underline decoration-dotted decoration-muted-foreground/30 transition-colors min-w-0 flex-1 truncate">@{sender?.username || 'unknown'}</Link>
                           <div className="flex gap-1.5 shrink-0 ml-2">
                             <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-4 py-2 rounded-full glass-btn text-[10px] font-semibold touch-target">Accept</button>
-                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full border border-border text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
+                            <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive touch-target"><X className="h-3.5 w-3.5" /></button>
                           </div>
                         </div>
                       );
@@ -198,7 +198,7 @@ export default function NotificationsPage() {
                       return (
                         <div key={req.id} className="flex items-center justify-between px-3 py-2 rounded-xl border border-dashed border-warning/20 bg-warning/[0.03]">
                           <span className="text-sm text-foreground/70 min-w-0 flex-1 truncate">@{receiver?.username || 'unknown'}</span>
-                          <button onClick={() => cancelRequest(req.id)} className="flex items-center gap-1 px-3.5 py-2 rounded-full border border-border/40 text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 shrink-0 ml-2 touch-target"><XCircle className="h-3 w-3" /> Cancel</button>
+                          <button onClick={() => cancelRequest(req.id)} className="flex items-center gap-1 px-3.5 py-2 rounded-full glass-btn text-[10px] text-muted-foreground hover:text-destructive shrink-0 ml-2 touch-target"><XCircle className="h-3 w-3" /> Cancel</button>
                         </div>
                       );
                     })

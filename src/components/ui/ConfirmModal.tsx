@@ -95,7 +95,7 @@ export function ConfirmProvider({ children }: { children: React.ReactNode }) {
           <div className="flex gap-3 mt-8">
             <button
               onClick={handleCancel}
-              className="flex-1 rounded-full border border-border bg-muted/50 text-foreground text-sm font-semibold py-3 hover:bg-muted transition-all hover:scale-[1.02] active:bg-muted/80 active:scale-[0.98]"
+              className="flex-1 rounded-full glass-btn text-sm font-semibold py-3"
             >
               {options.cancelLabel || 'Cancel'}
             </button>

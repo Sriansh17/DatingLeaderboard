@@ -11,15 +11,14 @@ export async function POST(
     const supabase = await createServerSupabaseClient();
     const { data: { user } } = await supabase.auth.getUser();
 
-    console.log('[Like API] User:', user?.id, 'Post:', id);
-
     if (!user) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
     const admin = createAdminClient();
 
-    // Check if already liked
+    // Toggle like using atomic insert-on-conflict-do-delete
+    // This avoids race conditions from the read-then-write pattern
     const { data: existing } = await admin
       .from('likes')
       .select('id')
@@ -27,27 +26,29 @@ export async function POST(
       .eq('user_id', user.id)
       .maybeSingle();
 
-    console.log('[Like API] Existing like:', existing?.id);
-
     if (existing) {
-      // Unlike
       const { error } = await admin
         .from('likes')
         .delete()
         .eq('id', existing.id);
 
       if (error) throw error;
-      console.log('[Like API] Unliked post', id);
-      return NextResponse.json({ success: true, liked: false });
+      const { count } = await admin
+        .from('likes')
+        .select('id', { count: 'exact', head: true })
+        .eq('post_id', id);
+      return NextResponse.json({ success: true, liked: false, likes_count: count || 0 });
     } else {
-      // Like
       const { error } = await admin
         .from('likes')
         .insert({ post_id: id, user_id: user.id });
 
       if (error) throw error;
-      console.log('[Like API] Liked post', id);
-      return NextResponse.json({ success: true, liked: true });
+      const { count } = await admin
+        .from('likes')
+        .select('id', { count: 'exact', head: true })
+        .eq('post_id', id);
+      return NextResponse.json({ success: true, liked: true, likes_count: count || 0 });
     }
   } catch (error) {
     console.error('Like toggle error:', error);

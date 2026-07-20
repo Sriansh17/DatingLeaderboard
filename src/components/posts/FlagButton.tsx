@@ -85,10 +85,10 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
               key={reason.value}
               type="button"
               onClick={() => setSelectedReason(reason.value)}
-              className={`w-full text-left px-5 py-3 rounded-2xl text-sm font-medium border transition-all ${
+              className={`w-full text-left px-5 py-3 rounded-full text-sm font-medium border transition-all ${
                 selectedReason === reason.value
-                  ? 'border-destructive bg-destructive/10 text-destructive shadow-[0_0_15px_rgba(var(--destructive-rgb),0.2)]'
-                  : 'border-white/10 bg-white/5 text-foreground hover:border-white/20 hover:bg-white/10 active:border-white/30 active:bg-white/15'
+                  ? 'border-destructive bg-destructive/10 text-destructive'
+                  : 'border-border bg-elevated/40 text-foreground hover:bg-elevated/60 active:bg-elevated'
               }`}
             >
               {reason.label}
@@ -96,13 +96,13 @@ export function FlagButton({ postId, postUserId }: FlagButtonProps) {
           ))}
           <div className="flex gap-3 pt-4">
             <button
-              className="flex-1 py-3 rounded-xl border border-border bg-elevated/40 text-foreground hover:bg-elevated/60 active:bg-elevated transition-colors font-medium text-sm"
+              className="flex-1 py-3 rounded-full glass-btn text-sm font-medium"
               onClick={() => setOpen(false)}
             >
               Cancel
             </button>
             <button
-              className="flex-1 py-3 rounded-xl bg-destructive text-destructive-foreground hover:opacity-90 active:opacity-80 disabled:opacity-50 transition-opacity font-medium text-sm shadow-[0_0_30px_-5px_var(--destructive)]"
+              className="flex-1 py-3 rounded-full glass-btn text-sm font-medium"
               onClick={handleFlag}
               disabled={!selectedReason || submitting}
             >

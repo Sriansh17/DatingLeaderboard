@@ -10,11 +10,11 @@ interface ClientLayoutWrapperProps {
 export function ClientLayoutWrapper({ children }: ClientLayoutWrapperProps) {
   const pathname = usePathname();
 
-  // Matches AppDock's visibility logic exactly
+  // Only show bottom padding for AppDock on pages that render it
   const showDock = pathname !== '/' && !pathname.startsWith('/auth') && !pathname.startsWith('/onboarding');
 
   return (
-    <div className="min-h-dvh flex flex-col relative">
+    <div className="min-h-dvh flex flex-col relative overflow-x-hidden">
       <div className={`flex-1 w-full mx-auto ${showDock ? 'pb-28 md:pb-32' : ''}`}>
         {children}
       </div>

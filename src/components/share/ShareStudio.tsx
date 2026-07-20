@@ -28,6 +28,7 @@ const RANK_THEMES: ThemeDef[] = [
 
 const PROFILE_THEMES: ThemeDef[] = [
   { id: 'profile-page',  label: 'Profile Page',       description: 'Your actual Fond profile. Avatar, details, stats, and bio.' },
+  { id: 'fond-identity', label: 'Fond Identity',      description: 'Apple-inspired premium identity card. Your score, elevated.' },
   { id: 'membership',    label: 'Membership Card',   description: 'Like an Amex Centurion. Your Fond identity, in gold.' },
   { id: 'player-stats',  label: 'Player Stats',       description: 'ESPN meets romance. Your numbers, visualized.' },
   { id: 'profile-card',  label: 'Fond ID',            description: 'Clean identity card. Who you are on Fond.' },

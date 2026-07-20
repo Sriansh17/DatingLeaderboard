@@ -6,13 +6,15 @@ import { Modal } from '@/components/ui/Modal';
 import { usePosts, useArchivedPosts } from '@/lib/hooks/usePosts';
 import { calculateStreak } from '@/lib/utils/streak';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { tierForScore } from '@/lib/mock-data';
+import { tierForScore, scoreColor } from '@/lib/mock-data';
 import { createClient } from '@/lib/supabase/client';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import type { Post } from '@/types/database';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
+import { Tooltip } from '@/components/ui/Tooltip';
+import { RankCarousel } from '@/components/ui/RankCarousel';
 import { PageBell } from '@/components/ui/PageBell';
-import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2, Sparkles as SparklesIcon } from 'lucide-react';
+import { Heart, PlusCircle, Trophy, Flame, LogOut, Settings, Archive, ArchiveRestore, Share2, Sparkles as SparklesIcon, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
@@ -38,6 +40,7 @@ export default function ProfilePage() {
   const [bondCount, setBondCount] = useState(0);
   const [connectionCount, setConnectionCount] = useState(0);
   const [bondEmojis, setBondEmojis] = useState<string[]>([]);
+  const [bondIds, setBondIds] = useState<string[]>([]);
   const [avgScore, setAvgScore] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
   const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
@@ -150,6 +153,7 @@ export default function ProfilePage() {
         if (data.success) {
           setBondCount(data.data?.length || 0);
           setBondEmojis((data.data || []).map((c: any) => c.emoji).filter(Boolean));
+          setBondIds((data.data || []).map((c: any) => c.id).filter(Boolean));
         }
       })
       .catch(() => {});
@@ -161,6 +165,7 @@ export default function ProfilePage() {
         if (data.success) setConnectionCount(data.data?.length || 0);
       })
       .catch(() => {});
+
   }, [user]);
 
   useEffect(() => {
@@ -179,8 +184,8 @@ export default function ProfilePage() {
   );
 
   if (authLoading) return (
-    <div className="py-20 text-center animate-pulse">
-      <div className="h-8 w-48 bg-elevated rounded-full mx-auto mb-4" />
+    <div className="min-h-dvh w-full flex items-center justify-center">
+      <div className="h-8 w-48 bg-elevated rounded-full mx-auto animate-pulse" />
     </div>
   );
 
@@ -190,7 +195,7 @@ export default function ProfilePage() {
       return (
         <div className="text-center py-20 text-muted-foreground">
           <p className="mb-4 text-lg font-display italic">Sign in to view your profile.</p>
-          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn text-sm hover:bg-primary/90 active:bg-primary/80 transition-colors">
+          <Link href="/auth/login" className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-sm font-semibold">
             Sign In
           </Link>
         </div>
@@ -232,18 +237,22 @@ export default function ProfilePage() {
         </div>
         <div className="flex items-center gap-2">
           <PageBell />
-          <Link href="/settings" className="p-2.5 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 active:text-foreground active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target inline-flex items-center justify-center">
-            <Settings className="h-5 w-5" />
-          </Link>
-          <button onClick={() => setIsEditing(true)} className="px-5 py-2.5 rounded-full border border-border bg-card/50 text-xs font-semibold text-foreground hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target">
+          <Tooltip content="Settings">
+            <Link href="/settings" className="glass-btn rounded-full p-2.5 inline-flex items-center justify-center touch-target" aria-label="Settings">
+              <Settings className="h-5 w-5" />
+            </Link>
+          </Tooltip>
+          <button onClick={() => setIsEditing(true)} className="px-5 py-2.5 rounded-full glass-btn text-xs font-semibold touch-target">
             Edit
           </button>
-          <button onClick={async () => {
-            setIsLoggingOut(true);
-            await signOut();
-          }} className="p-2.5 rounded-full border border-border bg-card/50 text-muted-foreground hover:text-destructive hover:bg-black/5 dark:hover:bg-white/5 active:text-destructive active:bg-black/10 dark:active:bg-white/10 transition-colors touch-target inline-flex items-center justify-center">
-            <LogOut className="h-5 w-5" />
-          </button>
+          <Tooltip content="Sign out">
+            <button onClick={async () => {
+              setIsLoggingOut(true);
+              await signOut();
+            }} className="p-2.5 rounded-full glass-btn text-muted-foreground hover:text-destructive active:text-destructive touch-target inline-flex items-center justify-center" aria-label="Sign out">
+              <LogOut className="h-5 w-5" />
+            </button>
+          </Tooltip>
         </div>
       </header>
 
@@ -271,7 +280,7 @@ export default function ProfilePage() {
                 occupation: (profile as any)?.occupation,
                 country: (profile as any)?.country,
               })}
-              className="absolute top-4 right-4 p-2 rounded-full border border-border bg-card hover:bg-elevated text-muted-foreground hover:text-foreground active:bg-elevated/80 active:text-foreground transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-full glass-btn text-muted-foreground hover:text-foreground"
               aria-label="Share profile"
             >
               <Share2 className="h-4 w-4" />
@@ -388,42 +397,49 @@ export default function ProfilePage() {
                         <span className="font-medium text-foreground">{p.name}</span>
                       </div>
                     ))}
-                    <Link href="/partners/new" className="px-5 py-2.5 rounded-full border border-dashed border-border dark:border-border text-sm flex items-center gap-2 hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors text-muted-foreground touch-target">
+                    <Link href="/partners/new" className="px-5 py-2.5 rounded-full glass-btn text-sm inline-flex items-center gap-2 touch-target">
                       <PlusCircle className="h-4 w-4" /> Add
                     </Link>
                   </div>
                 ) : (
-                  <Link href="/partners/new" className="inline-flex items-center gap-2 text-sm text-blush hover:text-blush/80 active:text-blush/60 transition-colors">
+                  <Link href="/partners/new" className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-sm font-semibold touch-target">
                     <PlusCircle className="h-4 w-4" /> Add your first partner
                   </Link>
                 )}
               </div>
             </div>
             
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Posts</div>
-                <div className="font-score text-2xl text-foreground">{posts?.length || 0}</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* Avg Score — with inline score ring feel */}
+              <div className="col-span-1 p-3 rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/[0.06] to-primary/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-primary/[0.04] blur-xl pointer-events-none" />
+                <div className="text-[9px] uppercase tracking-widest font-bold mb-1" style={{ color: scoreColor(avgScore) }}>Avg Score</div>
+                <div className="font-score text-2xl sm:text-3xl leading-none" style={{ color: scoreColor(avgScore) }}><AnimatedNumber value={avgScore} delay={0.2} /></div>
+                <div className="text-[8px] font-medium mt-1" style={{ color: scoreColor(avgScore) }}>{tierForScore(avgScore)}</div>
               </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Avg Score</div>
-                <div className="font-score text-2xl text-primary"><AnimatedNumber value={avgScore} delay={0.2} /></div>
+              {/* Best Score — with glow */}
+              <div className="col-span-1 p-3 rounded-2xl border border-gold/20 bg-gradient-to-b from-gold/[0.06] to-gold/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+                <div className="absolute -top-4 -right-4 w-12 h-12 rounded-full bg-gold/[0.04] blur-xl pointer-events-none" />
+                <div className="text-[9px] uppercase tracking-widest font-bold mb-1" style={{ color: scoreColor(bestScore) }}>Best Score</div>
+                <div className="font-score text-2xl sm:text-3xl leading-none" style={{ color: scoreColor(bestScore) }}><AnimatedNumber value={bestScore} delay={0.4} /></div>
+                <div className="text-[8px] font-medium mt-1" style={{ color: scoreColor(bestScore) }}>{tierForScore(bestScore)}</div>
               </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Best Score</div>
-                <div className="font-score text-2xl text-gold"><AnimatedNumber value={bestScore} delay={0.4} /></div>
-              </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Partners</div>
-                <div className="font-score text-2xl text-primary">{partners.length}</div>
-              </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Bonds</div>
-                <div className="font-score text-2xl text-foreground">{bondCount}</div>
-              </div>
-              <div className="p-4 rounded-2xl border border-border dark:border-border bg-secondary/30 dark:bg-elevated/50 backdrop-blur-md">
-                <div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1">Connections</div>
-                <div className="font-score text-2xl text-gold">{connectionCount}</div>
+              {/* Rank Carousel */}
+              <div className="col-span-1 flex">{user && <RankCarousel userId={user.id} city={profile.city} bondIds={bondIds} />}</div>
+              {/* Partners + Bonds + Connections — stacked vertically */}
+              <div className="col-span-1 flex flex-col gap-1.5">
+                <div className="flex-1 p-2.5 rounded-2xl border border-primary/20 bg-primary/[0.04] backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-primary">{partners.length}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Partners</div>
+                </div>
+                <div className="flex-1 p-2.5 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-foreground">{bondCount}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Bonds</div>
+                </div>
+                <div className="flex-1 p-2.5 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+                  <div className="font-score text-lg text-gold">{connectionCount}</div>
+                  <div className="text-[8px] uppercase tracking-widest text-muted-foreground mt-0.5">Connections</div>
+                </div>
               </div>
             </div>
           </div>
@@ -487,7 +503,7 @@ export default function ProfilePage() {
                 {canRestoreStreak && (
                   <button
                     onClick={() => setIsRestoreModalOpen(true)}
-                    className="mt-3 inline-flex items-center rounded-full border border-warning/40 bg-warning/10 px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.15em] text-warning transition-colors hover:bg-warning/20 active:bg-warning/30 touch-target"
+                    className="mt-3 inline-flex items-center rounded-full glass-btn-gold px-5 py-2.5 text-[12px] font-semibold uppercase tracking-[0.15em] touch-target"
                   >
                     Restore Streak
                   </button>
@@ -499,7 +515,14 @@ export default function ProfilePage() {
 
         {/* Bottom Panel: My Productions (Verdicts) */}
         <div className="rounded-3xl border border-border dark:border-border bg-card/60 p-5 sm:p-8 shadow-lg backdrop-blur-xl">
-          <h3 className="font-display text-2xl italic text-foreground mb-8">My Verdicts</h3>
+          <div className="flex items-center justify-between mb-8">
+            <h3 className="font-display text-2xl italic text-foreground">My Verdicts</h3>
+            {posts && posts.length > 0 && (
+              <span className="text-[10px] uppercase tracking-[0.2em] text-muted-foreground font-medium">
+                {posts.length} post{posts.length === 1 ? '' : 's'}
+              </span>
+            )}
+          </div>
 
           {isLoading ? (
             <div className="py-12 text-center">
@@ -511,7 +534,9 @@ export default function ProfilePage() {
                 const story = {
                   id: post.id,
                   username: profile?.username ? `@${profile.username}` : '@you',
+                  userAvatarUrl: profile?.avatar_url || null,
                   partnerNickname: post.partner?.name || 'partner',
+                  partnerAvatarUrl: post.partner?.avatar_url || null,
                   city: post.post_city || profile?.city || 'Unknown',
                   country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
@@ -533,10 +558,8 @@ export default function ProfilePage() {
             <div className="text-center py-16">
               <h3 className="text-lg font-display italic text-foreground mb-2">The archives are empty</h3>
               <p className="text-muted-foreground text-sm mb-6">No verdicts yet. The board is waiting to judge.</p>
-              <Link href="/posts/new">
-                <button className="inline-flex items-center gap-2 rounded-full border border-border dark:border-border bg-black/5 dark:bg-white/5 px-6 py-3 text-sm font-medium hover:bg-black/10 dark:hover:bg-white/10 active:bg-black/15 dark:active:bg-white/15 transition-colors touch-target">
-                  Claim your first verdict
-                </button>
+              <Link href="/posts/new" className="inline-flex items-center gap-2 rounded-full glass-btn px-6 py-3 text-sm font-medium touch-target">
+                Claim your first verdict
               </Link>
             </div>
           )}
@@ -568,7 +591,9 @@ export default function ProfilePage() {
                 const story = {
                   id: post.id,
                   username: profile?.username ? `@${profile.username}` : '@you',
+                  userAvatarUrl: profile?.avatar_url || null,
                   partnerNickname: post.partner?.name || 'partner',
+                  partnerAvatarUrl: post.partner?.avatar_url || null,
                   city: post.post_city || profile?.city || 'Unknown',
                   country: (profile as any)?.country || 'Earth',
                   headline: post.description || '',
@@ -589,7 +614,7 @@ export default function ProfilePage() {
                       <button
                         onClick={() => handleUnarchive(post.id)}
                         disabled={unarchivingId === post.id}
-                        className="flex items-center gap-2 rounded-full border border-border bg-card/95 backdrop-blur px-6 py-3 text-xs font-semibold text-foreground hover:bg-elevated active:bg-elevated/80 shadow-lg transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-target"
+                        className="flex items-center gap-2 rounded-full glass-btn px-6 py-3 text-xs font-semibold shadow-lg backdrop-blur touch-target disabled:opacity-60 disabled:cursor-not-allowed"
                       >
                         <ArchiveRestore className="h-4 w-4" />
                         {unarchivingId === post.id ? 'Restoring...' : 'Restore Post'}
@@ -659,14 +684,14 @@ export default function ProfilePage() {
           <div className="flex gap-3 justify-end">
             <button
               onClick={() => setIsRestoreModalOpen(false)}
-              className="rounded-full border border-border px-5 py-3 text-xs font-semibold text-foreground hover:bg-secondary active:bg-secondary/80 transition-colors touch-target"
+              className="rounded-full glass-btn px-5 py-3 text-xs font-semibold touch-target"
             >
               Cancel
             </button>
             <button
               onClick={handleConfirmRestoreStreak}
               disabled={isRestoringStreak}
-              className="rounded-full bg-primary px-6 py-3 text-xs font-semibold text-primary-foreground hover:bg-primary/90 active:bg-primary/80 transition-colors disabled:opacity-60 disabled:cursor-not-allowed touch-target"
+              className="rounded-full glass-btn px-6 py-3 text-xs font-semibold touch-target disabled:opacity-60 disabled:cursor-not-allowed"
             >
               {isRestoringStreak ? 'Restoring...' : 'Pay & Restore (Placeholder)'}
             </button>

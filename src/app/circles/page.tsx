@@ -209,8 +209,8 @@ export default function BondsPage() {
       {/* Header — only bell */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-1">✦ Bonds</p>
-          <h1 className="font-display text-5xl italic text-foreground tracking-tight">Your Bonds</h1>
+          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-2">✦ Bonds</p>
+          <h1 className="font-display text-5xl sm:text-6xl italic text-foreground tracking-tight">Your Bonds</h1>
         </div>
         <NotificationBell />
       </div>
@@ -308,7 +308,7 @@ export default function BondsPage() {
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); doSearch(e.target.value); }}
                 placeholder="Search people to connect..."
-                className="w-full rounded-full border border-border bg-muted/30 pl-9 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+                className="w-full rounded-full border border-border bg-muted/30 pl-9 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
                 autoFocus
               />
             </div>
@@ -401,7 +401,7 @@ export default function BondsPage() {
                             </Link>
                             <div className="flex gap-1.5 shrink-0 ml-2">
                               <button onClick={() => respondToRequest(req.id, 'accepted')} className="px-4 py-2 rounded-full glass-btn text-[10px] font-semibold touch-target">Accept</button>
-                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full border border-border text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
+                              <button onClick={() => respondToRequest(req.id, 'rejected')} className="p-2 rounded-full glass-btn text-muted-foreground hover:text-destructive active:text-destructive/80 touch-target"><X className="h-3.5 w-3.5" /></button>
                             </div>
                           </div>
                         );
@@ -427,7 +427,7 @@ export default function BondsPage() {
                               <div className="w-7 h-7 rounded-full bg-warning/20 flex items-center justify-center text-[10px] font-bold text-warning shrink-0">{receiver?.username?.[0]?.toUpperCase() || '?'}</div>
                               <span className="truncate">@{receiver?.username || 'unknown'}</span>
                             </Link>
-                            <button onClick={() => cancelRequest(req.id, receiver?.username || 'unknown')} className="flex items-center gap-1 px-3.5 py-2 rounded-full border border-border/40 text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 transition-all shrink-0 ml-2 touch-target">
+                            <button onClick={() => cancelRequest(req.id, receiver?.username || 'unknown')} className="flex items-center gap-1 px-3.5 py-2 rounded-full glass-btn text-[10px] text-muted-foreground hover:text-destructive active:text-destructive/80 transition-all shrink-0 ml-2 touch-target">
                               <XCircle className="h-3 w-3" /> Cancel
                             </button>
                           </div>
@@ -448,7 +448,7 @@ export default function BondsPage() {
         <form onSubmit={handleCreate} className="space-y-4 mt-2">
           <div>
             <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mb-2 block">Name</label>
-            <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Batch of '23 Couples" maxLength={50} required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors" />
+            <input type="text" value={newName} onChange={(e) => setNewName(e.target.value)} placeholder="e.g. Batch of '23 Couples" maxLength={50} required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors" />
             <p className="text-[11px] text-muted-foreground/60 mt-1.5">Max <strong>10</strong> members</p>
           </div>
           <div>
@@ -461,7 +461,7 @@ export default function BondsPage() {
           </div>
           <div>
             <label className="text-[10px] uppercase tracking-widest text-muted-foreground font-medium mb-2 block">Passcode <span className="text-muted-foreground/40 normal-case">(optional)</span></label>
-            <input type="text" value={newPasscode} onChange={(e) => setNewPasscode(e.target.value)} placeholder="Members need this to join" maxLength={20} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors" />
+            <input type="text" value={newPasscode} onChange={(e) => setNewPasscode(e.target.value)} placeholder="Members need this to join" maxLength={20} className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors" />
           </div>
           <button type="submit" disabled={creating || !newName.trim()} className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3 text-sm font-semibold disabled:opacity-40">
             {creating ? <Spinner size="sm" /> : <><Sparkles className="h-4 w-4" /> Create Bond</>}
@@ -473,7 +473,7 @@ export default function BondsPage() {
       <Modal isOpen={showJoinModal} onClose={() => setShowJoinModal(false)} title="Join a Bond">
         <form onSubmit={handleJoin} className="space-y-4 mt-2">
           <p className="text-sm text-muted-foreground">Enter the invite code or paste the full invite link.</p>
-          <input type="text" value={inviteCode} onChange={(e) => { const val = e.target.value; const m = val.match(/\/circles\/join\/([a-z0-9]+)/i); setInviteCode(m ? m[1] : val); }} placeholder="Invite code" maxLength={50} required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors" />
+          <input type="text" value={inviteCode} onChange={(e) => { const val = e.target.value; const m = val.match(/\/circles\/join\/([a-z0-9]+)/i); setInviteCode(m ? m[1] : val); }} placeholder="Invite code" maxLength={50} required className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors" />
           <button type="submit" disabled={joining || !inviteCode.trim()} className="w-full flex items-center justify-center gap-2 rounded-full glass-btn py-3 text-sm font-semibold disabled:opacity-40">
             {joining ? <Spinner size="sm" /> : <><LogIn className="h-4 w-4" /> Join Bond</>}
           </button>

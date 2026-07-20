@@ -315,7 +315,7 @@ export function CommentCard({ comment, postId, onClose, depth = 0, onDelete }: C
             <textarea value={editText} onChange={(e) => setEditText(e.target.value)} className="w-full rounded-xl border border-border bg-muted/30 px-3 py-2 text-base text-foreground outline-none focus:border-primary/40 transition-colors resize-none" rows={2} />
             <div className="flex gap-2 mt-2">
               <button onClick={submitEdit} disabled={saving || !editText.trim()} className="px-3 py-1 rounded-full glass-btn text-xs font-semibold disabled:opacity-40">Save</button>
-              <button onClick={() => setShowEdit(false)} className="px-3 py-1 rounded-full border border-border text-xs text-muted-foreground">Cancel</button>
+              <button onClick={() => setShowEdit(false)} className="px-3 py-1 rounded-full border border-border text-xs text-muted-foreground hover:bg-muted active:bg-muted/80 transition-colors">Cancel</button>
             </div>
           </div>
         ) : (

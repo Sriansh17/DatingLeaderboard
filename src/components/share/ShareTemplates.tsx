@@ -19,7 +19,8 @@ export type ShareTemplateTheme =
   | 'profile-card'
   | 'profile-page'
   | 'verdict-card'
-  | 'leaderboard-card';
+  | 'leaderboard-card'
+  | 'fond-identity';
 
 type C = {
   username: string;
@@ -393,44 +394,175 @@ function ProfileCardTemplate({content}:TP){const s=content.score||0;const t=tier
 </div>)}
 
 // ═══════════════════════════════════════════════════════════════
-// 12a. PROFILE PAGE — Mirror of the actual profile page design
+// 12a. PROFILE PAGE — Exact replica of profile page layout
 // ═══════════════════════════════════════════════════════════════
-function ProfilePageTemplate({content}:TP){const s=content.score||0;const t=tier(s);return(
-<div className="relative w-full h-full flex flex-col bg-card overflow-hidden">
-  <div className="absolute -top-[5%] left-1/2 -translate-x-1/2 w-[80%] h-[30%] rounded-full bg-primary/[0.04] blur-[100px]"/>
-  <div className="absolute bottom-0 right-0 w-[50%] h-[25%] rounded-full bg-gold/[0.03] blur-[80px]"/>
-  <div className="relative z-10 flex flex-col items-center justify-center h-full px-16 py-16 text-center">
+function ProfilePageTemplate({content}:TP){const s=content.score||0;const t=tier(s);const sc=sHex(s);return(
+<div className="absolute inset-0 flex flex-col overflow-hidden" style={{background:'rgb(var(--background))'}}>
+  {/* Ambient glows */}
+  <div className="absolute w-[900px] h-[900px] left-1/2 top-[-400px] -translate-x-1/2 rounded-full opacity-[0.20] blur-[90px]" style={{background:'radial-gradient(circle, rgb(var(--primary) / 0.3), transparent 70%)'}}/>
+  <div className="absolute w-[600px] h-[600px] right-[-200px] bottom-[-100px] rounded-full opacity-[0.12] blur-[80px]" style={{background:'radial-gradient(circle, rgb(var(--gold) / 0.25), transparent 70%)'}}/>
 
-    {/* Avatar — large centered circle */}
-    <div className="w-52 h-52 rounded-full border-[3px] border-border flex items-center justify-center font-display text-7xl text-muted-foreground mb-6 overflow-hidden" style={{boxShadow:`0 0 80px -20px ${t.color}20`}}>{content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span>{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}</div>
+  {/* Glass card container */}
+  <div className="absolute inset-[60px] rounded-[60px] bg-white/[0.05] backdrop-blur-[40px] border border-white/[0.06] flex flex-col px-[70px] py-[60px]" style={{boxShadow:'0 40px 120px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.08)'}}>
 
-    {/* Username */}
-    <h2 className="font-display italic text-[3rem] text-foreground leading-tight">@{content.username.replace('@','')}</h2>
+    {/* Brand */}
+    <div className="flex items-center gap-3 mb-2">
+      <Sparkles className="w-5 h-5 text-gold/60"/>
+      <span className="text-[20px] tracking-[0.4em] font-bold text-white/40 uppercase">FOND</span>
+    </div>
 
-    {/* Tier badge */}
-    <span className="inline-flex items-center mt-3 px-4 py-1.5 rounded-full border border-gold/30 bg-gold/10 text-gold text-sm font-semibold">{t.name}</span>
+    {/* Avatar */}
+    <div className="mx-auto mt-4 mb-[22px] w-[160px] h-[160px] rounded-full overflow-hidden flex items-center justify-center text-[70px] border-2 border-white/[0.10]" style={{background:'linear-gradient(135deg, rgb(var(--primary)), rgb(var(--gold)))', boxShadow:'0 0 70px -10px ' + sc + '50'}}>
+      {content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span className="opacity-80">{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}
+    </div>
 
-    {/* City + Streak */}
-    <div className="flex items-center justify-center gap-4 mt-4 flex-wrap">
-      {content.city&&<span className="text-base text-muted-foreground font-medium">📍 {content.city}</span>}
-      {content.streak&&content.streak>0&&<span className="inline-flex items-center gap-1.5 text-base text-orange-500 font-semibold"><Flame className="h-5 w-5 fill-orange-500"/>{content.streak}d streak</span>}
+    {/* Username + tier + city/streak */}
+    <div className="text-center">
+      <div className="font-display italic text-[48px] text-white/90 leading-tight">@{content.username.replace('@','')}</div>
+      <div className="inline-flex items-center mt-[10px] px-[28px] py-[10px] rounded-full border border-gold/25 bg-gold/[0.08] text-gold font-semibold text-[20px] backdrop-blur-xl">{t.name}</div>
+      {(content.city||content.streak)&&<div className="flex items-center justify-center gap-3 mt-[12px]">
+        {content.city&&<span className="text-[18px] text-white/40">📍 {content.city}</span>}
+        {content.streak&&content.streak>0&&<span className="inline-flex items-center gap-1 text-[18px]" style={{color:'rgb(var(--score-mid))'}}><Flame className="h-5 w-5" style={{fill:'rgb(var(--score-mid))'}}/>{content.streak}d</span>}
+      </div>}
     </div>
 
     {/* Divider */}
-    <div className="w-48 h-px bg-border my-8"/>
+    <div className="h-[1px] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent my-[36px]"/>
 
-    {/* Dating Philosophy */}
-    {content.bio&&<div className="w-full max-w-[550px]"><span className="text-[10px] uppercase tracking-[0.2em] font-medium text-gold block mb-3">Dating Philosophy</span><p className="font-display italic text-muted-foreground/80 leading-relaxed text-xl">"{content.bio}"</p></div>}
-
-    {/* Stats row */}
-    <div className="grid grid-cols-3 gap-5 mt-10 w-full max-w-[550px]">
-      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Posts</div><div className="font-score text-3xl text-foreground">{content.totalPosts||0}</div></div>
-      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Avg Score</div><div className="font-score text-3xl text-primary">{s}</div></div>
-      <div className="p-6 rounded-2xl border border-border bg-secondary/30 backdrop-blur-md text-center"><div className="text-[10px] uppercase tracking-widest text-muted-foreground mb-1.5">Best Score</div><div className="font-score text-3xl text-gold">{content.bestScore||s}</div></div>
+    {/* Hero score */}
+    <div className="text-center">
+      <div className="font-score text-[160px] leading-none tracking-tight select-none" style={{color:sc,textShadow:'0 0 50px ' + sc + '25, 0 0 120px ' + sc + '10'}}>{s}</div>
+      <div className="mt-[8px] text-[26px] font-bold tracking-[0.15em] uppercase text-white/35">Average Score</div>
+      {content.rank&&content.city?<div className="mt-[14px] text-[24px] font-semibold text-gold/80">🏆 #{content.rank} in {content.city}</div>
+      :content.rank?<div className="mt-[14px] text-[24px] font-semibold text-gold/80">🏆 Global Rank #{content.rank}</div>
+      :null}
     </div>
 
+    {/* Stats grid — bento colored cards like profile page */}
+    <div className="mt-[36px] grid grid-cols-2 gap-[16px]">
+      {content.bestScore?<div className="rounded-[20px] p-[18px] border border-gold/20 bg-gradient-to-b from-gold/[0.06] to-gold/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-gold/[0.04] blur-xl pointer-events-none"/>
+        <div className="font-score text-[40px] leading-none text-gold">{content.bestScore}</div>
+        <div className="text-[11px] uppercase tracking-widest text-gold/70 font-bold mt-1">Best Score</div>
+      </div>:null}
+      {content.streak&&content.streak>0?<div className="rounded-[20px] p-[18px] border border-primary/20 bg-gradient-to-b from-primary/[0.06] to-primary/[0.02] backdrop-blur-md flex flex-col items-center justify-center relative overflow-hidden">
+        <div className="absolute -top-4 -right-4 w-10 h-10 rounded-full bg-primary/[0.04] blur-xl pointer-events-none"/>
+        <div className="font-score text-[40px] leading-none" style={{color:sc}}>{content.streak}<span className="text-[16px] text-primary/60 ml-1">d</span></div>
+        <div className="text-[11px] uppercase tracking-widest text-primary/70 font-bold mt-1">Streak</div>
+      </div>
+      :<div className="rounded-[20px] p-[18px] border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+        <div className="font-score text-[40px] leading-none text-foreground">{content.totalPosts||0}</div>
+        <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold mt-1">Posts</div>
+      </div>}
+      <div className="rounded-[20px] p-[18px] border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+        <div className="font-score text-[40px] leading-none text-primary">{content.partnerName?1:0}</div>
+        <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold mt-1">Partners</div>
+      </div>
+      <div className="rounded-[20px] p-[18px] border border-border bg-secondary/30 backdrop-blur-md flex flex-col items-center justify-center">
+        <div className="font-score text-[40px] leading-none text-gold">{content.rank?`#${content.rank}`:'—'}</div>
+        <div className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold mt-1">Rank</div>
+      </div>
+    </div>
+
+    {/* Bio */}
+    {content.bio&&<div className="mt-[30px] px-[30px] py-[18px] rounded-[24px] bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl text-center"><p className="font-display italic text-[22px] leading-[1.5] text-white/65">&ldquo;{content.bio}&rdquo;</p></div>}
+
+    {/* Spacer */}
+    <div className="flex-1"/>
+
     {/* Footer */}
-    <div className="mt-10"><LoveCode username={content.username} theme="gold"/></div>
+    <div className="text-center"><div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl bg-white/[0.03] border border-white/[0.05] backdrop-blur-xl"><Sparkles className="w-4 h-4 text-gold/60"/><span className="text-[14px] font-bold tracking-[0.25em] uppercase text-white/30">Fond</span><span className="w-1 h-1 rounded-full bg-white/10"/><span className="text-[14px] text-white/20 font-medium">@{content.username.replace('@','')}</span></div></div>
+
+  </div>
+</div>)}
+
+// ═══════════════════════════════════════════════════════════════
+// 13. FOND IDENTITY — Premium social card with Fond design DNA
+// ═══════════════════════════════════════════════════════════════
+function FondIdentityTemplate({content}:TP){const s=content.score||0;const t=tier(s);const sc=sHex(s);return(
+<div className="absolute inset-0 flex flex-col overflow-hidden" style={{background:'rgb(var(--background))'}}>
+  {/* Ambient glows — rose + gold signature */}
+  <div className="absolute w-[900px] h-[900px] left-1/2 top-[-400px] -translate-x-1/2 rounded-full opacity-[0.20] blur-[90px]" style={{background:`radial-gradient(circle, rgb(var(--primary) / 0.3), transparent 70%)`}}/>
+  <div className="absolute w-[600px] h-[600px] right-[-200px] bottom-[-100px] rounded-full opacity-[0.12] blur-[80px]" style={{background:'radial-gradient(circle, rgb(var(--gold) / 0.25), transparent 70%)'}}/>
+
+  {/* Glass card container — Fond's signature frosted glass */}
+  <div className="absolute inset-[60px] rounded-[60px] bg-white/[0.05] backdrop-blur-[40px] border border-white/[0.06] flex flex-col px-[70px] py-[70px]" style={{boxShadow:'0 40px 120px rgba(0,0,0,0.5), inset 0 1px rgba(255,255,255,0.08)'}}>
+
+    {/* ── Brand — using Fond's LoveCode style ── */}
+    <div className="flex items-center gap-3 mb-4">
+      <Sparkles className="w-5 h-5 text-gold/60"/>
+      <span className="text-[20px] tracking-[0.4em] font-bold text-white/40 uppercase">FOND</span>
+    </div>
+
+    {/* ── Avatar — Fond's rose gold gradient ── */}
+    <div className="mx-auto mt-6 mb-[28px] w-[180px] h-[180px] rounded-full overflow-hidden flex items-center justify-center text-[80px] border-2 border-white/[0.10]" style={{background:'linear-gradient(135deg, rgb(var(--primary)), rgb(var(--gold)))', boxShadow:`0 0 80px -10px ${sc}50`}}>
+      {content.avatarUrl?<img src={content.avatarUrl} alt={content.username} loading="lazy" className="w-full h-full object-cover"/>:<span className="opacity-80">{(content.username.replace("@","")||"U")[0].toUpperCase()}</span>}
+    </div>
+
+    {/* ── Username — Fond's Playfair Display italic ── */}
+    <div className="text-center font-display italic text-[56px] text-white/90 leading-tight">@{content.username.replace('@','')}</div>
+
+    {/* ── Tier badge — Fond's gold pill ── */}
+    <div className="self-center mt-[16px] px-[32px] py-[12px] rounded-full border border-gold/25 bg-gold/[0.08] text-gold font-semibold text-[24px] backdrop-blur-xl">{t.name}</div>
+
+    {/* ── Divider ── */}
+    <div className="h-[1px] bg-gradient-to-r from-transparent via-white/[0.08] to-transparent my-[50px]"/>
+
+    {/* ── Score hero — Fond's scoreColor + font-score ── */}
+    <div className="text-center">
+      <div className="font-score text-[180px] leading-none tracking-tight select-none" style={{color:sc,textShadow:`0 0 60px ${sc}30, 0 0 150px ${sc}15`}}>{s}</div>
+      <div className="mt-[12px] text-[32px] font-bold tracking-[0.15em] uppercase text-white/40">Relationship Score</div>
+      {content.rank && content.city ? (
+        <div className="mt-[20px] text-[28px] font-semibold text-gold/80">🏆 #{content.rank} in {content.city}</div>
+      ) : content.rank ? (
+        <div className="mt-[20px] text-[28px] font-semibold text-gold/80">🏆 Global Rank #{content.rank}</div>
+      ) : null}
+    </div>
+
+    {/* ── Stats grid — Fond's frosted glass cards ── */}
+    <div className="mt-[50px] grid grid-cols-2 gap-[24px]">
+      {content.streak && content.streak > 0 && (
+        <div className="rounded-[28px] p-[24px] bg-white/[0.04] border border-white/[0.06] backdrop-blur-xl">
+          <div className="font-score text-[52px] leading-none" style={{color:sc}}><Flame className="inline h-10 w-10 -mt-1 mr-1" style={{color:'rgb(var(--score-mid))'}}/>{content.streak}</div>
+          <div className="mt-[8px] text-[18px] tracking-[0.2em] uppercase text-white/40 font-medium">Day Streak</div>
+        </div>
+      )}
+      {content.bestScore ? (
+        <div className="rounded-[28px] p-[24px] bg-white/[0.04] border border-white/[0.06] backdrop-blur-xl">
+          <div className="font-score text-[52px] leading-none text-white/90">⭐ {content.bestScore}</div>
+          <div className="mt-[8px] text-[18px] tracking-[0.2em] uppercase text-white/40 font-medium">Best Score</div>
+        </div>
+      ) : null}
+      <div className="rounded-[28px] p-[24px] bg-white/[0.04] border border-white/[0.06] backdrop-blur-xl">
+        <div className="font-score text-[52px] leading-none text-white/90">❤️ {content.partnerName?1:0}</div>
+        <div className="mt-[8px] text-[18px] tracking-[0.2em] uppercase text-white/40 font-medium">Partners</div>
+      </div>
+      <div className="rounded-[28px] p-[24px] bg-white/[0.04] border border-white/[0.06] backdrop-blur-xl">
+        <div className="font-score text-[52px] leading-none text-gold/90">💎 Top {s>90?'2':s>75?'10':s>55?'25':'50'}%</div>
+        <div className="mt-[8px] text-[18px] tracking-[0.2em] uppercase text-white/40 font-medium">Leaderboard</div>
+      </div>
+    </div>
+
+    {/* ── Bio quote — Fond's Playfair Display italic ── */}
+    {content.bio && (
+      <div className="mt-[40px] px-[36px] py-[24px] rounded-[28px] bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl text-center">
+        <p className="font-display italic text-[28px] leading-[1.5] text-white/70">&ldquo;{content.bio}&rdquo;</p>
+      </div>
+    )}
+
+    {/* ── Spacer ── */}
+    <div className="flex-1"/>
+
+    {/* ── Footer — Fond LoveCode style ── */}
+    <div className="text-center">
+      <div className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-white/[0.03] border border-white/[0.05] backdrop-blur-xl">
+        <Sparkles className="w-4 h-4 text-gold/60"/>
+        <span className="text-[16px] font-bold tracking-[0.25em] uppercase text-white/30">Fond</span>
+        <span className="w-1 h-1 rounded-full bg-white/10"/>
+        <span className="text-[16px] text-white/20 font-medium">@{content.username.replace('@','')}</span>
+      </div>
+    </div>
+
   </div>
 </div>)}
 
@@ -527,6 +659,7 @@ export function ShareTemplates({theme,content,format,captureRef}:ShareTemplatesP
       case'player-stats':return<PlayerStatsTemplate content={content} format={format}/>;
       case'profile-card':return<ProfileCardTemplate content={content} format={format}/>;
       case'profile-page':return<ProfilePageTemplate content={content} format={format}/>;
+      case'fond-identity':return<FondIdentityTemplate content={content} format={format}/>;
       case'verdict-card':return<VerdictCardTemplate content={content} format={format}/>;
       case'leaderboard-card':return<LeaderboardCardTemplate content={content} format={format}/>;
       default:return<BrutalTruthTemplate content={content} format={format}/>;

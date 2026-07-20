@@ -18,8 +18,6 @@ async function fetchLeaderboard(params: LeaderboardQuery): Promise<LeaderboardEn
   if (params.page) searchParams.set('page', String(params.page));
   if (params.limit) searchParams.set('limit', String(params.limit));
 
-  console.log('[Leaderboard Hook] Fetching:', params);
-  
   const response = await fetch(`/api/leaderboards?${searchParams}`);
   if (!response.ok) {
     const text = await response.text();

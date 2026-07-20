@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles, Archive, Heart, MessageCircle, Send, Share2, Pencil } from 'lucide-react';
+import { ArrowLeft, Sparkles, Archive, Heart, MessageCircle, Send, Share2, Pencil, SmilePlus } from 'lucide-react';
 import { ShareCard } from '@/components/posts/ShareCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -60,6 +60,8 @@ export default function PostDetailPage() {
     };
     fetchComments();
   }, [post?.id]);
+
+
 
   const handleLike = async () => {
     if (!user || likePostMutation.isPending || !post) return;
@@ -118,7 +120,7 @@ export default function PostDetailPage() {
       <div className="fixed top-8 left-6 sm:left-12 z-40">
         <button
           onClick={() => router.back()}
-          className="rounded-full border border-border bg-elevated/40 px-5 py-2.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors flex items-center gap-2 group touch-target"
+          className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 group touch-target"
         >
           <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 group-focus-within:-translate-x-1" />
           Back to Feed
@@ -168,11 +170,11 @@ export default function PostDetailPage() {
 
                 {/* Likes + Comments */}
                 <div className="flex items-center justify-center gap-6">
-                  <button onClick={handleLike} disabled={likePostMutation.isPending || !user} className={`flex items-center gap-2 text-sm font-medium transition-colors ${post.has_liked ? 'text-red-500' : 'text-muted-foreground hover:text-red-400 active:text-red-500'} ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
-                    <Heart className={`h-4 w-4 ${post.has_liked ? 'fill-red-500' : ''}`} />
+                  <button onClick={handleLike} disabled={likePostMutation.isPending || !user} className={`flex items-center gap-2 text-sm font-medium transition-colors ${post.has_liked ? 'text-destructive' : 'text-muted-foreground hover:text-destructive/80 active:text-destructive'} ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                    <Heart className={`h-4 w-4 ${post.has_liked ? 'fill-destructive text-destructive' : ''}`} />
                     <span className="text-xs">{post.likes_count ?? 0} {(post.likes_count ?? 0) === 1 ? 'like' : 'likes'}</span>
                   </button>
-                  <span className="text-muted-foreground/20">|</span>
+<span className="text-muted-foreground/20">|</span>
                   <button onClick={() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' })} className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors">
                     <MessageCircle className="h-4 w-4" />
                     <span className="text-xs">{comments.length} {comments.length === 1 ? 'comment' : 'comments'}</span>
@@ -198,11 +200,11 @@ export default function PostDetailPage() {
                     </button>
                     {user && post.user_id === user.id && (
                       <>
-                        <button onClick={() => setIsEditModalOpen(true)} className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-medium text-foreground hover:bg-elevated active:bg-elevated/80 transition-colors touch-target">
+                        <button onClick={() => setIsEditModalOpen(true)} className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-4 py-2.5 text-xs font-semibold touch-target">
                           <Pencil className="h-3.5 w-3.5" />
                           <span className="hidden sm:inline">Edit</span>
                         </button>
-                        <button onClick={handleDelete} className="flex items-center justify-center gap-1.5 rounded-full px-4 py-2.5 text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/5 active:text-destructive active:bg-destructive/10 transition-colors touch-target">
+                        <button onClick={handleDelete} className="flex items-center justify-center gap-1.5 rounded-full glass-btn px-4 py-2.5 text-xs font-semibold hover:text-destructive hover:bg-destructive/5 active:text-destructive active:bg-destructive/10 transition-colors touch-target">
                           <Archive className="h-3.5 w-3.5" />
                           <span className="hidden sm:inline">Archive</span>
                         </button>
@@ -213,6 +215,8 @@ export default function PostDetailPage() {
               </div>
             </div>
             </div>
+
+
 
             {/* Post details card */}
             <div className="rounded-2xl border border-border bg-card p-5 space-y-3">

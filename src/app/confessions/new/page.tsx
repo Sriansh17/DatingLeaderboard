@@ -8,10 +8,10 @@ export default function NewConfessionPage() {
   const router = useRouter();
 
   return (
-    <main>
+    <main className="max-w-2xl mx-auto px-4 sm:px-8 py-6">
       <button
         onClick={() => router.push("/dashboard")}
-        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
+        className="mb-4 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 touch-target"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Feed
       </button>

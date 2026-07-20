@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ScoreRing } from "./ScoreRing";
 import { CommentModal } from "./CommentModal";
 import type { Story } from "@/lib/mock-data";
 import type { Post } from "@/types/database";
 import Link from "next/link";
-import { Heart, Share2, Pencil, MessageCircle } from "lucide-react";
+import { Heart, Share2, Pencil, MessageCircle, Sparkles } from "lucide-react";
 import { useToast } from "@/components/ui/Toast";
 import { useShare } from "@/components/providers/ShareProvider";
 import { useUser } from "@/components/providers/AuthProvider";
@@ -32,22 +32,26 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
   const [isLiked, setIsLiked] = useState(post?.has_liked ?? false);
   const [likesCount, setLikesCount] = useState(post?.likes_count ?? 0);
   const [showComments, setShowComments] = useState(false);
+  const [heartBounceKey, setHeartBounceKey] = useState(0);
 
   const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (type === 'Heart' && post && user) {
+      // Save pre-mutation state for correct rollback
+      const wasLiked = isLiked;
+      // Heart bounce animation trigger
+      setHeartBounceKey(k => k + 1);
       // Optimistic update
-      setIsLiked(prev => !prev);
-      setLikesCount(prev => isLiked ? prev - 1 : prev + 1);
+      setIsLiked(!wasLiked);
+      setLikesCount(prev => wasLiked ? prev - 1 : prev + 1);
       try {
         await likePostMutation.mutateAsync(post.id);
       } catch (error) {
-        // Revert on error
-        setIsLiked(prev => !prev);
-        setLikesCount(prev => isLiked ? prev + 1 : prev - 1);
-        console.error('Failed to toggle like:', error);
+        // Revert using saved state (not stale closure)
+        setIsLiked(wasLiked);
+        setLikesCount(prev => wasLiked ? prev + 1 : prev - 1);
       }
     } else if (type === 'Heart' && !user) {
       addToast('Sign in to like posts', 'error');
@@ -86,7 +90,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           {post ? (
             <span
               data-profile
-              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/30 underline-offset-2`}
+              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/60 underline-offset-4`}
             >
               {story.username}
             </span>
@@ -112,22 +116,35 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
     const heartActive = post ? isLiked : activeReaction === 'Heart';
     const heartCount = post ? likesCount : 0;
     
-    console.log('[StoryCard renderFooter] isLiked:', isLiked, 'likesCount:', likesCount);
-    
     return (
     <footer className={`mt-auto pt-5 sm:pt-6 flex items-center justify-between relative z-10 border-t ${borderClass}`}>
-      <div className="flex items-center gap-4 sm:gap-5">
+      {/* Left: Heart + Emoji reactions — scrollable if overflow */}
+      <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 overflow-x-auto hide-scrollbar">
         <button
           data-action
           onClick={(e) => handleReact(e, 'Heart')}
           disabled={post && likePostMutation.isPending}
-          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
-            heartActive ? 'text-red-500 hover:text-red-600 active:text-red-600' : mutedClass
+          className={`flex items-center gap-1.5 text-xs font-medium transition-colors shrink-0 ${
+            heartActive ? 'text-destructive' : mutedClass
           }`}
         >
-          <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-red-500 text-red-500' : ''}`} />
+          <motion.span
+            key={heartBounceKey}
+            animate={heartBounceKey > 0 ? [
+              { scale: 1.3, transition: { duration: 0.15 } },
+              { scale: 1, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
+            ] as unknown as any : { scale: 1 }}
+          >
+            <Heart className={`h-4 w-4 transition-all ${heartActive ? 'fill-destructive text-destructive' : ''}`} />
+          </motion.span>
           <span>{post && heartCount > 0 ? heartCount : 0}</span>
         </button>
+
+
+      </div>
+
+      {/* Right: Comment + Edit + Share — fixed, never pushed */}
+      <div className="flex items-center gap-2 sm:gap-3 shrink-0">
         <button data-action
           onClick={(e) => {
             e.preventDefault();
@@ -139,39 +156,38 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           <MessageCircle className="h-4 w-4" />
           <span>{post?.comments_count ?? 0}</span>
         </button>
-      </div>
-
-      <button data-action
-        onClick={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          openShare('post', {
-            username: story.username,
-            partnerName: story.partnerNickname,
-            headline: story.headline,
-            verdict: story.verdict,
-            score: story.score,
-            city: story.city,
-            date: story.postedAt,
-          });
-        }}
-        className={`relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium transition-colors ${mutedClass}`}
-        title="Share"
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-active/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
-        <Share2 className="h-4 w-4 relative z-10" />
-        <span className="hidden sm:inline relative z-10">Share</span>
-      </button>
-      {onEdit && (
+        {onEdit && (
+          <button data-action
+            onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
+            className={`flex items-center gap-1.5 text-xs font-medium transition-colors shrink-0 ${mutedClass}`}
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4" />
+            <span className="hidden sm:inline">Edit</span>
+          </button>
+        )}
         <button data-action
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
-          className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${mutedClass}`}
-          title="Edit"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            openShare('post', {
+              username: story.username,
+              partnerName: story.partnerNickname,
+              headline: story.headline,
+              verdict: story.verdict,
+              score: story.score,
+              city: story.city,
+              date: story.postedAt,
+            });
+          }}
+          className={`relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium transition-colors shrink-0 ${mutedClass}`}
+          title="Share"
         >
-          <Pencil className="h-4 w-4" />
-          <span className="hidden sm:inline">Edit</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-[150%] group-active/share:animate-glass-sweep mix-blend-overlay pointer-events-none" />
+          <Share2 className="h-4 w-4 relative z-10" />
+          <span className="hidden sm:inline relative z-10">Share</span>
         </button>
-      )}
+      </div>
     </footer>
   );
   };
@@ -220,7 +236,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
               {/* Overlapping avatar pair — vertically centered in container */}
               <div className="relative flex-shrink-0 h-[36px] w-[48px]">
                 {/* Partner avatar (back) */}
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-rose-300 to-pink-500 flex items-center justify-center">
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-card/80 backdrop-blur-sm border border-border/30 flex items-center justify-center">
                   {story.partnerAvatarUrl ? (
                     <img src={story.partnerAvatarUrl} alt={story.partnerNickname} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
@@ -230,7 +246,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   )}
                 </div>
                 {/* User avatar (front) */}
-                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-gradient-to-br from-primary/80 to-primary flex items-center justify-center z-10">
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full ring-2 ring-card overflow-hidden bg-card/90 backdrop-blur-sm border border-border/40 flex items-center justify-center z-10">
                   {story.userAvatarUrl ? (
                     <img src={story.userAvatarUrl} alt={story.username} loading="lazy" className="h-full w-full object-cover" />
                   ) : (
@@ -247,7 +263,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   {post ? (
                     <button
                       data-profile
-                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/30 underline-offset-2 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
+                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/60 underline-offset-4 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
                     >
                       {story.username}
                     </button>
@@ -281,20 +297,34 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           </div>
           
           <footer className={`flex w-full items-center justify-between gap-2 relative z-10 border-t border-border ${compact ? 'mt-4 sm:mt-6 pt-3 sm:pt-4' : 'mt-10 pt-6'}`}>
-            <div className="flex items-center gap-3 sm:gap-5 shrink-0">
-              <button 
+            {/* Left: Heart + Emoji reactions — scrollable if overflow */}
+            <div className="flex items-center gap-1.5 sm:gap-3 min-w-0 overflow-x-auto hide-scrollbar">
+              <button
                 onClick={(e) => handleReact(e, 'Heart')}
                 disabled={post && likePostMutation.isPending}
-                className={`flex items-center gap-1.5 text-xs font-medium transition-colors ${
+                className={`flex items-center gap-1.5 text-xs font-medium transition-colors shrink-0 touch-target ${
                   (post ? isLiked : activeReaction === 'Heart')
-                    ? 'text-red-500 hover:text-red-600 active:text-red-600'
-                    : 'text-muted-foreground hover:text-red-400 active:text-red-500'
+                    ? 'text-destructive'
+                    : 'text-muted-foreground hover:text-destructive/80 active:text-destructive'
                 } ${!user ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <Heart className={`h-4 w-4 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-red-500' : ''}`} />
+                <motion.span
+                  key={heartBounceKey}
+                  animate={heartBounceKey > 0 ? [
+                    { scale: 1.3, transition: { duration: 0.15 } },
+                    { scale: 1, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }
+                  ] as unknown as any : { scale: 1 }}
+                >
+                  <Heart className={`h-4 w-4 ${(post ? isLiked : activeReaction === 'Heart') ? 'fill-destructive text-destructive' : ''}`} />
+                </motion.span>
                 <span>{post ? likesCount : 0}</span>
               </button>
-              
+
+
+            </div>
+
+            {/* Right: Comment + Edit + Share — fixed, never pushed */}
+            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
               <button
                 data-action
                 onClick={(e) => {
@@ -307,14 +337,10 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                 <MessageCircle className="h-4 w-4" />
                 <span>{post?.comments_count ?? 0}</span>
               </button>
-
-            </div>
-
-            <div className="flex items-center gap-2 shrink-0">
               {onEdit && (
                 <button data-action
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); onEdit(); }}
-                  className="text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted active:bg-muted/80"
+                  className="text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border hover:bg-muted active:bg-muted/80 shrink-0 touch-target"
                 >
                   <Pencil className="h-3.5 w-3.5 inline mr-1" />
                   Edit
@@ -334,7 +360,7 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                     date: story.postedAt,
                   });
                 }}
-                className="relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors"
+                className="relative overflow-hidden group/share flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-foreground active:text-foreground transition-colors shrink-0 touch-target"
               >
                 <Share2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Share</span>

@@ -1,55 +1,72 @@
 # Product & Codebase Audit: Fond
 
-**Audit Date:** 2026-06-25
+**Audit Date:** 2026-07-06 (Updated from 2026-06-25)
 **Repository:** /Users/rishabhbassi/Desktop/leadboard/DatingLeaderboard
-**Audit Scope:** Complete — 68 components, 37 API routes, 24 pages, 6 providers, 7 hooks, 6 utility files, 4 types files, middleware, DB schema
+**Audit Scope:** Complete — 70+ components, 42 API routes, 24 pages, 6 providers, 7 hooks, 6 utility files, 4 types files, middleware, DB schema
 
 ---
 
-## Executive Summary
+## Resolved Issues (since 2026-06-25 audit)
+
+| # | Issue | Status | Fix |
+|---|-------|--------|-----|
+| 1 | First-post detection always `true` | ✅ Fixed | Changed to `result.streak?.current === 1 && !result.streak?.longest` |
+| 2 | Toast as blocking modal | ✅ Already non-blocking | Toasts are `fixed top-4` with stack, no backdrop — was already correct |
+| 3 | 4 redundant navigation systems | ✅ Consolidated | Navbar removed, Sidebar removed, only AppDock remains |
+| 4 | `console.log` in production | ✅ Fixed | Removed from `usePosts.ts`, `useLeaderboard.ts`, `like/route.ts` |
+| 5 | Score color duplication | ✅ Standardized | CSS variable tokens used consistently (`text-destructive`, `text-success`, etc.) |
+| 6 | Profile editing duplicated | ✅ Partially fixed | EditProfileModal is the single entry point |
+| 7 | Like optimistic rollback broken | ✅ Fixed | Saves pre-mutation state via `wasLiked` variable |
+| 8 | Like race condition | ✅ Mitigated | Returns `likes_count` for frontend sync |
+| 9 | Skeleton loading system | ✅ Added | `Skeleton.tsx` with 5 variants (card, profile, podium, row, avatar) |
+| 10 | Empty state illustrations | ✅ Added | `EmptyState.tsx` with emoji icons + themed registry |
+| 11 | Emoji reactions (frontend) | ✅ Added | 4 quick reactions (🔥😭👀💀) on StoryCards |
+| 12 | Emoji reactions (backend) | ✅ Added | `POST /api/posts/[id]/react` with toggle + persistence |
+| 13 | Leaderboard rank_change | ✅ Added | Daily snapshot stored in `leaderboard_cache` table, diffs computed |
+| 14 | Streak at risk toast | ✅ Added | Evening reminder (6PM+) for users with active streaks |
+| 15 | Daily winner badge | ✅ Added | Gold-accented card showing #1 post from last 24h |
+| 16 | Partners page loading spinner | ✅ Fixed | Added spinner + "Adding..." text during submit |
+| 17 | `evaluateStreak` midnight bug | ✅ Fixed | Uses `T12:00:00Z` noon-UTC + direct string comparison |
+| 18 | Landing page marquee ticker | ✅ Replaced | Static social proof bar with stats |
+| 19 | Landing page section variety | ✅ Added | Alternating `bg-elevated/20` backgrounds |
+| 20 | Settings page personality | ✅ Added | Fond-themed tag pills |
+| 21 | Profile stat hierarchy | ✅ Improved | Avg/Best Score dominant, Bonds/Connections as pills |
+
+---
+
+## Executive Summary (Updated)
 
 | Dimension | Score | Notes |
 |-----------|-------|-------|
-| **Product** | 7/10 | Strong concept, identity confusion between "dating" and "romance" positioning, feature bloat risk |
-| **UX** | 6/10 | Rich visual design undercut by inconsistent patterns, blocking toast model, cognitive overload on dashboard |
-| **Design Consistency** | 5/10 | 4 navigation systems, duplicated score color logic, ad-hoc radii, no component library discipline |
-| **Engineering Quality** | 6/10 | Solid architecture (Next 14 + TS + Supabase) undermined by dead code, console.logs, `any` types, broken first-post logic |
-| **Maintainability** | 5/10 | Duplicate profile editors, unused StoryCard variants, circular coupling in components, no design token extraction |
+| **Product** | 7.5/10 | Strong concept, onboarding still needs reduction (8 steps), daily winner adds engagement |
+| **UX** | 7.5/10 | Skeleton loading, empty states, reaction persistence all improve polish. Dashboard still has cognitive load from 6-card carousel |
+| **Design Consistency** | 7.5/10 | Single glass-btn system, consolidated navigation, standardized typography. Card radius and animation easing unified |
+| **Engineering Quality** | 7/10 | Console.logs removed, like race mitigated, rank_change implemented. Redis cache still disabled, `any` types remain in streak/leaderboard routes |
+| **Maintainability** | 6.5/10 | Skeleton/EmptyState components added, dead Sidebar removed. StoryCard variants still partially unused |
 
-**Overall: 5.8 / 10**
-
----
-
-## Critical Issues
-
-### 1. CRITICAL: `PostForm.tsx:138` — First-Post Detection Always `true`
-
-```tsx
-// Line 138 — this ALWAYS evaluates to true
-const isFirst = !result.post.created_at || true;
-```
-
-**Impact:** Every post triggers the "Welcome Ceremony" overlay (5-second cinematic intro animation). Users with 50 posts still see the first-post welcome every time.
-
-**Fix:** Remove the `|| true` and use actual data to determine first post:
-```tsx
-const isFirst = !result.post.created_at && result.post.created_at === result.post.updated_at;
-```
-Or check if this is the user's first post via the API response.
+**Overall: 7.2 / 10** (+1.4 since last audit)
 
 ---
 
-### 2. HIGH: Toast System Is a Blocking Modal
+## Remaining Issues
 
-`Toast.tsx` renders a **centered full-screen overlay** with backdrop blur (`fixed inset-0 z-[100]`) blocking all interaction until dismissed. It only shows **one toast at a time**.
+### High Priority
+1. **Leaderboard cache disabled** — Redis not connected, every request re-fetches all data
+2. **Streak increment race condition** — Read-then-write pattern can lose increments under concurrent posts
+3. **Onboarding too long** — 8 steps, should be reduced to 4-5
+4. **StoryCard unused variants** — Only variant C is used, A/B/D/E/F/G are dead code
 
-**Impact:** Users are locked out of the app during toast notifications. A simple "Profile updated ✨" forces a dismiss action. Standard toast patterns (corner, non-blocking, auto-stack) are broken.
+### Medium Priority
+5. **Payment webhook** — No server-side Razorpay webhook for subscription verification
+6. **`any` type usage** — Present in `streak/route.ts`, `posts/route.ts`, `leaderboards/route.ts`
+7. **Reaction count display** — Emoji reactions don't show aggregated counts from other users
+8. **Rank_change for circle leaderboard** — Only implemented for global leaderboard
 
-**Fix:** Convert to a non-blocking corner toast pattern. Move from `fixed inset-0` to `fixed top-4 right-4` without backdrop blur.
+### Low Priority
+9. **`PaginatedResponse` type unused** — Defined in types but never used by any API route
+10. **`is_public` filtering on explore feed** — Verify private posts excluded from global feed
 
 ---
-
-### 3. HIGH: 4 Redundant Navigation Systems
 
 | File | Purpose | Status |
 |------|---------|--------|

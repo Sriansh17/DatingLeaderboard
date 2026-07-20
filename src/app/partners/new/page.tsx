@@ -43,10 +43,10 @@ export default function NewPartnerPage() {
 
   if (blockedByPlan) {
     return (
-      <main className="max-w-2xl mx-auto px-5 py-6 min-h-dvh">
+      <main className="max-w-2xl mx-auto px-4 sm:px-8 py-6 min-h-dvh">
         <Link
           href="/profile"
-          className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
+          className="mb-4 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
           Back to Profile
@@ -58,14 +58,12 @@ export default function NewPartnerPage() {
           <p className="text-sm text-foreground/90 mb-5">
             Free plan supports one partner. Upgrade to premium to add multiple partners.
           </p>
-          <Button
+          <button
             onClick={handleUpgrade}
-            variant="primary"
-            size="md"
-            className="bg-gold/90 hover:bg-gold active:bg-gold/80 text-black touch-target"
+            className="rounded-full glass-btn-gold px-6 py-3 text-sm font-semibold touch-target"
           >
             Upgrade to Premium
-          </Button>
+          </button>
         </div>
         <PremiumLaunchModal
           isOpen={showPremiumModal}
@@ -77,10 +75,10 @@ export default function NewPartnerPage() {
   }
 
   return (
-    <main className="max-w-2xl mx-auto px-5 py-6 min-h-dvh">
+    <main className="max-w-2xl mx-auto px-4 sm:px-8 py-6 min-h-dvh">
       <Link
         href="/profile"
-        className="mb-4 rounded-full border border-border bg-elevated/40 px-4 py-1.5 text-xs text-foreground backdrop-blur hover:bg-elevated/60 active:bg-elevated transition-colors inline-flex items-center gap-2"
+        className="mb-4 rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2"
       >
         <ArrowLeft className="h-3.5 w-3.5" />
         Back to Profile

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getCachedLeaderboard, setCachedLeaderboard } from '@/lib/redis/client';
 import { MIN_POSTS_FOR_LEADERBOARD, LEADERBOARD_PAGE_SIZE } from '@/lib/utils/constants';
+import type { LeaderboardEntry } from '@/types/database';
 
 export const dynamic = 'force-dynamic';
 export async function GET(request: Request) {
@@ -164,16 +165,52 @@ export async function GET(request: Request) {
       .sort((a, b) => b.average_score - a.average_score)
       .map((entry, index) => ({ ...entry, rank: index + 1 }));
 
-    console.log(`[Leaderboard] Entries computed: ${entries.length} qualified`);
+    // Compute rank_change by comparing against previous snapshot
+    const snapshotKey = `leaderboard_snapshot:${type}:${cacheId}`;
+    let previousRanks: Record<string, number> = {};
 
-    // Cache the full (unpaginated) results
-    await setCachedLeaderboard(type, cacheId, entries);
+    try {
+      const { data: snapshot } = await supabase
+        .from('leaderboard_cache')
+        .select('data')
+        .eq('id', snapshotKey)
+        .single();
+
+      if (snapshot?.data && Array.isArray(snapshot.data)) {
+        for (const entry of snapshot.data as any[]) {
+          previousRanks[entry.user_id] = entry.rank;
+        }
+      }
+    } catch {
+      // No previous snapshot — all changes are 0
+    }
+
+    const entriesWithChange = entries.map((entry) => {
+      const prevRank = previousRanks[entry.user_id];
+      const rankChange = prevRank ? prevRank - entry.rank : 0;
+      return { ...entry, rank_change: rankChange === 0 ? 0 : rankChange };
+    });
+
+    // Store current as snapshot for next comparison
+    try {
+      await supabase
+        .from('leaderboard_cache')
+        .upsert({
+          id: snapshotKey,
+          data: entriesWithChange,
+          expires_at: new Date(Date.now() + 86400000).toISOString(),
+        }, { onConflict: 'id' });
+    } catch {
+      // Snapshot storage failure is non-critical
+    }
+
+    // Cache the full results in Redis
+    await setCachedLeaderboard(type, cacheId, entriesWithChange);
 
     // Paginate
     const start = (page - 1) * limit;
-    const paginated = entries.slice(start, start + limit);
+    const paginated = entriesWithChange.slice(start, start + limit);
 
-    console.log(`[Leaderboard] ✅ Total request time: ${Date.now() - startTime}ms`);
     return NextResponse.json({ success: true, data: paginated });
   } catch (error) {
     console.error(`[Leaderboard] ❌ Error after ${Date.now() - startTime}ms:`, error);

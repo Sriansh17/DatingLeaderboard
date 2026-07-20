@@ -3,6 +3,7 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { createClient } from '@supabase/supabase-js';
 import { scorePost } from '@/lib/ai/scoring';
 import { evaluateStreak, checkNewBadges } from '@/lib/utils/engagement';
+import { invalidateLeaderboardCache } from '@/lib/redis/client';
 import type { BadgeDef } from '@/lib/utils/constants';
 
 export const dynamic = 'force-dynamic';
@@ -196,12 +197,16 @@ export async function POST(request: Request) {
         .eq('id', user.id);
     }
 
+    // Invalidate leaderboard cache since new post affects scores
+    await invalidateLeaderboardCache();
+
     return NextResponse.json({
       success: true,
       data,
       aiResult,
       streak: { current: newStreak, longest: longestStreak },
       newBadges: newBadges.map((b) => ({ id: b.id, name: b.name, emoji: b.emoji })),
+      isFirstPost: !profileRow || !profileRow.streak_count,
     }, { status: 201 });
   } catch (error) {
     console.error('Posts POST error:', error);

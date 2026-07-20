@@ -277,7 +277,7 @@ export function AppDock() {
 
           {/* Brand Icon — tap toggles theme | hover opens atmosphere popover */}
           {isMounted ? (
-            <div className="relative group/sparkle mr-1 sm:mr-2">
+            <div className="relative group/sparkle">
               <button
                 onClick={(e) => {
                   e.preventDefault();
@@ -297,7 +297,7 @@ export function AppDock() {
 
               {/* Desktop hover popover — hidden on mobile */}
               <div className="hidden md:block absolute bottom-[calc(100%+24px)] left-0 opacity-0 scale-95 pointer-events-none group-hover/sparkle:opacity-100 group-hover/sparkle:scale-100 group-hover/sparkle:pointer-events-auto transition-all duration-300 origin-bottom-left z-50">
-                <div className="absolute inset-0 -bottom-14" />
+                <div className="absolute inset-0 -bottom-48" />
                 <div className="bg-popover border border-border rounded-2xl p-5 shadow-2xl relative z-10 w-[300px]">
                   <AtmospherePanel
                     atmosphere={atmosphere}
@@ -309,7 +309,7 @@ export function AppDock() {
               </div>
             </div>
           ) : (
-            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold mr-1 sm:mr-2">
+            <div className="flex items-center justify-center h-11 w-11 sm:h-12 sm:w-12 rounded-full text-gold">
               <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" />
             </div>
           )}
@@ -321,7 +321,7 @@ export function AppDock() {
           }
 
           {/* FAB */}
-          <div className="px-1 sm:px-2">
+          <div>
             <Link
               href={isAnonymousMode ? "/confessions/new" : "/posts/new"}
               className="outline-none group relative flex h-10 w-10 sm:h-12 sm:w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full transition-all duration-300 hover:scale-110 focus-visible:scale-110 active:scale-100 animate-pulse-glow"

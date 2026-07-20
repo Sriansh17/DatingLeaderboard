@@ -139,7 +139,7 @@ export function InviteToBondModal({ isOpen, onClose, targetUserId, targetUsernam
                 placeholder="e.g. Weekend Warriors"
                 maxLength={50}
                 required
-                className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary transition-colors"
+                className="w-full rounded-xl border border-border bg-muted/30 px-4 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors"
               />
             </div>
 
