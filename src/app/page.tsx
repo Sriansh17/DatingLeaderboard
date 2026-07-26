@@ -47,7 +47,7 @@ export default function LandingPage() {
 
       {/* Hero */}
       <section className="mx-auto grid max-w-[1400px] gap-10 px-6 pb-20 pt-10 lg:grid-cols-[1.05fr,1fr] lg:items-center">
-        <div className="animate-float-up">
+        <div className="animate-float-up overflow-visible">
           {/* Tagline badge — moved up from footer */}
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/8 px-3 py-1 text-xs text-primary font-medium mb-4">
             Romance meets reality TV
@@ -55,7 +55,7 @@ export default function LandingPage() {
           <span className="block text-xs uppercase tracking-[0.25em] text-gold font-bold mb-3">
             The world&apos;s first relationship leaderboard
           </span>
-          <h1 className="font-display text-4xl leading-[1.1] tracking-tight sm:text-6xl text-foreground">
+          <h1 className="font-display text-4xl leading-[1.2] tracking-tight sm:text-6xl text-foreground pb-3">
             Your relationship<br />
             has a{" "}
             <span className="text-gradient-crimson italic">score.</span>
