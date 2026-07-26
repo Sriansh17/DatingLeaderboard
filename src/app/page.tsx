@@ -60,7 +60,7 @@ export default function LandingPage() {
             has a{" "}
             <span className="text-gradient-crimson italic">score.</span>
             <br />
-            <span className="text-gradient-gold italic">What&apos;s yours?</span>
+            <span className="text-gradient-gold italic pr-2">What&apos;s yours?</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
             Share a moment from your relationship. Our AI scores it out of 100. See how you rank against couples in your city and around the world.
