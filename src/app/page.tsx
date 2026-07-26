@@ -55,7 +55,7 @@ export default function LandingPage() {
           <span className="block text-xs uppercase tracking-[0.25em] text-gold font-bold mb-3">
             The world&apos;s first relationship leaderboard
           </span>
-          <h1 className="font-display text-4xl leading-[1.05] tracking-tight sm:text-6xl text-foreground">
+          <h1 className="font-display text-4xl leading-[1.1] tracking-tight sm:text-6xl text-foreground">
             Your relationship<br />
             has a{" "}
             <span className="text-gradient-crimson italic">score.</span>
@@ -63,7 +63,7 @@ export default function LandingPage() {
             <span className="text-gradient-gold italic">What&apos;s yours?</span>
           </h1>
           <p className="mt-5 max-w-lg text-lg text-muted-foreground">
-            Post one story. AI judges it. The world sees it. Compete with couples in your city — and on the planet.
+            Share a moment from your relationship. Our AI scores it out of 100. See how you rank against couples in your city and around the world.
           </p>
 
           {/* Social proof — near CTAs not buried in footer */}

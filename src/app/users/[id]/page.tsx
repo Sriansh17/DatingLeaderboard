@@ -4,7 +4,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PageBell } from '@/components/ui/PageBell';
-import { ArrowLeft, Heart, MapPin, Sparkles, MessageCircle, LogIn, Users, Diamond, Share2, Trophy, Flame } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
+import { Heart, MapPin, Sparkles, MessageCircle, LogIn, Users, Diamond, Share2, Trophy, Flame } from 'lucide-react';
 import { Spinner } from '@/components/ui/Spinner';
 import { ConnectButton } from '@/components/cliques/ConnectButton';
 import { StoryCard } from '@/components/ui/StoryCard';
@@ -108,7 +109,7 @@ export default function UserProfilePage() {
         <div>
           <p className="text-muted-foreground mb-4 text-lg font-display italic">{error || 'User not found'}</p>
           <button onClick={() => router.back()} className="inline-flex items-center gap-2 rounded-full glass-btn px-5 py-2.5 text-sm font-semibold">
-            <ArrowLeft className="h-3.5 w-3.5" /> Go Back
+            Go Back
           </button>
         </div>
       </div>
@@ -148,8 +149,7 @@ export default function UserProfilePage() {
             className="font-display text-5xl sm:text-6xl italic text-foreground leading-none">@{profile.username}</motion.h1>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => router.back()} className="px-5 py-2.5 rounded-full glass-btn text-xs font-semibold touch-target">
-            <ArrowLeft className="h-3.5 w-3.5 inline mr-1" /> Back</button>
+          <BackButton />
           <PageBell />
         </div>
       </header>

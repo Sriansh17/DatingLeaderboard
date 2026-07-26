@@ -27,7 +27,7 @@ export async function GET() {
       .from('connection_requests')
       .select('*, receiver:receiver_id(id, username, full_name, avatar_url, city)')
       .eq('sender_id', user.id)
-      .in('status', ['pending', 'accepted'])
+      .eq('status', 'pending')
       .order('created_at', { ascending: false });
 
     if (err1 || err2) throw err1 || err2;

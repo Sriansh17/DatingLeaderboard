@@ -34,6 +34,14 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
   const [showComments, setShowComments] = useState(false);
   const [heartBounceKey, setHeartBounceKey] = useState(0);
 
+  // Re-sync local state when post data refreshes (e.g. after page reload)
+  useEffect(() => {
+    if (post) {
+      setIsLiked(post.has_liked ?? false);
+      setLikesCount(post.likes_count ?? 0);
+    }
+  }, [post?.has_liked, post?.likes_count]);
+
   const handleReact = async (e: React.MouseEvent, type: string) => {
     e.preventDefault();
     e.stopPropagation();
@@ -90,9 +98,9 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
           {post ? (
             <span
               data-profile
-              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary underline decoration-dotted decoration-primary/60 underline-offset-4`}
+              className={`font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%] text-primary cursor-pointer`}
             >
-              {story.username}
+              <span className="no-underline">@</span><span className="underline decoration-dotted decoration-primary/60 underline-offset-4">{story.username.replace('@', '')}</span>
             </span>
           ) : (
             <span className={`${textColorClass} font-bold tracking-tight text-base sm:text-lg truncate max-w-[45%]`}>{story.username}</span>
@@ -263,9 +271,9 @@ export function StoryCard({ story, variant = 'C', compact = false, post, onEdit 
                   {post ? (
                     <button
                       data-profile
-                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] underline decoration-dotted decoration-primary/60 underline-offset-4 hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
+                      className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px] hover:text-primary active:text-primary/80 transition-colors cursor-pointer"
                     >
-                      {story.username}
+                      <span className="no-underline">@</span><span className="underline decoration-dotted decoration-primary/60 underline-offset-4">{story.username.replace('@', '')}</span>
                     </button>
                   ) : (
                     <span className="text-foreground font-bold tracking-tight text-base sm:text-lg truncate max-w-[120px]">{story.username}</span>

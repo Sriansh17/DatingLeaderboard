@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { ScoreRing } from '@/components/ui/ScoreRing';
 import { formatRelativeTime } from '@/lib/utils/format';
-import { ArrowLeft, Sparkles, Archive, Heart, MessageCircle, Send, Share2, Pencil, SmilePlus } from 'lucide-react';
+import { Sparkles, Archive, Heart, MessageCircle, Send, Share2, Pencil, SmilePlus } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 import { ShareCard } from '@/components/posts/ShareCard';
 import { Spinner } from '@/components/ui/Spinner';
 import { useUser } from '@/components/providers/AuthProvider';
@@ -118,13 +119,7 @@ export default function PostDetailPage() {
   return (
     <main className="min-h-dvh bg-transparent relative px-4 sm:px-6 lg:px-8 pb-12">
       <div className="fixed top-8 left-6 sm:left-12 z-40">
-        <button
-          onClick={() => router.back()}
-          className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 group touch-target"
-        >
-          <ArrowLeft className="h-3.5 w-3.5 transition-transform group-hover:-translate-x-1 group-focus-within:-translate-x-1" />
-          Back to Feed
-        </button>
+        <BackButton />
       </div>
 
       <div className="max-w-5xl mx-auto pt-16">

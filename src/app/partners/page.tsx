@@ -10,6 +10,7 @@ import { useConfirm } from '@/components/ui/ConfirmModal';
 import type { Partner } from '@/types/database';
 import { Plus, Edit3 } from 'lucide-react';
 import { PageBell } from '@/components/ui/PageBell';
+import { BackButton } from '@/components/ui/BackButton';
 import { PartnerForm } from '@/components/partners/PartnerForm';
 import { PremiumLaunchModal } from '@/components/ui/PremiumLaunchModal';
 
@@ -66,10 +67,8 @@ export default function PartnersPage() {
     <main className="min-h-dvh bg-transparent py-16 px-6 relative">
       <div className="max-w-4xl mx-auto flex flex-col items-center">
         {/* Header Section */}
-        <div className="w-full flex items-center justify-between mb-4">
-          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold">
-            My Person
-          </p>
+        <div className="w-full flex items-center justify-between mb-8">
+          <BackButton />
           <PageBell />
         </div>
         <h1 className="font-display text-5xl sm:text-6xl italic text-foreground mb-12">
@@ -87,21 +86,22 @@ export default function PartnersPage() {
                 <span className="text-xl group-hover:scale-110 group-focus-within:scale-110 transition-transform">{partner.emoji || '💖'}</span>
                 <span className="font-medium text-foreground text-lg tracking-wide">{partner.name}</span>
                 
-                {/* Edit & Delete buttons (show on hover) */}
-                <div className="absolute -top-3 -right-3 flex gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity z-10">
+                {/* Edit & Delete — inline subtle text buttons */}
+                <div className="flex items-center gap-2 ml-2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity">
                   <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEditingPartner(partner); setShowAddForm(true); }}
-                    className="glass-btn w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 active:scale-100 touch-target"
+                    className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-primary active:text-primary/80 transition-colors font-medium"
                     title="Edit Partner"
                   >
-                    <Edit3 className="w-4 h-4" />
+                    Edit
                   </button>
+                  <span className="text-muted-foreground/30">|</span>
                   <button
                     onClick={(e) => handleDelete(partner.id, e)}
-                    className="bg-destructive/15 backdrop-blur-xl border border-destructive/25 text-destructive hover:bg-destructive/25 active:bg-destructive/35 w-11 h-11 rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-110 active:scale-100 touch-target"
+                    className="text-[10px] uppercase tracking-wider text-muted-foreground hover:text-destructive active:text-destructive/80 transition-colors font-medium"
                     title="Delete Partner"
                   >
-                    <span className="text-lg font-bold">&times;</span>
+                    Remove
                   </button>
                 </div>
               </div>

@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Sparkles, Mail, ArrowLeft } from 'lucide-react';
+import { Sparkles, Mail } from 'lucide-react';
+import { BackButton } from '@/components/ui/BackButton';
 
 const InstagramIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -51,12 +52,7 @@ export default function ContactPage() {
         </Link>
         <div className="flex items-center gap-4">
           <ThemeToggle />
-          <button
-            onClick={() => router.back()}
-            className="rounded-full glass-btn px-5 py-2.5 text-xs font-semibold inline-flex items-center gap-2 touch-target"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" /> Back
-          </button>
+          <BackButton />
         </div>
       </header>
 

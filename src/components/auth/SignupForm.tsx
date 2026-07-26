@@ -119,6 +119,7 @@ export function SignupForm() {
   const [showStateList, setShowStateList] = useState(false);
   const [showCityList, setShowCityList] = useState(false);
   const [showCodePicker, setShowCodePicker] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const router = useRouter();
   const { addToast } = useToast();
 
@@ -148,6 +149,11 @@ export function SignupForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // Touch all required fields to show validation errors
+    setTouched({ name: true, username: true, email: true, password: true, confirmPassword: true });
+    if (!name.trim() || !username || username.length < 3 || usernameAvailable !== true || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
     if (!PASSWORD_REGEX.test(password)) {
       addToast('Password must be at least 8 characters with uppercase, lowercase, number, and special character.', 'error');
       return;
@@ -183,15 +189,21 @@ export function SignupForm() {
       {/* Name */}
       <div className="relative">
         <User className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-        <input type="text" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} required autoComplete="name"
-          className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
+        <input type="text" placeholder="Full Name *" value={name} onChange={e => setName(e.target.value)} onBlur={() => setTouched(t => ({ ...t, name: true }))} required autoComplete="name"
+          className={`w-full rounded-2xl border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${touched.name && !name.trim() ? 'border-rose-500/50' : 'border-border focus:border-primary/50'}`} />
       </div>
+      {touched.name && !name.trim() && (
+        <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" />
+          Full name is required
+        </p>
+      )}
 
       {/* Username */}
       <div className="relative">
         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground z-10 text-sm font-mono font-semibold">@</span>
         <input type="text" placeholder="Username *" value={username}
-          onChange={e => setUsername(e.target.value.replace(/[^a-zA-Z0-9_.]/g, '').toLowerCase())} required autoComplete="username"
+          onChange={e => setUsername(e.target.value.replace(/[^a-zA-Z0-9_.]/g, '').toLowerCase())} onBlur={() => setTouched(t => ({ ...t, username: true }))} required autoComplete="username"
           className={`w-full rounded-2xl border bg-muted/30 pl-12 pr-4 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${
             username && username.length >= 3
               ? usernameAvailable === true
@@ -199,7 +211,9 @@ export function SignupForm() {
                 : usernameAvailable === false
                 ? 'border-rose-500/50 focus:border-rose-500/50'
                 : 'border-border focus:border-primary/50'
-              : 'border-border focus:border-primary/50'
+              : touched.username && (!username || username.length < 3)
+                ? 'border-rose-500/50 focus:border-rose-500/50'
+                : 'border-border focus:border-primary/50'
           }`} />
         {/* Availability indicator */}
         {username && username.length >= 3 && (
@@ -231,13 +245,31 @@ export function SignupForm() {
           Tip: Use your Instagram handle for a unique username
         </p>
       )}
+      {touched.username && username && username.length < 3 && (
+        <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" />
+          Username must be at least 3 characters
+        </p>
+      )}
 
       {/* Email */}
       <div className="relative">
         <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground z-10 pointer-events-none" />
-        <input type="email" placeholder="Email Address *" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email"
-          className="w-full rounded-2xl border border-border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary/50 focus:bg-muted/50 transition-all text-base" />
+        <input type="email" placeholder="Email Address *" value={email} onChange={e => setEmail(e.target.value)} onBlur={() => setTouched(t => ({ ...t, email: true }))} required autoComplete="email"
+          className={`w-full rounded-2xl border bg-muted/30 px-12 py-4 text-foreground placeholder:text-muted-foreground/60 outline-none focus:bg-muted/50 transition-all text-base ${touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) ? 'border-rose-500/50' : touched.email && !email ? 'border-rose-500/50' : 'border-border focus:border-primary/50'}`} />
       </div>
+      {touched.email && !email && (
+        <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" />
+          Email is required
+        </p>
+      )}
+      {touched.email && email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && (
+        <p className="text-[10px] text-rose-500 font-medium -mt-1 flex items-center gap-1">
+          <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500" />
+          Enter a valid email address
+        </p>
+      )}
 
       {/* Password */}
       <div className="relative">

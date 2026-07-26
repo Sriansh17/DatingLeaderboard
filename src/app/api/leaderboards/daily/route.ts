@@ -4,16 +4,23 @@ import { applyStreakBoost } from '@/lib/utils/engagement';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    // Start of today UTC
-    const todayStart = new Date();
-    todayStart.setUTCHours(0, 0, 0, 0);
+    // Parse timezone offset from query params (minutes, e.g. -330 for IST)
+    const { searchParams } = new URL(request.url);
+    const offsetMinutes = parseInt(searchParams.get('tz') || '0') || 0;
+
+    // Calculate start of "today" in the user's local timezone
+    const now = new Date();
+    const userNow = new Date(now.getTime() - offsetMinutes * 60_000);
+    const todayStart = new Date(
+      Date.UTC(userNow.getUTCFullYear(), userNow.getUTCMonth(), userNow.getUTCDate()) + offsetMinutes * 60_000
+    );
 
     // Step 1: Get all public posts from today with scores
     const { data: posts, error } = await supabase

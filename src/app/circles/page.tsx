@@ -11,8 +11,8 @@ import { Spinner } from '@/components/ui/Spinner';
 import { ScrollToTop } from '@/components/ui/ScrollToTop';
 import { Avatar } from '@/components/ui/Avatar';
 import { NotificationBell } from '@/components/notifications/NotificationBell';
-import {
-  PlusCircle, Diamond, LogIn, Copy, Check, Sparkles,
+import { BackButton } from '@/components/ui/BackButton';
+import { PlusCircle, Diamond, LogIn, Copy, Check, Sparkles,
   Users, UserPlus, Heart, UserCheck, X, Link2, Send, Search, ChevronDown, XCircle
 } from 'lucide-react';
 import type { Circle, Connection, ConnectionRequest } from '@/types/database';
@@ -208,12 +208,11 @@ export default function BondsPage() {
 
       {/* Header — only bell */}
       <div className="flex items-center justify-between mb-8">
-        <div>
-          <p className="text-xs uppercase tracking-[0.25em] text-gold font-bold mb-2">✦ Bonds</p>
-          <h1 className="font-display text-5xl sm:text-6xl italic text-foreground tracking-tight">Your Bonds</h1>
-        </div>
+        <BackButton />
         <NotificationBell />
       </div>
+
+      <h1 className="font-display text-5xl sm:text-6xl italic text-foreground tracking-tight mb-8">Your Bonds</h1>
 
       {/* Stats row — 3 columns, always 3 cols on mobile too */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-8">

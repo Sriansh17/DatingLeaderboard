@@ -71,7 +71,7 @@ export function NotificationBell() {
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/notifications?limit=5');
+      const res = await fetch('/api/notifications?limit=3');
       const data = await res.json();
       if (data.success) setNotifications(data.data || []);
     } catch {} finally { setLoading(false); }
@@ -147,7 +147,7 @@ export function NotificationBell() {
       >
         <Bell className="h-5 w-5" />
         {(unreadCount > 0 || incomingRequests.length > 0) && (
-          <span className="absolute -top-1.5 -right-1.5 flex items-center justify-center min-w-[22px] h-[22px] rounded-full bg-destructive/15 backdrop-blur-[16px] border border-destructive/30 text-[10px] font-bold text-destructive px-1.5 leading-none shadow-[0_4px_12px_-4px_rgb(230,90,90,0.25)] ring-2 ring-background">
+          <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[16px] h-[16px] rounded-full bg-destructive/15 backdrop-blur-[16px] border border-destructive/30 text-[8px] font-bold text-destructive px-1 leading-none shadow-[0_4px_12px_-4px_rgb(230,90,90,0.25)] ring-1 ring-background">
             {unreadCount + incomingRequests.length > 9 ? '9+' : unreadCount + incomingRequests.length}
           </span>
         )}
@@ -306,6 +306,11 @@ export function NotificationBell() {
             </div>
 
             {/* Footer */}
+            {unreadCount > 3 && (
+              <div className="text-center py-2 text-xs font-medium text-muted-foreground border-b border-border/50">
+                {unreadCount - 3}+ more notifications
+              </div>
+            )}
             <Link
               href="/notifications"
               onClick={() => setOpen(false)}
