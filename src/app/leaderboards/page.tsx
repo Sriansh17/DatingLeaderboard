@@ -509,7 +509,7 @@ export default function RanksPage() {
               <div className="text-xs sm:text-sm font-medium text-foreground truncate">You · @{profile?.username}</div>
               <div className="text-[10px] sm:text-xs text-muted-foreground truncate">
                 {myEntry.top_partner_name ? `${myEntry.top_partner_emoji || '❤️'} ${myEntry.top_partner_name} · ` : ''}{myEntry.total_posts} posts · {rivalEntry ? `${pointsGap} pts to #${rivalEntry.rank}` : 'keep climbing'}
-              </div>
+112              </div>
             </div>
             <div className="flex items-center gap-2 sm:gap-4 shrink-0">
               <div className="font-score text-xl sm:text-2xl relative overflow-hidden h-[20px] sm:h-[24px]" style={{ color: scoreColor(myEntry.average_score) }}>

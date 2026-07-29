@@ -266,6 +266,26 @@ export default function DashboardPage() {
         </header>
         <ScrollToTop label="The Timeline" />
 
+        {/* Weekly Recap banner — shows Mon/Tue only */}
+        {(() => {
+          const day = new Date().getDay();
+          const showRecap = true; // Always visible, shows last completed week
+          return showRecap ? (
+            <Link
+              href="/summary"
+              className="mb-4 flex items-center justify-between rounded-xl border border-primary/20 bg-primary/[0.04] px-4 py-2.5 group hover:bg-primary/[0.07] active:bg-primary/[0.09] transition-colors"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                <span className="text-xs font-medium text-foreground">The algorithm has opinions about your week</span>
+              </div>
+              <span className="text-[10px] uppercase tracking-wider text-primary font-bold group-hover:translate-x-0.5 transition-transform">
+                View →
+              </span>
+            </Link>
+          ) : null;
+        })()}
+
         {/* Compact score + streak bar — merged into one line */}
         <div className="mb-4 flex items-center justify-between rounded-2xl border border-border/60 bg-card/40 backdrop-blur-sm px-4 py-2.5">
           <div className="flex items-center gap-4">
