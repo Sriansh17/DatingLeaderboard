@@ -104,9 +104,11 @@ export function useCreatePost() {
     mutationFn: (payload: CreatePostPayload & { user_id: string }) =>
       createPost(payload),
     onSuccess: () => {
+      // Remove cached data entirely so next mount fetches fresh
+      queryClient.removeQueries({ queryKey: ['explore-posts'] });
       queryClient.invalidateQueries({ queryKey: ['posts'] });
-      queryClient.invalidateQueries({ queryKey: ['explore-posts'] });
       queryClient.invalidateQueries({ queryKey: ['leaderboards'] });
+      queryClient.invalidateQueries({ queryKey: ['daily-leaderboard'] });
     },
   });
 }
