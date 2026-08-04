@@ -182,7 +182,7 @@ export function SignupForm() {
       if (data.user) {
         const phone = countryCode && phoneNum ? `${countryCode}${phoneNum}` : null;
         const { error: profileError } = await supabase.from('profiles').insert({
-          id: data.user.id, full_name: name, phone: phone || null,
+          id: data.user.id, username: username, full_name: name, phone: phone || null,
           date_of_birth: dobIso || null, age: age || null,
           country: country || null, state: stateName || null, city: city || null,
         });
