@@ -1,6 +1,6 @@
-const CACHE_NAME = 'fond-v1';
-const STATIC_CACHE = 'fond-static-v1';
-const API_CACHE = 'fond-api-v1';
+const CACHE_NAME = 'fond-v2';
+const STATIC_CACHE = 'fond-static-v2';
+const API_CACHE = 'fond-api-v2';
 
 // Static assets to cache on install
 const STATIC_ASSETS = [
@@ -39,8 +39,19 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // API requests - network first, cache fallback
+  // API requests - skip caching for feed/explore/posts (always fresh)
   if (url.pathname.startsWith('/api/')) {
+    if (
+      url.pathname.includes('/posts') ||
+      url.pathname.includes('/explore') ||
+      url.pathname.includes('/feed') ||
+      url.pathname.includes('/leaderboards') ||
+      url.pathname.includes('/notifications')
+    ) {
+      // Always go to network, no cache
+      event.respondWith(fetch(request));
+      return;
+    }
     event.respondWith(networkFirstWithCache(request, API_CACHE));
     return;
   }
