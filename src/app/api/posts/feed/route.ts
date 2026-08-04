@@ -4,6 +4,8 @@ import { createAdminClient } from '@/lib/supabase/admin';
 import { POSTS_PER_PAGE } from '@/lib/utils/constants';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export async function GET(request: Request) {
   try {

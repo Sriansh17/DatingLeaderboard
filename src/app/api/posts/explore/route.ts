@@ -4,6 +4,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server';
 import { EXPLORE_FEED_LIMIT } from '@/lib/utils/constants';
 
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const fetchCache = 'force-no-store';
 
 export async function GET() {
   const start = Date.now();
@@ -74,7 +76,11 @@ export async function GET() {
 
     console.log(`[Explore API] Fetched ${enriched.length} posts in ${Date.now() - start}ms`);
     return NextResponse.json({ success: true, data: enriched }, {
-      headers: { 'Cache-Control': 'no-store' },
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+        'CDN-Cache-Control': 'no-store',
+        'Vercel-CDN-Cache-Control': 'no-store',
+      },
     });
   } catch (error) {
     console.error('[Explore API] Error:', error);
