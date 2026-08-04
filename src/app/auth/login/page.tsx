@@ -7,7 +7,7 @@ import { Suspense } from 'react';
 function LoginContent() {
   return (
     <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 py-12">
-      <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col h-full justify-between sm:justify-center">
+      <div className="w-full max-w-sm animate-in fade-in slide-in-from-bottom-8 duration-1000 flex flex-col justify-center">
 
         <div className="text-center sm:mb-10 mt-8 sm:mt-0">
           {/* Brand mark */}
@@ -23,13 +23,13 @@ function LoginContent() {
           </p>
         </div>
 
-        <div className="mt-auto sm:mt-0 space-y-5">
+        <div className="mt-8 sm:mt-0 space-y-5">
           <LoginForm />
 
           <div className="text-center">
             <p className="text-xs text-muted-foreground">
               Don&apos;t have an account?{' '}
-              <Link href="/auth/signup" className="text-foreground hover:text-primary active:text-primary/80 font-bold transition-colors">
+              <Link href="/auth/signup" className="relative z-20 text-foreground hover:text-primary active:text-primary/80 font-bold transition-colors underline underline-offset-2 decoration-primary/30">
                 Create one
               </Link>
             </p>

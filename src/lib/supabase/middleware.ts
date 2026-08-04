@@ -48,6 +48,12 @@ export async function updateSession(request: NextRequest) {
     }
   );
 
+  // For auth pages, skip getUser if no session cookies exist (new users)
+  const hasSessionCookie = request.cookies.getAll().some(c => c.name.includes('auth-token') || c.name.includes('sb-'));
+  if (isAuthPage && !hasSessionCookie) {
+    return supabaseResponse;
+  }
+
   let user = null;
   try {
     const authResult = await supabase.auth.getUser();
