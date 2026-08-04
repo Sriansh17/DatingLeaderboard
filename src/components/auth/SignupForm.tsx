@@ -151,7 +151,19 @@ export function SignupForm() {
     e.preventDefault();
     // Touch all required fields to show validation errors
     setTouched({ name: true, username: true, email: true, password: true, confirmPassword: true });
-    if (!name.trim() || !username || username.length < 3 || usernameAvailable !== true || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    if (!name.trim() || !username || username.length < 3 || !email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return;
+    }
+    if (checkingUsername) {
+      addToast('Checking username availability...', 'warning');
+      return;
+    }
+    if (usernameAvailable === false) {
+      addToast('Username is taken. Try a different one.', 'error');
+      return;
+    }
+    if (usernameAvailable === null) {
+      addToast('Please enter a valid username (3+ characters).', 'error');
       return;
     }
     if (!PASSWORD_REGEX.test(password)) {
@@ -406,7 +418,7 @@ export function SignupForm() {
         </div>
       </div>
 
-      <button type="submit" disabled={loading || !name || !username || usernameAvailable !== true || !email || !PASSWORD_REGEX.test(password) || password !== confirmPassword}
+      <button type="submit" disabled={loading || !name || !username || !email || !PASSWORD_REGEX.test(password) || password !== confirmPassword}
         className="group mt-4 flex w-full items-center justify-center gap-2 rounded-full glass-btn py-3.5 font-bold transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 uppercase tracking-[0.2em] text-[10px]">
         <span>{loading ? 'Creating account...' : 'Create Account'}</span>
         {!loading && <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />}
